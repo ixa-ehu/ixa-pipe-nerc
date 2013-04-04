@@ -1,4 +1,4 @@
-package opennlp.ixa.nerc.en;
+package ixa.pipe.nerc;
 
 import junit.framework.Test;
 import junit.framework.TestCase;

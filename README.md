@@ -1,12 +1,11 @@
 
-IXA-OpenNLP-NERC
-===========
+IXA-pipe-nerc
+=============
 
-This module provides a simple wrapper that uses Apache OpenNLP
-programatically to perform NERC.
-
+This module uses Apache OpenNLP programatically to perform Named Entity Recognition.
 English models have been trained using CoNLL 2003 dataset (84.80 F1). Spanish models
-using CoNLL 2002 dataset (79.92 F1).
+using CoNLL 2002 dataset (79.92 F1). This module is part of IXA-Pipeline ("is a pipeline"),
+a multilingual NLP pipeline developed by the IXA NLP Group (ixa.si.ehu.es).
 
 
 Contents
@@ -24,7 +23,7 @@ The contents of the module are the following:
 INSTALLATION
 ============
 
-Installing the ixa-opennlp-nerc requires the following steps:
+Installing the ixa-pipe-nerc requires the following steps:
 
 If you already have installed in your machine JDK6 and MAVEN 3, please go to step 3
 directly. Otherwise, follow these steps:
@@ -89,17 +88,17 @@ You should see reference to the MAVEN version you have just installed plus the J
 -------------------------
 
 ````shell
-hg clone ssh://hg@bitbucket.org/ragerri/ixa-opennlp-nerc
+hg clone ssh://hg@bitbucket.org/ragerri/ixa-pipe-nerc
 ````
 
 4. Download Models
 ------------------
 
-You will need to download the trained models and copy them to ixa-opennlp-nerc/src/main/resources/
+You will need to download the trained models and copy them to ixa-pipe-nerc/src/main/resources/
 for the module to work properly. Go to:
 
 ````shell
-http://ixa2.si.ehu.es/ragerri/ixa-opennlp-models/
+http://ixa2.si.ehu.es/ragerri/ixa-pipe-models/
 ````
 
 and download en-nerc-500-0-testa-perceptron.bin and es-nerc-500-4-testa.bin. Note that if you
@@ -109,7 +108,7 @@ change the name of the models you will also need to modify the source code in Mo
 ---------------------------
 
 ````shell
-cd ixa-opennlp-nerc
+cd ixa-pipe-nerc
 ````
 
 6. Install module using maven
@@ -122,7 +121,7 @@ mvn clean package
 This step will create a directory called target/ which contains various directories and files.
 Most importantly, there you will find the module executable:
 
-ixa-opennlp-nerc-1.0.jar
+ixa-pipe-nerc-1.0.jar
 
 This executable contains every dependency the module needs, so it is completely portable as long
 as you have a JVM 1.6 installed.
@@ -133,7 +132,7 @@ To install the module in the local maven repository, usually located in ~/.m2/, 
 mvn clean install
 ````
 
-7. USING ixa-opennlp-nerc
+7. USING ixa-pipe-nerc
 =========================
 
 The program takes KAF documents (with <wf> and <term> elements) as standard input and outputs KAF.
@@ -141,7 +140,7 @@ The program takes KAF documents (with <wf> and <term> elements) as standard inpu
 To run the program execute:
 
 ````shell
-cat wfterms.kaf | java -jar $PATH/target/ixa-opennlp-nerc-1.0.jar -l $lang
+cat wfterms.kaf | java -jar $PATH/target/ixa-pipe-nerc-1.0.jar -l $lang
 ````
 
 GENERATING JAVADOC
@@ -153,7 +152,7 @@ You can also generate the javadoc of the module by executing:
 mvn javadoc:jar
 ````
 
-Which will create a jar file core/target/ixa-opennlp-nerc-1.0-javadoc.jar
+Which will create a jar file core/target/ixa-pipe-nerc-1.0-javadoc.jar
 
 
 Contact information
