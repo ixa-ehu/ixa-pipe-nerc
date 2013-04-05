@@ -145,6 +145,10 @@ mvn clean install
 
 The program takes KAF documents (with <wf> and <term> elements) as standard input and outputs KAF.
 
+http://kyoto-project.eu/www2.let.vu.nl/twiki/pub/Kyoto/TechnicalPapers/WP002_TR009_KAF_Framework.pdf
+
+You can get the necessary input for ixa-pipe-nerc by running ixa-pipe-tok and ixa-pipe-pos in a pipeline.
+
 To run the program execute:
 
 ````shell
