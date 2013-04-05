@@ -84,11 +84,19 @@ mvn -version
 
 You should see reference to the MAVEN version you have just installed plus the JDK 6 that is using.
 
-3. Get module from bitbucket
--------------------------
+3. Get module source code
+--------------------------
+
+ixa-pipe-tok original repo is hosted at Bitbucket, and can be cloned as follows:
 
 ````shell
-hg clone ssh://hg@bitbucket.org/ragerri/ixa-pipe-nerc
+hg clone ssh://hg@bitbucket.org/ragerri/ixa-pipe-tok
+````
+
+If you are a github user, we provide a github mirror of the original repo:
+
+````shell
+git clone git@github.com:ragerri/ixa-pipe-tok.git
 ````
 
 4. Download Models
@@ -98,7 +106,7 @@ You will need to download the trained models and copy them to ixa-pipe-nerc/src/
 for the module to work properly. Go to:
 
 ````shell
-http://ixa2.si.ehu.es/ragerri/ixa-pipe-models/
+http://ixa3.si.ehu.es/~ragerri/ixa-pipeline-models/
 ````
 
 and download en-nerc-500-0-testa-perceptron.bin and es-nerc-500-4-testa.bin. Note that if you

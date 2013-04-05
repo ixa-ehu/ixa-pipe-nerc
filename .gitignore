@@ -1,0 +1,15 @@
+target
+*.bin
+*.patch
+*.pyc
+*.log
+*.so
+*.so.old
+*.swp
+octave-core
+*.jar
+*.class
+*.classpath
+*.project
+*.pydevproject
+*.settings
