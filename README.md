@@ -106,7 +106,7 @@ You will need to download the trained models and copy them to ixa-pipe-nerc/src/
 for the module to work properly. Go to:
 
 ````shell
-http://ixa3.si.ehu.es/~ragerri/ixa-pipeline-models/
+http://ixa2.si.ehu.es/ragerri/ixa-pipeline-models/
 ````
 
 and download en-nerc-500-0-testa-perceptron.bin and es-nerc-500-4-testa.bin. Note that if you
