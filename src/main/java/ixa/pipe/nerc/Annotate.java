@@ -164,8 +164,7 @@ public class Annotate {
 
         // get wIds of target element from index of token in current sentence +
         // number of wfs in KAF so far
-        int wId = Integer.parseInt(targetElem.getAttributeValue("id")
-            .substring(1));
+        int wId = Integer.parseInt(targetElem.getAttributeValue("id"));
         String wordId = Integer.toString(wId);
         ArrayList<String> tokenIds = new ArrayList<String>();
         tokenIds.add(wordId);
