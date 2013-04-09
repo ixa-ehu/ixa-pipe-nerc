@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>ixa</groupId>
-  <artifactId>ixa-opennlp-nerc</artifactId>
-  <name>ixa-opennlp-nerc</name>
+  <artifactId>ixa-pipe-nerc</artifactId>
+  <name>ixa-pipe-nerc</name>
   <version>1.0</version>
-  <description>NERC module of ixa-opennlp, a multilingual NLP pipeline based on Apache OpenNLP API.
+  <description>NERC module of ixa-pipeline (read "is a pipeline"), a multilingual NLP pipeline based on Apache OpenNLP API.
 	All models have been trained by the IXA NLP Group of the University of the
 	Basque Country (ixa.si.ehu.es).</description>
   <url>http://maven.apache.org</url>
@@ -34,7 +34,7 @@
               <transformers>
                 <transformer>
                   <manifestEntries>
-                    <Main-Class>ixa.opennlp.nerc.CLI</Main-Class>
+                    <Main-Class>ixa.pipe.nerc.CLI</Main-Class>
                   </manifestEntries>
                 </transformer>
               </transformers>
