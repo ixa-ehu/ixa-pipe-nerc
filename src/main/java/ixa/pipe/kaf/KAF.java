@@ -14,7 +14,7 @@
    limitations under the License.
  */
 
-package ixa.pipe.nerc;
+package ixa.pipe.kaf;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -29,6 +29,26 @@ import org.jdom2.Text;
 
 public class KAF {
 
+  /**
+   * It reads the linguisticProcessor elements and adds them to the KAF
+   * document.
+   * 
+   * @param lingProc
+   * @param kaf
+   */
+  public void addKafHeader(List<Element> lingProc, KAF kaf) {
+    String layer = null;
+    for (int i = 0; i < lingProc.size(); i++) {
+      layer = lingProc.get(i).getAttributeValue("layer");
+      List<Element> lps = lingProc.get(i).getChildren("lp");
+      for (Element lp : lps) {
+        kaf.addlps(layer, lp.getAttributeValue("name"),
+            lp.getAttributeValue("timestamp"), lp.getAttributeValue("version"));
+      }
+    }
+  }
+  
+  
   /**
    * 
    * Generates timestamp in UTC atomic format.
@@ -59,7 +79,10 @@ public class KAF {
   class WordForm {
     public String id;
     public String form;
+    public String offset;
+    public String length;
     public String sent;
+    public String para;
   }
 
   class Term {
@@ -114,10 +137,13 @@ public class KAF {
     this.lps.add(lp);
   }
 
-  public void addWf(String id, String sent, String form) {
+  public void addWf(String id, String sent, String offset, String tokLength, String para, String form) {
     WordForm wf = new WordForm();
     wf.id = id;
     wf.sent = sent;
+    wf.offset = offset;
+    wf.length = tokLength;
+    wf.para = para;
     wf.form = form;
     this.wfs.add(wf);
   }
@@ -209,6 +235,9 @@ public class KAF {
         Element wfElem = new Element("wf");
         wfElem.setAttribute("wid", wf.id);
         wfElem.setAttribute("sent", wf.sent);
+        wfElem.setAttribute("offset", wf.offset);
+        wfElem.setAttribute("length", wf.length);
+        wfElem.setAttribute("para", wf.para);
         Text wfFormTxtNode = new Text(wf.form);
         wfElem.addContent(wfFormTxtNode);
         wfList.addContent(wfElem);

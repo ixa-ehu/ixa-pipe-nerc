@@ -16,6 +16,10 @@
 
 package ixa.pipe.nerc;
 
+
+import ixa.pipe.kaf.KAF;
+import ixa.pipe.kaf.KAFReader;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
@@ -23,7 +27,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 import net.sourceforge.argparse4j.ArgumentParsers;
@@ -64,9 +67,9 @@ public class CLI {
 
     // create Argument Parser
     ArgumentParser parser = ArgumentParsers
-        .newArgumentParser("ixa-opennlp-nerc-1.0.jar")
+        .newArgumentParser("ixa-pipe-nerc-1.0.jar")
         .description(
-            "ixa-opennlp-pos-1.0 is a multilingual NERC module developed by IXA NLP Group based on Apache OpenNLP.\n");
+            "ixa-opennlp-pipe-1.0 is a multilingual NERC module developed by IXA NLP Group based on Apache OpenNLP.\n");
 
     // specify language
     parser
@@ -89,7 +92,7 @@ public class CLI {
     } catch (ArgumentParserException e) {
       parser.handleError(e);
       System.out
-          .println("Run java -jar target/ixa-opennlp-nerc-1.0.jar -help for details");
+          .println("Run java -jar target/ixa-pipe-nerc-1.0.jar -help for details");
       System.exit(1);
     }
 
@@ -120,19 +123,15 @@ public class CLI {
       List<Element> lingProc = kafReader.getKafHeader(rootNode);
       List<Element> wfs = kafReader.getWfs(rootNode);
       List<Element> termList = kafReader.getTerms(rootNode);
-      LinkedHashMap<String, List<String>> sentencesMap = kafReader
-          .getSentencesMap(wfs);
-      LinkedHashMap<String, List<String>> sentences = kafReader
-          .getSentsFromWfs(sentencesMap, wfs);
 
       // add already contained header plus this module linguistic
       // processor
-      annotator.addKafHeader(lingProc, kaf);
+      kaf.addKafHeader(lingProc, kaf);
       kaf.addlps("entities", "ixa-opennlp-nerc-" + lang, kaf.getTimestamp(),
           "1.0");
 
       // annotate NEs to KAF
-      annotator.annotateNEsToKAF(sentences, termList, kaf);
+      annotator.annotateNEsToKAF(wfs, termList, kaf);
 
       XMLOutputter xout = new XMLOutputter(Format.getPrettyFormat());
       xout.output(kaf.createKAFDoc(), bwriter);

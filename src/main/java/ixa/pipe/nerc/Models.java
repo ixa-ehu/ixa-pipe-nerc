@@ -26,7 +26,7 @@ public class Models {
 
     if (cmdOption.equals("en")) {
       nerModel = getClass().getResourceAsStream(
-          "/en-nerc-500-0-testa-perceptron.bin");
+          "/en-nerc-perceptron-500-0-testa.bin");
     }
 
     if (cmdOption.equals("es")) {
