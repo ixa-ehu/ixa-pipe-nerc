@@ -77,7 +77,7 @@ public class CLI {
         .choices("en", "es")
         .required(true)
         .help(
-            "It is REQUIRED to choose a language to perform annotation with IXA-OpenNLP");
+            "It is REQUIRED to choose a language to perform annotation with ixa-pipe-nerc");
     // parser.addArgument("-f","--format").choices("kaf","plain").setDefault("kaf").help("output annotation in plain native "
     // +
     // "Apache OpenNLP format or in KAF format. The default is KAF");
