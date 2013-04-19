@@ -88,7 +88,7 @@ public class KAFReader {
 
   /**
    * From the KAF rootNode it produces the list of <term> elements (every
-   * children of <terms>)
+   * child of <terms>)
    * 
    * @param Element
    *          rootNode

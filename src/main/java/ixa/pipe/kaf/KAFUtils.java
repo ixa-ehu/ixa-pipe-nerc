@@ -152,12 +152,12 @@ public class KAFUtils {
   }
 
   /**
-   * It obtains the term type attribute
+   * Set the term type attribute based on the pos value
    * 
    * @param kaf postag
    * @return type
    */
-  public String getTermType(String postag) {
+  public String setTermType(String postag) {
     if (postag.startsWith("N") || postag.startsWith("V")
         || postag.startsWith("G") || postag.startsWith("A")) {
       return "open";

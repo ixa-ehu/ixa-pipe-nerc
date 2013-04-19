@@ -127,7 +127,7 @@ public class CLI {
       // add already contained header plus this module linguistic
       // processor
       kaf.addKafHeader(lingProc, kaf);
-      kaf.addlps("entities", "ixa-opennlp-nerc-" + lang, kaf.getTimestamp(),
+      kaf.addlps("entities", "ixa-pipe-nerc-" + lang, kaf.getTimestamp(),
           "1.0");
 
       // annotate NEs to KAF
