@@ -109,7 +109,7 @@ for the module to work properly. Go to:
 http://ixa2.si.ehu.es/ragerri/ixa-pipeline-models/
 ````
 
-and download en-nerc-500-0-testa-perceptron.bin and es-nerc-500-4-testa.bin. Note that if you
+and download en-nerc-perceptron-500-0-testa.bin and es-nerc-500-4-testa.bin. Note that if you
 change the name of the models you will also need to modify the source code in Models.java.
 
 5. Move into main directory
