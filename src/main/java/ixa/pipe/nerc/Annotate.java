@@ -68,7 +68,13 @@ public class Annotate {
     for (int si = reducedSpan.getStart(); si < reducedSpan.getEnd(); si++) {
       sb.append(tokens[si]).append(" ");
     }
-    String neString = sb.toString();
+    String neString = null;
+    if (sb.toString().startsWith("-") || sb.toString().endsWith("-")){ 
+    	neString = sb.toString().replace("-", " dash ");
+    }
+    else { 
+    	neString = sb.toString();
+    }
     return neString;
   }
 
