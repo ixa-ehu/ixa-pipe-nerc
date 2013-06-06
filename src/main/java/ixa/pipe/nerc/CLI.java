@@ -16,9 +16,7 @@
 
 package ixa.pipe.nerc;
 
-
-import ixa.pipe.kaf.KAF;
-import ixa.pipe.kaf.KAFReader;
+import ixa.kaflib.KAFDocument;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -29,15 +27,12 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.List;
 
+import org.jdom2.JDOMException;
+
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
-
-import org.jdom2.Element;
-import org.jdom2.JDOMException;
-import org.jdom2.output.Format;
-import org.jdom2.output.XMLOutputter;
 
 /**
  * IXA-OpenNLP NERC using Apache OpenNLP.
@@ -69,7 +64,8 @@ public class CLI {
     ArgumentParser parser = ArgumentParsers
         .newArgumentParser("ixa-pipe-nerc-1.0.jar")
         .description(
-            "ixa-opennlp-pipe-1.0 is a multilingual NERC module developed by IXA NLP Group based on Apache OpenNLP.\n");
+            "ixa-pipe-nerc-1.0 is a multilingual NERC module developed by IXA NLP Group " +
+            "based on Apache OpenNLP.\n");
 
     // specify language
     parser
@@ -97,46 +93,28 @@ public class CLI {
     }
 
     /*
-     * Load language and dictionary parameters and construct annotators, read
+     * Load language parameters and construct annotators, read
      * and write kaf
      */
 
     String lang = parsedArguments.getString("lang");
-    KAFReader kafReader = new KAFReader();
     Annotate annotator = new Annotate(lang);
-    StringBuilder sb = new StringBuilder();
     BufferedReader breader = null;
     BufferedWriter bwriter = null;
-    KAF kaf = new KAF(lang);
     try {
       breader = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
       bwriter = new BufferedWriter(new OutputStreamWriter(System.out, "UTF-8"));
-      String line;
-      while ((line = breader.readLine()) != null) {
-        sb.append(line);
-      }
-
-      // read KAF
-      InputStream kafIn = new ByteArrayInputStream(sb.toString().getBytes(
-          "UTF-8"));
-      Element rootNode = kafReader.getRootNode(kafIn);
-      List<Element> lingProc = kafReader.getKafHeader(rootNode);
-      List<Element> wfs = kafReader.getWfs(rootNode);
-      List<Element> termList = kafReader.getTerms(rootNode);
-
-      // add already contained header plus this module linguistic
-      // processor
-      kaf.addKafHeader(lingProc, kaf);
-      kaf.addlps("entities", "ixa-pipe-nerc-" + lang, kaf.getTimestamp(),
-          "1.0");
-
-      // annotate NEs to KAF
-      annotator.annotateNEsToKAF(wfs, termList, kaf);
-
-      XMLOutputter xout = new XMLOutputter(Format.getPrettyFormat());
-      xout.output(kaf.createKAFDoc(), bwriter);
+      
+      // read KAF document from inputstream
+      KAFDocument kaf = KAFDocument.createFromStream(breader);
+      kaf.addLinguisticProcessor("entities","ixa-pipe-nerc-"+lang, "1.0");
+      // annotated Named Entities to KAF
+      annotator.annotateNEsToKAF(kaf);
+      bwriter.write(kaf.toString());
       bwriter.close();
-    } catch (IOException e) {
+      breader.close();
+      }
+      catch (IOException e) {
       e.printStackTrace();
     }
 
