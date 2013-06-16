@@ -20,19 +20,16 @@ import ixa.kaflib.KAFDocument;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.List;
-
-import org.jdom2.JDOMException;
 
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
+
+import org.jdom2.JDOMException;
 
 /**
  * IXA-OpenNLP NERC using Apache OpenNLP.
