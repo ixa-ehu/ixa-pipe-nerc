@@ -103,14 +103,16 @@ git clone git@github.com:ragerri/ixa-pipe-tok.git
 ------------------
 
 You will need to download the trained models and copy them to ixa-pipe-nerc/src/main/resources/
-for the module to work properly. Go to:
+for the module to work properly.
+
+Download the models and untar the archive into the src/main/resources directory:
 
 ````shell
-http://ixa2.si.ehu.es/ragerri/ixa-pipeline-models/
+cd ixa-pipe-nerc/src/main/resources
+wget http://ixa2.si.ehu.es/ragerri/ixa-pipeline-models/nerc-resources.tgz
+tar xvzf nerc-resources.tgz
 ````
-
-and download en-nerc-perceptron-500-0-testa.bin and es-nerc-500-4-testa.bin. Note that if you
-change the name of the models you will also need to modify the source code in Models.java.
+Note that if you change the name of the models you will need to modify also the source code in Models.java.
 
 5. Move into main directory
 ---------------------------

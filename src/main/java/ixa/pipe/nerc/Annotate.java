@@ -81,15 +81,8 @@ public class Annotate {
    * It also reads <wf>, <terms> elements from the input KAF document and fills
    * the KAF object with those elements plus the annotated Named Entities.
    * 
-   * @param LinkedHashMap
-   *          <String,List<String>
-   * @param List
-   *          <Element> termList
-   * @param KAF
-   *          object. This object is used to take the output data and convert it
-   *          to KAF.
-   * 
-   * @return JDOM KAF document containing <wf>,<terms> and <entities> elements.
+   * @param KAFDocument kaf  
+   * @return KAF document containing <wf>,<terms> and <entities> elements.
  * 
    */
 
