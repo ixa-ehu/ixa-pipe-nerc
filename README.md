@@ -87,16 +87,8 @@ You should see reference to the MAVEN version you have just installed plus the J
 3. Get module source code
 --------------------------
 
-ixa-pipe-tok original repo is hosted at Bitbucket, and can be cloned as follows:
-
 ````shell
-hg clone ssh://hg@bitbucket.org/ragerri/ixa-pipe-tok
-````
-
-If you are a github user, we provide a github mirror of the original repo:
-
-````shell
-git clone git@github.com:ragerri/ixa-pipe-tok.git
+git clone git@github.com:ixa-ehu/ixa-pipe-tok.git
 ````
 
 4. Download Models
