@@ -33,22 +33,22 @@ import org.jdom2.JDOMException;
 
 /**
  * IXA-OpenNLP NERC using Apache OpenNLP.
- * 
+ *
  * @author ragerri
  * @version 1.0
- * 
+ *
  */
 
 public class CLI {
 
   /**
-   * 
+   *
    * BufferedReader (from standard input) and BufferedWriter are opened. The
    * module takes KAF and reads the header, the text, terms elements and uses
    * Annotate class to annotate Named Entities and to add the entities element
    * to the KAF read from standard input. Finally, the modified KAF document is
    * passed via standard output.
-   * 
+   *
    * @param args
    * @throws IOException
    * @throws JDOMException
@@ -68,7 +68,7 @@ public class CLI {
     parser
         .addArgument("-l", "--lang")
         .choices("en", "es")
-        .required(true)
+        .required(false)
         .help(
             "It is REQUIRED to choose a language to perform annotation with ixa-pipe-nerc");
     // parser.addArgument("-f","--format").choices("kaf","plain").setDefault("kaf").help("output annotation in plain native "
@@ -94,16 +94,25 @@ public class CLI {
      * and write kaf
      */
 
-    String lang = parsedArguments.getString("lang");
-    Annotate annotator = new Annotate(lang);
     BufferedReader breader = null;
     BufferedWriter bwriter = null;
     try {
       breader = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
       bwriter = new BufferedWriter(new OutputStreamWriter(System.out, "UTF-8"));
-      
+
       // read KAF document from inputstream
       KAFDocument kaf = KAFDocument.createFromStream(breader);
+
+      // language parameter
+      String lang;
+      if (parsedArguments.get("lang") == null) {
+	  lang = kaf.getLang();
+      }
+      else {
+	  lang =  parsedArguments.getString("lang");
+      }
+
+      Annotate annotator = new Annotate(lang);
       kaf.addLinguisticProcessor("entities","ixa-pipe-nerc-"+lang, "1.0");
       // annotated Named Entities to KAF
       annotator.annotateNEsToKAF(kaf);

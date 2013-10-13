@@ -146,7 +146,7 @@ You can get the necessary input for ixa-pipe-nerc by running ixa-pipe-tok and ix
 To run the program execute:
 
 ````shell
-cat wfterms.kaf | java -jar $PATH/target/ixa-pipe-nerc-1.0.jar -l $lang
+cat wfterms.kaf | java -jar $PATH/target/ixa-pipe-nerc-1.0.jar
 ````
 
 GENERATING JAVADOC
