@@ -103,7 +103,7 @@ public class Annotate {
       Span reducedSpans[] = NameFinderME.dropOverlappingSpans(nameSpans);
       
       for (int i=0; i < reducedSpans.length; i++) { 
-    	  String type = reducedSpans[i].getType();
+    	  String type = reducedSpans[i].getType().toUpperCase();
     	  Integer start_index = reducedSpans[i].getStart();
     	  Integer end_index = reducedSpans[i].getEnd();
     	  List<Term> nameTerms = kaf.getTermsFromWFs(Arrays.asList(Arrays.copyOfRange(tokenIds, start_index, end_index)));
