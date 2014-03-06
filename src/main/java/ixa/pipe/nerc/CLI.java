@@ -113,9 +113,10 @@ public class CLI {
       }
 
       Annotate annotator = new Annotate(lang);
+      Dictionaries dictionaries = new Dictionaries(lang);
       kaf.addLinguisticProcessor("entities","ixa-pipe-nerc-"+lang, "1.0");
       // annotated Named Entities to KAF
-      annotator.annotateNEsToKAF(kaf);
+      annotator.annotateNEsToKAF(kaf,dictionaries);
       bwriter.write(kaf.toString());
       bwriter.close();
       breader.close();

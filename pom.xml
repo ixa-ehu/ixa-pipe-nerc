@@ -6,8 +6,8 @@
 	<packaging>jar</packaging>
 	<version>1.0</version>
 	<name>ixa-pipe-nerc</name>
-	<description>NERC module of ixa-pipeline (read "is a pipeline"), a multilingual NLP pipeline based on Apache OpenNLP API.
-	All models have been trained by the IXA NLP Group of the University of the
+	<description>NERC tagger of IXA pipeline, a multilingual NLP pipeline.
+	All models trained by the IXA NLP Group of the University of the
 	Basque Country (ixa.si.ehu.es).
         </description>
 	<developers>
@@ -24,44 +24,45 @@
 		<maven>3.0</maven>
 	</prerequisites>
 	<url>http://maven.apache.org</url>
-
 	<repositories>
-	<repository>
-      <id>ixa-ehu.github</id>
-      <url>https://raw.github.com/ixa-ehu/kaflib-mvn-repo/master</url>
-      <snapshots>
-        <enabled>true</enabled>
-        <updatePolicy>always</updatePolicy>
-      </snapshots>
-    </repository>
+		<repository>
+			<id>ixa-ehu.github</id>
+			<url>https://raw.github.com/ixa-ehu/kaflib-mvn-repo/master</url>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+			</snapshots>
+		</repository>
 	</repositories>
 
 	<dependencies>
-	  <dependency>
-	    <groupId>junit</groupId>
-	    <artifactId>junit</artifactId>
-	    <version>3.8.1</version>
-	    <scope>test</scope>
-	    </dependency>
-
-	<dependency>
-	  <groupId>net.sourceforge.argparse4j</groupId>
-	  <artifactId>argparse4j</artifactId>
-	  <version>0.3.2</version>
-	</dependency>
-
-	<dependency>
-	  <groupId>org.apache.opennlp</groupId>
-	  <artifactId>opennlp-tools</artifactId>
-	  <version>1.5.3</version>
-	  <scope>compile</scope>
-	</dependency>
-
-	<dependency>
-	  <groupId>ixa.kaflib</groupId>
-	  <artifactId>kaflib</artifactId>
-	  <version>1.0-SNAPSHOT</version>
-	</dependency>
+		<dependency>
+			<groupId>ixa.kaflib</groupId>
+			<artifactId>kaflib</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.sourceforge.argparse4j</groupId>
+			<artifactId>argparse4j</artifactId>
+			<version>0.4.3</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.opennlp</groupId>
+			<artifactId>opennlp-tools</artifactId>
+			<version>1.5.3</version>
+			<scope>compile</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -82,12 +83,11 @@
 									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
 									<manifestEntries>
 										<Main-Class>ixa.pipe.nerc.CLI</Main-Class>
-										<!-- <Class-Path>../models/models.jar</Class-Path> -->
 									</manifestEntries>
 								</transformer>
 							</transformers>
 							<artifactSet>
-							<excludes></excludes>
+								<excludes></excludes>
 							</artifactSet>
 						</configuration>
 					</execution>
@@ -99,7 +99,7 @@
 				<artifactId>exec-maven-plugin</artifactId>
 				<version>1.2.1</version>
 				<configuration>
-					<mainClass>ixa.opennlp.nerc.CLI</mainClass>
+					<mainClass>ixa.pipe.nerc.CLI</mainClass>
 				</configuration>
 			</plugin>
 
