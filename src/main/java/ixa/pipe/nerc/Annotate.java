@@ -159,9 +159,9 @@ public class Annotate {
         List<List<Term>> references = new ArrayList<List<Term>>();
         references.add(nameTerms);
 
-        String type;
+        String type = reducedList[i].getType().toUpperCase();
         // postProcessing: change NE tag if in non ambiguous gazeteers
-        String neString = getStringFromSpan(reducedList[i], tokens)
+        /*String neString = getStringFromSpan(reducedList[i], tokens)
             .toLowerCase();
         if (dictionaries.person.contains(neString)) {
           if (DEBUG) {
@@ -170,7 +170,7 @@ public class Annotate {
           type = "PERSON";
         } else {
           type = reducedList[i].getType().toUpperCase();
-        }
+        }*/
         kaf.createEntity(type, references);
       }
     }
