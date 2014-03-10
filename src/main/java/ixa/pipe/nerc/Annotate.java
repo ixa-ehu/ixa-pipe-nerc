@@ -36,7 +36,7 @@ import opennlp.tools.util.Span;
  */
 public class Annotate {
 
-  private final static boolean DEBUG = false;
+  private final static boolean DEBUG = true;
   private NERC nameFinder;
 
   public Annotate(String cmdOption) {
@@ -86,14 +86,21 @@ public class Annotate {
   }
 
   private List<Span> getNEsFromDictionaries(List<WF> wfList, Dictionaries dictionaries) {
+    String sentence = getSentenceFromWFs(wfList).toLowerCase();
+    if (DEBUG) { 
+      System.err.println("Sentence: " + sentence);
+    }
     List<Span> neSpans = new ArrayList<Span>();
     Iterator<String> dictIterator = dictionaries.person.iterator();
     while (dictIterator.hasNext()) {
       String name = (String) dictIterator.next();
-      for (WF wf : wfList) {
-        if (name.contains(wf.getForm().toLowerCase())) {
-          String[] neTokens = name.split(" ");
-          if (neTokens[0].equals(wf.getForm().toLowerCase())) {
+      if (sentence.matches(name)) {
+        if (DEBUG) {
+          System.err.println("Name found: " + name + " in sentence:\n" + sentence);
+        }
+        String[] neTokens = name.split(" ");
+        for (WF wf: wfList) { 
+          if (neTokens[0].equals(wf.getForm().toLowerCase())) { 
             int startId = Integer.parseInt(wf.getId().substring(1)) - 1;
             int endId = startId + neTokens.length;
             Span neSpan = new Span(startId, endId, "PERSON");
@@ -137,16 +144,17 @@ public class Annotate {
       }
       // probabilistic
       Span[] nameSpans = nameFinder.nercAnnotate(tokens);
-      //Span[] reducedSpans = NameFinderME.dropOverlappingSpans(nameSpans);
-      Span[] reducedList = NameFinderME.dropOverlappingSpans(nameSpans);
+      Span[] reducedSpans = NameFinderME.dropOverlappingSpans(nameSpans);
+      //Span[] reducedList = NameFinderME.dropOverlappingSpans(nameSpans);
       
       // gazeteers
-      //List<Span> listSpans = getNEsFromDictionaries(sentence, dictionaries);
+      //TODO what about using the HUGE Google corpus for NER based on frecuencies?
+      List<Span> listSpans = getNEsFromDictionaries(sentence, dictionaries);
 
       // concatenate both and check for overlaps
-      //concatenateSpans(listSpans, reducedSpans);
-      //Span[] allSpans = listSpans.toArray(new Span[listSpans.size()]);
-      //Span[] reducedList = NameFinderME.dropOverlappingSpans(allSpans);
+      concatenateSpans(listSpans, reducedSpans);
+      Span[] allSpans = listSpans.toArray(new Span[listSpans.size()]);
+      Span[] reducedList = NameFinderME.dropOverlappingSpans(allSpans);
 
       for (int i = 0; i < reducedList.length; i++) {
         if (DEBUG) {
@@ -159,10 +167,9 @@ public class Annotate {
         List<List<Term>> references = new ArrayList<List<Term>>();
         references.add(nameTerms);
 
-        String type = reducedList[i].getType().toUpperCase();
+        String type;
         // postProcessing: change NE tag if in non ambiguous gazeteers
-        /*String neString = getStringFromSpan(reducedList[i], tokens)
-            .toLowerCase();
+        String neString = getStringFromSpan(reducedList[i], tokens).toLowerCase();
         if (dictionaries.person.contains(neString)) {
           if (DEBUG) {
             System.err.println(neString + " post-processed into " + "PERSON");
@@ -170,7 +177,7 @@ public class Annotate {
           type = "PERSON";
         } else {
           type = reducedList[i].getType().toUpperCase();
-        }*/
+        }
         kaf.createEntity(type, references);
       }
     }

@@ -20,7 +20,7 @@ public class Dictionaries {
     try {
       while (lineIterator.hasNext()) {
         String line = lineIterator.nextLine();
-        person.add(line.toLowerCase());
+        person.add(line.toLowerCase().trim());
       }
     } finally {
       LineIterator.closeQuietly(lineIterator);
