@@ -18,6 +18,8 @@ package ixa.pipe.nerc;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.TokenNameFinderModel;
@@ -36,6 +38,7 @@ public class NERC {
 
   private TokenNameFinderModel nercModel;
   private NameFinderME nercDetector;
+  private NameFactory nameFactory;
 
   /**
    * It constructs an object NERC from the NERC class. First it loads a model,
@@ -43,9 +46,6 @@ public class NERC {
    * using such model.
    */
   public NERC(InputStream trainedModel) {
-
-    // InputStream trainedModel =
-    // getClass().getResourceAsStream("/en-500-0-testa-perceptron.bin");
 
     try {
       nercModel = new TokenNameFinderModel(trainedModel);
@@ -63,6 +63,31 @@ public class NERC {
 
     nercDetector = new NameFinderME(nercModel);
   }
+  
+  /**
+   * It constructs an object NERC from the NERC class. First it loads a model,
+   * then it initializes the nercModel and finally it creates a nercDetector
+   * using such model.
+   */
+  public NERC(InputStream trainedModel, NameFactory nameFactory) {
+    this.nameFactory = nameFactory;
+    try {
+      nercModel = new TokenNameFinderModel(trainedModel);
+
+    } catch (IOException e) {
+      e.printStackTrace();
+    } finally {
+      if (trainedModel != null) {
+        try {
+          trainedModel.close();
+        } catch (IOException e) {
+        }
+      }
+    }
+
+    nercDetector = new NameFinderME(nercModel);
+  }
+
 
   /**
    * This method receives as an input an array of Apache OpenNLP tokenized text
@@ -78,11 +103,58 @@ public class NERC {
    *          an array of tokenized text
    * @return an array of OpenNLP Spans of annotated text
    */
-  public Span[] nercAnnotate(String[] tokens) {
+  public Span[] nercToSpans(String[] tokens) {
     Span[] annotatedText = nercDetector.find(tokens);
     nercDetector.clearAdaptiveData();
     return annotatedText;
 
   }
+  
+  /**
+   * @param tokens
+   *          an array of tokenized text
+   * @return an array of OpenNLP Spans of annotated text
+   */
+  public List<Name> getNames(String[] tokens) {
+    List<Name> names = new ArrayList<Name>();
+    Span[] origSpans = nercToSpans(tokens);
+    Span[] neSpans = NameFinderME.dropOverlappingSpans(origSpans);
+    for (Span neSpan : neSpans) {
+      String sentence = getStringFromSpan(neSpan,tokens);
+      String nameString = neSpan.getCoveredText(sentence).toString();
+      String neType = neSpan.getType();
+      Name name = nameFactory.createName(nameString, neType, neSpan);
+      names.add(name);
+    }
+    return names;
+
+  }
+  
+  /**
+   * 
+   * It takes a NE span indexes and the tokens in a sentence and produces the
+   * string to which the NE span corresponds to. This function is used to get
+   * the NE textual representation from a Span.
+   * 
+   * @param Span
+   *          reducedSpan
+   * @param String
+   *          [] tokens
+   * @return named entity string
+   */
+  public String getStringFromSpan(Span reducedSpan, String[] tokens) {
+    StringBuilder sb = new StringBuilder();
+    for (int si = reducedSpan.getStart(); si < reducedSpan.getEnd(); si++) {
+      sb.append(tokens[si]).append(" ");
+    }
+    return sb.toString().trim();
+  }
+  
+  public static void concatenateSpans(List<Span> listSpans, Span[] probSpans) {
+    for (Span span : probSpans) {
+      listSpans.add(span);
+    }
+  }
+
 
 }

@@ -36,7 +36,7 @@ import opennlp.tools.util.Span;
  */
 public class Annotate {
 
-  private final static boolean DEBUG = true;
+  private final static boolean DEBUG = false;
   private NERC nameFinder;
 
   public Annotate(String cmdOption) {
@@ -44,27 +44,7 @@ public class Annotate {
     InputStream nerModel = modelRetriever.getNERModel(cmdOption);
     nameFinder = new NERC(nerModel);
   }
-
-  /**
-   * 
-   * It takes a NE span indexes and the tokens in a sentence and produces the
-   * string to which the NE span corresponds to. This function is used to get
-   * the NE textual representation from a Span.
-   * 
-   * @param Span
-   *          reducedSpan
-   * @param String
-   *          [] tokens
-   * @return named entity string
-   */
-  private String getStringFromSpan(Span reducedSpan, String[] tokens) {
-    StringBuilder sb = new StringBuilder();
-    for (int si = reducedSpan.getStart(); si < reducedSpan.getEnd(); si++) {
-      sb.append(tokens[si]).append(" ");
-    }
-    return sb.toString().trim();
-  }
-
+  
   /**
    * 
    * It takes a NE span indexes and the tokens in a sentence and produces the
@@ -85,6 +65,23 @@ public class Annotate {
     return sb.toString().trim();
   }
 
+  private static List<Integer> findName(String sentence, String name) {
+    
+    List<Integer> neChars = new ArrayList<Integer>();
+    int foundChar = sentence.indexOf(name);
+    if (foundChar != -1) {
+      System.out.println(foundChar);
+      for (int i = foundChar + 1; i < foundChar - sentence.length(); i++) {
+        System.out.println(i);
+        int found = sentence.indexOf(name, i);
+        if (found != -1) { 
+          //System.err.println(found);
+        }
+      }
+    }
+    return neChars;
+  }
+  
   private List<Span> getNEsFromDictionaries(List<WF> wfList, Dictionaries dictionaries) {
     String sentence = getSentenceFromWFs(wfList).toLowerCase();
     if (DEBUG) { 
@@ -94,10 +91,8 @@ public class Annotate {
     Iterator<String> dictIterator = dictionaries.person.iterator();
     while (dictIterator.hasNext()) {
       String name = (String) dictIterator.next();
+      List<Integer> ne = findName(sentence,name);
       if (sentence.matches(name)) {
-        if (DEBUG) {
-          System.err.println("Name found: " + name + " in sentence:\n" + sentence);
-        }
         String[] neTokens = name.split(" ");
         for (WF wf: wfList) { 
           if (neTokens[0].equals(wf.getForm().toLowerCase())) { 
@@ -112,12 +107,7 @@ public class Annotate {
     return neSpans;
   }
 
-  private static void concatenateSpans(List<Span> listSpans, Span[] probSpans) {
-    for (Span span : probSpans) {
-      listSpans.add(span);
-    }
-  }
-
+  
   /**
    * This method tags Named Entities.
    * 
@@ -142,19 +132,60 @@ public class Annotate {
         tokens[i] = sentence.get(i).getForm();
         tokenIds[i] = sentence.get(i).getId();
       }
+      List<Name> names = nameFinder.getNames(tokens);
+          
+      for (Name name : names) {
+        Integer start_index = name.getSpan().getStart();
+        Integer end_index = name.getSpan().getEnd();
+        
+        List<Term> nameTerms = kaf.getTermsFromWFs(Arrays.asList(Arrays
+            .copyOfRange(tokenIds, start_index, end_index)));
+        List<List<Term>> references = new ArrayList<List<Term>>();
+        references.add(nameTerms);
+        
+        kaf.createEntity(name.getType(), references);
+      }
+    }
+  }
+
+  
+  /**
+   * This method tags Named Entities.
+   * 
+   * It also reads <wf>, <terms> elements from the input KAF document and fills
+   * the KAF object with those elements plus the annotated Named Entities.
+   * 
+   * @param KAFDocument
+   *          kaf
+   * @return KAF document containing <wf>,<terms> and <entities> elements.
+   * 
+   */
+
+  public void annotat(KAFDocument kaf, Dictionaries dictionaries)
+      throws IOException {
+
+    List<List<WF>> sentences = kaf.getSentences();
+    for (List<WF> sentence : sentences) {
+      // get array of token forms from a list of WF objects
+      String[] tokens = new String[sentence.size()];
+      String[] tokenIds = new String[sentence.size()];
+      for (int i = 0; i < sentence.size(); i++) {
+        tokens[i] = sentence.get(i).getForm();
+        tokenIds[i] = sentence.get(i).getId();
+      }
       // probabilistic
-      Span[] nameSpans = nameFinder.nercAnnotate(tokens);
-      Span[] reducedSpans = NameFinderME.dropOverlappingSpans(nameSpans);
-      //Span[] reducedList = NameFinderME.dropOverlappingSpans(nameSpans);
+      Span[] nameSpans = nameFinder.nercToSpans(tokens);
+      //Span[] reducedSpans = NameFinderME.dropOverlappingSpans(nameSpans);
+      Span[] reducedList = NameFinderME.dropOverlappingSpans(nameSpans);
       
-      // gazeteers
+      // gazetteers
       //TODO what about using the HUGE Google corpus for NER based on frecuencies?
-      List<Span> listSpans = getNEsFromDictionaries(sentence, dictionaries);
+     // List<Span> gazetteerSpans = getNEsFromDictionaries(sentence, dictionaries);
 
       // concatenate both and check for overlaps
-      concatenateSpans(listSpans, reducedSpans);
-      Span[] allSpans = listSpans.toArray(new Span[listSpans.size()]);
-      Span[] reducedList = NameFinderME.dropOverlappingSpans(allSpans);
+      //concatenateSpans(gazetteerSpans, reducedSpans);
+      //Span[] allSpans = gazetteerSpans.toArray(new Span[gazetteerSpans.size()]);
+      //Span[] reducedList = NameFinderME.dropOverlappingSpans(allSpans);
 
       for (int i = 0; i < reducedList.length; i++) {
         if (DEBUG) {
@@ -166,20 +197,27 @@ public class Annotate {
             .copyOfRange(tokenIds, start_index, end_index)));
         List<List<Term>> references = new ArrayList<List<Term>>();
         references.add(nameTerms);
-
-        String type;
-        // postProcessing: change NE tag if in non ambiguous gazeteers
-        String neString = getStringFromSpan(reducedList[i], tokens).toLowerCase();
-        if (dictionaries.person.contains(neString)) {
-          if (DEBUG) {
-            System.err.println(neString + " post-processed into " + "PERSON");
-          }
-          type = "PERSON";
-        } else {
-          type = reducedList[i].getType().toUpperCase();
-        }
+        
+         
+        // postProcessing: change NE tag if in non ambiguous gazetteers
+        String type = gazetteerPostProcessing(reducedList[i],tokens,dictionaries);
         kaf.createEntity(type, references);
       }
     }
   }
+  
+  private String gazetteerPostProcessing(Span neSpan, String[] sentTokens, Dictionaries dictionaries) { 
+    String type;
+    String neString = nameFinder.getStringFromSpan(neSpan,sentTokens).toLowerCase();
+    if (dictionaries.person.contains(neString)) {
+      if (DEBUG) {
+        System.err.println(neString + " post-processed into " + "PERSON");
+      }
+      type = "PERSON";
+    } else {
+      type = neSpan.getType().toUpperCase();
+    }
+    return type; 
+  }
 }
+  
