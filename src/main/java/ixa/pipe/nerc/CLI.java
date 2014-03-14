@@ -121,15 +121,14 @@ public class CLI {
       }
       
       kaf.addLinguisticProcessor("entities","ixa-pipe-nerc-"+lang, "1.0");
-      Dictionaries dictionaries = new Dictionaries(lang);
       
       if (parsedArguments.get("gazetteers") != null) {
         Annotate annotator = new Annotate(lang,gazetteer);
-        annotator.annotateNEsToKAF(kaf,dictionaries);
+        annotator.annotateNEsToKAF(kaf);
       }
       else { 
         Annotate annotator = new Annotate(lang);
-        annotator.annotateNEsToKAF(kaf,dictionaries);
+        annotator.annotateNEsToKAF(kaf);
       }
       bwriter.write(kaf.toString());
       bwriter.close();

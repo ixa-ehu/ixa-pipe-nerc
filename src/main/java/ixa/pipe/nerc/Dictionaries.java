@@ -2,7 +2,9 @@ package ixa.pipe.nerc;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
@@ -10,6 +12,7 @@ import org.apache.commons.io.LineIterator;
 
 public class Dictionaries {
   
+  InputStream allFile;
   InputStream locationFile;
   InputStream organizationFile;
   InputStream peopleFile;
@@ -18,6 +21,7 @@ public class Dictionaries {
   InputStream knownOrganizationFile;
   InputStream knownPeopleFile;
   
+  public final List<String> all = new ArrayList<String>();
   public final Set<String> location = new HashSet<String>();
   public final Set<String> organization = new HashSet<String>();
   public final Set<String> person = new HashSet<String>();
@@ -25,6 +29,18 @@ public class Dictionaries {
   public final Set<String> knownOrganization = new HashSet<String>();
   public final Set<String> knownPerson = new HashSet<String>();
   
+  
+  private void loadAllList(InputStream file) throws IOException {
+    LineIterator lineIterator = IOUtils.lineIterator(file, "UTF-8");
+    try {
+      while (lineIterator.hasNext()) {
+        String line = lineIterator.nextLine();
+        all.add(line.toLowerCase().trim());
+      }
+    } finally {
+      LineIterator.closeQuietly(lineIterator);
+    }
+  }
   
   private void loadLocationList(InputStream file) throws IOException {
     LineIterator lineIterator = IOUtils.lineIterator(file, "UTF-8");
@@ -99,6 +115,13 @@ public class Dictionaries {
     }
   }
   
+  public InputStream getAllDictionary(String lang) {
+    if (lang.equals("en")) {
+      allFile = getClass().getResourceAsStream("/en-all-nes.txt");
+    }
+    return allFile;
+  }
+  
   public InputStream getLocationDictionary(String lang) {
     if (lang.equals("en")) {
       locationFile = getClass().getResourceAsStream("/en-wikilocation.lst");
@@ -144,6 +167,7 @@ public class Dictionaries {
 
   public Dictionaries(String lang) {
     if (lang.equalsIgnoreCase("en")) {
+      allFile = getAllDictionary(lang);
       locationFile = getLocationDictionary(lang);
       organizationFile = getOrganizationDictionary(lang);
       peopleFile = getPersonDictionary(lang);
@@ -152,6 +176,7 @@ public class Dictionaries {
       knownPeopleFile = getKnownPersonDictionary(lang);
       
       try {
+        loadAllList(allFile);
         loadLocationList(locationFile);
         loadOrganizationList(organizationFile);
         loadPeopleList(peopleFile);

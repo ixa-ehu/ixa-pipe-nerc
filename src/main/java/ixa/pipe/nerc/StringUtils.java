@@ -3,8 +3,26 @@ package ixa.pipe.nerc;
 import java.util.ArrayList;
 import java.util.List;
 
+import opennlp.tools.util.Span;
+
 public class StringUtils {
 
+  
+  public static List<Integer> exactTokenFinder(String pattern, String[] tokens) {
+    String[] patternTokens = pattern.split(" ");
+    int i, j; 
+    int patternLength = patternTokens.length;
+    int sentenceLength = tokens.length;
+    List<Integer> neTokens = new ArrayList<Integer>();
+    for (j = 0; j <= sentenceLength - patternLength; ++j) {
+      for (i = 0; i < patternLength && patternTokens[i].equalsIgnoreCase(tokens[i + j]); ++i);
+      if (i >= patternLength) {
+        neTokens.add(j);
+        neTokens.add(i+j);
+      }
+    }
+    return neTokens;
+  }
   
   public static List<Integer> exactStringFinder(String pattern, String sentence) {
     char[] patternArray = pattern.toCharArray(), sentenceArray = sentence.toCharArray();
@@ -61,6 +79,26 @@ public class StringUtils {
     return result;
 }
 
+  
+  /**
+   * 
+   * It takes a NE span indexes and the tokens in a sentence and produces the
+   * string to which the NE span corresponds to. This function is used to get
+   * the Named Entity or Name textual representation from a Span.
+   * 
+   * @param Span
+   *          reducedSpan
+   * @param String
+   *          [] tokens
+   * @return named entity string
+   */
+  public static String getStringFromSpan(Span reducedSpan, String[] tokens) {
+    StringBuilder sb = new StringBuilder();
+    for (int si = reducedSpan.getStart(); si < reducedSpan.getEnd(); si++) {
+      sb.append(tokens[si]).append(" ");
+    }
+    return sb.toString().trim();
+  }
 
   /**
    * Gets the String joined by a space of an array of tokens

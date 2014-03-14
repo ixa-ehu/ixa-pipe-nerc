@@ -26,6 +26,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import opennlp.tools.namefind.NameFinderME;
+import opennlp.tools.util.Span;
+
 /**
  * @author ragerri
  * 
@@ -33,6 +36,7 @@ import java.util.List;
 public class Annotate {
 
   private final static boolean DEBUG = false;
+  private Dictionaries dictionaries;
   private NERC nameFinder;
   private boolean POSTPROCESS; 
   private boolean DICTTAG;
@@ -46,6 +50,7 @@ public class Annotate {
   }
   
   public Annotate(String cmdOption, String gazetteerOption) {
+    dictionaries = new Dictionaries(cmdOption);
     Models modelRetriever = new Models();
     InputStream nerModel = modelRetriever.getNERModel(cmdOption);
     NameFactory nameFactory = new NameFactory();
@@ -54,7 +59,8 @@ public class Annotate {
       POSTPROCESS = true;
     }
     if (gazetteerOption.equalsIgnoreCase("tag")) { 
-      DICTTAG = true;
+      System.err.println("The tag option requires the post option: tag,post!!");
+      System.exit(1);
     }
     if (gazetteerOption.equalsIgnoreCase("post,tag") || gazetteerOption.equalsIgnoreCase("tag,post")) { 
       POSTPROCESS = true;
@@ -62,21 +68,27 @@ public class Annotate {
     }
   }
   
-  
-  public void annotateNEsToKAF(KAFDocument kaf, Dictionaries dictionaries)
+  public void annotateNEsToKAF(KAFDocument kaf)
       throws IOException {
 
+    List<Span> probSpans = new ArrayList<Span>();
+    List<Name> names = new ArrayList<Name>();
     List<List<WF>> sentences = kaf.getSentences();
     for (List<WF> sentence : sentences) {
-      // get array of token forms from a list of WF objects
       String[] tokens = new String[sentence.size()];
       String[] tokenIds = new String[sentence.size()];
       for (int i = 0; i < sentence.size(); i++) {
         tokens[i] = sentence.get(i).getForm();
         tokenIds[i] = sentence.get(i).getId();
       }
-      List<Name> names = nameFinder.getNames(tokens);
-      List<Name> dictNames = nameFinder.getNamesFromDictionaries(tokens, dictionaries);
+      probSpans = nameFinder.nercToSpans(tokens);
+      if (DICTTAG) {
+        //TODO what about using the HUGE Google corpus for NER based on frecuencies?
+        List<Span> dictSpans = nameFinder.nerFromDictToSpans(tokens, dictionaries);
+        nameFinder.concatenateSpans(probSpans, dictSpans);
+      }
+      Span[] allSpans = NameFinderME.dropOverlappingSpans(probSpans.toArray(new Span[probSpans.size()]));
+      nameFinder.getNamesFromSpans(names, allSpans, tokens);
       for (Name name : names) {
         Integer start_index = name.getSpan().getStart();
         Integer end_index = name.getSpan().getEnd();
@@ -84,76 +96,17 @@ public class Annotate {
             .copyOfRange(tokenIds, start_index, end_index)));
         List<List<Term>> references = new ArrayList<List<Term>>();
         references.add(nameTerms);
-        // NE type
-        String type;
+        String neType;
         if (POSTPROCESS) {
-          type = nameFinder.gazetteerPostProcessing(name,dictionaries);
+          neType = nameFinder.gazetteerPostProcessing(name,dictionaries);
         }
         else { 
-          type = name.getType();
+          neType = name.getType();
         }
-        kaf.createEntity(type, references);
+        kaf.createEntity(neType, references);
       }
     }
   }
-
-  /**
-   * This method tags Named Entities.
-   * 
-   * It also reads <wf>, <terms> elements from the input KAF document and fills
-   * the KAF object with those elements plus the annotated Named Entities.
-   * 
-   * @param KAFDocument
-   *          kaf
-   * @return KAF document containing <wf>,<terms> and <entities> elements.
-   * 
-   */
-
-  public void annotat(KAFDocument kaf, Dictionaries dictionaries)
-      throws IOException {
-
-    List<List<WF>> sentences = kaf.getSentences();
-    for (List<WF> sentence : sentences) {
-      // get array of token forms from a list of WF objects
-      String[] tokens = new String[sentence.size()];
-      String[] tokenIds = new String[sentence.size()];
-      for (int i = 0; i < sentence.size(); i++) {
-        tokens[i] = sentence.get(i).getForm();
-        tokenIds[i] = sentence.get(i).getId();
-      }
-      // probabilistic
-      //Span[] nameSpans = nameFinder.nercToSpans(tokens);
-      //Span[] reducedSpans = NameFinderME.dropOverlappingSpans(nameSpans);
-      //Span[] reducedList = NameFinderME.dropOverlappingSpans(nameSpans);
-      
-      // gazetteers
-      //TODO what about using the HUGE Google corpus for NER based on frecuencies?
-     // List<Span> gazetteerSpans = getNEsFromDictionaries(sentence, dictionaries);
-
-      // concatenate both and check for overlaps
-      //concatenateSpans(gazetteerSpans, reducedSpans);
-      //Span[] allSpans = gazetteerSpans.toArray(new Span[gazetteerSpans.size()]);
-      //Span[] reducedList = NameFinderME.dropOverlappingSpans(allSpans);
-
-      /*for (int i = 0; i < reducedList.length; i++) {
-        if (DEBUG) {
-          System.err.println("1 " + reducedList[i].toString());
-        }
-        Integer start_index = reducedList[i].getStart();
-        Integer end_index = reducedList[i].getEnd();
-        List<Term> nameTerms = kaf.getTermsFromWFs(Arrays.asList(Arrays
-            .copyOfRange(tokenIds, start_index, end_index)));
-        List<List<Term>> references = new ArrayList<List<Term>>();
-        references.add(nameTerms);
-        
-         
-        // postProcessing: change NE tag if in non ambiguous gazetteers
-        //String type = gazetteerPostProcessing(reducedList[i],tokens,dictionaries);
-        //kaf.createEntity(type, references);
-      }
-    */}
-  }
-  
   
 }
   

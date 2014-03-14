@@ -1,5 +1,5 @@
 /*
- *Copyright 2013 Rodrigo Agerri
+ *Copyright 2014 Rodrigo Agerri
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -19,26 +19,26 @@ package ixa.pipe.nerc;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Arrays;
 import java.util.List;
 
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.Span;
 
-/**
+ /**
  * Named Entity Recognition module based on Apache OpenNLP ML API and Gazetteers.  
  *  
- * @author ragerri 2012/10/30
+ * @author ragerri 2014/03/14
  * 
  */
 
-public class NERC {
+ public class NERC {
 
-  private TokenNameFinderModel nercModel;
-  private NameFinderME nercDetector;
-  private NameFactory nameFactory;
-  private final static boolean DEBUG = false;
+   private TokenNameFinderModel nercModel;
+   private NameFinderME nercDetector;
+   private NameFactory nameFactory;
+   private final static boolean DEBUG = true;
 
   /**
    * It constructs an object NERC from the NERC class. First it loads a model,
@@ -49,7 +49,6 @@ public class NERC {
 
     try {
       nercModel = new TokenNameFinderModel(trainedModel);
-
     } catch (IOException e) {
       e.printStackTrace();
     } finally {
@@ -60,7 +59,6 @@ public class NERC {
         }
       }
     }
-
     nercDetector = new NameFinderME(nercModel);
   }
   
@@ -74,7 +72,6 @@ public class NERC {
     this.nameFactory = nameFactory;
     try {
       nercModel = new TokenNameFinderModel(trainedModel);
-
     } catch (IOException e) {
       e.printStackTrace();
     } finally {
@@ -85,15 +82,31 @@ public class NERC {
         }
       }
     }
-
     nercDetector = new NameFinderME(nercModel);
   }
 
-
+  /**
+   * Probabilistic Named Entity Classifier
+   * 
+   * Takes an array of tokens, calls nercToSpans function 
+   * for probabilistic NERC and returns a List of {@link Name} objects
+   * containing the nameString, the type and the {@link Span}
+   * 
+   * @param tokens an array of tokenized text
+   * @return a List of names
+   */
+  public List<Name> getNamesProb(String[] tokens) {
+    List<Name> names = new ArrayList<Name>();
+    List<Span> origSpans = nercToSpans(tokens);
+    Span[] neSpans = NameFinderME.dropOverlappingSpans(origSpans.toArray(new Span[origSpans.size()]));
+    getNamesFromSpans(names,neSpans,tokens);
+    return names;
+  }
+  
   /**
    * This method receives as an input an array of Apache OpenNLP tokenized text
    * and calls the NameFinderME.find(tokens) to recognize and classify Named
-   * Entities.
+   * Entities. It outputs the spans of the detected and classified Named Entities
    * 
    * From Apache OpenNLP documentation: "After every document clearAdaptiveData
    * must be called to clear the adaptive data in the feature generators. Not
@@ -102,101 +115,93 @@ public class NERC {
    * 
    * @param tokens
    *          an array of tokenized text
-   * @return an array of OpenNLP Spans of annotated text
+   * @return an list of OpenNLP Spans of annotated text
    */
-  private Span[] nercToSpans(String[] tokens) {
+  public List<Span> nercToSpans(String[] tokens) {
     Span[] annotatedText = nercDetector.find(tokens);
     nercDetector.clearAdaptiveData();
-    return annotatedText;
-
+    List<Span> probSpans = new ArrayList<Span>(Arrays.asList(annotatedText));
+    return probSpans;
   }
   
   /**
-   * Probablistic Named Entity Classifier
-   * Takes an array of tokens and returns a List of {@link Name} objects
-   * containing the nameString, the type and the {@link Span} for easy
-   * access to Named Entity attributes 
+   * Populates a list of {@link Name} objects from spans and tokens
    * 
-   * @param tokens an array of tokenized text
-   * @return a List of names
+   * @param names
+   * @param neSpans
+   * @param tokens
    */
-  public List<Name> getNames(String[] tokens) {
-    List<Name> names = new ArrayList<Name>();
-    Span[] origSpans = nercToSpans(tokens);
-    Span[] neSpans = NameFinderME.dropOverlappingSpans(origSpans);
-    for (Span neSpan : neSpans) {
-      String nameString = getStringFromSpan(neSpan,tokens);
+  public void getNamesFromSpans(List<Name> names, Span[] neSpans, String[]tokens) {
+    for (Span neSpan : neSpans) { 
+      String nameString = StringUtils.getStringFromSpan(neSpan,tokens);
       String neType = neSpan.getType();
       Name name = nameFactory.createName(nameString, neType, neSpan);
       names.add(name);
     }
+  }
+  
+  /**
+   * Gazetteer based Named Entity Detector. Note that this method
+   * does not classify the named entities, only assigns a "MISC" tag to every
+   * Named Entity. Pass the result of this function to {@link gazetteerPostProcessing} for
+   * gazetteer-based Named Entity classification.
+   * 
+   * @param tokens
+   * @param dictionaries
+   * @return a list of detected names
+   */
+  public List<Name> getNamesDict(String[] tokens, Dictionaries dictionaries) {
+    
+    List<Name> names = new ArrayList<Name>();
+    List<Span> origSpans = nerFromDictToSpans(tokens,dictionaries);
+    Span[] neSpans = NameFinderME.dropOverlappingSpans(origSpans.toArray(new Span[origSpans.size()]));
+    getNamesFromSpans(names,neSpans,tokens);
     return names;
   }
   
   /**
-   * 
-   * It takes a NE span indexes and the tokens in a sentence and produces the
-   * string to which the NE span corresponds to. This function is used to get
-   * the Named Entity or Name textual representation from a Span.
-   * 
-   * @param Span
-   *          reducedSpan
-   * @param String
-   *          [] tokens
-   * @return named entity string
-   */
-  public static String getStringFromSpan(Span reducedSpan, String[] tokens) {
-    StringBuilder sb = new StringBuilder();
-    for (int si = reducedSpan.getStart(); si < reducedSpan.getEnd(); si++) {
-      sb.append(tokens[si]).append(" ");
-    }
-    return sb.toString().trim();
-  }
-  
-  /**
-   * Gazetteer based Named Entity Tagger
-   * 
-   * @param wfList
-   * @param dictionaries
-   * @return
-   */
-  public List<Name> getNamesFromDictionaries(String[] tokens, Dictionaries dictionaries) {
-    String sentence = StringUtils.getSentenceFromTokens(tokens);
-    List<Integer> neIds = StringUtils.bndmStringFinder("obama","I know that barack obama is in the white house");
-    //List<Integer> neIds = StringUtils.exactStringFinder("obama","I know that barack obama is in the white house");
-    for (Integer neId : neIds) { 
-      System.err.println(neId);
-    }
-    List<Name> names = new ArrayList<Name>();
-    Iterator<String> dictIterator = dictionaries.person.iterator();
-    while (dictIterator.hasNext()) {
-      String neDict = (String) dictIterator.next();
-      //List<Integer> neIds = StringUtils.exactStringFinder(neDict, sentence);      
-      
-      if (sentence.matches(neDict)) {
-        String[] neTokens = neDict.split(" ");
-        for (int i = 0; i < tokens.length; i++) { 
-          if (neTokens[0].equals(tokens[i])) { 
-            int startId = i;
-            int endId = startId + neTokens.length;
-            Span neSpan = new Span(startId, endId, "PERSON");
-            String nameString = getStringFromSpan(neSpan,tokens);
-            String nameType = neSpan.getType();
-            Name name = nameFactory.createName(nameString, nameType, neSpan);
-            names.add(name);
-          }
-        }
+  * Detects Named Entities in a gazetteer
+  * 
+  * @param tokens
+  * @param dictionaries
+  * @return spans of the Named Entities
+  */
+  public List<Span> nerFromDictToSpans(String[] tokens, Dictionaries dictionaries) {
+    List<Span> neSpans = new ArrayList<Span>();
+    for (String neDict : dictionaries.all) {
+      List<Integer> neIds = StringUtils.exactTokenFinder(neDict,tokens);
+      /*for (Integer neId : neIds) {
+        System.err.println(neId);
+      }*/
+      if (!neIds.isEmpty()) {
+        Span neSpan = new Span(neIds.get(0), neIds.get(1), "MISC");
+        neSpans.add(neSpan); 
       }
     }
-    return names;
+    return neSpans;
   }
  
-  public static void concatenateSpans(List<Span> listSpans, Span[] probSpans) {
-    for (Span span : probSpans) {
-      listSpans.add(span);
+  /**
+   * Concatenates two span lists adding the spans of the second parameter
+   * to the list in first parameter
+   * 
+   * @param allSpans
+   * @param neSpans
+   */
+  public void concatenateSpans(List<Span> allSpans, List<Span> neSpans) {
+    for (Span span : neSpans) {
+      allSpans.add(span);
     }
   }
   
+  /**
+   * It classifies Named Entities according to its presence in one or more 
+   * gazetteers. 
+   * 
+   * @param name
+   * @param dictionaries
+   * @return new Named Entity type according to one or more gazetteers
+   */
   public String gazetteerPostProcessing(Name name, Dictionaries dictionaries) { 
     String type;
     String neString = name.value().toLowerCase();
@@ -244,6 +249,5 @@ public class NERC {
     }
     return type; 
   }
-
 
 }
