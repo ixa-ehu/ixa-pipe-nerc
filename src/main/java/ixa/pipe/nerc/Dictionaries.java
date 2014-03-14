@@ -35,7 +35,7 @@ public class Dictionaries {
     try {
       while (lineIterator.hasNext()) {
         String line = lineIterator.nextLine();
-        all.add(line.toLowerCase().trim());
+        all.add(line.trim());
       }
     } finally {
       LineIterator.closeQuietly(lineIterator);

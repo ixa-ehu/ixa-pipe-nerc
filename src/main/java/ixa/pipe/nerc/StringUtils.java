@@ -1,3 +1,19 @@
+/*
+ *Copyright 2014 Rodrigo Agerri
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+ */
+
 package ixa.pipe.nerc;
 
 import java.util.ArrayList;
@@ -6,8 +22,15 @@ import java.util.List;
 import opennlp.tools.util.Span;
 
 public class StringUtils {
-
   
+  /**
+   * Finds a pattern (typically a named entity string) in a tokenized sentence. 
+   * It outputs the Span indexes of the named entity found, if any
+   * 
+   * @param pattern
+   * @param tokens
+   * @return token spans of the pattern (e.g. a named entity)
+   */
   public static List<Integer> exactTokenFinder(String pattern, String[] tokens) {
     String[] patternTokens = pattern.split(" ");
     int i, j; 
@@ -15,7 +38,7 @@ public class StringUtils {
     int sentenceLength = tokens.length;
     List<Integer> neTokens = new ArrayList<Integer>();
     for (j = 0; j <= sentenceLength - patternLength; ++j) {
-      for (i = 0; i < patternLength && patternTokens[i].equalsIgnoreCase(tokens[i + j]); ++i);
+      for (i = 0; i < patternLength && patternTokens[i].equals(tokens[i + j]); ++i);
       if (i >= patternLength) {
         neTokens.add(j);
         neTokens.add(i+j);
@@ -24,6 +47,14 @@ public class StringUtils {
     return neTokens;
   }
   
+  /**
+   * Finds a pattern (typically a named entity string) in a sentence string. 
+   * It outputs the offsets for the start and end characters named entity found, if any
+   * 
+   * @param pattern
+   * @param sentence
+   * @return
+   */
   public static List<Integer> exactStringFinder(String pattern, String sentence) {
     char[] patternArray = pattern.toCharArray(), sentenceArray = sentence.toCharArray();
     int i, j; 
@@ -39,46 +70,6 @@ public class StringUtils {
     }
     return neChars;
   }
-  
-  public static List<Integer> bndmStringFinder(String pattern, String source) {
-    char[] x = pattern.toCharArray(), y = source.toCharArray();
-    int i, j, s, d, last, m = x.length, n = y.length;
-    List<Integer> result = new ArrayList<Integer>();
-    
-    int[] b = new int[65536];
-
-    /* Pre processing */
-    for (i = 0; i < b.length; i++)
-        b[i] = 0;
-    s = 1;
-    for (i = m - 1; i >= 0; i--) {
-        b[x[i]] |= s;
-        s <<= 1;
-    }
-
-    /* Searching phase */
-    j = 0;
-    while (j <= n - m) {
-        i = m - 1;
-        last = m;
-        d = ~0;
-        while (i >= 0 && d != 0) {
-            d &= b[y[j + i]];
-            i--;
-            if (d != 0) {
-                if (i >= 0)
-                    last = i + 1;
-                else
-                    result.add(j);
-                    result.add(i + j);
-            }
-            d <<= 1;
-        }
-        j += last;
-    }
-    return result;
-}
-
   
   /**
    * 

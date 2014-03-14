@@ -34,8 +34,7 @@ import opennlp.tools.util.Span;
  * 
  */
 public class Annotate {
-
-  private final static boolean DEBUG = false;
+  
   private Dictionaries dictionaries;
   private NERC nameFinder;
   private boolean POSTPROCESS; 
@@ -71,8 +70,6 @@ public class Annotate {
   public void annotateNEsToKAF(KAFDocument kaf)
       throws IOException {
 
-    List<Span> probSpans = new ArrayList<Span>();
-    List<Name> names = new ArrayList<Name>();
     List<List<WF>> sentences = kaf.getSentences();
     for (List<WF> sentence : sentences) {
       String[] tokens = new String[sentence.size()];
@@ -81,14 +78,14 @@ public class Annotate {
         tokens[i] = sentence.get(i).getForm();
         tokenIds[i] = sentence.get(i).getId();
       }
-      probSpans = nameFinder.nercToSpans(tokens);
+      List<Span> probSpans = nameFinder.nercToSpans(tokens);
       if (DICTTAG) {
-        //TODO what about using the HUGE Google corpus for NER based on frecuencies?
+        //TODO what about using a HUGE corpus for NER based on frecuencies?
         List<Span> dictSpans = nameFinder.nerFromDictToSpans(tokens, dictionaries);
         nameFinder.concatenateSpans(probSpans, dictSpans);
       }
       Span[] allSpans = NameFinderME.dropOverlappingSpans(probSpans.toArray(new Span[probSpans.size()]));
-      nameFinder.getNamesFromSpans(names, allSpans, tokens);
+      List<Name> names = nameFinder.getNamesFromSpans(allSpans, tokens);
       for (Name name : names) {
         Integer start_index = name.getSpan().getStart();
         Integer end_index = name.getSpan().getEnd();

@@ -96,20 +96,16 @@ import opennlp.tools.util.Span;
    * @return a List of names
    */
   public List<Name> getNamesProb(String[] tokens) {
-    List<Name> names = new ArrayList<Name>();
     List<Span> origSpans = nercToSpans(tokens);
-    for (Span span : origSpans) {
-      System.err.println(span);
-    }
     Span[] neSpans = NameFinderME.dropOverlappingSpans(origSpans.toArray(new Span[origSpans.size()]));
-    getNamesFromSpans(names,neSpans,tokens);
+    List<Name> names = getNamesFromSpans(neSpans,tokens);
     return names;
   }
   
   /**
-   * This method receives as an input an array of Apache OpenNLP tokenized text
+   * This method receives as input an array of tokenized text
    * and calls the NameFinderME.find(tokens) to recognize and classify Named
-   * Entities. It outputs the spans of the detected and classified Named Entities
+   * Entities. It outputs the spans of the detected and classified Named Entities. 
    * 
    * From Apache OpenNLP documentation: "After every document clearAdaptiveData
    * must be called to clear the adaptive data in the feature generators. Not
@@ -118,7 +114,7 @@ import opennlp.tools.util.Span;
    * 
    * @param tokens
    *          an array of tokenized text
-   * @return an list of OpenNLP Spans of annotated text
+   * @return an list of Spans of Named Entities
    */
   public List<Span> nercToSpans(String[] tokens) {
     Span[] annotatedText = nercDetector.find(tokens);
@@ -128,19 +124,21 @@ import opennlp.tools.util.Span;
   }
   
   /**
-   * Populates a list of {@link Name} objects from spans and tokens
+   * Creates a list of {@link Name} objects from spans and tokens
    * 
-   * @param names
    * @param neSpans
    * @param tokens
+   * @return a list of name objects
    */
-  public void getNamesFromSpans(List<Name> names, Span[] neSpans, String[]tokens) {
+  public List<Name> getNamesFromSpans(Span[] neSpans, String[] tokens) {
+    List<Name> names = new ArrayList<Name>();
     for (Span neSpan : neSpans) { 
       String nameString = StringUtils.getStringFromSpan(neSpan,tokens);
       String neType = neSpan.getType();
       Name name = nameFactory.createName(nameString, neType, neSpan);
       names.add(name);
     }
+    return names;
   }
   
   /**
@@ -155,10 +153,9 @@ import opennlp.tools.util.Span;
    */
   public List<Name> getNamesDict(String[] tokens, Dictionaries dictionaries) {
     
-    List<Name> names = new ArrayList<Name>();
     List<Span> origSpans = nerFromDictToSpans(tokens,dictionaries);
     Span[] neSpans = NameFinderME.dropOverlappingSpans(origSpans.toArray(new Span[origSpans.size()]));
-    getNamesFromSpans(names,neSpans,tokens);
+    List<Name> names = getNamesFromSpans(neSpans,tokens);
     return names;
   }
   
@@ -173,9 +170,6 @@ import opennlp.tools.util.Span;
     List<Span> neSpans = new ArrayList<Span>();
     for (String neDict : dictionaries.all) {
       List<Integer> neIds = StringUtils.exactTokenFinder(neDict,tokens);
-      /*for (Integer neId : neIds) {
-        System.err.println(neId);
-      }*/
       if (!neIds.isEmpty()) {
         Span neSpan = new Span(neIds.get(0), neIds.get(1), "MISC");
         neSpans.add(neSpan); 
@@ -198,7 +192,7 @@ import opennlp.tools.util.Span;
   }
   
   /**
-   * It classifies Named Entities according to its presence in one or more 
+   * Classifies Named Entities according to its presence in one or more 
    * gazetteers. 
    * 
    * @param name
