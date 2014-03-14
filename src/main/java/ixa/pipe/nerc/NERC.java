@@ -98,6 +98,9 @@ import opennlp.tools.util.Span;
   public List<Name> getNamesProb(String[] tokens) {
     List<Name> names = new ArrayList<Name>();
     List<Span> origSpans = nercToSpans(tokens);
+    for (Span span : origSpans) {
+      System.err.println(span);
+    }
     Span[] neSpans = NameFinderME.dropOverlappingSpans(origSpans.toArray(new Span[origSpans.size()]));
     getNamesFromSpans(names,neSpans,tokens);
     return names;
