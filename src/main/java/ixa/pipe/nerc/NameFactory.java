@@ -35,7 +35,7 @@ public class NameFactory {
    * Constructs a Name as a String with a class type (e.g. Person, 
    * location, organization, etc.)
    * 
-   * @param nameString string to be added to a Token object
+   * @param nameString string to be added to a Name object
    * @param neType the type of the Name
    * @return a new Name object
    * 
@@ -51,7 +51,7 @@ public class NameFactory {
    * Constructs a Name as a String with a type and a Span specified in terms of 
    * the number of tokens it contains.
    * 
-   * @param nameString string to be added to a Token object
+   * @param nameString string to be added to a Name object
    * @param neType the type of the Name
    * @param neSpan the span of the Name
    * @return a new Name object

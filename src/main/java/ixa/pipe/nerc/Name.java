@@ -58,7 +58,7 @@ public class Name {
    */
   public Name(String str, String type) {
     this.str = str;
-    this.type = type;
+    this.type = type.toUpperCase();
   }
   
   /**
@@ -70,7 +70,7 @@ public class Name {
    */
   public Name(String str, String type, Span neSpan) { 
     this.str = str;
-    this.type = type;
+    this.type = type.toUpperCase();
     this.neSpan = neSpan;
   }
 
@@ -87,7 +87,7 @@ public class Name {
    */
   public Name(String str, String type, int startOffset, int nameLength) {
     this.str = str;
-    this.type = type;
+    this.type = type.toUpperCase();
     setStartOffset(startOffset);
     setNameLength(nameLength);
   }
@@ -106,7 +106,7 @@ public class Name {
    */
   public Name(String str, String type, Span neSpan, int startOffset, int nameLength) {
     this.str = str;
-    this.type = type;
+    this.type = type.toUpperCase();
     this.neSpan = neSpan;
     setStartOffset(startOffset);
     setNameLength(nameLength);
@@ -155,7 +155,7 @@ public class Name {
    * @param neType
    */
   public void setType(final String neType) { 
-    type = neType;
+    type = neType.toUpperCase();
   }
   
   /**

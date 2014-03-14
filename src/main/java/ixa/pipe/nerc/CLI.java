@@ -71,6 +71,11 @@ public class CLI {
         .required(false)
         .help(
             "It is REQUIRED to choose a language to perform annotation with ixa-pipe-nerc");
+    
+    parser.addArgument("-g","--gazetteers").required(false).help("Use gazeteers. Three arguments are "+
+        "available: tag and post; if both are concatenated by a comma " +
+        "(e.g., 'tag,post'), both options will be activated.\n");
+    
     // parser.addArgument("-f","--format").choices("kaf","plain").setDefault("kaf").help("output annotation in plain native "
     // +
     // "Apache OpenNLP format or in KAF format. The default is KAF");
@@ -80,8 +85,10 @@ public class CLI {
      */
 
     // catch errors and print help
+    
     try {
       parsedArguments = parser.parseArgs(args);
+      System.err.println("CLI options: " + parsedArguments);
     } catch (ArgumentParserException e) {
       parser.handleError(e);
       System.out
@@ -93,7 +100,8 @@ public class CLI {
      * Load language parameters and construct annotators, read
      * and write kaf
      */
-
+    
+    String gazetteer = parsedArguments.getString("gazetteers");
     BufferedReader breader = null;
     BufferedWriter bwriter = null;
     try {
@@ -102,25 +110,31 @@ public class CLI {
 
       // read KAF document from inputstream
       KAFDocument kaf = KAFDocument.createFromStream(breader);
-
+      
       // language parameter
       String lang;
       if (parsedArguments.get("lang") == null) {
-	  lang = kaf.getLang();
+	    lang = kaf.getLang();
       }
       else {
-	  lang =  parsedArguments.getString("lang");
+	    lang =  parsedArguments.getString("lang");
       }
-
-      Annotate annotator = new Annotate(lang);
-      Dictionaries dictionaries = new Dictionaries(lang);
+      
       kaf.addLinguisticProcessor("entities","ixa-pipe-nerc-"+lang, "1.0");
-      // annotated Named Entities to KAF
-      annotator.annotateNEsToKAF(kaf,dictionaries);
+      Dictionaries dictionaries = new Dictionaries(lang);
+      
+      if (parsedArguments.get("gazetteers") != null) {
+        Annotate annotator = new Annotate(lang,gazetteer);
+        annotator.annotateNEsToKAF(kaf,dictionaries);
+      }
+      else { 
+        Annotate annotator = new Annotate(lang);
+        annotator.annotateNEsToKAF(kaf,dictionaries);
+      }
       bwriter.write(kaf.toString());
       bwriter.close();
       breader.close();
-      }
+    }
       catch (IOException e) {
       e.printStackTrace();
     }
