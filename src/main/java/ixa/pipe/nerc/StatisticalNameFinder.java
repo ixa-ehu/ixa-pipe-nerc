@@ -27,25 +27,24 @@ import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.Span;
 
  /**
- * Named Entity Recognition module based on Apache OpenNLP ML API and Gazetteers.  
+ * Named Entity Recognition module based on Apache OpenNLP Machine Learning API
  *  
  * @author ragerri 2014/03/14
  * 
  */
 
- public class NERC {
+ public class StatisticalNameFinder implements NameFinder {
 
    private TokenNameFinderModel nercModel;
    private NameFinderME nercDetector;
    private NameFactory nameFactory;
-   private final static boolean DEBUG = true;
 
   /**
    * It constructs an object NERC from the NERC class. First it loads a model,
    * then it initializes the nercModel and finally it creates a nercDetector
    * using such model.
    */
-  public NERC(InputStream trainedModel) {
+  public StatisticalNameFinder(InputStream trainedModel) {
 
     try {
       nercModel = new TokenNameFinderModel(trainedModel);
@@ -68,7 +67,7 @@ import opennlp.tools.util.Span;
    * using such model. This constructor also uses a NameFactory to create {@link Name}
    * objects
    */
-  public NERC(InputStream trainedModel, NameFactory nameFactory) {
+  public StatisticalNameFinder(InputStream trainedModel, NameFactory nameFactory) {
     this.nameFactory = nameFactory;
     try {
       nercModel = new TokenNameFinderModel(trainedModel);
@@ -95,7 +94,7 @@ import opennlp.tools.util.Span;
    * @param tokens an array of tokenized text
    * @return a List of names
    */
-  public List<Name> getNamesProb(String[] tokens) {
+  public List<Name> getNames(String[] tokens) {
     List<Span> origSpans = nercToSpans(tokens);
     Span[] neSpans = NameFinderME.dropOverlappingSpans(origSpans.toArray(new Span[origSpans.size()]));
     List<Name> names = getNamesFromSpans(neSpans,tokens);
@@ -118,7 +117,7 @@ import opennlp.tools.util.Span;
    */
   public List<Span> nercToSpans(String[] tokens) {
     Span[] annotatedText = nercDetector.find(tokens);
-    nercDetector.clearAdaptiveData();
+    clearAdaptiveData();
     List<Span> probSpans = new ArrayList<Span>(Arrays.asList(annotatedText));
     return probSpans;
   }
@@ -140,44 +139,17 @@ import opennlp.tools.util.Span;
     }
     return names;
   }
-  
-  /**
-   * Gazetteer based Named Entity Detector. Note that this method
-   * does not classify the named entities, only assigns a "MISC" tag to every
-   * Named Entity. Pass the result of this function to {@link gazetteerPostProcessing} for
-   * gazetteer-based Named Entity classification.
-   * 
-   * @param tokens
-   * @param dictionaries
-   * @return a list of detected names
-   */
-  public List<Name> getNamesDict(String[] tokens, Dictionaries dictionaries) {
-    
-    List<Span> origSpans = nerFromDictToSpans(tokens,dictionaries);
-    Span[] neSpans = NameFinderME.dropOverlappingSpans(origSpans.toArray(new Span[origSpans.size()]));
-    List<Name> names = getNamesFromSpans(neSpans,tokens);
-    return names;
-  }
-  
-  /**
-  * Detects Named Entities in a gazetteer
-  * 
-  * @param tokens
-  * @param dictionaries
-  * @return spans of the Named Entities
-  */
-  public List<Span> nerFromDictToSpans(String[] tokens, Dictionaries dictionaries) {
-    List<Span> neSpans = new ArrayList<Span>();
-    for (String neDict : dictionaries.all) {
-      List<Integer> neIds = StringUtils.exactTokenFinder(neDict,tokens);
-      if (!neIds.isEmpty()) {
-        Span neSpan = new Span(neIds.get(0), neIds.get(1), "MISC");
-        neSpans.add(neSpan); 
-      }
-    }
-    return neSpans;
-  }
  
+  /**
+   * Forgets all adaptive data which was collected during previous
+   * calls to one of the find methods.
+   *
+   * This method is typical called at the end of a document.
+   */
+  public void clearAdaptiveData() {
+    nercDetector.clearAdaptiveData();
+  }
+  
   /**
    * Concatenates two span lists adding the spans of the second parameter
    * to the list in first parameter
@@ -191,60 +163,4 @@ import opennlp.tools.util.Span;
     }
   }
   
-  /**
-   * Classifies Named Entities according to its presence in one or more 
-   * gazetteers. 
-   * 
-   * @param name
-   * @param dictionaries
-   * @return new Named Entity type according to one or more gazetteers
-   */
-  public String gazetteerPostProcessing(Name name, Dictionaries dictionaries) { 
-    String type;
-    String neString = name.value().toLowerCase();
-    if (DEBUG) {
-      System.err.println("Checking " + neString + " for post-processing ...");
-    }
-    if (!name.getType().equalsIgnoreCase("PERSON") && dictionaries.knownPerson.contains(neString)) {
-      if (DEBUG) { 
-        System.err.println(neString + " to PERSON!");
-      }
-      type = "PERSON";
-    }
-    else if (!name.getType().equalsIgnoreCase("PERSON") && dictionaries.person.contains(neString)) { 
-      if (DEBUG) { 
-        System.err.println(neString + " to WikiPERSON!");
-      }
-      type = "PERSON";
-    }
-    else if (!name.getType().equalsIgnoreCase("ORGANIZATION") && dictionaries.knownOrganization.contains(neString)) { 
-      if (DEBUG) { 
-        System.err.println(neString + " to ORGANIZATION!");
-      }
-      type = "ORGANIZATION";
-    }
-    else if (!name.getType().equalsIgnoreCase("ORGANIZATION") && dictionaries.organization.contains(neString)) { 
-      if (DEBUG) { 
-        System.err.println(neString + " to WikiORGANIZATION!");
-      }
-      type = "ORGANIZATION";
-    }
-    else if (!name.getType().equalsIgnoreCase("LOCATION") && dictionaries.knownLocation.contains(neString)) { 
-      if (DEBUG) { 
-        System.err.println(neString + " to LOCATION!");
-      }
-      type = "LOCATION";
-    }
-    else if (!name.getType().equalsIgnoreCase("LOCATION") && dictionaries.location.contains(neString)) { 
-      if (DEBUG) { 
-        System.err.println(neString + " to WikiLOCATION!");
-      }
-      type = "LOCATION";
-    }
-    else {
-      type = name.getType();
-    }
-    return type; 
-  }
-
 }

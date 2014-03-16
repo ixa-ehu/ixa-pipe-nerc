@@ -36,7 +36,7 @@ import opennlp.tools.util.Span;
 public class Annotate {
   
   private Dictionaries dictionaries;
-  private NERC nameFinder;
+  private NameFinder nameFinder;
   private boolean POSTPROCESS; 
   private boolean DICTTAG;
   
@@ -44,7 +44,7 @@ public class Annotate {
     Models modelRetriever = new Models();
     InputStream nerModel = modelRetriever.getNERModel(cmdOption);
     NameFactory nameFactory = new NameFactory();
-    nameFinder = new NERC(nerModel,nameFactory);
+    nameFinder = new StatisticalNameFinder(nerModel,nameFactory);
     POSTPROCESS = false;
   }
   
@@ -53,7 +53,7 @@ public class Annotate {
     Models modelRetriever = new Models();
     InputStream nerModel = modelRetriever.getNERModel(cmdOption);
     NameFactory nameFactory = new NameFactory();
-    nameFinder = new NERC(nerModel,nameFactory);
+    nameFinder = new StatisticalNameFinder(nerModel,nameFactory);
     if (gazetteerOption.equalsIgnoreCase("post")) { 
       POSTPROCESS = true;
     }
@@ -81,8 +81,8 @@ public class Annotate {
       List<Span> probSpans = nameFinder.nercToSpans(tokens);
       if (DICTTAG) {
         //TODO what about using a HUGE corpus for NER based on frecuencies?
-        List<Span> dictSpans = nameFinder.nerFromDictToSpans(tokens, dictionaries);
-        nameFinder.concatenateSpans(probSpans, dictSpans);
+        //List<Span> dictSpans = nameFinder.nerFromDictToSpans(tokens, dictionaries);
+        //nameFinder.concatenateSpans(probSpans, dictSpans);
       }
       Span[] allSpans = NameFinderME.dropOverlappingSpans(probSpans.toArray(new Span[probSpans.size()]));
       List<Name> names = nameFinder.getNamesFromSpans(allSpans, tokens);
@@ -95,7 +95,8 @@ public class Annotate {
         references.add(nameTerms);
         String neType;
         if (POSTPROCESS) {
-          neType = nameFinder.gazetteerPostProcessing(name,dictionaries);
+          //neType = nameFinder.gazetteerPostProcessing(name,dictionaries);
+          neType = "MISC";
         }
         else { 
           neType = name.getType();
