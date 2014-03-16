@@ -16,6 +16,7 @@
 
 package ixa.pipe.nerc;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import opennlp.tools.namefind.NameFinderME;
@@ -74,6 +75,29 @@ import opennlp.tools.util.Span;
    * @return spans of the Named Entities all 
    */
    public List<Span> nercToSpans(String[] tokens) {
+     List<Span> neSpans = new ArrayList<Span>();
+     Iterator<String> dictIterator = dictionaries.all.iterator();
+     while(dictIterator.hasNext()) {
+       String neDict = dictIterator.next();
+       List<Integer> neIds = StringUtils.exactTokenFinder(neDict,tokens);
+       if (!neIds.isEmpty()) {
+         Span neSpan = new Span(neIds.get(0), neIds.get(1), "MISC");
+         neSpans.add(neSpan); 
+       }
+     }
+     return neSpans;
+   }
+  
+  /**
+   * Detects Named Entities in a dictionary and marks them as "MISC". Apply 
+   * the dictionaryClassifier function to "classify" Named Entities based on 
+   * {@link Dictionaries} 
+   * 
+   * @param tokens
+   * @param dictionaries
+   * @return spans of the Named Entities all 
+   */
+   public List<Span> nercToSpans1(String[] tokens) {
      List<Span> neSpans = new ArrayList<Span>();
      for (String neDict : dictionaries.all) {
        List<Integer> neIds = StringUtils.exactTokenFinder(neDict,tokens);

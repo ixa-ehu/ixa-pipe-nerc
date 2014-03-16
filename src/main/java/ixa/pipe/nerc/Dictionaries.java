@@ -21,7 +21,7 @@ public class Dictionaries {
   InputStream knownOrganizationFile;
   InputStream knownPeopleFile;
   
-  public final List<String> all = new ArrayList<String>();
+  public final Set<String> all = new HashSet<String>();
   public final Set<String> location = new HashSet<String>();
   public final Set<String> organization = new HashSet<String>();
   public final Set<String> person = new HashSet<String>();

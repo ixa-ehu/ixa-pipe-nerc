@@ -37,6 +37,7 @@ public class Annotate {
   
   private Dictionaries dictionaries;
   private NameFinder nameFinder;
+  private DictionaryNameFinder dictFinder;
   private boolean POSTPROCESS; 
   private boolean DICTTAG;
   
@@ -45,15 +46,15 @@ public class Annotate {
     InputStream nerModel = modelRetriever.getNERModel(cmdOption);
     NameFactory nameFactory = new NameFactory();
     nameFinder = new StatisticalNameFinder(nerModel,nameFactory);
-    POSTPROCESS = false;
   }
   
   public Annotate(String cmdOption, String gazetteerOption) {
-    dictionaries = new Dictionaries(cmdOption);
+    NameFactory nameFactory = new NameFactory();
     Models modelRetriever = new Models();
     InputStream nerModel = modelRetriever.getNERModel(cmdOption);
-    NameFactory nameFactory = new NameFactory();
     nameFinder = new StatisticalNameFinder(nerModel,nameFactory);
+    dictionaries = new Dictionaries(cmdOption);
+    dictFinder = new DictionaryNameFinder(dictionaries,nameFactory);
     if (gazetteerOption.equalsIgnoreCase("post")) { 
       POSTPROCESS = true;
     }
@@ -81,8 +82,8 @@ public class Annotate {
       List<Span> probSpans = nameFinder.nercToSpans(tokens);
       if (DICTTAG) {
         //TODO what about using a HUGE corpus for NER based on frecuencies?
-        //List<Span> dictSpans = nameFinder.nerFromDictToSpans(tokens, dictionaries);
-        //nameFinder.concatenateSpans(probSpans, dictSpans);
+        List<Span> dictSpans = dictFinder.nercToSpans(tokens);
+        dictFinder.concatenateSpans(probSpans, dictSpans);
       }
       Span[] allSpans = NameFinderME.dropOverlappingSpans(probSpans.toArray(new Span[probSpans.size()]));
       List<Name> names = nameFinder.getNamesFromSpans(allSpans, tokens);
@@ -95,8 +96,8 @@ public class Annotate {
         references.add(nameTerms);
         String neType;
         if (POSTPROCESS) {
-          //neType = nameFinder.gazetteerPostProcessing(name,dictionaries);
-          neType = "MISC";
+          neType = dictFinder.dictionaryClassifier(name, dictionaries);
+          //neType = "MISC";
         }
         else { 
           neType = name.getType();
