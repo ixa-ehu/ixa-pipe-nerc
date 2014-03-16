@@ -76,9 +76,7 @@ import opennlp.tools.util.Span;
    */
    public List<Span> nercToSpans(String[] tokens) {
      List<Span> neSpans = new ArrayList<Span>();
-     Iterator<String> dictIterator = dictionaries.all.iterator();
-     while(dictIterator.hasNext()) {
-       String neDict = dictIterator.next();
+     for (String neDict : dictionaries.all) {
        List<Integer> neIds = StringUtils.exactTokenFinder(neDict,tokens);
        if (!neIds.isEmpty()) {
          Span neSpan = new Span(neIds.get(0), neIds.get(1), "MISC");
