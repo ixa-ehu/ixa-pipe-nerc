@@ -45,7 +45,7 @@ import org.apache.commons.io.FileUtils;
  * @author ragerri
  * 
  */
-public class IOUtils {
+public class InputOutputUtils {
 
   private static void checkInputFile(String name, File inFile) {
 

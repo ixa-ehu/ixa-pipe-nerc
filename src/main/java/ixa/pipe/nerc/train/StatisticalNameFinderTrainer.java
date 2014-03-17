@@ -35,7 +35,7 @@ import org.apache.commons.io.FileUtils;
  * 
  */
 
-public class NERCTrainer {
+public class StatisticalNameFinderTrainer {
 
   String lang;  
   String trainData;
@@ -43,14 +43,14 @@ public class NERCTrainer {
   ObjectStream<NameSample> trainSamples;
   ObjectStream<NameSample> testSamples;
   
-  public NERCTrainer(String trainData, String testData, String lang) throws IOException {
+  public StatisticalNameFinderTrainer(String trainData, String testData, String lang) throws IOException {
     
     this.lang = lang;
     this.trainData = trainData;
     this.testData = testData;
-    ObjectStream<String> trainStream = IOUtils.readInputData(trainData);
+    ObjectStream<String> trainStream = InputOutputUtils.readInputData(trainData);
     trainSamples = new Conll03NameStream(lang,trainStream);
-    ObjectStream<String> testStream = IOUtils.readInputData(testData);
+    ObjectStream<String> testStream = InputOutputUtils.readInputData(testData);
     testSamples = new Conll03NameStream(lang,testStream);
   }
 
@@ -137,8 +137,8 @@ public class NERCTrainer {
       int iterRange = Integer.valueOf(evalRange[1]);
       for (int i = start + 10; i < iterList.size() + 10; i += iterRange) {
         // reading data for training and test
-        ObjectStream<String> trainStream = IOUtils.readInputData(trainData);
-        ObjectStream<String> devStream = IOUtils.readInputData(devData);
+        ObjectStream<String> trainStream = InputOutputUtils.readInputData(trainData);
+        ObjectStream<String> devStream = InputOutputUtils.readInputData(devData);
         ObjectStream<NameSample> trainSamples = new Conll03NameStream(lang,trainStream);
         ObjectStream<NameSample> devSamples = new Conll03NameStream(lang,devStream);
 
@@ -172,8 +172,8 @@ public class NERCTrainer {
     }
     // print F1 results by iteration
     System.out.println();
-    IOUtils.printIterationResults(results);
-    IOUtils.getBestIterations(results, allParams);
+    InputOutputUtils.printIterationResults(results);
+    InputOutputUtils.getBestIterations(results, allParams);
     finalParams = allParams.get(0);
     System.out.println("Final Params " + finalParams.get(0) + " "
         + finalParams.get(1));

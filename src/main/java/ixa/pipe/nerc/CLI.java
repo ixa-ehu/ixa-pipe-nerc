@@ -17,6 +17,8 @@
 package ixa.pipe.nerc;
 
 import ixa.kaflib.KAFDocument;
+import ixa.pipe.nerc.train.InputOutputUtils;
+import ixa.pipe.nerc.train.StatisticalNameFinderTrainer;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -25,14 +27,19 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
 import net.sourceforge.argparse4j.ArgumentParsers;
+import net.sourceforge.argparse4j.inf.ArgumentGroup;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 
+import opennlp.tools.namefind.TokenNameFinderModel;
+import opennlp.tools.util.TrainingParameters;
+
+import org.apache.commons.io.FilenameUtils;
 import org.jdom2.JDOMException;
 
 /**
- * IXA-OpenNLP NERC using Apache OpenNLP.
+ * 
  *
  * @author ragerri
  * @version 1.0
@@ -43,12 +50,6 @@ public class CLI {
 
   /**
    *
-   * BufferedReader (from standard input) and BufferedWriter are opened. The
-   * module takes KAF and reads the header, the text, terms elements and uses
-   * Annotate class to annotate Named Entities and to add the entities element
-   * to the KAF read from standard input. Finally, the modified KAF document is
-   * passed via standard output.
-   *
    * @param args
    * @throws IOException
    * @throws JDOMException
@@ -56,35 +57,42 @@ public class CLI {
   public static void main(String[] args) throws IOException, JDOMException {
 
     Namespace parsedArguments = null;
-
-    // create Argument Parser
     ArgumentParser parser = ArgumentParsers
         .newArgumentParser("ixa-pipe-nerc-1.0.jar")
         .description(
-            "ixa-pipe-nerc-1.0 is a multilingual NERC module developed by IXA NLP Group " +
-            "based on Apache OpenNLP.\n");
-
-    // specify language
-    parser
+            "ixa-pipe-nerc-1.0 is a multilingual NERC module developed by IXA NLP Group.\n");
+    
+    ////////////////////////
+    //// Annotation CLI ////
+    ////////////////////////
+    
+    ArgumentGroup annotateGroup = parser.addArgumentGroup("NERC tagging options");
+    annotateGroup
         .addArgument("-l", "--lang")
         .choices("en", "es")
         .required(false)
         .help(
             "It is REQUIRED to choose a language to perform annotation with ixa-pipe-nerc");
-    
-    parser.addArgument("-g","--gazetteers").required(false).help("Use gazeteers. Three arguments are "+
+    annotateGroup.addArgument("-g","--gazetteers").required(false).help("Two arguments are "+
         "available: tag and post; if both are concatenated by a comma " +
-        "(e.g., 'tag,post'), both options will be activated.\n");
+        "(e.g., 'tag,post'), both options will be activated\n");
     
-    // parser.addArgument("-f","--format").choices("kaf","plain").setDefault("kaf").help("output annotation in plain native "
-    // +
-    // "Apache OpenNLP format or in KAF format. The default is KAF");
-
-    /*
-     * Parse the command line arguments
-     */
-
-    // catch errors and print help
+    //////////////////////
+    //// Training CLI ////
+    //////////////////////
+    
+    ArgumentGroup trainGroup = parser.addArgumentGroup("NERC training options");
+    trainGroup.addArgument("-t","--train").choices("baseline","dictionaries").required(false).help("Train NERC models");
+    trainGroup.addArgument("-p", "--params").required(true)
+        .help("load the parameters file");
+    trainGroup.addArgument("-i", "--input").required(true)
+        .help("Input training set");
+    trainGroup.addArgument("-e", "--evalSet").required(false)
+        .help("Input testset for evaluation");
+    trainGroup.addArgument("-d", "--devSet").required(false)
+        .help("Input development set for cross-evaluation");
+    trainGroup.addArgument("-o", "--output").help(
+        "choose output file to save the annotation");
     
     try {
       parsedArguments = parser.parseArgs(args);
@@ -101,16 +109,56 @@ public class CLI {
      * and write kaf
      */
     
-    String gazetteer = parsedArguments.getString("gazetteers");
-    BufferedReader breader = null;
-    BufferedWriter bwriter = null;
     try {
-      breader = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
-      bwriter = new BufferedWriter(new OutputStreamWriter(System.out, "UTF-8"));
-
+      
+      if (parsedArguments.get("train") != null) {
+        String trainFile = parsedArguments.getString("input");
+        String testFile = parsedArguments.getString("evalSet");
+        String devFile = parsedArguments.getString("devSet");
+        String outModel = null;
+        // load training parameters file
+        String paramFile = parsedArguments.getString("params");
+        TrainingParameters params = InputOutputUtils.loadTrainingParameters(paramFile);
+        String lang = params.getSettings().get("Language");
+        String evalParam = params.getSettings().get("CrossEval");
+        String[] evalRange = evalParam.split("[ :-]");
+        
+        if (parsedArguments.get("output") != null) {
+          outModel = parsedArguments.getString("output");
+        } else {
+          outModel = FilenameUtils.removeExtension(trainFile) + "-"
+              + parsedArguments.get("train").toString() + "-model" + ".bin";
+        }
+        
+        if (parsedArguments.getString("train").equalsIgnoreCase("baseline")) {
+            StatisticalNameFinderTrainer nercTrainer = new StatisticalNameFinderTrainer(trainFile, testFile,lang);
+            TokenNameFinderModel trainedModel = null;
+            if (evalRange.length==2) {
+              if (parsedArguments.get("devSet") == null) {
+                InputOutputUtils.devSetException();
+              } else {
+                trainedModel = nercTrainer.trainCrossEval(trainFile, devFile,
+                    params, evalRange);
+              }
+            } else {
+              trainedModel = nercTrainer.train(params);
+            }
+            InputOutputUtils.saveModel(trainedModel, outModel);
+            System.out.println();
+            System.out.println("Wrote trained NERC model to " + outModel);
+          }
+      }
+    
+    ////////////////////
+    //// Annotation ////
+    ////////////////////
+    else {
+      String gazetteer = parsedArguments.getString("gazetteers");
+      BufferedReader breader = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
+      BufferedWriter bwriter = new BufferedWriter(new OutputStreamWriter(System.out, "UTF-8"));
+      
       // read KAF document from inputstream
       KAFDocument kaf = KAFDocument.createFromStream(breader);
-      
       // language parameter
       String lang;
       if (parsedArguments.get("lang") == null) {
@@ -119,9 +167,6 @@ public class CLI {
       else {
 	    lang =  parsedArguments.getString("lang");
       }
-      
-      kaf.addLinguisticProcessor("entities","ixa-pipe-nerc-"+lang, "1.0");
-      
       if (parsedArguments.get("gazetteers") != null) {
         Annotate annotator = new Annotate(lang,gazetteer);
         annotator.annotateNEsToKAF(kaf);
@@ -130,9 +175,11 @@ public class CLI {
         Annotate annotator = new Annotate(lang);
         annotator.annotateNEsToKAF(kaf);
       }
+      kaf.addLinguisticProcessor("entities","ixa-pipe-nerc-"+lang, "1.0");
       bwriter.write(kaf.toString());
       bwriter.close();
       breader.close();
+     }
     }
       catch (IOException e) {
       e.printStackTrace();
