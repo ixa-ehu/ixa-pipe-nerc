@@ -91,7 +91,8 @@ public class Annotate {
         List<Span> locDictSpans = locDictFinder.nercToSpans(tokens);
         perDictFinder.concatenateSpans(perDictSpans,orgDictSpans);
         perDictFinder.concatenateSpans(perDictSpans,locDictSpans);
-        perDictFinder.concatenateNoOverlappingSpans(allSpans, perDictSpans);
+        List<Span> dictSpans = perDictFinder.concatenateNoOverlappingSpans(allSpans, perDictSpans);
+        allSpans = dictSpans;
       }
       if (DICTTAG) {
         allSpans = perDictFinder.nercToSpans(tokens);

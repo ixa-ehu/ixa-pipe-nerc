@@ -84,9 +84,7 @@ import opennlp.tools.util.Span;
   }
   
   /**
-   * Detects Named Entities in a dictionary and marks them as "MISC". Apply 
-   * the dictionaryClassifier function to "classify" Named Entities based on 
-   * {@link Dictionaries} 
+   * Detects Named Entities in a {@link Gazetteer} by type 
    * 
    * @param tokens
    * @param dictionaries
@@ -136,80 +134,30 @@ import opennlp.tools.util.Span;
   }
   
   /**
-   * Concatenates two span lists adding the spans of the second parameter
-   * to the list in first parameter if the span in the second parameter does not 
+   * Concatenates two span lists adding the spans to a new list
+   * if the span in the second parameter does not 
    * exist in the first
    * 
-   * @param allSpans
-   * @param neSpans
+   * @param preList
+   * @param postList
+   * @return a list containing the spans of the two lists if they are not duplicate
    */
-  public void concatenateNoOverlappingSpans(List<Span> allSpans, List<Span> neSpans) {
-    for (Span span : allSpans) {
-      for (Span neSpan : neSpans) {
-        if (span.contains(neSpan)) {
-          continue;
+  public List<Span> concatenateNoOverlappingSpans(List<Span> preList, List<Span> postList) {
+    List<Span> allSpans = new ArrayList<Span>();
+    for (Span span1 : preList) {
+      for (Span span2 : postList) {
+        if (!span2.contains(span1)) {
+          allSpans.add(span1);
+        }
+        else if (span2.contains(span1)) {
+          allSpans.add(span2);
         }
         else {
-          allSpans.add(span);
+          allSpans.add(span2);
         }
       }
     }
-  }
-  
-  /**
-   * Classifies Named Entities according to its presence in one or more 
-   * gazetteers. 
-   * 
-   * @param name
-   * @param dictionaries
-   * @return new Named Entity type according to one or more gazetteers
-   */
-  public String dictionaryClassifier(Name name, Dictionaries dictionaries) { 
-    String type;
-    String neString = name.value().toLowerCase();
-    if (DEBUG) {
-      System.err.println("Checking " + neString + " for post-processing ...");
-    }
-    if (!name.getType().equalsIgnoreCase("PERSON") && dictionaries.knownPerson.contains(neString)) {
-      if (DEBUG) { 
-        System.err.println(neString + " to PERSON!");
-      }
-      type = "PERSON";
-    }
-    else if (!name.getType().equalsIgnoreCase("PERSON") && dictionaries.person.contains(neString)) { 
-      if (DEBUG) { 
-        System.err.println(neString + " to WikiPERSON!");
-      }
-      type = "PERSON";
-    }
-    else if (!name.getType().equalsIgnoreCase("ORGANIZATION") && dictionaries.knownOrganization.contains(neString)) { 
-      if (DEBUG) { 
-        System.err.println(neString + " to ORGANIZATION!");
-      }
-      type = "ORGANIZATION";
-    }
-    else if (!name.getType().equalsIgnoreCase("ORGANIZATION") && dictionaries.organization.contains(neString)) { 
-      if (DEBUG) { 
-        System.err.println(neString + " to WikiORGANIZATION!");
-      }
-      type = "ORGANIZATION";
-    }
-    else if (!name.getType().equalsIgnoreCase("LOCATION") && dictionaries.knownLocation.contains(neString)) { 
-      if (DEBUG) { 
-        System.err.println(neString + " to LOCATION!");
-      }
-      type = "LOCATION";
-    }
-    else if (!name.getType().equalsIgnoreCase("LOCATION") && dictionaries.location.contains(neString)) { 
-      if (DEBUG) { 
-        System.err.println(neString + " to WikiLOCATION!");
-      }
-      type = "LOCATION";
-    }
-    else {
-      type = name.getType();
-    }
-    return type; 
+    return allSpans;
   }
   
   public void clearAdaptiveData() {

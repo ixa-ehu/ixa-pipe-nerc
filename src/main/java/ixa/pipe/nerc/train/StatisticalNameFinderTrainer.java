@@ -1,7 +1,6 @@
 
 package ixa.pipe.nerc.train;
 
-import ixa.pipe.nerc.Dictionaries;
 import ixa.pipe.nerc.Gazetteer;
 
 import java.io.File;
@@ -58,7 +57,7 @@ public class StatisticalNameFinderTrainer {
     //dict = new Gazetteer(lang);
   }
 
-  public static AdaptiveFeatureGenerator createDefaultFeatures1() {
+  public static AdaptiveFeatureGenerator createDefaultFeatures() {
     return new CachedFeatureGenerator(new AdaptiveFeatureGenerator[] {
         new WindowFeatureGenerator(new TokenFeatureGenerator(), 2, 2),
         new WindowFeatureGenerator(new TokenClassFeatureGenerator(true), 2, 2),
@@ -67,7 +66,7 @@ public class StatisticalNameFinderTrainer {
         new SentenceFeatureGenerator(true, false) });
   }
   
-  public static AdaptiveFeatureGenerator createDefaultFeatures() {
+  public static AdaptiveFeatureGenerator createDefaultFeatures1() {
         return new CachedFeatureGenerator(new AdaptiveFeatureGenerator[] {
             new WindowFeatureGenerator(new TokenFeatureGenerator(), 2, 2),
             new WindowFeatureGenerator(new TokenClassFeatureGenerator(true), 2, 2),

@@ -106,11 +106,6 @@ public class CLI {
           .println("Run java -jar target/ixa-pipe-nerc-1.0.jar (tag|train) -help for details");
       System.exit(1);
     }
-
-    /*
-     * Load language parameters and construct annotators, read
-     * and write kaf
-     */
     
     try {
       
