@@ -8,14 +8,14 @@ import java.util.List;
 import opennlp.tools.util.featuregen.FeatureGeneratorAdapter;
 
 
-public class DictionaryFeatureGenerator extends FeatureGeneratorAdapter {
+public class DictionaryFeatures extends FeatureGeneratorAdapter {
 
   private InSpanGenerator isg;
   
-  public DictionaryFeatureGenerator(Dictionaries dict) {
+  public DictionaryFeatures(Dictionaries dict) {
     this("",dict);
   }
-  public DictionaryFeatureGenerator(String prefix, Dictionaries dict) {
+  public DictionaryFeatures(String prefix, Dictionaries dict) {
     setDictionary(prefix,dict);
   }
   

@@ -16,6 +16,8 @@
 
 package ixa.pipe.nerc;
 
+import ixa.pipe.nerc.train.StatisticalNameFinderTrainer;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -25,6 +27,7 @@ import java.util.List;
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.Span;
+import opennlp.tools.util.featuregen.AdaptiveFeatureGenerator;
 
  /**
  * Named Entity Recognition module based on Apache OpenNLP Machine Learning API
@@ -58,7 +61,8 @@ import opennlp.tools.util.Span;
         }
       }
     }
-    nercDetector = new NameFinderME(nercModel);
+    AdaptiveFeatureGenerator features = StatisticalNameFinderTrainer.createDefaultDictionaryFeatures();
+    nercDetector = new NameFinderME(nercModel,features,NameFinderME.DEFAULT_BEAM_SIZE);
   }
   
   /**

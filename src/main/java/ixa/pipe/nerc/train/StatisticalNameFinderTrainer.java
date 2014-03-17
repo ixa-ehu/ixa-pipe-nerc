@@ -1,6 +1,8 @@
 
 package ixa.pipe.nerc.train;
 
+import ixa.pipe.nerc.Dictionaries;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,7 +20,6 @@ import opennlp.tools.util.TrainingParameters;
 import opennlp.tools.util.featuregen.AdaptiveFeatureGenerator;
 import opennlp.tools.util.featuregen.BigramNameFeatureGenerator;
 import opennlp.tools.util.featuregen.CachedFeatureGenerator;
-import opennlp.tools.util.featuregen.DictionaryFeatureGenerator;
 import opennlp.tools.util.featuregen.OutcomePriorFeatureGenerator;
 import opennlp.tools.util.featuregen.PreviousMapFeatureGenerator;
 import opennlp.tools.util.featuregen.SentenceFeatureGenerator;
@@ -42,6 +43,7 @@ public class StatisticalNameFinderTrainer {
   String testData;
   ObjectStream<NameSample> trainSamples;
   ObjectStream<NameSample> testSamples;
+  static Dictionaries dict;
   
   public StatisticalNameFinderTrainer(String trainData, String testData, String lang) throws IOException {
     
@@ -52,9 +54,10 @@ public class StatisticalNameFinderTrainer {
     trainSamples = new Conll03NameStream(lang,trainStream);
     ObjectStream<String> testStream = InputOutputUtils.readInputData(testData);
     testSamples = new Conll03NameStream(lang,testStream);
+    dict = new Dictionaries(lang);
   }
 
-  private static AdaptiveFeatureGenerator createDefaultFeatures() {
+  public static AdaptiveFeatureGenerator createDefaultFeatures() {
     return new CachedFeatureGenerator(new AdaptiveFeatureGenerator[] {
         new WindowFeatureGenerator(new TokenFeatureGenerator(), 2, 2),
         new WindowFeatureGenerator(new TokenClassFeatureGenerator(true), 2, 2),
@@ -63,13 +66,13 @@ public class StatisticalNameFinderTrainer {
         new SentenceFeatureGenerator(true, false) });
   }
   
-  private static AdaptiveFeatureGenerator createDefaultDictionaryFeatures() {
+  public static AdaptiveFeatureGenerator createDefaultDictionaryFeatures() {
         return new CachedFeatureGenerator(new AdaptiveFeatureGenerator[] {
             new WindowFeatureGenerator(new TokenFeatureGenerator(), 2, 2),
             new WindowFeatureGenerator(new TokenClassFeatureGenerator(true), 2, 2),
             new OutcomePriorFeatureGenerator(), new PreviousMapFeatureGenerator(),
             new BigramNameFeatureGenerator(),
-            //new DictionaryFeatureGenerator(),
+            new DictionaryFeatures(dict),
             new SentenceFeatureGenerator(true, false) });
   }
  
@@ -77,7 +80,7 @@ public class StatisticalNameFinderTrainer {
       throws IOException {
 
     // FEATURES (if null, Apache OpenNLP loads some defaults)
-    AdaptiveFeatureGenerator features = createDefaultFeatures();
+    AdaptiveFeatureGenerator features = createDefaultDictionaryFeatures();
     Map<String, Object> resources = null;
 
     // training model and evaluation
