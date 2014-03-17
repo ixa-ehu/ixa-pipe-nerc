@@ -34,10 +34,12 @@ import opennlp.tools.util.Span;
  * 
  */
 public class Annotate {
-  
-  private Dictionaries dictionaries;
+ 
   private NameFinder nameFinder;
-  private DictionaryNameFinder dictFinder;
+  private GazetteerNameFinder perDictFinder;
+  private GazetteerNameFinder orgDictFinder;
+  private GazetteerNameFinder locDictFinder;
+  private boolean STATISTICAL;
   private boolean POSTPROCESS; 
   private boolean DICTTAG;
   
@@ -46,6 +48,7 @@ public class Annotate {
     InputStream nerModel = modelRetriever.getNERModel(cmdOption);
     NameFactory nameFactory = new NameFactory();
     nameFinder = new StatisticalNameFinder(nerModel,nameFactory);
+    STATISTICAL = true;
   }
   
   public Annotate(String cmdOption, String gazetteerOption) {
@@ -53,24 +56,24 @@ public class Annotate {
     Models modelRetriever = new Models();
     InputStream nerModel = modelRetriever.getNERModel(cmdOption);
     nameFinder = new StatisticalNameFinder(nerModel,nameFactory);
-    dictionaries = new Dictionaries(cmdOption);
-    dictFinder = new DictionaryNameFinder(dictionaries,nameFactory);
+    perDictFinder = createDictNameFinder("en-wikipeople.lst","PERSON",nameFactory);
+    orgDictFinder = createDictNameFinder("en-wikiorganization.lst","ORGANIZATION",nameFactory);
+    locDictFinder = createDictNameFinder("en-wikilocation.lst","LOCATION",nameFactory);
     if (gazetteerOption.equalsIgnoreCase("post")) { 
       POSTPROCESS = true;
+      STATISTICAL = true;
     }
-    if (gazetteerOption.equalsIgnoreCase("tag")) { 
-      System.err.println("The tag option requires the post option: tag,post!!");
-      System.exit(1);
-    }
-    if (gazetteerOption.equalsIgnoreCase("post,tag") || gazetteerOption.equalsIgnoreCase("tag,post")) { 
-      POSTPROCESS = true;
+    if (gazetteerOption.equalsIgnoreCase("tag")) {
       DICTTAG = true;
+      STATISTICAL = false;
+      POSTPROCESS = false;
     }
   }
   
   public void annotateNEsToKAF(KAFDocument kaf)
       throws IOException {
-
+    
+    List<Span> allSpans = new ArrayList<Span>();
     List<List<WF>> sentences = kaf.getSentences();
     for (List<WF> sentence : sentences) {
       String[] tokens = new String[sentence.size()];
@@ -79,14 +82,26 @@ public class Annotate {
         tokens[i] = sentence.get(i).getForm();
         tokenIds[i] = sentence.get(i).getId();
       }
-      List<Span> probSpans = nameFinder.nercToSpans(tokens);
-      if (DICTTAG) {
-        //TODO what about using a HUGE corpus for NER based on frecuencies?
-        List<Span> dictSpans = dictFinder.nercToSpans(tokens);
-        dictFinder.concatenateSpans(probSpans, dictSpans);
+      if (STATISTICAL) {
+        allSpans = nameFinder.nercToSpans(tokens);
       }
-      Span[] allSpans = NameFinderME.dropOverlappingSpans(probSpans.toArray(new Span[probSpans.size()]));
-      List<Name> names = nameFinder.getNamesFromSpans(allSpans, tokens);
+      if (POSTPROCESS) {
+        List<Span> perDictSpans = perDictFinder.nercToSpans(tokens);
+        List<Span> orgDictSpans = orgDictFinder.nercToSpans(tokens);
+        List<Span> locDictSpans = locDictFinder.nercToSpans(tokens);
+        perDictFinder.concatenateSpans(perDictSpans,orgDictSpans);
+        perDictFinder.concatenateSpans(perDictSpans,locDictSpans);
+        perDictFinder.concatenateNoOverlappingSpans(allSpans, perDictSpans);
+      }
+      if (DICTTAG) {
+        allSpans = perDictFinder.nercToSpans(tokens);
+        List<Span> orgDictSpans = orgDictFinder.nercToSpans(tokens);
+        List<Span> locDictSpans = locDictFinder.nercToSpans(tokens);
+        perDictFinder.concatenateSpans(allSpans,orgDictSpans);
+        perDictFinder.concatenateSpans(allSpans,locDictSpans);
+      }
+      Span[] allSpansArray = NameFinderME.dropOverlappingSpans(allSpans.toArray(new Span[allSpans.size()]));
+      List<Name> names = nameFinder.getNamesFromSpans(allSpansArray, tokens);
       for (Name name : names) {
         Integer start_index = name.getSpan().getStart();
         Integer end_index = name.getSpan().getEnd();
@@ -94,17 +109,16 @@ public class Annotate {
             .copyOfRange(tokenIds, start_index, end_index)));
         List<List<Term>> references = new ArrayList<List<Term>>();
         references.add(nameTerms);
-        String neType;
-        if (POSTPROCESS) {
-          neType = dictFinder.dictionaryClassifier(name, dictionaries);
-          //neType = "MISC";
-        }
-        else { 
-          neType = name.getType();
-        }
-        kaf.createEntity(neType, references);
+        kaf.createEntity(name.getType(), references);
       }
     }
+  }
+  
+  public GazetteerNameFinder createDictNameFinder(String dictFile, String type, NameFactory nameFactory) { 
+    InputStream dictStream = getClass().getResourceAsStream("/"+dictFile);
+    Gazetteer dict = new Gazetteer(dictStream);
+    GazetteerNameFinder dictNameFinder = new GazetteerNameFinder(dict,type,nameFactory);
+    return dictNameFinder;
   }
   
 }

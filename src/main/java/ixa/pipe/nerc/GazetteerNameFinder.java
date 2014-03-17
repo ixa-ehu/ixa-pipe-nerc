@@ -16,35 +16,53 @@
 
 package ixa.pipe.nerc;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+
 
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.util.Span;
 
  /**
- * Named Entity Recognition module based on {@link Dictionaries}  
+ * Named Entity Recognition module based on {@link Gazetteer} objects 
  *  
  * @author ragerri 2014/03/14
  * 
  */
 
- public class DictionaryNameFinder implements NameFinder {
+ public class GazetteerNameFinder implements NameFinder {
 
+   private static final String DEFAULT_TYPE = "MISC";
+   private final String type;
+   
    private NameFactory nameFactory;
-   private Dictionaries dictionaries;
+   private Gazetteer gazetteer;
    private final static boolean DEBUG = true;
 
  
-  public DictionaryNameFinder(Dictionaries dictionaries) {
-    this.dictionaries = dictionaries;
-  
+  public GazetteerNameFinder(Gazetteer gazetteer, String type) {
+    this.gazetteer = gazetteer;
+    if (type == null) {
+      throw new IllegalArgumentException("type cannot be null!");
+    }
+    this.type = type;
   }
   
-  public DictionaryNameFinder(Dictionaries dictionaries, NameFactory nameFactory) {
-    this.dictionaries = dictionaries;
+  public GazetteerNameFinder(Gazetteer gazetteer) {
+    this(gazetteer, DEFAULT_TYPE);
+  }
+  
+  public GazetteerNameFinder(Gazetteer gazetteer, String type, NameFactory nameFactory) {
+    this.gazetteer = gazetteer;
     this.nameFactory = nameFactory;
+    if (type == null) {
+      throw new IllegalArgumentException("type cannot be null!");
+    }
     
+    this.type = type;
+  }
+  
+  public GazetteerNameFinder(Gazetteer gazetteer, NameFactory nameFactory) {
+    this(gazetteer,DEFAULT_TYPE,nameFactory);
   }
   
   /**
@@ -76,31 +94,10 @@ import opennlp.tools.util.Span;
    */
    public List<Span> nercToSpans(String[] tokens) {
      List<Span> neSpans = new ArrayList<Span>();
-     for (String neDict : dictionaries.all) {
+     for (String neDict : gazetteer.gazetteerList) {
        List<Integer> neIds = StringUtils.exactTokenFinder(neDict,tokens);
        if (!neIds.isEmpty()) {
-         Span neSpan = new Span(neIds.get(0), neIds.get(1), "MISC");
-         neSpans.add(neSpan); 
-       }
-     }
-     return neSpans;
-   }
-  
-  /**
-   * Detects Named Entities in a dictionary and marks them as "MISC". Apply 
-   * the dictionaryClassifier function to "classify" Named Entities based on 
-   * {@link Dictionaries} 
-   * 
-   * @param tokens
-   * @param dictionaries
-   * @return spans of the Named Entities all 
-   */
-   public List<Span> nercToSpans1(String[] tokens) {
-     List<Span> neSpans = new ArrayList<Span>();
-     for (String neDict : dictionaries.all) {
-       List<Integer> neIds = StringUtils.exactTokenFinder(neDict,tokens);
-       if (!neIds.isEmpty()) {
-         Span neSpan = new Span(neIds.get(0), neIds.get(1), "MISC");
+         Span neSpan = new Span(neIds.get(0), neIds.get(1), type);
          neSpans.add(neSpan); 
        }
      }
@@ -135,6 +132,27 @@ import opennlp.tools.util.Span;
   public void concatenateSpans(List<Span> allSpans, List<Span> neSpans) {
     for (Span span : neSpans) {
       allSpans.add(span);
+    }
+  }
+  
+  /**
+   * Concatenates two span lists adding the spans of the second parameter
+   * to the list in first parameter if the span in the second parameter does not 
+   * exist in the first
+   * 
+   * @param allSpans
+   * @param neSpans
+   */
+  public void concatenateNoOverlappingSpans(List<Span> allSpans, List<Span> neSpans) {
+    for (Span span : allSpans) {
+      for (Span neSpan : neSpans) {
+        if (span.contains(neSpan)) {
+          continue;
+        }
+        else {
+          allSpans.add(span);
+        }
+      }
     }
   }
   

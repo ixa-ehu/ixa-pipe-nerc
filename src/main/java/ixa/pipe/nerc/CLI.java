@@ -27,10 +27,11 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
 import net.sourceforge.argparse4j.ArgumentParsers;
-import net.sourceforge.argparse4j.inf.ArgumentGroup;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
+import net.sourceforge.argparse4j.inf.Subparser;
+import net.sourceforge.argparse4j.inf.Subparsers;
 
 import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.TrainingParameters;
@@ -61,19 +62,20 @@ public class CLI {
         .newArgumentParser("ixa-pipe-nerc-1.0.jar")
         .description(
             "ixa-pipe-nerc-1.0 is a multilingual NERC module developed by IXA NLP Group.\n");
+    Subparsers subparsers = parser.addSubparsers().help("sub-command help");
     
     ////////////////////////
     //// Annotation CLI ////
     ////////////////////////
     
-    ArgumentGroup annotateGroup = parser.addArgumentGroup("NERC tagging options");
-    annotateGroup
+    Subparser annotateParser = subparsers.addParser("tag").help("Tagging CLI");
+    annotateParser
         .addArgument("-l", "--lang")
         .choices("en", "es")
         .required(false)
         .help(
             "It is REQUIRED to choose a language to perform annotation with ixa-pipe-nerc");
-    annotateGroup.addArgument("-g","--gazetteers").required(false).help("Two arguments are "+
+    annotateParser.addArgument("-g","--gazetteers").required(false).help("Two arguments are "+
         "available: tag and post; if both are concatenated by a comma " +
         "(e.g., 'tag,post'), both options will be activated\n");
     
@@ -81,18 +83,19 @@ public class CLI {
     //// Training CLI ////
     //////////////////////
     
-    ArgumentGroup trainGroup = parser.addArgumentGroup("NERC training options");
-    trainGroup.addArgument("-t","--train").choices("baseline","dictionaries").required(false).help("Train NERC models");
-    trainGroup.addArgument("-p", "--params").required(true)
+    Subparser trainParser = subparsers.addParser("train").help("Training CLI");
+    trainParser.addArgument("-m","--model")
+        .choices("baseline","dictionaries").required(false).help("Train NERC models");
+    trainParser.addArgument("-p", "--params").required(true)
         .help("load the parameters file");
-    trainGroup.addArgument("-i", "--input").required(true)
+    trainParser.addArgument("-i", "--input").required(true)
         .help("Input training set");
-    trainGroup.addArgument("-e", "--evalSet").required(false)
+    trainParser.addArgument("-e", "--evalSet").required(true)
         .help("Input testset for evaluation");
-    trainGroup.addArgument("-d", "--devSet").required(false)
+    trainParser.addArgument("-d", "--devSet").required(false)
         .help("Input development set for cross-evaluation");
-    trainGroup.addArgument("-o", "--output").help(
-        "choose output file to save the annotation");
+    trainParser.addArgument("-o", "--output").required(false)
+        .help("choose output file to save the annotation");
     
     try {
       parsedArguments = parser.parseArgs(args);
@@ -100,7 +103,7 @@ public class CLI {
     } catch (ArgumentParserException e) {
       parser.handleError(e);
       System.out
-          .println("Run java -jar target/ixa-pipe-nerc-1.0.jar -help for details");
+          .println("Run java -jar target/ixa-pipe-nerc-1.0.jar (tag|train) -help for details");
       System.exit(1);
     }
 

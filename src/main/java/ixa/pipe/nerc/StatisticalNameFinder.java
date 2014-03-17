@@ -27,7 +27,6 @@ import java.util.List;
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.Span;
-import opennlp.tools.util.featuregen.AdaptiveFeatureGenerator;
 
  /**
  * Named Entity Recognition module based on Apache OpenNLP Machine Learning API
@@ -61,8 +60,7 @@ import opennlp.tools.util.featuregen.AdaptiveFeatureGenerator;
         }
       }
     }
-    AdaptiveFeatureGenerator features = StatisticalNameFinderTrainer.createDefaultDictionaryFeatures();
-    nercDetector = new NameFinderME(nercModel,features,NameFinderME.DEFAULT_BEAM_SIZE);
+    nercDetector = new NameFinderME(nercModel,StatisticalNameFinderTrainer.createDefaultFeatures(),NameFinderME.DEFAULT_BEAM_SIZE);
   }
   
   /**

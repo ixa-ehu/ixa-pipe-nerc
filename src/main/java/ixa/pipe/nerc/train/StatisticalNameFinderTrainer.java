@@ -2,6 +2,7 @@
 package ixa.pipe.nerc.train;
 
 import ixa.pipe.nerc.Dictionaries;
+import ixa.pipe.nerc.Gazetteer;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +44,7 @@ public class StatisticalNameFinderTrainer {
   String testData;
   ObjectStream<NameSample> trainSamples;
   ObjectStream<NameSample> testSamples;
-  static Dictionaries dict;
+  Gazetteer dict;
   
   public StatisticalNameFinderTrainer(String trainData, String testData, String lang) throws IOException {
     
@@ -54,10 +55,10 @@ public class StatisticalNameFinderTrainer {
     trainSamples = new Conll03NameStream(lang,trainStream);
     ObjectStream<String> testStream = InputOutputUtils.readInputData(testData);
     testSamples = new Conll03NameStream(lang,testStream);
-    dict = new Dictionaries(lang);
+    //dict = new Gazetteer(lang);
   }
 
-  public static AdaptiveFeatureGenerator createDefaultFeatures() {
+  public static AdaptiveFeatureGenerator createDefaultFeatures1() {
     return new CachedFeatureGenerator(new AdaptiveFeatureGenerator[] {
         new WindowFeatureGenerator(new TokenFeatureGenerator(), 2, 2),
         new WindowFeatureGenerator(new TokenClassFeatureGenerator(true), 2, 2),
@@ -66,13 +67,13 @@ public class StatisticalNameFinderTrainer {
         new SentenceFeatureGenerator(true, false) });
   }
   
-  public static AdaptiveFeatureGenerator createDefaultDictionaryFeatures() {
+  public static AdaptiveFeatureGenerator createDefaultFeatures() {
         return new CachedFeatureGenerator(new AdaptiveFeatureGenerator[] {
             new WindowFeatureGenerator(new TokenFeatureGenerator(), 2, 2),
             new WindowFeatureGenerator(new TokenClassFeatureGenerator(true), 2, 2),
             new OutcomePriorFeatureGenerator(), new PreviousMapFeatureGenerator(),
             new BigramNameFeatureGenerator(),
-            new DictionaryFeatures(dict),
+            //new DictionaryFeatures(dict),
             new SentenceFeatureGenerator(true, false) });
   }
  
@@ -80,7 +81,7 @@ public class StatisticalNameFinderTrainer {
       throws IOException {
 
     // FEATURES (if null, Apache OpenNLP loads some defaults)
-    AdaptiveFeatureGenerator features = createDefaultDictionaryFeatures();
+    AdaptiveFeatureGenerator features = createDefaultFeatures();
     Map<String, Object> resources = null;
 
     // training model and evaluation
@@ -185,7 +186,7 @@ public class StatisticalNameFinderTrainer {
 
   private TokenNameFinderEvaluator evaluate(TokenNameFinderModel trainedModel,
       ObjectStream<NameSample> testSamples) throws IOException {
-    NameFinderME nerTagger = new NameFinderME(trainedModel);
+    NameFinderME nerTagger = new NameFinderME(trainedModel,createDefaultFeatures(),NameFinderME.DEFAULT_BEAM_SIZE);
     TokenNameFinderEvaluator nerEvaluator = new TokenNameFinderEvaluator(
         nerTagger);
     nerEvaluator.evaluate(testSamples);
