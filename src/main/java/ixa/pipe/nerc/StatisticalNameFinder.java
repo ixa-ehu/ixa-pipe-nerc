@@ -83,7 +83,7 @@ import opennlp.tools.util.Span;
         }
       }
     }
-    nercDetector = new NameFinderME(nercModel);
+    nercDetector = new NameFinderME(nercModel,StatisticalNameFinderTrainer.createDefaultFeatures(),NameFinderME.DEFAULT_BEAM_SIZE);
   }
 
   /**

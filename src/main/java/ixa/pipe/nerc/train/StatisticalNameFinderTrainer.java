@@ -5,6 +5,7 @@ import ixa.pipe.nerc.Gazetteer;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -43,7 +44,9 @@ public class StatisticalNameFinderTrainer {
   String testData;
   ObjectStream<NameSample> trainSamples;
   ObjectStream<NameSample> testSamples;
-  Gazetteer dict;
+  static Gazetteer dictPer;
+  static Gazetteer dictOrg;
+  static Gazetteer dictLoc;
   
   public StatisticalNameFinderTrainer(String trainData, String testData, String lang) throws IOException {
     
@@ -54,10 +57,15 @@ public class StatisticalNameFinderTrainer {
     trainSamples = new Conll03NameStream(lang,trainStream);
     ObjectStream<String> testStream = InputOutputUtils.readInputData(testData);
     testSamples = new Conll03NameStream(lang,testStream);
-    //dict = new Gazetteer(lang);
+    InputStream dictFilePer = getClass().getResourceAsStream("/en-wikipeople.lst");
+    dictPer = new Gazetteer(dictFilePer);
+    InputStream dictFileOrg = getClass().getResourceAsStream("/en-wikiorganization.lst");
+    dictOrg = new Gazetteer(dictFileOrg);
+    InputStream dictFileLoc = getClass().getResourceAsStream("/en-wikilocation.lst");
+    dictLoc = new Gazetteer(dictFileLoc);
   }
 
-  public static AdaptiveFeatureGenerator createDefaultFeatures() {
+  public static AdaptiveFeatureGenerator createDefaultFeatures1() {
     return new CachedFeatureGenerator(new AdaptiveFeatureGenerator[] {
         new WindowFeatureGenerator(new TokenFeatureGenerator(), 2, 2),
         new WindowFeatureGenerator(new TokenClassFeatureGenerator(true), 2, 2),
@@ -66,13 +74,15 @@ public class StatisticalNameFinderTrainer {
         new SentenceFeatureGenerator(true, false) });
   }
   
-  public static AdaptiveFeatureGenerator createDefaultFeatures1() {
+  public static AdaptiveFeatureGenerator createDefaultFeatures() {
         return new CachedFeatureGenerator(new AdaptiveFeatureGenerator[] {
             new WindowFeatureGenerator(new TokenFeatureGenerator(), 2, 2),
             new WindowFeatureGenerator(new TokenClassFeatureGenerator(true), 2, 2),
             new OutcomePriorFeatureGenerator(), new PreviousMapFeatureGenerator(),
             new BigramNameFeatureGenerator(),
-            //new DictionaryFeatures(dict),
+            new DictionaryFeatures("PERSON",dictPer),
+            new DictionaryFeatures("ORGANIZATION",dictOrg),
+            new DictionaryFeatures("LOCATION",dictLoc),
             new SentenceFeatureGenerator(true, false) });
   }
  
