@@ -39,6 +39,7 @@ public class Annotate {
   private GazetteerNameFinder perDictFinder;
   private GazetteerNameFinder orgDictFinder;
   private GazetteerNameFinder locDictFinder;
+  private static final boolean DEBUG = true;
   private boolean STATISTICAL;
   private boolean POSTPROCESS; 
   private boolean DICTTAG;
@@ -91,6 +92,7 @@ public class Annotate {
         List<Span> locDictSpans = locDictFinder.nercToSpans(tokens);
         perDictFinder.concatenateSpans(perDictSpans,orgDictSpans);
         perDictFinder.concatenateSpans(perDictSpans,locDictSpans);
+        //TODO deal with post-processing better
         List<Span> dictSpans = perDictFinder.concatenateNoOverlappingSpans(allSpans, perDictSpans);
         allSpans = dictSpans;
       }

@@ -135,7 +135,7 @@ import opennlp.tools.util.Span;
     List<Name> names = new ArrayList<Name>();
     for (Span neSpan : neSpans) { 
       String nameString = StringUtils.getStringFromSpan(neSpan,tokens);
-      String neType = neSpan.getType();
+      String neType = neSpan.getType().toUpperCase();
       Name name = nameFactory.createName(nameString, neType, neSpan);
       names.add(name);
     }

@@ -145,12 +145,22 @@ import opennlp.tools.util.Span;
   public List<Span> concatenateNoOverlappingSpans(List<Span> preList, List<Span> postList) {
     List<Span> allSpans = new ArrayList<Span>();
     for (Span span1 : preList) {
+      if (DEBUG) {
+        System.err.println("probabilistic spans" + preList.size());
+        System.err.println("checking " + span1.toString());
+      }
       for (Span span2 : postList) {
-        if (!span2.contains(span1)) {
+        if (!span1.contains(span2)) {
           allSpans.add(span1);
+          if (DEBUG) {
+            System.err.println("prob Span added! " + span1.toString());
+          }
         }
         else if (span2.contains(span1)) {
           allSpans.add(span2);
+          if (DEBUG) {
+            System.err.println("dict span added! " + span2.toString());
+          }
         }
         else {
           allSpans.add(span2);
