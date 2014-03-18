@@ -42,7 +42,7 @@ import opennlp.tools.util.Span;
    private NameFactory nameFactory;
 
   /**
-   * It constructs an object NERC from the NERC class. First it loads a model,
+   * Construct a StatisticalNameFinder. First it loads a model,
    * then it initializes the nercModel and finally it creates a nercDetector
    * using such model.
    */
@@ -64,7 +64,7 @@ import opennlp.tools.util.Span;
   }
   
   /**
-   * It constructs an object NERC from the NERC class. First it loads a model,
+   * Construct a StatisticalNameFinder. First it loads a model,
    * then it initializes the nercModel and finally it creates a nercDetector
    * using such model. This constructor also uses a NameFactory to create {@link Name}
    * objects
@@ -115,7 +115,7 @@ import opennlp.tools.util.Span;
    * 
    * @param tokens
    *          an array of tokenized text
-   * @return an list of Spans of Named Entities
+   * @return an list of {@link Span}s of Named Entities
    */
   public List<Span> nercToSpans(String[] tokens) {
     Span[] annotatedText = nercDetector.find(tokens);
@@ -129,13 +129,13 @@ import opennlp.tools.util.Span;
    * 
    * @param neSpans
    * @param tokens
-   * @return a list of name objects
+   * @return a list of {@link Name} objects
    */
   public List<Name> getNamesFromSpans(Span[] neSpans, String[] tokens) {
     List<Name> names = new ArrayList<Name>();
     for (Span neSpan : neSpans) { 
       String nameString = StringUtils.getStringFromSpan(neSpan,tokens);
-      String neType = neSpan.getType().toUpperCase();
+      String neType = neSpan.getType();
       Name name = nameFactory.createName(nameString, neType, neSpan);
       names.add(name);
     }
@@ -150,19 +150,6 @@ import opennlp.tools.util.Span;
    */
   public void clearAdaptiveData() {
     nercDetector.clearAdaptiveData();
-  }
-  
-  /**
-   * Concatenates two span lists adding the spans of the second parameter
-   * to the list in first parameter
-   * 
-   * @param allSpans
-   * @param neSpans
-   */
-  public void concatenateSpans(List<Span> allSpans, List<Span> neSpans) {
-    for (Span span : neSpans) {
-      allSpans.add(span);
-    }
   }
   
 }

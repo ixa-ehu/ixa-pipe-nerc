@@ -32,7 +32,7 @@ public class NameFactory {
 
   
   /**
-   * Constructs a Name as a String with a class type (e.g. Person, 
+   * Constructs a {@link Name} as a String with a class type (e.g. Person, 
    * location, organization, etc.)
    * 
    * @param nameString string to be added to a Name object
@@ -48,7 +48,7 @@ public class NameFactory {
   }
   
   /**
-   * Constructs a Name as a String with a type and a Span specified in terms of 
+   * Constructs a {@link Name} as a String with a type and a {@link Span} specified in terms of 
    * the number of tokens it contains.
    * 
    * @param nameString string to be added to a Name object
@@ -67,7 +67,7 @@ public class NameFactory {
   }
   
   /**
-   * Constructs a Name as a String with corresponding offsets and length from
+   * Constructs a {@link Name} as a String with corresponding offsets and length from
    * which to calculate start and end position of the Name. 
    * 
    * @param nameString string to be added to a Name object
@@ -92,7 +92,7 @@ public class NameFactory {
    * 
    * @param nameString string to be added to a Name object
    * @param type the type of the Name
-   * @para neSpan
+   * @para neSpan the Span
    * @param offset the starting offset of the Name
    * @param length of the string
    * @return a new Name object

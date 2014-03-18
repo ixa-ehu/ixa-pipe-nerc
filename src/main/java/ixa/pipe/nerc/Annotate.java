@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013 Rodrigo Agerri
+ *  Copyright 2014 Rodrigo Agerri
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ public class Annotate {
   private GazetteerNameFinder perDictFinder;
   private GazetteerNameFinder orgDictFinder;
   private GazetteerNameFinder locDictFinder;
-  private static final boolean DEBUG = true;
+  
   private boolean STATISTICAL;
   private boolean POSTPROCESS; 
   private boolean DICTTAG;
@@ -71,6 +71,13 @@ public class Annotate {
     }
   }
   
+  /**
+   * Classify Named Entities and write them to a {@link KAFDocument} 
+   * using stastitical models, post-processing and/or dictionaries only. 
+   * 
+   * @param kaf
+   * @throws IOException
+   */
   public void annotateNEsToKAF(KAFDocument kaf)
       throws IOException {
     
@@ -92,9 +99,10 @@ public class Annotate {
         List<Span> locDictSpans = locDictFinder.nercToSpans(tokens);
         perDictFinder.concatenateSpans(perDictSpans,orgDictSpans);
         perDictFinder.concatenateSpans(perDictSpans,locDictSpans);
-        //TODO deal with post-processing better
-        List<Span> dictSpans = perDictFinder.concatenateNoOverlappingSpans(allSpans, perDictSpans);
-        allSpans = dictSpans;
+        // TODO postprocessing
+        List<Span> postSpans = perDictFinder.concatenateNoOverlappingSpans(allSpans, perDictSpans);
+        allSpans.clear();
+        perDictFinder.concatenateSpans(allSpans, postSpans);
       }
       if (DICTTAG) {
         allSpans = perDictFinder.nercToSpans(tokens);
@@ -117,6 +125,15 @@ public class Annotate {
     }
   }
   
+  /**
+   * Construct a {@link GazetteerNameFinder} using a {@link Gazetteer}, a NE type and a {@link NameFactory} to 
+   * create {@link Name} objects
+   * 
+   * @param dictFile
+   * @param type
+   * @param nameFactory
+   * @return an instance of a {@link GazetteerNameFinder}
+   */
   public GazetteerNameFinder createDictNameFinder(String dictFile, String type, NameFactory nameFactory) { 
     InputStream dictStream = getClass().getResourceAsStream("/"+dictFile);
     Gazetteer dict = new Gazetteer(dictStream);

@@ -6,15 +6,15 @@ import opennlp.tools.util.Span;
 
 public interface NameFinder {
   
-  /** Generates name objects for the given sequence, typically a sentence, returning token spans for any identified names.
+  /** Generates {@link Name} objects for the given sequence, typically a sentence
    * @param tokens an array of the tokens or words of the sequence, typically a sentence.
-   * @return a list of names each of the names identified.
+   * @return a list of names
    */
   public List<Name> getNames(String[] tokens);
   
   /**
    * This method receives as input an array of tokenized text
-   * and returns the spans of the detected and classified Named Entities. 
+   * and returns the {@link Span}s of the detected and classified Named Entities. 
    * 
    * @param tokens
    *          an array of tokenized text
@@ -23,7 +23,7 @@ public interface NameFinder {
   public List<Span> nercToSpans(String[] tokens);
   
   /**
-   * Creates a list of {@link Name} objects from spans and tokens
+   * Create a list of {@link Name} objects from spans and tokens
    * 
    * @param neSpans
    * @param tokens
@@ -32,10 +32,10 @@ public interface NameFinder {
   public List<Name> getNamesFromSpans(Span[] neSpans, String[] tokens);
   
   /**
-   * Forgets all adaptive data which was collected during previous
+   * Forget all adaptive data which was collected during previous
    * calls to one of the find methods.
    *
-   * This method is typical called at the end of a document.
+   * This method is typically called at the end of a document.
    */
   public void clearAdaptiveData();
 

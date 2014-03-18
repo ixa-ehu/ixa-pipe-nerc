@@ -19,7 +19,7 @@ import opennlp.tools.util.Span;
 
 
 /**
- * A <code>Token</code> object contains a single String, a startOffset and 
+ * A <code>Name</code> object contains a single String, a {@link Span}, a startOffset and 
  * the length of the String. These attributes are set or returned
  * in response to requests.
  * 
@@ -35,7 +35,7 @@ public class Name {
   private String type;
 
   /**
-   * Start position of the Name in the original input string
+   * Start position of the <code>Name</code> in the original input string
    */
   private int startOffset = -1;
 

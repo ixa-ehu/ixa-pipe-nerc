@@ -66,14 +66,10 @@ import opennlp.tools.util.Span;
   }
   
   /**
-   * Gazetteer based Named Entity Detector. Note that this method
-   * does not classify the named entities, only assigns a "MISC" tag to every
-   * Named Entity. Pass the result of this function to {@link gazetteerPostProcessing} for
-   * gazetteer-based Named Entity classification.
+   * {@link Gazetteer} based Named Entity Detection and Classification
    * 
    * @param tokens
-   * @param dictionaries
-   * @return a list of detected names
+   * @return a list of detected {@link Name} objects 
    */
   public List<Name> getNames(String[] tokens) {
     
@@ -84,10 +80,9 @@ import opennlp.tools.util.Span;
   }
   
   /**
-   * Detects Named Entities in a {@link Gazetteer} by type 
+   * Detects Named Entities in a {@link Gazetteer} by NE type
    * 
-   * @param tokens
-   * @param dictionaries
+   * @param tokens 
    * @return spans of the Named Entities all 
    */
    public List<Span> nercToSpans(String[] tokens) {
@@ -107,7 +102,7 @@ import opennlp.tools.util.Span;
    * 
    * @param neSpans
    * @param tokens
-   * @return a list of name objects
+   * @return a list of {@link Name} objects
    */
   public List<Name> getNamesFromSpans(Span[] neSpans, String[] tokens) {
     List<Name> names = new ArrayList<Name>();
@@ -135,38 +130,38 @@ import opennlp.tools.util.Span;
   
   /**
    * Concatenates two span lists adding the spans to a new list
-   * if the span in the second parameter does not 
-   * exist in the first
+   * if the span in the second parameter does not exist in the first
    * 
    * @param preList
    * @param postList
-   * @return a list containing the spans of the two lists if they are not duplicate
+   * @return a list containing the {@link Span}s of the two lists if they are not duplicated
    */
   public List<Span> concatenateNoOverlappingSpans(List<Span> preList, List<Span> postList) {
     List<Span> allSpans = new ArrayList<Span>();
-    for (Span span1 : preList) {
+    if (postList.isEmpty()) {
+      allSpans.addAll(preList);
       if (DEBUG) {
-        System.err.println("probabilistic spans" + preList.size());
-        System.err.println("checking " + span1.toString());
-      }
-      for (Span span2 : postList) {
-        if (!span1.contains(span2)) {
-          allSpans.add(span1);
-          if (DEBUG) {
-            System.err.println("prob Span added! " + span1.toString());
-          }
-        }
-        else if (span2.contains(span1)) {
-          allSpans.add(span2);
-          if (DEBUG) {
-            System.err.println("dict span added! " + span2.toString());
-          }
-        }
-        else {
-          allSpans.add(span2);
-        }
+        System.err.println("No dict spans in this sentence, adding probabilistic spans only!");
       }
     }
+      else {
+        for (Span span1 : preList) {
+          for (Span span2 : postList) {
+            if (span1.contains(span2)) {
+              allSpans.add(span2);
+              if (DEBUG) {
+                System.err.println("dict replacement of " + span1.toString() + " with " + span2.toString());
+              }
+            }
+            else {
+              allSpans.add(span1);
+              if (DEBUG) {
+                System.err.println("adding prob span! " + span1.toString());
+              }
+            }
+          }
+        }
+      } 
     return allSpans;
   }
   

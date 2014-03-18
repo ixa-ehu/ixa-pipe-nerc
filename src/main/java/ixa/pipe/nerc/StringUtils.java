@@ -25,10 +25,10 @@ public class StringUtils {
   
   /**
    * Finds a pattern (typically a named entity string) in a tokenized sentence. 
-   * It outputs the Span indexes of the named entity found, if any
+   * It outputs the {@link Span} indexes of the named entity found, if any
    * 
-   * @param pattern
-   * @param tokens
+   * @param pattern a string to find 
+   * @param tokens an array of tokens
    * @return token spans of the pattern (e.g. a named entity)
    */
   public static List<Integer> exactTokenFinder(String pattern, String[] tokens) {
@@ -38,7 +38,7 @@ public class StringUtils {
     int sentenceLength = tokens.length;
     List<Integer> neTokens = new ArrayList<Integer>();
     for (j = 0; j <= sentenceLength - patternLength; ++j) {
-      for (i = 0; i < patternLength && patternTokens[i].equals(tokens[i + j]); ++i);
+      for (i = 0; i < patternLength && patternTokens[i].equalsIgnoreCase(tokens[i + j]); ++i);
       if (i >= patternLength) {
         neTokens.add(j);
         neTokens.add(i+j);
@@ -75,12 +75,10 @@ public class StringUtils {
    * 
    * It takes a NE span indexes and the tokens in a sentence and produces the
    * string to which the NE span corresponds to. This function is used to get
-   * the Named Entity or Name textual representation from a Span.
+   * the Named Entity or Name textual representation from a {@link Span}
    * 
-   * @param Span
-   *          reducedSpan
-   * @param String
-   *          [] tokens
+   * @param reducedSpan a {@link Span}
+   * @param tokens an array of tokens
    * @return named entity string
    */
   public static String getStringFromSpan(Span reducedSpan, String[] tokens) {
