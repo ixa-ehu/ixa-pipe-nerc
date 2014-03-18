@@ -109,7 +109,7 @@ public class CLI {
     
     try {
       
-      if (parsedArguments.get("train") != null) {
+      if (parsedArguments.get("model") != null) {
         String trainFile = parsedArguments.getString("input");
         String testFile = parsedArguments.getString("evalSet");
         String devFile = parsedArguments.getString("devSet");
@@ -128,7 +128,7 @@ public class CLI {
               + parsedArguments.get("train").toString() + "-model" + ".bin";
         }
         
-        if (parsedArguments.getString("train").equalsIgnoreCase("baseline")) {
+        if (parsedArguments.getString("model").equalsIgnoreCase("baseline")) {
             StatisticalNameFinderTrainer nercTrainer = new StatisticalNameFinderTrainer(trainFile, testFile,lang);
             TokenNameFinderModel trainedModel = null;
             if (evalRange.length==2) {
