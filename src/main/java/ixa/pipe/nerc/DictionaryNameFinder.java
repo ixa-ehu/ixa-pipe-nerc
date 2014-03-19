@@ -23,36 +23,36 @@ import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.util.Span;
 
  /**
- * Named Entity Recognition module based on {@link Gazetteer} objects 
+ * Named Entity Recognition module based on {@link Dictionary} objects 
  *  
  * @author ragerri 2014/03/14
  * 
  */
 
- public class GazetteerNameFinder implements NameFinder {
+ public class DictionaryNameFinder implements NameFinder {
 
    private static final String DEFAULT_TYPE = "MISC";
    private final String type;
    
    private NameFactory nameFactory;
-   private Gazetteer gazetteer;
+   private Dictionary dict;
    private final static boolean DEBUG = true;
 
  
-  public GazetteerNameFinder(Gazetteer gazetteer, String type) {
-    this.gazetteer = gazetteer;
+  public DictionaryNameFinder(Dictionary dict, String type) {
+    this.dict = dict;
     if (type == null) {
       throw new IllegalArgumentException("type cannot be null!");
     }
     this.type = type;
   }
   
-  public GazetteerNameFinder(Gazetteer gazetteer) {
-    this(gazetteer, DEFAULT_TYPE);
+  public DictionaryNameFinder(Dictionary dict) {
+    this(dict, DEFAULT_TYPE);
   }
   
-  public GazetteerNameFinder(Gazetteer gazetteer, String type, NameFactory nameFactory) {
-    this.gazetteer = gazetteer;
+  public DictionaryNameFinder(Dictionary dict, String type, NameFactory nameFactory) {
+    this.dict = dict;
     this.nameFactory = nameFactory;
     if (type == null) {
       throw new IllegalArgumentException("type cannot be null!");
@@ -61,12 +61,12 @@ import opennlp.tools.util.Span;
     this.type = type;
   }
   
-  public GazetteerNameFinder(Gazetteer gazetteer, NameFactory nameFactory) {
-    this(gazetteer,DEFAULT_TYPE,nameFactory);
+  public DictionaryNameFinder(Dictionary dict, NameFactory nameFactory) {
+    this(dict,DEFAULT_TYPE,nameFactory);
   }
   
   /**
-   * {@link Gazetteer} based Named Entity Detection and Classification
+   * {@link Dictionary} based Named Entity Detection and Classification
    * 
    * @param tokens
    * @return a list of detected {@link Name} objects 
@@ -80,14 +80,14 @@ import opennlp.tools.util.Span;
   }
   
   /**
-   * Detects Named Entities in a {@link Gazetteer} by NE type
+   * Detects Named Entities in a {@link Dictionary} by NE type
    * 
    * @param tokens 
    * @return spans of the Named Entities all 
    */
    public List<Span> nercToSpans(String[] tokens) {
      List<Span> neSpans = new ArrayList<Span>();
-     for (String neDict : gazetteer.gazetteerList) {
+     for (String neDict : dict.dictList) {
        List<Integer> neIds = StringUtils.exactTokenFinder(neDict,tokens);
        if (!neIds.isEmpty()) {
          Span neSpan = new Span(neIds.get(0), neIds.get(1), type);

@@ -36,27 +36,27 @@ import opennlp.tools.util.Span;
 public class Annotate {
  
   private NameFinder nameFinder;
-  private GazetteerNameFinder perDictFinder;
-  private GazetteerNameFinder orgDictFinder;
-  private GazetteerNameFinder locDictFinder;
+  private DictionaryNameFinder perDictFinder;
+  private DictionaryNameFinder orgDictFinder;
+  private DictionaryNameFinder locDictFinder;
   
   private boolean STATISTICAL;
   private boolean POSTPROCESS; 
   private boolean DICTTAG;
   
-  public Annotate(String cmdOption) {
+  public Annotate(String lang,String model) {
     Models modelRetriever = new Models();
-    InputStream nerModel = modelRetriever.getNERModel(cmdOption);
+    InputStream nerModel = modelRetriever.getNERModel(lang);
     NameFactory nameFactory = new NameFactory();
-    nameFinder = new StatisticalNameFinder(nerModel,nameFactory);
+    nameFinder = new StatisticalNameFinder(nerModel,nameFactory,model);
     STATISTICAL = true;
   }
   
-  public Annotate(String cmdOption, String gazetteerOption) {
+  public Annotate(String lang, String gazetteerOption, String model) {
     NameFactory nameFactory = new NameFactory();
     Models modelRetriever = new Models();
-    InputStream nerModel = modelRetriever.getNERModel(cmdOption);
-    nameFinder = new StatisticalNameFinder(nerModel,nameFactory);
+    InputStream nerModel = modelRetriever.getNERModel(lang);
+    nameFinder = new StatisticalNameFinder(nerModel,nameFactory, model);
     perDictFinder = createDictNameFinder("en-wikipeople.lst","PERSON",nameFactory);
     orgDictFinder = createDictNameFinder("en-wikiorganization.lst","ORGANIZATION",nameFactory);
     locDictFinder = createDictNameFinder("en-wikilocation.lst","LOCATION",nameFactory);
@@ -126,18 +126,18 @@ public class Annotate {
   }
   
   /**
-   * Construct a {@link GazetteerNameFinder} using a {@link Gazetteer}, a NE type and a {@link NameFactory} to 
+   * Construct a {@link DictionaryNameFinder} using a {@link Dictionary}, a NE type and a {@link NameFactory} to 
    * create {@link Name} objects
    * 
    * @param dictFile
    * @param type
    * @param nameFactory
-   * @return an instance of a {@link GazetteerNameFinder}
+   * @return an instance of a {@link DictionaryNameFinder}
    */
-  public GazetteerNameFinder createDictNameFinder(String dictFile, String type, NameFactory nameFactory) { 
+  public DictionaryNameFinder createDictNameFinder(String dictFile, String type, NameFactory nameFactory) { 
     InputStream dictStream = getClass().getResourceAsStream("/"+dictFile);
-    Gazetteer dict = new Gazetteer(dictStream);
-    GazetteerNameFinder dictNameFinder = new GazetteerNameFinder(dict,type,nameFactory);
+    Dictionary dict = new Dictionary(dictStream);
+    DictionaryNameFinder dictNameFinder = new DictionaryNameFinder(dict,type,nameFactory);
     return dictNameFinder;
   }
   

@@ -16,7 +16,11 @@
 
 package ixa.pipe.nerc;
 
-import ixa.pipe.nerc.train.StatisticalNameFinderTrainer;
+import ixa.pipe.nerc.train.AbstractNameFinderTrainer;
+import ixa.pipe.nerc.train.BaselineNameFinderTrainer;
+import ixa.pipe.nerc.train.Dict3NameFinderTrainer;
+import ixa.pipe.nerc.train.DictLbjNameFinderTrainer;
+import ixa.pipe.nerc.train.NameFinderTrainer;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,16 +42,16 @@ import opennlp.tools.util.Span;
  public class StatisticalNameFinder implements NameFinder {
 
    private TokenNameFinderModel nercModel;
-   private NameFinderME nercDetector;
+   private NameFinderME nameFinder;
    private NameFactory nameFactory;
-   private StatisticalNameFinderTrainer nameTrainer;
+   private NameFinderTrainer nameFinderTrainer;
 
   /**
    * Construct a StatisticalNameFinder. First it loads a model,
    * then it initializes the nercModel and finally it creates a nercDetector
    * using such model.
    */
-  public StatisticalNameFinder(InputStream trainedModel) {
+  public StatisticalNameFinder(InputStream trainedModel,String model) {
 
     try {
       nercModel = new TokenNameFinderModel(trainedModel);
@@ -61,13 +65,8 @@ import opennlp.tools.util.Span;
         }
       }
     }
-    try {
-      nameTrainer = new StatisticalNameFinderTrainer();
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    nercDetector = new NameFinderME(nercModel,nameTrainer.createDefaultFeatures(),NameFinderME.DEFAULT_BEAM_SIZE);
+    nameFinderTrainer = getNameFinderTrainer(model);
+    nameFinder = new NameFinderME(nercModel,nameFinderTrainer.createFeatureGenerator(),AbstractNameFinderTrainer.GREEDY_BEAM_SIZE);
   }
   
   /**
@@ -76,7 +75,7 @@ import opennlp.tools.util.Span;
    * using such model. This constructor also uses a NameFactory to create {@link Name}
    * objects
    */
-  public StatisticalNameFinder(InputStream trainedModel, NameFactory nameFactory) {
+  public StatisticalNameFinder(InputStream trainedModel, NameFactory nameFactory, String model) {
     this.nameFactory = nameFactory;
     try {
       nercModel = new TokenNameFinderModel(trainedModel);
@@ -90,15 +89,23 @@ import opennlp.tools.util.Span;
         }
       }
     }
-    try {
-      nameTrainer = new StatisticalNameFinderTrainer();
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    nercDetector = new NameFinderME(nercModel,nameTrainer.createDefaultFeatures(),NameFinderME.DEFAULT_BEAM_SIZE);
+    nameFinderTrainer = getNameFinderTrainer(model);
+    nameFinder = new NameFinderME(nercModel,nameFinderTrainer.createFeatureGenerator(),AbstractNameFinderTrainer.GREEDY_BEAM_SIZE );
   }
 
+  public NameFinderTrainer getNameFinderTrainer(String model) {
+    if (model.equalsIgnoreCase("baseline")) {
+      nameFinderTrainer = new BaselineNameFinderTrainer();
+    }
+    else if (model.equalsIgnoreCase("dict3")) {
+      nameFinderTrainer = new Dict3NameFinderTrainer();
+    }
+    else if (model.equalsIgnoreCase("dictlbj")) {
+      nameFinderTrainer = new DictLbjNameFinderTrainer();
+      }
+    return nameFinderTrainer;
+  }
+  
   /**
    * Probabilistic Named Entity Classifier
    * 
@@ -131,7 +138,7 @@ import opennlp.tools.util.Span;
    * @return an list of {@link Span}s of Named Entities
    */
   public List<Span> nercToSpans(String[] tokens) {
-    Span[] annotatedText = nercDetector.find(tokens);
+    Span[] annotatedText = nameFinder.find(tokens);
     clearAdaptiveData();
     List<Span> probSpans = new ArrayList<Span>(Arrays.asList(annotatedText));
     return probSpans;
@@ -162,7 +169,7 @@ import opennlp.tools.util.Span;
    * This method is typical called at the end of a document.
    */
   public void clearAdaptiveData() {
-    nercDetector.clearAdaptiveData();
+    nameFinder.clearAdaptiveData();
   }
   
 }

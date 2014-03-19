@@ -18,7 +18,7 @@ package ixa.pipe.nerc;
 
 import ixa.kaflib.KAFDocument;
 import ixa.pipe.nerc.train.InputOutputUtils;
-import ixa.pipe.nerc.train.StatisticalNameFinderTrainer;
+import ixa.pipe.nerc.train.DictLbjNameFinderTrainer;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -75,8 +75,14 @@ public class CLI {
         .required(false)
         .help(
             "It is REQUIRED to choose a language to perform annotation with ixa-pipe-nerc");
-    annotateParser.addArgument("-g","--gazetteers").required(false).help("Two arguments are "+
-        "available: tag and post; if both are concatenated by a comma " +
+    
+    annotateParser.addArgument("-m","--model")
+        .choices("baseline","dict3, dictlbj")
+        .required(false)
+        .help("Choose model to perform NERC annotation");
+    
+    annotateParser.addArgument("-g","--gazetteers").required(false).help("Use gazetteers directly for annotation and/or " +
+    		"post-processing. Two arguments are available: tag and post; if both are concatenated by a comma " +
         "(e.g., 'tag,post'), both options will be activated\n");
     
     //////////////////////
@@ -84,8 +90,8 @@ public class CLI {
     //////////////////////
     
     Subparser trainParser = subparsers.addParser("train").help("Training CLI");
-    trainParser.addArgument("-m","--model")
-        .choices("baseline","dictionaries").required(false).help("Train NERC models");
+    trainParser.addArgument("-f","--features")
+        .choices("baseline","dictionaries").required(true).help("Train NERC models");
     trainParser.addArgument("-p", "--params").required(true)
         .help("load the parameters file");
     trainParser.addArgument("-i", "--input").required(true)
@@ -109,7 +115,11 @@ public class CLI {
     
     try {
       
-      if (parsedArguments.get("model") != null) {
+      //////////////////
+      //// Training ////
+      //////////////////
+      
+      if (parsedArguments.get("features") != null) {
         String trainFile = parsedArguments.getString("input");
         String testFile = parsedArguments.getString("evalSet");
         String devFile = parsedArguments.getString("devSet");
@@ -128,8 +138,8 @@ public class CLI {
               + parsedArguments.get("train").toString() + "-model" + ".bin";
         }
         
-        if (parsedArguments.getString("model").equalsIgnoreCase("baseline")) {
-            StatisticalNameFinderTrainer nercTrainer = new StatisticalNameFinderTrainer(trainFile, testFile,lang);
+        if (parsedArguments.getString("features").equalsIgnoreCase("baseline")) {
+            DictLbjNameFinderTrainer nercTrainer = new DictLbjNameFinderTrainer(trainFile, testFile, lang);
             TokenNameFinderModel trainedModel = null;
             if (evalRange.length==2) {
               if (parsedArguments.get("devSet") == null) {
@@ -152,6 +162,7 @@ public class CLI {
     ////////////////////
     else {
       String gazetteer = parsedArguments.getString("gazetteers");
+      String model = parsedArguments.getString("model");
       BufferedReader breader = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
       BufferedWriter bwriter = new BufferedWriter(new OutputStreamWriter(System.out, "UTF-8"));
       
@@ -166,11 +177,11 @@ public class CLI {
 	    lang =  parsedArguments.getString("lang");
       }
       if (parsedArguments.get("gazetteers") != null) {
-        Annotate annotator = new Annotate(lang,gazetteer);
+        Annotate annotator = new Annotate(lang,gazetteer,model);
         annotator.annotateNEsToKAF(kaf);
       }
       else { 
-        Annotate annotator = new Annotate(lang);
+        Annotate annotator = new Annotate(lang,model);
         annotator.annotateNEsToKAF(kaf);
       }
       kaf.addLinguisticProcessor("entities","ixa-pipe-nerc-"+lang, "1.0");

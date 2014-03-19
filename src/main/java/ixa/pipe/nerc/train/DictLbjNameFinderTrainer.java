@@ -1,0 +1,208 @@
+
+package ixa.pipe.nerc.train;
+
+import ixa.pipe.nerc.Dictionary;
+
+import java.io.IOException;
+import java.io.InputStream;
+
+import opennlp.tools.util.featuregen.AdaptiveFeatureGenerator;
+import opennlp.tools.util.featuregen.BigramNameFeatureGenerator;
+import opennlp.tools.util.featuregen.CachedFeatureGenerator;
+import opennlp.tools.util.featuregen.OutcomePriorFeatureGenerator;
+import opennlp.tools.util.featuregen.PreviousMapFeatureGenerator;
+import opennlp.tools.util.featuregen.SentenceFeatureGenerator;
+import opennlp.tools.util.featuregen.TokenClassFeatureGenerator;
+import opennlp.tools.util.featuregen.TokenFeatureGenerator;
+import opennlp.tools.util.featuregen.WindowFeatureGenerator;
+
+/**
+ * Training NER based on Apache OpenNLP Machine Learning API 
+ * This class implements Gazetteer features as explained in 
+ * Ratinov, Lev and Dan Roth. 2009. Design Challenges and Misconceptions in 
+ * Named Entity Recognition. In CoNLL.  
+ * 
+ * @author ragerri 2014/03/19
+ * 
+ */
+
+public class DictLbjNameFinderTrainer extends AbstractNameFinderTrainer {
+
+  static Dictionary dictPer;
+  static Dictionary dictOrg;
+  static Dictionary dictLoc;
+  static Dictionary dictKnownPer;
+  static Dictionary dictKnownOrg;
+  static Dictionary dictKnownLoc;
+  //lbj gazetteers
+  static Dictionary cardinalNumber;
+  static Dictionary currencyFinal;
+  static Dictionary knownCorporations;
+  static Dictionary knownCountry;
+  static Dictionary knownJobs;
+  static Dictionary knownName;
+  static Dictionary knownNamesBig;
+  static Dictionary knownNationalities;
+  static Dictionary knownPlace;
+  static Dictionary knownState;
+  static Dictionary knownTitle;
+  static Dictionary measurements;
+  static Dictionary ordinalNumber;
+  static Dictionary temporalWords;
+  static Dictionary wikiArtWork;
+  static Dictionary wikiArtWorkRedirects;
+  static Dictionary wikiCompetitionsBattlesEvents;
+  static Dictionary wikiCompetitionsBattlesEventsRedirects;
+  static Dictionary wikiFilms;
+  static Dictionary wikiFilmsRedirects;
+  static Dictionary wikiLocations;
+  static Dictionary wikiLocationRedirects;
+  static Dictionary wikiManMadeObjectNames;
+  static Dictionary wikiManMadeObjectNamesRedirects;
+  static Dictionary wikiOrganizations;
+  static Dictionary wikiOrganizationsRedirects;
+  static Dictionary wikiPeople;
+  static Dictionary wikiPeopleRedirects;
+  static Dictionary wikiSongs;
+  static Dictionary wikiSongsRedirects;
+  
+  
+  public DictLbjNameFinderTrainer(String trainData, String testData, String lang) throws IOException {
+    super(trainData,testData,lang);
+    features = createFeatureGenerator();
+    
+    /*InputStream dictFilePer = getClass().getResourceAsStream("/en-wikipeople.lst");
+    dictPer = new Gazetteer(dictFilePer);
+    InputStream dictFileOrg = getClass().getResourceAsStream("/en-wikiorganization.lst");
+    dictOrg = new Gazetteer(dictFileOrg);
+    InputStream dictFileLoc = getClass().getResourceAsStream("/en-wikilocation.lst");
+    dictLoc = new Gazetteer(dictFileLoc);
+    InputStream dictFileKnownPer = getClass().getResourceAsStream("/en-known-people.txt");
+    dictKnownPer = new Gazetteer(dictFileKnownPer);
+    InputStream dictFileKnownOrg = getClass().getResourceAsStream("/en-known-organization.txt");
+    dictKnownOrg = new Gazetteer(dictFileKnownOrg);
+    InputStream dictFileKnownLoc = getClass().getResourceAsStream("/en-known-location.txt");
+    dictKnownLoc = new Gazetteer(dictFileKnownLoc);*/
+    //lbj dictionaries
+    InputStream cardinalNumberFile = getClass().getResourceAsStream("/lbj/cardinalNumber.txt");
+    cardinalNumber = new Dictionary(cardinalNumberFile);
+    InputStream currencyFinalFile = getClass().getResourceAsStream("/lbj/currencyFinal.txt");
+    currencyFinal = new Dictionary(currencyFinalFile);
+    InputStream knownCorporationsFile = getClass().getResourceAsStream("/lbj/known_corporations.lst");
+    knownCorporations = new Dictionary(knownCorporationsFile);
+    InputStream knownCountryFile = getClass().getResourceAsStream("/lbj/known_country.lst");
+    knownCountry = new Dictionary(knownCountryFile);
+    InputStream knownJobsFile = getClass().getResourceAsStream("/lbj/known_jobs.lst");
+    knownJobs = new Dictionary(knownJobsFile);
+    InputStream knownNameFile = getClass().getResourceAsStream("/lbj/known_name.lst");
+    knownName = new Dictionary(knownNameFile);
+    InputStream knownNameBigFile = getClass().getResourceAsStream("/lbj/known_names.big.lst");
+    knownNamesBig = new Dictionary(knownNameBigFile);
+    InputStream knownNationalitiesFile = getClass().getResourceAsStream("/lbj/known_nationalities.lst");
+    knownNationalities = new Dictionary(knownNationalitiesFile);
+    InputStream knownPlaceFile = getClass().getResourceAsStream("/lbj/known_place.lst");
+    knownPlace = new Dictionary(knownPlaceFile);
+    InputStream knownStateFile = getClass().getResourceAsStream("/lbj/known_state.lst");
+    knownState = new Dictionary(knownStateFile);
+    InputStream knownTitleFile = getClass().getResourceAsStream("/lbj/known_title.lst");
+    knownTitle = new Dictionary(knownTitleFile);
+    InputStream measurementsFile = getClass().getResourceAsStream("/lbj/measurments.txt");
+    measurements = new Dictionary(measurementsFile);
+    InputStream ordinalNumberFile = getClass().getResourceAsStream("/lbj/ordinalNumber.txt");
+    ordinalNumber = new Dictionary(ordinalNumberFile);
+    InputStream temporalWordsFile = getClass().getResourceAsStream("/lbj/temporal_words.txt");
+    temporalWords = new Dictionary(temporalWordsFile);
+    InputStream wikiArtWorkFile = getClass().getResourceAsStream("/lbj/WikiArtWork.lst");
+    wikiArtWork = new Dictionary(wikiArtWorkFile);
+    InputStream wikiArtWorkRedirectsFile = getClass().getResourceAsStream("/lbj/WikiArtWorkRedirects.lst");
+    wikiArtWorkRedirects = new Dictionary(wikiArtWorkRedirectsFile);
+    InputStream wikiCompetitionsBattlesEventsFile = getClass().getResourceAsStream("/lbj/WikiCompetitionsBattlesEvents.lst");
+    wikiCompetitionsBattlesEvents = new Dictionary(wikiCompetitionsBattlesEventsFile);
+    InputStream wikiCompetitionsBattlesEventsRedirectsFile = getClass().getResourceAsStream("/lbj/WikiCompetitionsBattlesEventsRedirects.lst");
+    wikiCompetitionsBattlesEventsRedirects = new Dictionary(wikiCompetitionsBattlesEventsRedirectsFile);
+    InputStream wikiFilmsFile = getClass().getResourceAsStream("/lbj/WikiFilms.lst");
+    wikiFilms = new Dictionary(wikiFilmsFile);
+    InputStream wikiFilmsRedirectsFile = getClass().getResourceAsStream("/lbj/WikiFilmsRedirects.lst");
+    wikiFilmsRedirects = new Dictionary(wikiFilmsRedirectsFile);
+    InputStream wikiLocationsFile = getClass().getResourceAsStream("/lbj/WikiLocations.lst");
+    wikiLocations = new Dictionary(wikiLocationsFile);
+    InputStream wikiLocationsRedirectsFile = getClass().getResourceAsStream("/lbj/WikiLocationsRedirects.lst");
+    wikiLocationRedirects = new Dictionary(wikiLocationsRedirectsFile);
+    InputStream wikiManMadeObjectNamesFile = getClass().getResourceAsStream("/lbj/WikiManMadeObjectNames.lst");
+    wikiManMadeObjectNames = new Dictionary(wikiManMadeObjectNamesFile);
+    InputStream wikiManMadeObjectNamesRedirectsFile = getClass().getResourceAsStream("/lbj/WikiManMadeObjectNamesRedirects.lst");
+    wikiManMadeObjectNamesRedirects = new Dictionary(wikiManMadeObjectNamesRedirectsFile);
+    InputStream wikiOrganizationsFile = getClass().getResourceAsStream("/lbj/WikiOrganizations.lst");
+    wikiOrganizations = new Dictionary(wikiOrganizationsFile);
+    InputStream wikiOrganizationsRedirectsFile = getClass().getResourceAsStream("/lbj/WikiOrganizationsRedirects.lst");
+    wikiOrganizationsRedirects = new Dictionary(wikiOrganizationsRedirectsFile);
+    InputStream wikiPeopleFile = getClass().getResourceAsStream("/lbj/WikiPeople.lst");
+    wikiPeople = new Dictionary(wikiPeopleFile);
+    InputStream wikiPeopleRedirectsFile = getClass().getResourceAsStream("/lbj/WikiPeopleRedirects.lst");
+    wikiPeopleRedirects = new Dictionary(wikiPeopleRedirectsFile);
+    InputStream wikiSongsFile = getClass().getResourceAsStream("/lbj/WikiSongs.lst");
+    wikiSongs = new Dictionary(wikiSongsFile);
+    InputStream wikiSongsRedirectsFile = getClass().getResourceAsStream("/lbj/WikiSongsRedirects.lst");
+    wikiSongsRedirects = new Dictionary(wikiSongsRedirectsFile);
+    
+  }
+  
+  public DictLbjNameFinderTrainer() {
+    super();
+    features = createFeatureGenerator();
+  }
+  public AdaptiveFeatureGenerator create3DictionaryFeatures() {
+        return new CachedFeatureGenerator(new AdaptiveFeatureGenerator[] {
+            new WindowFeatureGenerator(new TokenFeatureGenerator(), 2, 2),
+            new WindowFeatureGenerator(new TokenClassFeatureGenerator(true), 2, 2),
+            new OutcomePriorFeatureGenerator(), new PreviousMapFeatureGenerator(),
+            new BigramNameFeatureGenerator(),
+            new DictionaryFeatures("PERSON",dictPer),
+            new DictionaryFeatures("ORGANIZATION",dictOrg),
+            new DictionaryFeatures("LOCATION",dictLoc),
+            new DictionaryFeatures("KPERSON",dictKnownPer),
+            new DictionaryFeatures("KORGANIZATION",dictKnownOrg),
+            new DictionaryFeatures("KLOCATION",dictKnownLoc),
+            new SentenceFeatureGenerator(true, false) });
+  }
+  
+  public AdaptiveFeatureGenerator createFeatureGenerator() {
+    return new CachedFeatureGenerator(new AdaptiveFeatureGenerator[] {
+        new WindowFeatureGenerator(new TokenFeatureGenerator(), 2, 2),
+        new WindowFeatureGenerator(new TokenClassFeatureGenerator(true), 2, 2),
+        new OutcomePriorFeatureGenerator(), new PreviousMapFeatureGenerator(),
+        new BigramNameFeatureGenerator(),
+        new SentenceFeatureGenerator(true, false),
+        new DictionaryFeatures(cardinalNumber),
+        new DictionaryFeatures(currencyFinal),
+        new DictionaryFeatures(knownCorporations),
+        new DictionaryFeatures(knownCountry),
+        new DictionaryFeatures(knownJobs),
+        new DictionaryFeatures(knownName),
+        new DictionaryFeatures(knownNamesBig),
+        new DictionaryFeatures(knownNationalities),
+        new DictionaryFeatures(knownPlace),
+        new DictionaryFeatures(knownState),
+        new DictionaryFeatures(knownTitle),
+        new DictionaryFeatures(measurements),
+        new DictionaryFeatures(ordinalNumber),
+        new DictionaryFeatures(temporalWords),
+        new DictionaryFeatures(wikiArtWork),
+        new DictionaryFeatures(wikiArtWorkRedirects),
+        new DictionaryFeatures(wikiCompetitionsBattlesEvents),
+        new DictionaryFeatures(wikiCompetitionsBattlesEventsRedirects),
+        new DictionaryFeatures(wikiFilms),
+        new DictionaryFeatures(wikiFilmsRedirects),
+        new DictionaryFeatures(wikiLocations),
+        new DictionaryFeatures(wikiLocationRedirects),
+        new DictionaryFeatures(wikiManMadeObjectNames),
+        new DictionaryFeatures(wikiManMadeObjectNamesRedirects),
+        new DictionaryFeatures(wikiOrganizations),
+        new DictionaryFeatures(wikiOrganizationsRedirects),
+        new DictionaryFeatures(wikiPeople),
+        new DictionaryFeatures(wikiPeopleRedirects),
+        new DictionaryFeatures(wikiSongs),
+        new DictionaryFeatures(wikiSongsRedirects)
+        });
+    }
+}

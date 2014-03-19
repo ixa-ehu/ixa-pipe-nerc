@@ -1,7 +1,7 @@
 package ixa.pipe.nerc.train;
 
-import ixa.pipe.nerc.Gazetteer;
-import ixa.pipe.nerc.GazetteerNameFinder;
+import ixa.pipe.nerc.Dictionary;
+import ixa.pipe.nerc.DictionaryNameFinder;
 
 import java.util.List;
 
@@ -12,19 +12,19 @@ public class DictionaryFeatures extends FeatureGeneratorAdapter {
 
   private InSpanGenerator isg;
   
-  public DictionaryFeatures(Gazetteer dict) {
+  public DictionaryFeatures(Dictionary dict) {
     this("",dict);
   }
-  public DictionaryFeatures(String prefix, Gazetteer dict) {
+  public DictionaryFeatures(String prefix, Dictionary dict) {
     setDictionary(prefix,dict);
   }
   
-  public void setDictionary(Gazetteer dict) {
+  public void setDictionary(Dictionary dict) {
     setDictionary("",dict);
   }
   
-  public void setDictionary(String name, Gazetteer dict) {
-    isg = new InSpanGenerator(name, new GazetteerNameFinder(dict));
+  public void setDictionary(String name, Dictionary dict) {
+    isg = new InSpanGenerator(name, new DictionaryNameFinder(dict));
   }
   
   public void createFeatures(List<String> features, String[] tokens, int index, String[] previousOutcomes) {
