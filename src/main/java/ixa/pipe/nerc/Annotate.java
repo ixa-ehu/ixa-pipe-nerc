@@ -45,18 +45,14 @@ public class Annotate {
   private boolean DICTTAG;
   
   public Annotate(String lang,String model) {
-    Models modelRetriever = new Models();
-    InputStream nerModel = modelRetriever.getNERModel(lang);
     NameFactory nameFactory = new NameFactory();
-    nameFinder = new StatisticalNameFinder(nerModel,nameFactory,model);
+    nameFinder = new StatisticalNameFinder(lang,nameFactory,model);
     STATISTICAL = true;
   }
   
-  public Annotate(String lang, String gazetteerOption, String model) {
+  public Annotate(String lang, String gazetteerOption,String model) {
     NameFactory nameFactory = new NameFactory();
-    Models modelRetriever = new Models();
-    InputStream nerModel = modelRetriever.getNERModel(lang);
-    nameFinder = new StatisticalNameFinder(nerModel,nameFactory, model);
+    nameFinder = new StatisticalNameFinder(lang,nameFactory,model);
     perDictFinder = createDictNameFinder("en/wikiperson.txt","PERSON",nameFactory);
     orgDictFinder = createDictNameFinder("en/wikiorganization.txt","ORGANIZATION",nameFactory);
     locDictFinder = createDictNameFinder("en/wikilocation.txt","LOCATION",nameFactory);
@@ -94,9 +90,9 @@ public class Annotate {
         allSpans = nameFinder.nercToSpans(tokens);
       }
       if (POSTPROCESS) {
-        List<Span> perDictSpans = perDictFinder.nercToSpans(tokens);
-        List<Span> orgDictSpans = orgDictFinder.nercToSpans(tokens);
-        List<Span> locDictSpans = locDictFinder.nercToSpans(tokens);
+        List<Span> perDictSpans = perDictFinder.nercToSpansExact(tokens);
+        List<Span> orgDictSpans = orgDictFinder.nercToSpansExact(tokens);
+        List<Span> locDictSpans = locDictFinder.nercToSpansExact(tokens);
         perDictFinder.concatenateSpans(perDictSpans,orgDictSpans);
         perDictFinder.concatenateSpans(perDictSpans,locDictSpans);
         // TODO postprocessing
@@ -105,9 +101,9 @@ public class Annotate {
         perDictFinder.concatenateSpans(allSpans, postSpans);
       }
       if (DICTTAG) {
-        allSpans = perDictFinder.nercToSpans(tokens);
-        List<Span> orgDictSpans = orgDictFinder.nercToSpans(tokens);
-        List<Span> locDictSpans = locDictFinder.nercToSpans(tokens);
+        allSpans = perDictFinder.nercToSpansExact(tokens);
+        List<Span> orgDictSpans = orgDictFinder.nercToSpansExact(tokens);
+        List<Span> locDictSpans = locDictFinder.nercToSpansExact(tokens);
         perDictFinder.concatenateSpans(allSpans,orgDictSpans);
         perDictFinder.concatenateSpans(allSpans,locDictSpans);
       }

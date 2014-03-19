@@ -31,7 +31,7 @@ public class StringUtils {
    * @param tokens an array of tokens
    * @return token spans of the pattern (e.g. a named entity)
    */
-  public static List<Integer> exactTokenFinder(String pattern, String[] tokens) {
+  public static List<Integer> exactTokenFinderIgnoreCase(String pattern, String[] tokens) {
     String[] patternTokens = pattern.split(" ");
     int i, j; 
     int patternLength = patternTokens.length;
@@ -39,6 +39,30 @@ public class StringUtils {
     List<Integer> neTokens = new ArrayList<Integer>();
     for (j = 0; j <= sentenceLength - patternLength; ++j) {
       for (i = 0; i < patternLength && patternTokens[i].equalsIgnoreCase(tokens[i + j]); ++i);
+      if (i >= patternLength) {
+        neTokens.add(j);
+        neTokens.add(i+j);
+      }
+    }
+    return neTokens;
+  }
+  
+  /**
+   * Finds a pattern (typically a named entity string) in a tokenized sentence. 
+   * It outputs the {@link Span} indexes of the named entity found, if any
+   * 
+   * @param pattern a string to find 
+   * @param tokens an array of tokens
+   * @return token spans of the pattern (e.g. a named entity)
+   */
+  public static List<Integer> exactTokenFinder(String pattern, String[] tokens) {
+    String[] patternTokens = pattern.split(" ");
+    int i, j; 
+    int patternLength = patternTokens.length;
+    int sentenceLength = tokens.length;
+    List<Integer> neTokens = new ArrayList<Integer>();
+    for (j = 0; j <= sentenceLength - patternLength; ++j) {
+      for (i = 0; i < patternLength && patternTokens[i].equals(tokens[i + j]); ++i);
       if (i >= patternLength) {
         neTokens.add(j);
         neTokens.add(i+j);

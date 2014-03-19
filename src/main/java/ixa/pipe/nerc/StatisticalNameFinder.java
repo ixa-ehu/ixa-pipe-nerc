@@ -41,17 +41,15 @@ import opennlp.tools.util.Span;
 
  public class StatisticalNameFinder implements NameFinder {
 
+   private InputStream trainedModel;
    private TokenNameFinderModel nercModel;
    private NameFinderME nameFinder;
    private NameFactory nameFactory;
    private NameFinderTrainer nameFinderTrainer;
 
-  /**
-   * Construct a StatisticalNameFinder. First it loads a model,
-   * then it initializes the nercModel and finally it creates a nercDetector
-   * using such model.
-   */
-  public StatisticalNameFinder(InputStream trainedModel,String model) {
+  public StatisticalNameFinder(String lang, String model) {
+    
+    trainedModel = getModel(lang,model);
 
     try {
       nercModel = new TokenNameFinderModel(trainedModel);
@@ -69,14 +67,11 @@ import opennlp.tools.util.Span;
     nameFinder = new NameFinderME(nercModel,nameFinderTrainer.createFeatureGenerator(),AbstractNameFinderTrainer.GREEDY_BEAM_SIZE);
   }
   
-  /**
-   * Construct a StatisticalNameFinder. First it loads a model,
-   * then it initializes the nercModel and finally it creates a nercDetector
-   * using such model. This constructor also uses a NameFactory to create {@link Name}
-   * objects
-   */
-  public StatisticalNameFinder(InputStream trainedModel, NameFactory nameFactory, String model) {
+  public StatisticalNameFinder(String lang, NameFactory nameFactory, String model) {
+    
+    trainedModel = getModel(lang,model);
     this.nameFactory = nameFactory;
+    
     try {
       nercModel = new TokenNameFinderModel(trainedModel);
     } catch (IOException e) {
@@ -170,6 +165,34 @@ import opennlp.tools.util.Span;
    */
   public void clearAdaptiveData() {
     nameFinder.clearAdaptiveData();
+  }
+  
+  public InputStream getModel(String lang, String model) {
+
+    if (lang.equalsIgnoreCase("en")) {
+      if (model.equalsIgnoreCase("baseline")) {
+        trainedModel = getClass().getResourceAsStream("/en/en-nerc-perceptron-500-0-testa.bin");
+      }
+      if (model.equalsIgnoreCase("dict3")) {
+        trainedModel = getClass().getResourceAsStream("/en/en-nerc-perceptron-500-0-testa.bin");
+      }
+      if (model.equalsIgnoreCase("dictlbj")) {
+        trainedModel = getClass().getResourceAsStream("/en/en-nerc-perceptron-500-0-testa.bin");
+      }
+    }
+
+    if (lang.equalsIgnoreCase("es")) {
+      if (model.equalsIgnoreCase("baseline")) {
+        trainedModel = getClass().getResourceAsStream("/es/es-nerc-500-4-testa.bin");
+    }
+      if (model.equalsIgnoreCase("dict3")) {
+        trainedModel = getClass().getResourceAsStream("/es/es-nerc-500-4-testa.bin");
+      }
+      if (model.equalsIgnoreCase("dictlbj")) {
+        trainedModel = getClass().getResourceAsStream("/es/es-nerc-500-4-testa.bin");
+      }
+    }
+    return trainedModel;
   }
   
 }

@@ -92,6 +92,7 @@ import opennlp.tools.util.Span;
   
   /**
    * Detects Named Entities in a {@link Dictionary} by NE type
+   * ignoring case
    * 
    * @param tokens 
    * @return spans of the Named Entities all 
@@ -99,7 +100,7 @@ import opennlp.tools.util.Span;
    public List<Span> nercToSpans(String[] tokens) {
      List<Span> neSpans = new ArrayList<Span>();
      for (String neDict : dict.dictList) {
-       List<Integer> neIds = StringUtils.exactTokenFinder(neDict,tokens);
+       List<Integer> neIds = StringUtils.exactTokenFinderIgnoreCase(neDict,tokens);
        if (!neIds.isEmpty()) {
          Span neSpan = new Span(neIds.get(0), neIds.get(1), type);
          if (DEBUG) {
@@ -110,6 +111,28 @@ import opennlp.tools.util.Span;
      }
      return neSpans;
    }
+   
+   /**
+    * Detects Named Entities in a {@link Dictionary} by NE type
+    * This method is case sensitive 
+    * 
+    * @param tokens 
+    * @return spans of the Named Entities all 
+    */
+    public List<Span> nercToSpansExact(String[] tokens) {
+      List<Span> neSpans = new ArrayList<Span>();
+      for (String neDict : dict.dictList) {
+        List<Integer> neIds = StringUtils.exactTokenFinder(neDict,tokens);
+        if (!neIds.isEmpty()) {
+          Span neSpan = new Span(neIds.get(0), neIds.get(1), type);
+          if (DEBUG) {
+            System.err.println(neSpans.toString());
+          }
+          neSpans.add(neSpan); 
+        }
+      }
+      return neSpans;
+    }
   
   /**
    * Creates a list of {@link Name} objects from spans and tokens
@@ -161,11 +184,17 @@ import opennlp.tools.util.Span;
       else {
         for (Span span1 : preList) {
           for (Span span2 : postList) {
-            if (!span1.contains(span2) || span2.contains(span1)) {
+            if (!span1.contains(span2)) {
               allSpans.add(span2);
               if (DEBUG) {
-                System.err.println("dict replacement of " + span1.toString() + " with " + span2.toString());
+                System.err.println("adding dict span! " + span2.toString());
               }
+            }
+            else if(span2.contains(span1)) {
+              allSpans.add(span2);
+            }
+            else if(span1.contains(span2)) {
+              allSpans.add(span2);
             }
             else {
               allSpans.add(span1);
