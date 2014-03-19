@@ -76,7 +76,7 @@ public class StatisticalNameFinderTrainer {
   static Gazetteer wikiManMadeObjectNames;
   static Gazetteer wikiManMadeObjectNamesRedirects;
   static Gazetteer wikiOrganizations;
-  static Gazetteer wikiOrganizationRedirects;
+  static Gazetteer wikiOrganizationsRedirects;
   static Gazetteer wikiPeople;
   static Gazetteer wikiPeopleRedirects;
   static Gazetteer wikiSongs;
@@ -105,59 +105,65 @@ public class StatisticalNameFinderTrainer {
     InputStream dictFileKnownLoc = getClass().getResourceAsStream("/en-known-location.txt");
     dictKnownLoc = new Gazetteer(dictFileKnownLoc);*/
     //lbj dictionaries
-    InputStream cardinalNumberFile = getClass().getResourceAsStream("lbj/cardinalNumber.txt");
+    InputStream cardinalNumberFile = getClass().getResourceAsStream("/lbj/cardinalNumber.txt");
     cardinalNumber = new Gazetteer(cardinalNumberFile);
-    InputStream currencyFinalFile = getClass().getResourceAsStream("lbj/currencyFinal.txt");
+    InputStream currencyFinalFile = getClass().getResourceAsStream("/lbj/currencyFinal.txt");
     currencyFinal = new Gazetteer(currencyFinalFile);
-    InputStream knownCorporationsFile = getClass().getResourceAsStream("lbj/known_corporations.lst");
+    InputStream knownCorporationsFile = getClass().getResourceAsStream("/lbj/known_corporations.lst");
     knownCorporations = new Gazetteer(knownCorporationsFile);
-    InputStream knownCountryFile = getClass().getResourceAsStream("lbj/known_country.lst");
+    InputStream knownCountryFile = getClass().getResourceAsStream("/lbj/known_country.lst");
     knownCountry = new Gazetteer(knownCountryFile);
-    InputStream knownJobsFile = getClass().getResourceAsStream("lbj/known_jobs.lst");
+    InputStream knownJobsFile = getClass().getResourceAsStream("/lbj/known_jobs.lst");
     knownJobs = new Gazetteer(knownJobsFile);
-    InputStream knownNameFile = getClass().getResourceAsStream("lbj/known_name.lst");
+    InputStream knownNameFile = getClass().getResourceAsStream("/lbj/known_name.lst");
     knownName = new Gazetteer(knownNameFile);
-    InputStream knownNameBigFile = getClass().getResourceAsStream("lbj/known_names.big.lst");
+    InputStream knownNameBigFile = getClass().getResourceAsStream("/lbj/known_names.big.lst");
     knownNamesBig = new Gazetteer(knownNameBigFile);
-    InputStream knownNationalitiesFile = getClass().getResourceAsStream("lbj/known_nationalities.lst");
+    InputStream knownNationalitiesFile = getClass().getResourceAsStream("/lbj/known_nationalities.lst");
     knownNationalities = new Gazetteer(knownNationalitiesFile);
-    InputStream knownPlaceFile = getClass().getResourceAsStream("lbj/known_place.lst");
+    InputStream knownPlaceFile = getClass().getResourceAsStream("/lbj/known_place.lst");
     knownPlace = new Gazetteer(knownPlaceFile);
-    InputStream knownStateFile = getClass().getResourceAsStream("lbj/known_state.lst");
+    InputStream knownStateFile = getClass().getResourceAsStream("/lbj/known_state.lst");
     knownState = new Gazetteer(knownStateFile);
-    InputStream measurementsFile = getClass().getResourceAsStream("lbj/measurments.txt");
+    InputStream knownTitleFile = getClass().getResourceAsStream("/lbj/known_title.lst");
+    knownTitle = new Gazetteer(knownTitleFile);
+    InputStream measurementsFile = getClass().getResourceAsStream("/lbj/measurments.txt");
     measurements = new Gazetteer(measurementsFile);
-    InputStream ordinalNumberFile = getClass().getResourceAsStream("lbj/ordinalNumber.txt");
+    InputStream ordinalNumberFile = getClass().getResourceAsStream("/lbj/ordinalNumber.txt");
     ordinalNumber = new Gazetteer(ordinalNumberFile);
-    InputStream temporalWordsFile = getClass().getResourceAsStream("lbj/temporal_words.txt");
+    InputStream temporalWordsFile = getClass().getResourceAsStream("/lbj/temporal_words.txt");
     temporalWords = new Gazetteer(temporalWordsFile);
-    InputStream wikiArtWorkFile = getClass().getResourceAsStream("lbj/WikiArtWork.lst");
+    InputStream wikiArtWorkFile = getClass().getResourceAsStream("/lbj/WikiArtWork.lst");
     wikiArtWork = new Gazetteer(wikiArtWorkFile);
-    InputStream wikiArtWorkRedirectsFile = getClass().getResourceAsStream("lbj/WikiArtWorkRedirects.lst");
+    InputStream wikiArtWorkRedirectsFile = getClass().getResourceAsStream("/lbj/WikiArtWorkRedirects.lst");
     wikiArtWorkRedirects = new Gazetteer(wikiArtWorkRedirectsFile);
-    InputStream wikiCompetitionsBattlesEventsFile = getClass().getResourceAsStream("lbj/WikiCompetitionsBattlesEvents.lst");
+    InputStream wikiCompetitionsBattlesEventsFile = getClass().getResourceAsStream("/lbj/WikiCompetitionsBattlesEvents.lst");
     wikiCompetitionsBattlesEvents = new Gazetteer(wikiCompetitionsBattlesEventsFile);
-    InputStream wikiCompetitionsBattlesEventsRedirectsFile = getClass().getResourceAsStream("lbj/WikiCompetitionsBattlesEventsRedirects.lst");
+    InputStream wikiCompetitionsBattlesEventsRedirectsFile = getClass().getResourceAsStream("/lbj/WikiCompetitionsBattlesEventsRedirects.lst");
     wikiCompetitionsBattlesEventsRedirects = new Gazetteer(wikiCompetitionsBattlesEventsRedirectsFile);
-    InputStream wikiFilmsFile = getClass().getResourceAsStream("lbj/WikiFilms.lst");
+    InputStream wikiFilmsFile = getClass().getResourceAsStream("/lbj/WikiFilms.lst");
     wikiFilms = new Gazetteer(wikiFilmsFile);
-    InputStream wikiFilmsRedirectsFile = getClass().getResourceAsStream("lbj/WikiFilmsRedirects.lst");
+    InputStream wikiFilmsRedirectsFile = getClass().getResourceAsStream("/lbj/WikiFilmsRedirects.lst");
     wikiFilmsRedirects = new Gazetteer(wikiFilmsRedirectsFile);
-    InputStream wikiLocationsFile = getClass().getResourceAsStream("lbj/WikiLocations.lst");
+    InputStream wikiLocationsFile = getClass().getResourceAsStream("/lbj/WikiLocations.lst");
     wikiLocations = new Gazetteer(wikiLocationsFile);
-    InputStream wikiLocationsRedirectsFile = getClass().getResourceAsStream("lbj/WikiLocationsRedirects.lst");
+    InputStream wikiLocationsRedirectsFile = getClass().getResourceAsStream("/lbj/WikiLocationsRedirects.lst");
     wikiLocationRedirects = new Gazetteer(wikiLocationsRedirectsFile);
-    InputStream wikiManMadeObjectNamesFile = getClass().getResourceAsStream("lbj/WikiManMadeObjectNames.lst");
+    InputStream wikiManMadeObjectNamesFile = getClass().getResourceAsStream("/lbj/WikiManMadeObjectNames.lst");
     wikiManMadeObjectNames = new Gazetteer(wikiManMadeObjectNamesFile);
-    InputStream wikiManMadeObjectNamesRedirectsFile = getClass().getResourceAsStream("lbj/WikiManMadeObjectNamesRedirects.lst");
+    InputStream wikiManMadeObjectNamesRedirectsFile = getClass().getResourceAsStream("/lbj/WikiManMadeObjectNamesRedirects.lst");
     wikiManMadeObjectNamesRedirects = new Gazetteer(wikiManMadeObjectNamesRedirectsFile);
-    InputStream wikiPeopleFile = getClass().getResourceAsStream("lbj/WikiPeople.lst");
+    InputStream wikiOrganizationsFile = getClass().getResourceAsStream("/lbj/WikiOrganizations.lst");
+    wikiOrganizations = new Gazetteer(wikiOrganizationsFile);
+    InputStream wikiOrganizationsRedirectsFile = getClass().getResourceAsStream("/lbj/WikiOrganizationsRedirects.lst");
+    wikiOrganizationsRedirects = new Gazetteer(wikiOrganizationsRedirectsFile);
+    InputStream wikiPeopleFile = getClass().getResourceAsStream("/lbj/WikiPeople.lst");
     wikiPeople = new Gazetteer(wikiPeopleFile);
-    InputStream wikiPeopleRedirectsFile = getClass().getResourceAsStream("lbj/WikiPeopleRedirects.lst");
+    InputStream wikiPeopleRedirectsFile = getClass().getResourceAsStream("/lbj/WikiPeopleRedirects.lst");
     wikiPeopleRedirects = new Gazetteer(wikiPeopleRedirectsFile);
-    InputStream wikiSongsFile = getClass().getResourceAsStream("lbj/WikiSongs.lst");
+    InputStream wikiSongsFile = getClass().getResourceAsStream("/lbj/WikiSongs.lst");
     wikiSongs = new Gazetteer(wikiSongsFile);
-    InputStream wikiSongsRedirectsFile = getClass().getResourceAsStream("lbj/WikiSongsRedirects.lst");
+    InputStream wikiSongsRedirectsFile = getClass().getResourceAsStream("/lbj/WikiSongsRedirects.lst");
     wikiSongsRedirects = new Gazetteer(wikiSongsRedirectsFile);
     
   }
@@ -236,7 +242,7 @@ public StatisticalNameFinderTrainer() throws IOException {
         new DictionaryFeatures(wikiManMadeObjectNames),
         new DictionaryFeatures(wikiManMadeObjectNamesRedirects),
         new DictionaryFeatures(wikiOrganizations),
-        new DictionaryFeatures(wikiOrganizationRedirects),
+        new DictionaryFeatures(wikiOrganizationsRedirects),
         new DictionaryFeatures(wikiPeople),
         new DictionaryFeatures(wikiPeopleRedirects),
         new DictionaryFeatures(wikiSongs),
