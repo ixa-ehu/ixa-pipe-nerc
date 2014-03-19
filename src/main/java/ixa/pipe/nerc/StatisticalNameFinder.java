@@ -40,6 +40,7 @@ import opennlp.tools.util.Span;
    private TokenNameFinderModel nercModel;
    private NameFinderME nercDetector;
    private NameFactory nameFactory;
+   private StatisticalNameFinderTrainer nameTrainer;
 
   /**
    * Construct a StatisticalNameFinder. First it loads a model,
@@ -60,7 +61,13 @@ import opennlp.tools.util.Span;
         }
       }
     }
-    nercDetector = new NameFinderME(nercModel,StatisticalNameFinderTrainer.createDefaultFeatures(),NameFinderME.DEFAULT_BEAM_SIZE);
+    try {
+      nameTrainer = new StatisticalNameFinderTrainer();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    nercDetector = new NameFinderME(nercModel,nameTrainer.createDefaultFeatures(),NameFinderME.DEFAULT_BEAM_SIZE);
   }
   
   /**
@@ -83,7 +90,13 @@ import opennlp.tools.util.Span;
         }
       }
     }
-    nercDetector = new NameFinderME(nercModel,StatisticalNameFinderTrainer.createDefaultFeatures(),NameFinderME.DEFAULT_BEAM_SIZE);
+    try {
+      nameTrainer = new StatisticalNameFinderTrainer();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    nercDetector = new NameFinderME(nercModel,nameTrainer.createDefaultFeatures(),NameFinderME.DEFAULT_BEAM_SIZE);
   }
 
   /**
