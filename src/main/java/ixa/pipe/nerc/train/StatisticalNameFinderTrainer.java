@@ -47,6 +47,9 @@ public class StatisticalNameFinderTrainer {
   static Gazetteer dictPer;
   static Gazetteer dictOrg;
   static Gazetteer dictLoc;
+  static Gazetteer dictKnownPer;
+  static Gazetteer dictKnownOrg;
+  static Gazetteer dictKnownLoc;
   
   public StatisticalNameFinderTrainer(String trainData, String testData, String lang) throws IOException {
     
@@ -63,6 +66,12 @@ public class StatisticalNameFinderTrainer {
     dictOrg = new Gazetteer(dictFileOrg);
     InputStream dictFileLoc = getClass().getResourceAsStream("/en-wikilocation.lst");
     dictLoc = new Gazetteer(dictFileLoc);
+    InputStream dictFileKnownPer = getClass().getResourceAsStream("/en-known-people.txt");
+    dictKnownPer = new Gazetteer(dictFileKnownPer);
+    InputStream dictFileKnownOrg = getClass().getResourceAsStream("/en-known-organization.txt");
+    dictKnownOrg = new Gazetteer(dictFileKnownOrg);
+    InputStream dictFileKnownLoc = getClass().getResourceAsStream("/en-known-location.txt");
+    dictKnownLoc = new Gazetteer(dictFileKnownLoc);
   }
 
   public static AdaptiveFeatureGenerator createDefaultFeatures1() {
@@ -83,6 +92,9 @@ public class StatisticalNameFinderTrainer {
             new DictionaryFeatures("PERSON",dictPer),
             new DictionaryFeatures("ORGANIZATION",dictOrg),
             new DictionaryFeatures("LOCATION",dictLoc),
+            new DictionaryFeatures("KPERSON",dictKnownPer),
+            new DictionaryFeatures("KORGANIZATION",dictKnownOrg),
+            new DictionaryFeatures("KLOCATION",dictKnownLoc),
             new SentenceFeatureGenerator(true, false) });
   }
  
