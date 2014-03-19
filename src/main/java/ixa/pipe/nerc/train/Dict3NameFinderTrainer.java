@@ -39,17 +39,17 @@ public class Dict3NameFinderTrainer extends AbstractNameFinderTrainer {
     super(trainData,testData,lang);
     features = createFeatureGenerator();
     
-    InputStream dictFilePer = getClass().getResourceAsStream("/en-wikipeople.lst");
+    InputStream dictFilePer = getClass().getResourceAsStream("/en/wikiperson.txt");
     dictPer = new Dictionary(dictFilePer);
-    InputStream dictFileOrg = getClass().getResourceAsStream("/en-wikiorganization.lst");
+    InputStream dictFileOrg = getClass().getResourceAsStream("/en/wikiorganization.txt");
     dictOrg = new Dictionary(dictFileOrg);
-    InputStream dictFileLoc = getClass().getResourceAsStream("/en-wikilocation.lst");
+    InputStream dictFileLoc = getClass().getResourceAsStream("/en/wikilocation.txt");
     dictLoc = new Dictionary(dictFileLoc);
-    InputStream dictFileKnownPer = getClass().getResourceAsStream("/en-known-people.txt");
+    InputStream dictFileKnownPer = getClass().getResourceAsStream("/en/known-person.txt");
     dictKnownPer = new Dictionary(dictFileKnownPer);
-    InputStream dictFileKnownOrg = getClass().getResourceAsStream("/en-known-organization.txt");
+    InputStream dictFileKnownOrg = getClass().getResourceAsStream("/en/known-organization.txt");
     dictKnownOrg = new Dictionary(dictFileKnownOrg);
-    InputStream dictFileKnownLoc = getClass().getResourceAsStream("/en-known-location.txt");
+    InputStream dictFileKnownLoc = getClass().getResourceAsStream("/en/known-location.txt");
     dictKnownLoc = new Dictionary(dictFileKnownLoc);
   }
   

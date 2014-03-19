@@ -57,9 +57,9 @@ public class Annotate {
     Models modelRetriever = new Models();
     InputStream nerModel = modelRetriever.getNERModel(lang);
     nameFinder = new StatisticalNameFinder(nerModel,nameFactory, model);
-    perDictFinder = createDictNameFinder("en-wikipeople.lst","PERSON",nameFactory);
-    orgDictFinder = createDictNameFinder("en-wikiorganization.lst","ORGANIZATION",nameFactory);
-    locDictFinder = createDictNameFinder("en-wikilocation.lst","LOCATION",nameFactory);
+    perDictFinder = createDictNameFinder("en/wikiperson.txt","PERSON",nameFactory);
+    orgDictFinder = createDictNameFinder("en/wikiorganization.txt","ORGANIZATION",nameFactory);
+    locDictFinder = createDictNameFinder("en/wikilocation.txt","LOCATION",nameFactory);
     if (gazetteerOption.equalsIgnoreCase("post")) { 
       POSTPROCESS = true;
       STATISTICAL = true;

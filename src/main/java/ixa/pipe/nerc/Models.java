@@ -26,11 +26,11 @@ public class Models {
 
     if (cmdOption.equals("en")) {
       nerModel = getClass().getResourceAsStream(
-          "/en-nerc-perceptron-500-0-testa.bin");
+          "/en/en-nerc-perceptron-500-0-testa.bin");
     }
 
     if (cmdOption.equals("es")) {
-      nerModel = getClass().getResourceAsStream("/es-nerc-500-4-testa.bin");
+      nerModel = getClass().getResourceAsStream("/es/es-nerc-500-4-testa.bin");
     }
     return nerModel;
   }

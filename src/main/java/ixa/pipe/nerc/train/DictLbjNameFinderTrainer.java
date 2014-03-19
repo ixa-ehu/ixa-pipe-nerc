@@ -71,19 +71,6 @@ public class DictLbjNameFinderTrainer extends AbstractNameFinderTrainer {
     super(trainData,testData,lang);
     features = createFeatureGenerator();
     
-    /*InputStream dictFilePer = getClass().getResourceAsStream("/en-wikipeople.lst");
-    dictPer = new Gazetteer(dictFilePer);
-    InputStream dictFileOrg = getClass().getResourceAsStream("/en-wikiorganization.lst");
-    dictOrg = new Gazetteer(dictFileOrg);
-    InputStream dictFileLoc = getClass().getResourceAsStream("/en-wikilocation.lst");
-    dictLoc = new Gazetteer(dictFileLoc);
-    InputStream dictFileKnownPer = getClass().getResourceAsStream("/en-known-people.txt");
-    dictKnownPer = new Gazetteer(dictFileKnownPer);
-    InputStream dictFileKnownOrg = getClass().getResourceAsStream("/en-known-organization.txt");
-    dictKnownOrg = new Gazetteer(dictFileKnownOrg);
-    InputStream dictFileKnownLoc = getClass().getResourceAsStream("/en-known-location.txt");
-    dictKnownLoc = new Gazetteer(dictFileKnownLoc);*/
-    //lbj dictionaries
     InputStream cardinalNumberFile = getClass().getResourceAsStream("/lbj/cardinalNumber.txt");
     cardinalNumber = new Dictionary(cardinalNumberFile);
     InputStream currencyFinalFile = getClass().getResourceAsStream("/lbj/currencyFinal.txt");
@@ -151,20 +138,6 @@ public class DictLbjNameFinderTrainer extends AbstractNameFinderTrainer {
     super();
     features = createFeatureGenerator();
   }
-  public AdaptiveFeatureGenerator create3DictionaryFeatures() {
-        return new CachedFeatureGenerator(new AdaptiveFeatureGenerator[] {
-            new WindowFeatureGenerator(new TokenFeatureGenerator(), 2, 2),
-            new WindowFeatureGenerator(new TokenClassFeatureGenerator(true), 2, 2),
-            new OutcomePriorFeatureGenerator(), new PreviousMapFeatureGenerator(),
-            new BigramNameFeatureGenerator(),
-            new DictionaryFeatures("PERSON",dictPer),
-            new DictionaryFeatures("ORGANIZATION",dictOrg),
-            new DictionaryFeatures("LOCATION",dictLoc),
-            new DictionaryFeatures("KPERSON",dictKnownPer),
-            new DictionaryFeatures("KORGANIZATION",dictKnownOrg),
-            new DictionaryFeatures("KLOCATION",dictKnownLoc),
-            new SentenceFeatureGenerator(true, false) });
-  }
   
   public AdaptiveFeatureGenerator createFeatureGenerator() {
     return new CachedFeatureGenerator(new AdaptiveFeatureGenerator[] {
@@ -173,36 +146,36 @@ public class DictLbjNameFinderTrainer extends AbstractNameFinderTrainer {
         new OutcomePriorFeatureGenerator(), new PreviousMapFeatureGenerator(),
         new BigramNameFeatureGenerator(),
         new SentenceFeatureGenerator(true, false),
-        new DictionaryFeatures(cardinalNumber),
-        new DictionaryFeatures(currencyFinal),
-        new DictionaryFeatures(knownCorporations),
-        new DictionaryFeatures(knownCountry),
-        new DictionaryFeatures(knownJobs),
-        new DictionaryFeatures(knownName),
-        new DictionaryFeatures(knownNamesBig),
-        new DictionaryFeatures(knownNationalities),
-        new DictionaryFeatures(knownPlace),
-        new DictionaryFeatures(knownState),
-        new DictionaryFeatures(knownTitle),
-        new DictionaryFeatures(measurements),
-        new DictionaryFeatures(ordinalNumber),
-        new DictionaryFeatures(temporalWords),
-        new DictionaryFeatures(wikiArtWork),
-        new DictionaryFeatures(wikiArtWorkRedirects),
-        new DictionaryFeatures(wikiCompetitionsBattlesEvents),
-        new DictionaryFeatures(wikiCompetitionsBattlesEventsRedirects),
-        new DictionaryFeatures(wikiFilms),
-        new DictionaryFeatures(wikiFilmsRedirects),
-        new DictionaryFeatures(wikiLocations),
-        new DictionaryFeatures(wikiLocationRedirects),
-        new DictionaryFeatures(wikiManMadeObjectNames),
-        new DictionaryFeatures(wikiManMadeObjectNamesRedirects),
-        new DictionaryFeatures(wikiOrganizations),
-        new DictionaryFeatures(wikiOrganizationsRedirects),
-        new DictionaryFeatures(wikiPeople),
-        new DictionaryFeatures(wikiPeopleRedirects),
-        new DictionaryFeatures(wikiSongs),
-        new DictionaryFeatures(wikiSongsRedirects)
+        new DictionaryFeatures("CARDINAL",cardinalNumber),
+        new DictionaryFeatures("CURRENCY",currencyFinal),
+        new DictionaryFeatures("CORPORATIONS",knownCorporations),
+        new DictionaryFeatures("COUNTRY",knownCountry),
+        new DictionaryFeatures("JOBS",knownJobs),
+        new DictionaryFeatures("NAME",knownName),
+        new DictionaryFeatures("NAMESBIG",knownNamesBig),
+        new DictionaryFeatures("NATIONALITIES",knownNationalities),
+        new DictionaryFeatures("PLACE",knownPlace),
+        new DictionaryFeatures("STATE",knownState),
+        new DictionaryFeatures("TITLE",knownTitle),
+        new DictionaryFeatures("MEASURES",measurements),
+        new DictionaryFeatures("ORDINAL",ordinalNumber),
+        new DictionaryFeatures("TEMPORALS",temporalWords),
+        new DictionaryFeatures("ART",wikiArtWork),
+        new DictionaryFeatures("ARTRED",wikiArtWorkRedirects),
+        new DictionaryFeatures("COMPETITIONS",wikiCompetitionsBattlesEvents),
+        new DictionaryFeatures("COMPETITIONSRED",wikiCompetitionsBattlesEventsRedirects),
+        new DictionaryFeatures("FILMS",wikiFilms),
+        new DictionaryFeatures("FILMSRED",wikiFilmsRedirects),
+        new DictionaryFeatures("LOCATIONS",wikiLocations),
+        new DictionaryFeatures("LOCATIONSRED",wikiLocationRedirects),
+        new DictionaryFeatures("OBJECTS",wikiManMadeObjectNames),
+        new DictionaryFeatures("OBJECTSRED",wikiManMadeObjectNamesRedirects),
+        new DictionaryFeatures("ORGANIZATIONS",wikiOrganizations),
+        new DictionaryFeatures("ORGANIZATIONSRED",wikiOrganizationsRedirects),
+        new DictionaryFeatures("PEOPLE",wikiPeople),
+        new DictionaryFeatures("PEOPLERED",wikiPeopleRedirects),
+        new DictionaryFeatures("SONGS",wikiSongs),
+        new DictionaryFeatures("SONGSRED",wikiSongsRedirects)
         });
     }
 }

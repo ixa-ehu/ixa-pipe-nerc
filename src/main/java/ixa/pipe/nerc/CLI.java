@@ -17,8 +17,11 @@
 package ixa.pipe.nerc;
 
 import ixa.kaflib.KAFDocument;
+import ixa.pipe.nerc.train.BaselineNameFinderTrainer;
+import ixa.pipe.nerc.train.Dict3NameFinderTrainer;
 import ixa.pipe.nerc.train.InputOutputUtils;
 import ixa.pipe.nerc.train.DictLbjNameFinderTrainer;
+import ixa.pipe.nerc.train.NameFinderTrainer;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -74,16 +77,17 @@ public class CLI {
         .choices("en", "es")
         .required(false)
         .help(
-            "It is REQUIRED to choose a language to perform annotation with ixa-pipe-nerc");
+            "Choose a language to perform annotation with ixa-pipe-nerc");
     
     annotateParser.addArgument("-m","--model")
-        .choices("baseline","dict3, dictlbj")
+        .choices("baseline","dict3","dictlbj")
         .required(false)
         .help("Choose model to perform NERC annotation");
     
-    annotateParser.addArgument("-g","--gazetteers").required(false).help("Use gazetteers directly for annotation and/or " +
-    		"post-processing. Two arguments are available: tag and post; if both are concatenated by a comma " +
-        "(e.g., 'tag,post'), both options will be activated\n");
+    annotateParser.addArgument("-g","--gazetteers")
+        .choices("tag","post")
+        .required(false).help("Use gazetteers directly for tagging or " +
+    		"for post-processing the probabilistic NERC output.\n");
     
     //////////////////////
     //// Training CLI ////
@@ -91,7 +95,7 @@ public class CLI {
     
     Subparser trainParser = subparsers.addParser("train").help("Training CLI");
     trainParser.addArgument("-f","--features")
-        .choices("baseline","dictionaries").required(true).help("Train NERC models");
+        .choices("baseline","dict3","dictlbj").required(true).help("Train NERC models");
     trainParser.addArgument("-p", "--params").required(true)
         .help("load the parameters file");
     trainParser.addArgument("-i", "--input").required(true)
@@ -120,6 +124,7 @@ public class CLI {
       //////////////////
       
       if (parsedArguments.get("features") != null) {
+        NameFinderTrainer nercTrainer = null;
         String trainFile = parsedArguments.getString("input");
         String testFile = parsedArguments.getString("evalSet");
         String devFile = parsedArguments.getString("devSet");
@@ -139,14 +144,21 @@ public class CLI {
         }
         
         if (parsedArguments.getString("features").equalsIgnoreCase("baseline")) {
-            DictLbjNameFinderTrainer nercTrainer = new DictLbjNameFinderTrainer(trainFile, testFile, lang);
-            TokenNameFinderModel trainedModel = null;
-            if (evalRange.length==2) {
-              if (parsedArguments.get("devSet") == null) {
-                InputOutputUtils.devSetException();
-              } else {
-                trainedModel = nercTrainer.trainCrossEval(trainFile, devFile,
-                    params, evalRange);
+            nercTrainer = new BaselineNameFinderTrainer(trainFile, testFile, lang);
+        }
+        else if (parsedArguments.getString("features").equalsIgnoreCase("dict3")) {
+          nercTrainer = new Dict3NameFinderTrainer(trainFile,testFile,lang);
+        }
+        else if (parsedArguments.getString("features").equalsIgnoreCase("dictlbj")) {
+          nercTrainer = new DictLbjNameFinderTrainer(trainFile,testFile,lang);
+        }
+            
+        TokenNameFinderModel trainedModel = null;
+          if (evalRange.length==2) {
+            if (parsedArguments.get("devSet") == null) {
+              InputOutputUtils.devSetException();
+            } else {
+              trainedModel = nercTrainer.trainCrossEval(trainFile, devFile, params, evalRange);
               }
             } else {
               trainedModel = nercTrainer.train(params);
@@ -154,7 +166,6 @@ public class CLI {
             InputOutputUtils.saveModel(trainedModel, outModel);
             System.out.println();
             System.out.println("Wrote trained NERC model to " + outModel);
-          }
       }
     
     ////////////////////
@@ -162,10 +173,15 @@ public class CLI {
     ////////////////////
     else {
       String gazetteer = parsedArguments.getString("gazetteers");
-      String model = parsedArguments.getString("model");
+      String model; 
+      if (parsedArguments.get("model") == null) {
+        model = "baseline";
+      }
+      else {
+        model = parsedArguments.getString("model");
+      }
       BufferedReader breader = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
       BufferedWriter bwriter = new BufferedWriter(new OutputStreamWriter(System.out, "UTF-8"));
-      
       // read KAF document from inputstream
       KAFDocument kaf = KAFDocument.createFromStream(breader);
       // language parameter

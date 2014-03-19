@@ -23,7 +23,18 @@ import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.util.Span;
 
  /**
- * Named Entity Recognition module based on {@link Dictionary} objects 
+ * Named Entity Recognition module based on {@link Dictionary} objects
+ * This class provides the following functionalities:
+ * 
+ * <ol>
+ * <li> string matching against of a string (typically tokens) against a Dictionary containing
+ *      names. This function is also used to implement Dictionary based features in the training
+ *      package.
+ * <li> tag: Provided a Dictionary it tags only the names it matches against it
+ * <li> post: This function checks for names in the Dictionary that have not been detected
+ *      by a {@link StatisticalNameFinder}; it also corrects the Name type for those detected 
+ *      by a {@link StatisticalNameFinder} but also present in a dictionary
+ * <ol>
  *  
  * @author ragerri 2014/03/14
  * 
@@ -36,7 +47,7 @@ import opennlp.tools.util.Span;
    
    private NameFactory nameFactory;
    private Dictionary dict;
-   private final static boolean DEBUG = true;
+   private final static boolean DEBUG = false;
 
  
   public DictionaryNameFinder(Dictionary dict, String type) {
@@ -91,6 +102,9 @@ import opennlp.tools.util.Span;
        List<Integer> neIds = StringUtils.exactTokenFinder(neDict,tokens);
        if (!neIds.isEmpty()) {
          Span neSpan = new Span(neIds.get(0), neIds.get(1), type);
+         if (DEBUG) {
+           System.err.println(neSpans.toString());
+         }
          neSpans.add(neSpan); 
        }
      }
@@ -147,7 +161,7 @@ import opennlp.tools.util.Span;
       else {
         for (Span span1 : preList) {
           for (Span span2 : postList) {
-            if (span1.contains(span2)) {
+            if (!span1.contains(span2) || span2.contains(span1)) {
               allSpans.add(span2);
               if (DEBUG) {
                 System.err.println("dict replacement of " + span1.toString() + " with " + span2.toString());

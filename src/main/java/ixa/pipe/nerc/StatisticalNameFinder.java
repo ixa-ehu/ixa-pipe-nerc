@@ -90,7 +90,7 @@ import opennlp.tools.util.Span;
       }
     }
     nameFinderTrainer = getNameFinderTrainer(model);
-    nameFinder = new NameFinderME(nercModel,nameFinderTrainer.createFeatureGenerator(),AbstractNameFinderTrainer.GREEDY_BEAM_SIZE );
+    nameFinder = new NameFinderME(nercModel,nameFinderTrainer.createFeatureGenerator(),AbstractNameFinderTrainer.GREEDY_BEAM_SIZE);
   }
 
   public NameFinderTrainer getNameFinderTrainer(String model) {
