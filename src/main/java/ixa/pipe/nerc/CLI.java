@@ -85,9 +85,9 @@ public class CLI {
         .help("Choose model to perform NERC annotation");
     
     annotateParser.addArgument("--beamsize")
-        .setDefault(1)
+        .setDefault(3)
         .type(Integer.class)
-        .help("Choose beamsize for decoding: 1 is faster and amounts to greedy search");
+        .help("Choose beam size for decoding: 1 is faster and amounts to greedy search");
     
     annotateParser.addArgument("-g","--gazetteers")
         .choices("tag","post")
@@ -100,9 +100,9 @@ public class CLI {
     
     Subparser trainParser = subparsers.addParser("train").help("Training CLI");
     trainParser.addArgument("--decoding")
-        .setDefault(1)
+        .setDefault(3)
         .type(Integer.class)
-        .help("Choose beamsize for decoding: 1 is faster and amounts to greedy search");
+        .help("Choose beam size for decoding: 1 is faster and amounts to greedy search");
     trainParser.addArgument("-f","--features")
         .choices("baseline","dict3","dictlbj").required(true).help("Train NERC models");
     trainParser.addArgument("-p", "--params").required(true)
@@ -155,13 +155,13 @@ public class CLI {
         }
         
         if (parsedArguments.getString("features").equalsIgnoreCase("baseline")) {
-            nercTrainer = new BaselineNameFinderTrainer(trainFile, testFile, lang,decoding);
+            nercTrainer = new BaselineNameFinderTrainer(trainFile, testFile, lang, decoding);
         }
         else if (parsedArguments.getString("features").equalsIgnoreCase("dict3")) {
-          nercTrainer = new Dict3NameFinderTrainer(trainFile,testFile,lang,decoding);
+          nercTrainer = new Dict3NameFinderTrainer(trainFile,testFile,lang, decoding);
         }
         else if (parsedArguments.getString("features").equalsIgnoreCase("dictlbj")) {
-          nercTrainer = new DictLbjNameFinderTrainer(trainFile,testFile,lang,decoding);
+          nercTrainer = new DictLbjNameFinderTrainer(trainFile,testFile,lang, decoding);
         }
             
         TokenNameFinderModel trainedModel = null;
