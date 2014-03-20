@@ -53,9 +53,9 @@ public class Annotate {
   public Annotate(String lang, String gazetteerOption,String model) {
     NameFactory nameFactory = new NameFactory();
     nameFinder = new StatisticalNameFinder(lang,nameFactory,model);
-    perDictFinder = createDictNameFinder("en/wikiperson.txt","PERSON",nameFactory);
-    orgDictFinder = createDictNameFinder("en/wikiorganization.txt","ORGANIZATION",nameFactory);
-    locDictFinder = createDictNameFinder("en/wikilocation.txt","LOCATION",nameFactory);
+    perDictFinder = createDictNameFinder("en/en-wiki-person.txt","PERSON",nameFactory);
+    orgDictFinder = createDictNameFinder("en/en-wiki-organization.txt","ORGANIZATION",nameFactory);
+    locDictFinder = createDictNameFinder("en/en-wiki-location.txt","LOCATION",nameFactory);
     if (gazetteerOption.equalsIgnoreCase("post")) { 
       POSTPROCESS = true;
       STATISTICAL = true;

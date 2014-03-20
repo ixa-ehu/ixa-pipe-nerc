@@ -37,24 +37,37 @@ public class Dict3NameFinderTrainer extends AbstractNameFinderTrainer {
   
   public Dict3NameFinderTrainer(String trainData, String testData, String lang) throws IOException {
     super(trainData,testData,lang);
-    features = createFeatureGenerator();
-    
-    InputStream dictFilePer = getClass().getResourceAsStream("/en/wikiperson.txt");
+    InputStream dictFilePer = getClass().getResourceAsStream("/en/en-wiki-person.txt");
     dictPer = new Dictionary(dictFilePer);
-    InputStream dictFileOrg = getClass().getResourceAsStream("/en/wikiorganization.txt");
+    InputStream dictFileOrg = getClass().getResourceAsStream("/en/en-wiki-organization.txt");
     dictOrg = new Dictionary(dictFileOrg);
-    InputStream dictFileLoc = getClass().getResourceAsStream("/en/wikilocation.txt");
+    InputStream dictFileLoc = getClass().getResourceAsStream("/en/en-wiki-location.txt");
     dictLoc = new Dictionary(dictFileLoc);
-    InputStream dictFileKnownPer = getClass().getResourceAsStream("/en/known-person.txt");
+    InputStream dictFileKnownPer = getClass().getResourceAsStream("/en/en-known-person.txt");
     dictKnownPer = new Dictionary(dictFileKnownPer);
-    InputStream dictFileKnownOrg = getClass().getResourceAsStream("/en/known-organization.txt");
+    InputStream dictFileKnownOrg = getClass().getResourceAsStream("/en/en-known-organization.txt");
     dictKnownOrg = new Dictionary(dictFileKnownOrg);
-    InputStream dictFileKnownLoc = getClass().getResourceAsStream("/en/known-location.txt");
+    InputStream dictFileKnownLoc = getClass().getResourceAsStream("/en/en-known-location.txt");
     dictKnownLoc = new Dictionary(dictFileKnownLoc);
+    
+    features = createFeatureGenerator();
   }
   
   public Dict3NameFinderTrainer() {
     super();
+    InputStream dictFilePer = getClass().getResourceAsStream("/en/en-wiki-person.txt");
+    dictPer = new Dictionary(dictFilePer);
+    InputStream dictFileOrg = getClass().getResourceAsStream("/en/en-wiki-organization.txt");
+    dictOrg = new Dictionary(dictFileOrg);
+    InputStream dictFileLoc = getClass().getResourceAsStream("/en/en-wiki-location.txt");
+    dictLoc = new Dictionary(dictFileLoc);
+    InputStream dictFileKnownPer = getClass().getResourceAsStream("/en/en-known-person.txt");
+    dictKnownPer = new Dictionary(dictFileKnownPer);
+    InputStream dictFileKnownOrg = getClass().getResourceAsStream("/en/en-known-organization.txt");
+    dictKnownOrg = new Dictionary(dictFileKnownOrg);
+    InputStream dictFileKnownLoc = getClass().getResourceAsStream("/en/en-known-location.txt");
+    dictKnownLoc = new Dictionary(dictFileKnownLoc);
+    
     features = createFeatureGenerator();
   }
   

@@ -48,7 +48,10 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
   
   
   public TokenNameFinderModel train(TrainingParameters params) {
-
+    if (features == null) {
+      throw new IllegalStateException(
+      "Classes derived from AbstractNameFinderTrainer must create and fill the AdaptiveFeatureGenerator features!");
+    }
     Map<String, Object> resources = null;
     TokenNameFinderModel trainedModel = null;
     TokenNameFinderEvaluator nerEvaluator = null;
