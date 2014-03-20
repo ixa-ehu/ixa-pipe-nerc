@@ -9,9 +9,12 @@ import java.io.InputStream;
 import opennlp.tools.util.featuregen.AdaptiveFeatureGenerator;
 import opennlp.tools.util.featuregen.BigramNameFeatureGenerator;
 import opennlp.tools.util.featuregen.CachedFeatureGenerator;
+import opennlp.tools.util.featuregen.CharacterNgramFeatureGenerator;
 import opennlp.tools.util.featuregen.OutcomePriorFeatureGenerator;
+import opennlp.tools.util.featuregen.PrefixFeatureGenerator;
 import opennlp.tools.util.featuregen.PreviousMapFeatureGenerator;
 import opennlp.tools.util.featuregen.SentenceFeatureGenerator;
+import opennlp.tools.util.featuregen.SuffixFeatureGenerator;
 import opennlp.tools.util.featuregen.TokenClassFeatureGenerator;
 import opennlp.tools.util.featuregen.TokenFeatureGenerator;
 import opennlp.tools.util.featuregen.WindowFeatureGenerator;
@@ -77,6 +80,9 @@ public class Dict3NameFinderTrainer extends AbstractNameFinderTrainer {
             new WindowFeatureGenerator(new TokenClassFeatureGenerator(true), 2, 2),
             new OutcomePriorFeatureGenerator(), new PreviousMapFeatureGenerator(),
             new BigramNameFeatureGenerator(),
+            new CharacterNgramFeatureGenerator(),
+            new PrefixFeatureGenerator(),
+            new SuffixFeatureGenerator(),
             new DictionaryFeatures("PERSON",dictPer),
             new DictionaryFeatures("ORGANIZATION",dictOrg),
             new DictionaryFeatures("LOCATION",dictLoc),

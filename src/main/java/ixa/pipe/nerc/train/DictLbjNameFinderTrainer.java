@@ -9,9 +9,12 @@ import java.io.InputStream;
 import opennlp.tools.util.featuregen.AdaptiveFeatureGenerator;
 import opennlp.tools.util.featuregen.BigramNameFeatureGenerator;
 import opennlp.tools.util.featuregen.CachedFeatureGenerator;
+import opennlp.tools.util.featuregen.CharacterNgramFeatureGenerator;
 import opennlp.tools.util.featuregen.OutcomePriorFeatureGenerator;
+import opennlp.tools.util.featuregen.PrefixFeatureGenerator;
 import opennlp.tools.util.featuregen.PreviousMapFeatureGenerator;
 import opennlp.tools.util.featuregen.SentenceFeatureGenerator;
+import opennlp.tools.util.featuregen.SuffixFeatureGenerator;
 import opennlp.tools.util.featuregen.TokenClassFeatureGenerator;
 import opennlp.tools.util.featuregen.TokenFeatureGenerator;
 import opennlp.tools.util.featuregen.WindowFeatureGenerator;
@@ -202,6 +205,9 @@ public class DictLbjNameFinderTrainer extends AbstractNameFinderTrainer {
         new OutcomePriorFeatureGenerator(), new PreviousMapFeatureGenerator(),
         new BigramNameFeatureGenerator(),
         new SentenceFeatureGenerator(true, false),
+        new CharacterNgramFeatureGenerator(),
+        new PrefixFeatureGenerator(),
+        new SuffixFeatureGenerator(),
         new DictionaryFeatures("CARDINAL",cardinalNumber),
         new DictionaryFeatures("CURRENCY",currencyFinal),
         new DictionaryFeatures("CORPORATIONS",knownCorporations),

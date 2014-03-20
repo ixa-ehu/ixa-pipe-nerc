@@ -43,10 +43,11 @@ public class BaselineNameFinderTrainer extends AbstractNameFinderTrainer {
         new WindowFeatureGenerator(new TokenClassFeatureGenerator(true), 2, 2),
         new OutcomePriorFeatureGenerator(), new PreviousMapFeatureGenerator(),
         new BigramNameFeatureGenerator(),
+        new SentenceFeatureGenerator(true, false),
         new CharacterNgramFeatureGenerator(),
         new PrefixFeatureGenerator(),
-        new SuffixFeatureGenerator(),
-        new SentenceFeatureGenerator(true, false) });
+        new SuffixFeatureGenerator()
+        });
   }
 
 }
