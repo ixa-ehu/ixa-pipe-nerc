@@ -15,9 +15,9 @@
 
 # Sample machine learning properties file
 
-Algorithm=PERCEPTRON
+Algorithm=MAXENT
 Iterations=500
-Cutoff=0
+Cutoff=4
 Threads=4
 
 #### Custom parameters added by ixa-pipe-nerc ####
@@ -32,7 +32,7 @@ Language=en
 ## Leave empty to disactivate this option (this is the default)
 #
 
-#CrossEval=1:10
-CrossEval=
+CrossEval=1:10
+#CrossEval=
 
 

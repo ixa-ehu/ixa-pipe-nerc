@@ -171,25 +171,25 @@ import opennlp.tools.util.Span;
 
     if (lang.equalsIgnoreCase("en")) {
       if (model.equalsIgnoreCase("baseline")) {
-        trainedModel = getClass().getResourceAsStream("/en/en-nerc-perceptron-500-0-testa.bin");
+        trainedModel = getClass().getResourceAsStream("/en/en-nerc-perceptron-baseline-c0-b3.bin");
       }
       if (model.equalsIgnoreCase("dict3")) {
-        trainedModel = getClass().getResourceAsStream("/en/en-nerc-perceptron-500-0-testa.bin");
+        trainedModel = getClass().getResourceAsStream("/en/en-nerc-perceptron-baseline-c0-b3.bin");
       }
       if (model.equalsIgnoreCase("dictlbj")) {
-        trainedModel = getClass().getResourceAsStream("/en/en-nerc-perceptron-500-0-testa.bin");
+        trainedModel = getClass().getResourceAsStream("/en/en-nerc-perceptron-baseline-c0-b3.bin");
       }
     }
 
     if (lang.equalsIgnoreCase("es")) {
       if (model.equalsIgnoreCase("baseline")) {
-        trainedModel = getClass().getResourceAsStream("/es/es-nerc-500-4-testa.bin");
+        trainedModel = getClass().getResourceAsStream("/es/es-nerc-maxent-baseline-500-c4-b3.bin");
     }
       if (model.equalsIgnoreCase("dict3")) {
-        trainedModel = getClass().getResourceAsStream("/es/es-nerc-500-4-testa.bin");
+        trainedModel = getClass().getResourceAsStream("/es/es-nerc-maxent-baseline-500-c4-b3.bin");
       }
       if (model.equalsIgnoreCase("dictlbj")) {
-        trainedModel = getClass().getResourceAsStream("/es/es-nerc-500-4-testa.bin");
+        trainedModel = getClass().getResourceAsStream("/es/es-nerc-maxent-baseline-500-c4-b3.bin");
       }
     }
     return trainedModel;
