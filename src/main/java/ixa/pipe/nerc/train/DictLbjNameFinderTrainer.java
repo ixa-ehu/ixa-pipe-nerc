@@ -206,7 +206,7 @@ public class DictLbjNameFinderTrainer extends AbstractNameFinderTrainer {
         new BigramNameFeatureGenerator(),
         new SentenceFeatureGenerator(true, false),
         new CharacterNgramFeatureGenerator(),
-        new PrefixFeatureGenerator(),
+        new Prefix34FeatureGenerator(),
         new SuffixFeatureGenerator(),
         new DictionaryFeatures("CARDINAL",cardinalNumber),
         new DictionaryFeatures("CURRENCY",currencyFinal),

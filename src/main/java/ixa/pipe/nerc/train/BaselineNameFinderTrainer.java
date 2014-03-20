@@ -7,7 +7,6 @@ import opennlp.tools.util.featuregen.BigramNameFeatureGenerator;
 import opennlp.tools.util.featuregen.CachedFeatureGenerator;
 import opennlp.tools.util.featuregen.CharacterNgramFeatureGenerator;
 import opennlp.tools.util.featuregen.OutcomePriorFeatureGenerator;
-import opennlp.tools.util.featuregen.PrefixFeatureGenerator;
 import opennlp.tools.util.featuregen.PreviousMapFeatureGenerator;
 import opennlp.tools.util.featuregen.SentenceFeatureGenerator;
 import opennlp.tools.util.featuregen.SuffixFeatureGenerator;
@@ -45,7 +44,7 @@ public class BaselineNameFinderTrainer extends AbstractNameFinderTrainer {
         new BigramNameFeatureGenerator(),
         new SentenceFeatureGenerator(true, false),
         new CharacterNgramFeatureGenerator(),
-        new PrefixFeatureGenerator(),
+        new Prefix34FeatureGenerator(),
         new SuffixFeatureGenerator()
         });
   }
