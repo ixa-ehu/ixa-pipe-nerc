@@ -16,7 +16,6 @@
 
 package ixa.pipe.nerc;
 
-import ixa.pipe.nerc.train.AbstractNameFinderTrainer;
 import ixa.pipe.nerc.train.BaselineNameFinderTrainer;
 import ixa.pipe.nerc.train.Dict3NameFinderTrainer;
 import ixa.pipe.nerc.train.DictLbjNameFinderTrainer;
@@ -46,8 +45,9 @@ import opennlp.tools.util.Span;
    private NameFinderME nameFinder;
    private NameFactory nameFactory;
    private NameFinderTrainer nameFinderTrainer;
-
-  public StatisticalNameFinder(String lang, String model) {
+   private static final int GREEDY_BEAM_SIZE = 1;
+   
+  public StatisticalNameFinder(String lang, String model, int beamsize) {
     
     trainedModel = getModel(lang,model);
 
@@ -63,11 +63,15 @@ import opennlp.tools.util.Span;
         }
       }
     }
-    nameFinderTrainer = getNameFinderTrainer(model);
-    nameFinder = new NameFinderME(nercModel,nameFinderTrainer.createFeatureGenerator(),AbstractNameFinderTrainer.GREEDY_BEAM_SIZE);
+    nameFinderTrainer = getNameFinderTrainer(model,beamsize);
+    nameFinder = new NameFinderME(nercModel,nameFinderTrainer.createFeatureGenerator(),beamsize);
   }
   
-  public StatisticalNameFinder(String lang, NameFactory nameFactory, String model) {
+  public StatisticalNameFinder(String lang, String model) {
+	  this(lang,model,GREEDY_BEAM_SIZE);
+  }
+  
+  public StatisticalNameFinder(String lang, NameFactory nameFactory, String model, int beamsize) {
     
     trainedModel = getModel(lang,model);
     this.nameFactory = nameFactory;
@@ -84,19 +88,23 @@ import opennlp.tools.util.Span;
         }
       }
     }
-    nameFinderTrainer = getNameFinderTrainer(model);
-    nameFinder = new NameFinderME(nercModel,nameFinderTrainer.createFeatureGenerator(),AbstractNameFinderTrainer.GREEDY_BEAM_SIZE);
+    nameFinderTrainer = getNameFinderTrainer(model,beamsize);
+    nameFinder = new NameFinderME(nercModel,nameFinderTrainer.createFeatureGenerator(),beamsize);
+  }
+  
+  public StatisticalNameFinder(String lang, NameFactory nameFactory, String model) {
+	  this(lang,nameFactory,model,GREEDY_BEAM_SIZE);
   }
 
-  public NameFinderTrainer getNameFinderTrainer(String model) {
+  public NameFinderTrainer getNameFinderTrainer(String model,int beamsize) {
     if (model.equalsIgnoreCase("baseline")) {
-      nameFinderTrainer = new BaselineNameFinderTrainer();
+      nameFinderTrainer = new BaselineNameFinderTrainer(beamsize);
     }
     else if (model.equalsIgnoreCase("dict3")) {
-      nameFinderTrainer = new Dict3NameFinderTrainer();
+      nameFinderTrainer = new Dict3NameFinderTrainer(beamsize);
     }
     else if (model.equalsIgnoreCase("dictlbj")) {
-      nameFinderTrainer = new DictLbjNameFinderTrainer();
+      nameFinderTrainer = new DictLbjNameFinderTrainer(beamsize);
       }
     return nameFinderTrainer;
   }

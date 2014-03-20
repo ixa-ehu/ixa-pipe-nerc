@@ -19,8 +19,8 @@ import opennlp.tools.util.featuregen.WindowFeatureGenerator;
 /**
  * Training NER based on Apache OpenNLP Machine Learning API 
  * This class implements Gazetteer features as explained in 
- * Ratinov, Lev and Dan Roth. 2009. Design Challenges and Misconceptions in 
- * Named Entity Recognition. In CoNLL.  
+ * Ratinov, Lev and Dan Roth. Design Challenges and Misconceptions in 
+ * Named Entity Recognition. In CoNLL 2009  
  * 
  * @author ragerri 2014/03/19
  * 
@@ -28,13 +28,6 @@ import opennlp.tools.util.featuregen.WindowFeatureGenerator;
 
 public class DictLbjNameFinderTrainer extends AbstractNameFinderTrainer {
 
-  static Dictionary dictPer;
-  static Dictionary dictOrg;
-  static Dictionary dictLoc;
-  static Dictionary dictKnownPer;
-  static Dictionary dictKnownOrg;
-  static Dictionary dictKnownLoc;
-  //lbj gazetteers
   static Dictionary cardinalNumber;
   static Dictionary currencyFinal;
   static Dictionary knownCorporations;
@@ -67,8 +60,8 @@ public class DictLbjNameFinderTrainer extends AbstractNameFinderTrainer {
   static Dictionary wikiSongsRedirects;
   
   
-  public DictLbjNameFinderTrainer(String trainData, String testData, String lang) throws IOException {
-    super(trainData,testData,lang);
+  public DictLbjNameFinderTrainer(String trainData, String testData, String lang, int beamsize) throws IOException {
+    super(trainData,testData,lang,beamsize);
     
     InputStream cardinalNumberFile = getClass().getResourceAsStream("/lbj/cardinalNumber.txt");
     cardinalNumber = new Dictionary(cardinalNumberFile);
@@ -130,12 +123,14 @@ public class DictLbjNameFinderTrainer extends AbstractNameFinderTrainer {
     wikiSongs = new Dictionary(wikiSongsFile);
     InputStream wikiSongsRedirectsFile = getClass().getResourceAsStream("/lbj/WikiSongsRedirects.lst");
     wikiSongsRedirects = new Dictionary(wikiSongsRedirectsFile);
+    
     features = createFeatureGenerator();
     
   }
   
-  public DictLbjNameFinderTrainer() {
-    super();
+  public DictLbjNameFinderTrainer(int beamsize) {
+    super(beamsize);
+    
     InputStream cardinalNumberFile = getClass().getResourceAsStream("/lbj/cardinalNumber.txt");
     cardinalNumber = new Dictionary(cardinalNumberFile);
     InputStream currencyFinalFile = getClass().getResourceAsStream("/lbj/currencyFinal.txt");
@@ -239,4 +234,5 @@ public class DictLbjNameFinderTrainer extends AbstractNameFinderTrainer {
         new DictionaryFeatures("SONGSRED",wikiSongsRedirects)
         });
     }
+   
 }

@@ -35,8 +35,8 @@ public class Dict3NameFinderTrainer extends AbstractNameFinderTrainer {
   static Dictionary dictKnownLoc;
   
   
-  public Dict3NameFinderTrainer(String trainData, String testData, String lang) throws IOException {
-    super(trainData,testData,lang);
+  public Dict3NameFinderTrainer(String trainData, String testData, String lang, int beamsize) throws IOException {
+    super(trainData,testData,lang,beamsize);
     InputStream dictFilePer = getClass().getResourceAsStream("/en/en-wiki-person.txt");
     dictPer = new Dictionary(dictFilePer);
     InputStream dictFileOrg = getClass().getResourceAsStream("/en/en-wiki-organization.txt");
@@ -53,8 +53,8 @@ public class Dict3NameFinderTrainer extends AbstractNameFinderTrainer {
     features = createFeatureGenerator();
   }
   
-  public Dict3NameFinderTrainer() {
-    super();
+  public Dict3NameFinderTrainer(int beamsize) {
+    super(beamsize);
     InputStream dictFilePer = getClass().getResourceAsStream("/en/en-wiki-person.txt");
     dictPer = new Dictionary(dictFilePer);
     InputStream dictFileOrg = getClass().getResourceAsStream("/en/en-wiki-organization.txt");
@@ -84,5 +84,9 @@ public class Dict3NameFinderTrainer extends AbstractNameFinderTrainer {
             new DictionaryFeatures("KORGANIZATION",dictKnownOrg),
             new DictionaryFeatures("KLOCATION",dictKnownLoc),
             new SentenceFeatureGenerator(true, false) });
+  }
+  
+  public int setBeamSize() {
+	  return 1;
   }
 }

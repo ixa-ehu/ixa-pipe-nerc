@@ -25,12 +25,13 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
   protected String testData;
   protected ObjectStream<NameSample> trainSamples;
   protected ObjectStream<NameSample> testSamples;
-  public static final int GREEDY_BEAM_SIZE = 1;
-  
+ 
+  // beamsize value needs to be established in any class extending this one
+  protected int beamSize; 
   // this needs to be implemented by any class extending this one
   protected AdaptiveFeatureGenerator features;
   
-  public AbstractNameFinderTrainer(String trainData, String testData, String lang) throws IOException {
+  public AbstractNameFinderTrainer(String trainData, String testData, String lang, int beamsize) throws IOException {
     
     this.lang = lang;
     this.trainData = trainData;
@@ -39,13 +40,12 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
     trainSamples = new Conll03NameStream(lang,trainStream);
     ObjectStream<String> testStream = InputOutputUtils.readInputData(testData);
     testSamples = new Conll03NameStream(lang,testStream);
+    this.beamSize = beamsize;
   }
   
-  public AbstractNameFinderTrainer() {
-    
+  public AbstractNameFinderTrainer(int beamsize) {
+    this.beamSize = beamsize;
   }
-
-  
   
   public TokenNameFinderModel train(TrainingParameters params) {
     if (features == null) {
@@ -164,7 +164,7 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
 
   public TokenNameFinderEvaluator evaluate(TokenNameFinderModel trainedModel,
       ObjectStream<NameSample> testSamples) {
-    NameFinderME nerTagger = new NameFinderME(trainedModel,features,GREEDY_BEAM_SIZE);
+    NameFinderME nerTagger = new NameFinderME(trainedModel,features,beamSize);
     TokenNameFinderEvaluator nerEvaluator = new TokenNameFinderEvaluator(
         nerTagger);
     try {

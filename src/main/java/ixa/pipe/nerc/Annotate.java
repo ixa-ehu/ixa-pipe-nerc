@@ -44,15 +44,15 @@ public class Annotate {
   private boolean POSTPROCESS; 
   private boolean DICTTAG;
   
-  public Annotate(String lang,String model) {
+  public Annotate(String lang,String model, int beamsize) {
     NameFactory nameFactory = new NameFactory();
-    nameFinder = new StatisticalNameFinder(lang,nameFactory,model);
+    nameFinder = new StatisticalNameFinder(lang,nameFactory,model,beamsize);
     STATISTICAL = true;
   }
   
-  public Annotate(String lang, String gazetteerOption,String model) {
+  public Annotate(String lang, String gazetteerOption,String model,int beamsize) {
     NameFactory nameFactory = new NameFactory();
-    nameFinder = new StatisticalNameFinder(lang,nameFactory,model);
+    nameFinder = new StatisticalNameFinder(lang,nameFactory,model,beamsize);
     perDictFinder = createDictNameFinder("en/en-wiki-person.txt","PERSON",nameFactory);
     orgDictFinder = createDictNameFinder("en/en-wiki-organization.txt","ORGANIZATION",nameFactory);
     locDictFinder = createDictNameFinder("en/en-wiki-location.txt","LOCATION",nameFactory);

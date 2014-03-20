@@ -84,6 +84,11 @@ public class CLI {
         .required(false)
         .help("Choose model to perform NERC annotation");
     
+    annotateParser.addArgument("--beamsize")
+        .setDefault(1)
+        .type(Integer.class)
+        .help("Choose beamsize for decoding: 1 is faster and amounts to greedy search");
+    
     annotateParser.addArgument("-g","--gazetteers")
         .choices("tag","post")
         .required(false).help("Use gazetteers directly for tagging or " +
@@ -94,6 +99,10 @@ public class CLI {
     //////////////////////
     
     Subparser trainParser = subparsers.addParser("train").help("Training CLI");
+    trainParser.addArgument("--decoding")
+        .setDefault(1)
+        .type(Integer.class)
+        .help("Choose beamsize for decoding: 1 is faster and amounts to greedy search");
     trainParser.addArgument("-f","--features")
         .choices("baseline","dict3","dictlbj").required(true).help("Train NERC models");
     trainParser.addArgument("-p", "--params").required(true)
@@ -124,7 +133,9 @@ public class CLI {
       //////////////////
       
       if (parsedArguments.get("features") != null) {
+    	  
         NameFinderTrainer nercTrainer = null;
+        int decoding = parsedArguments.getInt("decoding");
         String trainFile = parsedArguments.getString("input");
         String testFile = parsedArguments.getString("evalSet");
         String devFile = parsedArguments.getString("devSet");
@@ -144,13 +155,13 @@ public class CLI {
         }
         
         if (parsedArguments.getString("features").equalsIgnoreCase("baseline")) {
-            nercTrainer = new BaselineNameFinderTrainer(trainFile, testFile, lang);
+            nercTrainer = new BaselineNameFinderTrainer(trainFile, testFile, lang,decoding);
         }
         else if (parsedArguments.getString("features").equalsIgnoreCase("dict3")) {
-          nercTrainer = new Dict3NameFinderTrainer(trainFile,testFile,lang);
+          nercTrainer = new Dict3NameFinderTrainer(trainFile,testFile,lang,decoding);
         }
         else if (parsedArguments.getString("features").equalsIgnoreCase("dictlbj")) {
-          nercTrainer = new DictLbjNameFinderTrainer(trainFile,testFile,lang);
+          nercTrainer = new DictLbjNameFinderTrainer(trainFile,testFile,lang,decoding);
         }
             
         TokenNameFinderModel trainedModel = null;
@@ -172,6 +183,7 @@ public class CLI {
     //// Annotation ////
     ////////////////////
     else {
+      int beamsize = parsedArguments.getInt("beamsize");
       String gazetteer = parsedArguments.getString("gazetteers");
       String model; 
       if (parsedArguments.get("model") == null) {
@@ -193,11 +205,11 @@ public class CLI {
 	    lang =  parsedArguments.getString("lang");
       }
       if (parsedArguments.get("gazetteers") != null) {
-        Annotate annotator = new Annotate(lang,gazetteer,model);
+        Annotate annotator = new Annotate(lang,gazetteer,model,beamsize);
         annotator.annotateNEsToKAF(kaf);
       }
       else { 
-        Annotate annotator = new Annotate(lang,model);
+        Annotate annotator = new Annotate(lang,model,beamsize);
         annotator.annotateNEsToKAF(kaf);
       }
       kaf.addLinguisticProcessor("entities","ixa-pipe-nerc-"+lang, "1.0");

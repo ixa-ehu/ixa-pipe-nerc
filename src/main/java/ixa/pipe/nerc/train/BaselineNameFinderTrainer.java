@@ -24,13 +24,13 @@ import opennlp.tools.util.featuregen.WindowFeatureGenerator;
 public class BaselineNameFinderTrainer extends AbstractNameFinderTrainer {
  
   
-  public BaselineNameFinderTrainer(String trainData, String testData, String lang) throws IOException {
-    super(trainData,testData,lang);
+  public BaselineNameFinderTrainer(String trainData, String testData, String lang, int beamsize) throws IOException {
+    super(trainData,testData,lang,beamsize);
     features = createFeatureGenerator();
   }
   
-  public BaselineNameFinderTrainer() {
-    super();
+  public BaselineNameFinderTrainer(int beamsize) {
+    super(beamsize);
     features = createFeatureGenerator();
   }
        
@@ -41,7 +41,6 @@ public class BaselineNameFinderTrainer extends AbstractNameFinderTrainer {
         new OutcomePriorFeatureGenerator(), new PreviousMapFeatureGenerator(),
         new BigramNameFeatureGenerator(),
         new SentenceFeatureGenerator(true, false) });
-  }     
-
+  }
 
 }
