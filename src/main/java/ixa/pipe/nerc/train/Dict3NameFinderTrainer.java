@@ -81,7 +81,7 @@ public class Dict3NameFinderTrainer extends AbstractNameFinderTrainer {
             new OutcomePriorFeatureGenerator(), new PreviousMapFeatureGenerator(),
             new BigramNameFeatureGenerator(),
             new CharacterNgramFeatureGenerator(),
-            new PrefixFeatureGenerator(),
+            new Prefix34FeatureGenerator(),
             new SuffixFeatureGenerator(),
             new DictionaryFeatures("PERSON",dictPer),
             new DictionaryFeatures("ORGANIZATION",dictOrg),
