@@ -10,15 +10,13 @@ import opennlp.tools.util.featuregen.OutcomePriorFeatureGenerator;
 import opennlp.tools.util.featuregen.PreviousMapFeatureGenerator;
 import opennlp.tools.util.featuregen.SentenceFeatureGenerator;
 import opennlp.tools.util.featuregen.SuffixFeatureGenerator;
+import opennlp.tools.util.featuregen.PrefixFeatureGenerator;
 import opennlp.tools.util.featuregen.TokenClassFeatureGenerator;
 import opennlp.tools.util.featuregen.TokenFeatureGenerator;
 import opennlp.tools.util.featuregen.WindowFeatureGenerator;
 
 /**
- * Training NER based on Apache OpenNLP Machine Learning API. This class
- * uses the Default features as of {@link opennlp.tools.namefind.NameFinderME } class
- * version 1.5.3 
- * 
+ * Training NER based on Apache OpenNLP Machine Learning API.  
  * @author ragerri 2014/03/19
  * 
  */
@@ -43,9 +41,9 @@ public class BaselineNameFinderTrainer extends AbstractNameFinderTrainer {
         new OutcomePriorFeatureGenerator(), new PreviousMapFeatureGenerator(),
         new BigramNameFeatureGenerator(),
         new SentenceFeatureGenerator(true, false),
-        new CharacterNgramFeatureGenerator(),
-        new Prefix34FeatureGenerator(),
-        new SuffixFeatureGenerator()
+        //new CharacterNgramFeatureGenerator(),
+        //new PrefixFeatureGenerator(),
+        //new SuffixFeatureGenerator()
         });
   }
 

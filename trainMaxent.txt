@@ -17,7 +17,7 @@
 
 Algorithm=MAXENT
 Iterations=500
-Cutoff=4
+Cutoff=0
 Threads=4
 
 #### Custom parameters added by ixa-pipe-nerc ####
