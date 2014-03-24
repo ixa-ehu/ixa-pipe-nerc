@@ -45,7 +45,7 @@ import opennlp.tools.util.Span;
    private NameFinderME nameFinder;
    private NameFactory nameFactory;
    private NameFinderTrainer nameFinderTrainer;
-   private static final int GREEDY_BEAM_SIZE = 1;
+   public static final int DEFAULT_BEAM_SIZE = 3;
    
   public StatisticalNameFinder(String lang, String model, int beamsize) {
     
@@ -68,7 +68,7 @@ import opennlp.tools.util.Span;
   }
   
   public StatisticalNameFinder(String lang, String model) {
-	  this(lang,model,GREEDY_BEAM_SIZE);
+	  this(lang,model,DEFAULT_BEAM_SIZE);
   }
   
   public StatisticalNameFinder(String lang, NameFactory nameFactory, String model, int beamsize) {
@@ -93,20 +93,7 @@ import opennlp.tools.util.Span;
   }
   
   public StatisticalNameFinder(String lang, NameFactory nameFactory, String model) {
-	  this(lang,nameFactory,model,GREEDY_BEAM_SIZE);
-  }
-
-  public NameFinderTrainer getNameFinderTrainer(String model,int beamsize) {
-    if (model.equalsIgnoreCase("baseline")) {
-      nameFinderTrainer = new BaselineNameFinderTrainer(beamsize);
-    }
-    else if (model.equalsIgnoreCase("dict3")) {
-      nameFinderTrainer = new Dict3NameFinderTrainer(beamsize);
-    }
-    else if (model.equalsIgnoreCase("dictlbj")) {
-      nameFinderTrainer = new DictLbjNameFinderTrainer(beamsize);
-      }
-    return nameFinderTrainer;
+	  this(lang,nameFactory,model,DEFAULT_BEAM_SIZE);
   }
   
   /**
@@ -173,6 +160,19 @@ import opennlp.tools.util.Span;
    */
   public void clearAdaptiveData() {
     nameFinder.clearAdaptiveData();
+  }
+  
+  public NameFinderTrainer getNameFinderTrainer(String model,int beamsize) {
+    if (model.equalsIgnoreCase("baseline")) {
+      nameFinderTrainer = new BaselineNameFinderTrainer(beamsize);
+    }
+    else if (model.equalsIgnoreCase("dict3")) {
+      nameFinderTrainer = new Dict3NameFinderTrainer(beamsize);
+    }
+    else if (model.equalsIgnoreCase("dictlbj")) {
+      nameFinderTrainer = new DictLbjNameFinderTrainer(beamsize);
+      }
+    return nameFinderTrainer;
   }
   
   public InputStream getModel(String lang, String model) {

@@ -65,7 +65,7 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
       e.printStackTrace();
       System.exit(1);
     }
-    System.out.println("Final Result: " + nerEvaluator.getFMeasure());
+    System.out.println("Final Result: \n" + nerEvaluator.getFMeasure());
     return trainedModel;
   }
 

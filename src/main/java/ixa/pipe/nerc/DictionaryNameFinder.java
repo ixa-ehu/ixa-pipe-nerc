@@ -166,46 +166,24 @@ import opennlp.tools.util.Span;
   }
   
   /**
-   * Concatenates two span lists adding the spans to a new list
-   * if the span in the second parameter does not exist in the first
+   * Removes spans from the preList if the span is contained in the postList
    * 
    * @param preList
    * @param postList
-   * @return a list containing the {@link Span}s of the two lists if they are not duplicated
    */
-  public List<Span> concatenateNoOverlappingSpans(List<Span> preList, List<Span> postList) {
-    List<Span> allSpans = new ArrayList<Span>();
-    if (postList.isEmpty()) {
-      allSpans.addAll(preList);
-      if (DEBUG) {
-        System.err.println("No dict spans in this sentence, adding probabilistic spans only!");
+  public void postProcessDuplicatedSpans(List<Span> preList, List<Span> postList) {
+    List<Span> duplicatedSpans = new ArrayList<Span>();
+    for (Span span1 : preList) {
+      for (Span span2 : postList) {
+        if (span1.contains(span2)) {
+          duplicatedSpans.add(span1);
+        }
+        else if (span2.contains(span1)) {
+          duplicatedSpans.add(span1);
+        }
       }
     }
-      else {
-        for (Span span1 : preList) {
-          for (Span span2 : postList) {
-            if (!span1.contains(span2)) {
-              allSpans.add(span2);
-              if (DEBUG) {
-                System.err.println("adding dict span! " + span2.toString());
-              }
-            }
-            else if(span2.contains(span1)) {
-              allSpans.add(span2);
-            }
-            else if(span1.contains(span2)) {
-              allSpans.add(span2);
-            }
-            else {
-              allSpans.add(span1);
-              if (DEBUG) {
-                System.err.println("adding prob span! " + span1.toString());
-              }
-            }
-          }
-        }
-      } 
-    return allSpans;
+    preList.removeAll(duplicatedSpans);
   }
   
   public void clearAdaptiveData() {

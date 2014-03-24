@@ -96,9 +96,8 @@ public class Annotate {
         perDictFinder.concatenateSpans(perDictSpans,orgDictSpans);
         perDictFinder.concatenateSpans(perDictSpans,locDictSpans);
         // TODO postprocessing
-        List<Span> postSpans = perDictFinder.concatenateNoOverlappingSpans(allSpans, perDictSpans);
-        allSpans.clear();
-        perDictFinder.concatenateSpans(allSpans, postSpans);
+        perDictFinder.postProcessDuplicatedSpans(allSpans, perDictSpans);
+        perDictFinder.concatenateSpans(allSpans, perDictSpans);
       }
       if (DICTTAG) {
         allSpans = perDictFinder.nercToSpansExact(tokens);

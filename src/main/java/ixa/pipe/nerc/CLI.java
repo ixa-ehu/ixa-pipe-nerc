@@ -17,6 +17,7 @@
 package ixa.pipe.nerc;
 
 import ixa.kaflib.KAFDocument;
+import ixa.pipe.nerc.eval.Evaluate;
 import ixa.pipe.nerc.train.BaselineNameFinderTrainer;
 import ixa.pipe.nerc.train.Dict3NameFinderTrainer;
 import ixa.pipe.nerc.train.InputOutputUtils;
@@ -78,17 +79,14 @@ public class CLI {
         .required(false)
         .help(
             "Choose a language to perform annotation with ixa-pipe-nerc");
-    
     annotateParser.addArgument("-m","--model")
         .choices("baseline","dict3","dictlbj")
         .required(false)
         .help("Choose model to perform NERC annotation");
-    
     annotateParser.addArgument("--beamsize")
         .setDefault(3)
         .type(Integer.class)
         .help("Choose beam size for decoding: 1 is faster and amounts to greedy search");
-    
     annotateParser.addArgument("-g","--gazetteers")
         .choices("tag","post")
         .required(false).help("Use gazetteers directly for tagging or " +
@@ -116,13 +114,38 @@ public class CLI {
     trainParser.addArgument("-o", "--output").required(false)
         .help("choose output file to save the annotation");
     
+    ////////////////////////
+    //// Evaluation CLI ////
+    ////////////////////////
+    
+    Subparser evalParser = subparsers.addParser("eval").help("Evaluation CLI");
+    evalParser.addArgument("--inputModel")
+        .choices("baseline","dict3","dictlbj")
+        .required(true)
+        .help("Choose model to evaluate");
+    evalParser.addArgument("--beam")
+        .setDefault(3)
+        .type(Integer.class)
+        .help("Choose beam size for evaluation: 1 is faster and amounts to greedy search");
+    evalParser.addArgument("-t","--testSet")
+        .required(true)
+        .help("Input testset for evaluation");
+     evalParser.addArgument("-l","--language")
+        .required(true)
+        .choices("en","es")
+        .help("Choose language to load model for evaluation");
+     evalParser.addArgument("--evalReport")
+        .required(false)
+        .choices("brief","detailed","error")
+        .help("choose type of evaluation report; defaults to detailed");
+    
     try {
       parsedArguments = parser.parseArgs(args);
       System.err.println("CLI options: " + parsedArguments);
     } catch (ArgumentParserException e) {
       parser.handleError(e);
       System.out
-          .println("Run java -jar target/ixa-pipe-nerc-1.0.jar (tag|train) -help for details");
+          .println("Run java -jar target/ixa-pipe-nerc-1.0.jar (tag|train|eval) -help for details");
       System.exit(1);
     }
     
@@ -177,6 +200,33 @@ public class CLI {
             InputOutputUtils.saveModel(trainedModel, outModel);
             System.out.println();
             System.out.println("Wrote trained NERC model to " + outModel);
+      }
+      
+      ////////////////////
+      //// Evaluation ////
+      ////////////////////
+      
+      if (parsedArguments.get("inputModel") != null) {
+        String testFile = parsedArguments.getString("testSet");
+        String model = parsedArguments.getString("inputModel");
+        String lang = parsedArguments.getString("language");
+        int beam = parsedArguments.getInt("beam");
+        
+        Evaluate evaluator = new Evaluate(testFile,model,lang,beam);
+        if (parsedArguments.getString("evalReport")!= null) {
+          if (parsedArguments.getString("evalReport").equalsIgnoreCase("brief")) {
+            evaluator.evaluate();
+          }
+          else if (parsedArguments.getString("evalReport").equalsIgnoreCase("error")) {
+            evaluator.evalError();
+          }
+          else if (parsedArguments.getString("evalReport").equalsIgnoreCase("detailed")) {
+            evaluator.detailEvaluate();
+          }
+        }
+        else {
+         evaluator.detailEvaluate();
+        }
       }
     
     ////////////////////
