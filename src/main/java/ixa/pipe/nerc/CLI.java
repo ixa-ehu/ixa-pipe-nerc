@@ -174,7 +174,7 @@ public class CLI {
           outModel = parsedArguments.getString("output");
         } else {
           outModel = FilenameUtils.removeExtension(trainFile) + "-"
-              + parsedArguments.get("train").toString() + "-model" + ".bin";
+              + parsedArguments.getString("features").toString() + "-model" + ".bin";
         }
         
         if (parsedArguments.getString("features").equalsIgnoreCase("baseline")) {
@@ -206,7 +206,7 @@ public class CLI {
       //// Evaluation ////
       ////////////////////
       
-      if (parsedArguments.get("inputModel") != null) {
+      else if (parsedArguments.get("inputModel") != null) {
         String testFile = parsedArguments.getString("testSet");
         String model = parsedArguments.getString("inputModel");
         String lang = parsedArguments.getString("language");
