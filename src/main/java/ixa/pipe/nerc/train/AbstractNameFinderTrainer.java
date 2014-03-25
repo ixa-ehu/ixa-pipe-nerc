@@ -10,6 +10,7 @@ import java.util.Map;
 
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.NameSample;
+import opennlp.tools.namefind.NameSampleDataStream;
 import opennlp.tools.namefind.TokenNameFinderEvaluator;
 import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.ObjectStream;
@@ -31,15 +32,13 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
   // this needs to be implemented by any class extending this one
   protected AdaptiveFeatureGenerator features;
   
-  public AbstractNameFinderTrainer(String trainData, String testData, String lang, int beamsize) throws IOException {
+  public AbstractNameFinderTrainer(String trainData, String testData, String lang, int beamsize, String corpusFormat) throws IOException {
     
     this.lang = lang;
     this.trainData = trainData;
     this.testData = testData;
-    ObjectStream<String> trainStream = InputOutputUtils.readInputData(trainData);
-    trainSamples = new Conll03NameStream(lang,trainStream);
-    ObjectStream<String> testStream = InputOutputUtils.readInputData(testData);
-    testSamples = new Conll03NameStream(lang,testStream);
+    trainSamples = getNameStream(trainData,lang,corpusFormat);
+    testSamples = getNameStream(testData,lang,corpusFormat);
     this.beamSize = beamsize;
   }
   
@@ -175,6 +174,23 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
       System.exit(1);
     }
     return nerEvaluator;
+  }
+  
+  public static ObjectStream<NameSample> getNameStream(String trainData, String lang, String corpusFormat) throws IOException {
+	  ObjectStream<NameSample> samples;
+	  if (corpusFormat.equalsIgnoreCase("conll")) {
+		  ObjectStream<String> nameStream = InputOutputUtils.readInputData(trainData);
+	      samples = new Conll03NameStream(lang,nameStream);
+	  }
+	  else if (corpusFormat.equalsIgnoreCase("conll") && lang.equalsIgnoreCase("es") || lang.equalsIgnoreCase("nl")) {
+	    ObjectStream<String> nameStream = InputOutputUtils.readInputData(trainData);
+		samples = new Conll02NameStream(lang,nameStream);
+	  }
+	  else {
+	    ObjectStream<String> nameStream = InputOutputUtils.readInputData(trainData);
+		samples = new NameSampleDataStream(nameStream);	
+	  }
+	  return samples;
   }
 
 

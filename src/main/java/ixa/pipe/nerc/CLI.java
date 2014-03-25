@@ -113,6 +113,10 @@ public class CLI {
         .help("Input development set for cross-evaluation");
     trainParser.addArgument("-o", "--output").required(false)
         .help("choose output file to save the annotation");
+    trainParser.addArgument("-c","--corpus")
+        .setDefault("opennlp")
+        .choices("conll","opennlp")
+        .help("choose format input of corpus");
     
     ////////////////////////
     //// Evaluation CLI ////
@@ -138,6 +142,10 @@ public class CLI {
         .required(false)
         .choices("brief","detailed","error")
         .help("choose type of evaluation report; defaults to detailed");
+     evalParser.addArgument("-c","--corpus")
+        .setDefault("opennlp")
+        .choices("conll","opennlp")
+        .help("choose format input of corpus");
     
     try {
       parsedArguments = parser.parseArgs(args);
@@ -163,6 +171,7 @@ public class CLI {
         String testFile = parsedArguments.getString("evalSet");
         String devFile = parsedArguments.getString("devSet");
         String outModel = null;
+        String corpusFormat = parsedArguments.getString("corpus");
         // load training parameters file
         String paramFile = parsedArguments.getString("params");
         TrainingParameters params = InputOutputUtils.loadTrainingParameters(paramFile);
@@ -178,13 +187,13 @@ public class CLI {
         }
         
         if (parsedArguments.getString("features").equalsIgnoreCase("baseline")) {
-            nercTrainer = new BaselineNameFinderTrainer(trainFile, testFile, lang, decoding);
+            nercTrainer = new BaselineNameFinderTrainer(trainFile, testFile, lang, decoding, corpusFormat);
         }
         else if (parsedArguments.getString("features").equalsIgnoreCase("dict3")) {
-          nercTrainer = new Dict3NameFinderTrainer(trainFile,testFile,lang, decoding);
+          nercTrainer = new Dict3NameFinderTrainer(trainFile,testFile,lang, decoding,corpusFormat);
         }
         else if (parsedArguments.getString("features").equalsIgnoreCase("dictlbj")) {
-          nercTrainer = new DictLbjNameFinderTrainer(trainFile,testFile,lang, decoding);
+          nercTrainer = new DictLbjNameFinderTrainer(trainFile,testFile,lang, decoding,corpusFormat);
         }
             
         TokenNameFinderModel trainedModel = null;
@@ -211,8 +220,9 @@ public class CLI {
         String model = parsedArguments.getString("inputModel");
         String lang = parsedArguments.getString("language");
         int beam = parsedArguments.getInt("beam");
+        String corpusFormat = parsedArguments.getString("corpus");
         
-        Evaluate evaluator = new Evaluate(testFile,model,lang,beam);
+        Evaluate evaluator = new Evaluate(testFile,model,lang,beam,corpusFormat);
         if (parsedArguments.getString("evalReport")!= null) {
           if (parsedArguments.getString("evalReport").equalsIgnoreCase("brief")) {
             evaluator.evaluate();

@@ -1,14 +1,14 @@
 package ixa.pipe.nerc.eval;
 
+import ixa.pipe.nerc.StatisticalNameFinder;
+import ixa.pipe.nerc.train.AbstractNameFinderTrainer;
+import ixa.pipe.nerc.train.NameFinderTrainer;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
 
-import ixa.pipe.nerc.StatisticalNameFinder;
-import ixa.pipe.nerc.train.Conll03NameStream;
-import ixa.pipe.nerc.train.InputOutputUtils;
-import ixa.pipe.nerc.train.NameFinderTrainer;
 import opennlp.tools.cmdline.namefind.NameEvaluationErrorListener;
 import opennlp.tools.cmdline.namefind.TokenNameFinderDetailedFMeasureListener;
 import opennlp.tools.namefind.NameFinderME;
@@ -28,10 +28,9 @@ public class Evaluate {
   private NameFinderME nameFinder;
   
   
-  public Evaluate(String testData, String model, String lang, int beamsize) throws IOException {
+  public Evaluate(String testData, String model, String lang, int beamsize, String corpusFormat) throws IOException {
     
-    ObjectStream<String> testStream = InputOutputUtils.readInputData(testData);
-    testSamples = new Conll03NameStream(lang,testStream);
+    testSamples = AbstractNameFinderTrainer.getNameStream(testData, lang, corpusFormat);
     StatisticalNameFinder statFinder = new StatisticalNameFinder(lang,model);
     trainedModel = statFinder.getModel(lang, model);
     
@@ -73,7 +72,5 @@ public class Evaluate {
     evaluator.evaluate(testSamples);
     System.out.println(evaluator.getFMeasure());
   }
-  
-  
 
 }
