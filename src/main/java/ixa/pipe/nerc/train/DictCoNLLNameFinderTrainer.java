@@ -30,18 +30,18 @@ public class DictCoNLLNameFinderTrainer extends AbstractNameFinderTrainer {
   
   public DictCoNLLNameFinderTrainer(String trainData, String testData, String lang, int beamsize,  String corpusFormat) throws IOException {
     super(trainData,testData,lang,beamsize,corpusFormat);
-    InputStream dictFileLoc = getClass().getResourceAsStream("/es/locationC.txt");
-    dictLocC = new Dictionary(dictFileLoc);
-    InputStream dictFileMisc = getClass().getResourceAsStream("/es/miscC.txt");
-    dictMiscC = new Dictionary(dictFileMisc);
-    InputStream dictFileOrg = getClass().getResourceAsStream("/es/organizationC.txt");
-    dictOrgC = new Dictionary(dictFileOrg);
-    InputStream dictFilePer = getClass().getResourceAsStream("/es/personC.txt");
-    dictPerP = new Dictionary(dictFilePer);
-    InputStream dictFileKnownLoc = getClass().getResourceAsStream("/es/locationP.txt");
-    dictLocP = new Dictionary(dictFileKnownLoc);
-    InputStream dictFileKnownMisc = getClass().getResourceAsStream("/es/miscP.txt");
-    dictMiscP = new Dictionary(dictFileKnownMisc);
+    InputStream dictFileLocC = getClass().getResourceAsStream("/es/locationC.txt");
+    dictLocC = new Dictionary(dictFileLocC);
+    InputStream dictFileMiscC = getClass().getResourceAsStream("/es/miscC.txt");
+    dictMiscC = new Dictionary(dictFileMiscC);
+    InputStream dictFileOrgC = getClass().getResourceAsStream("/es/organizationC.txt");
+    dictOrgC = new Dictionary(dictFileOrgC);
+    InputStream dictFilePerC = getClass().getResourceAsStream("/es/personC.txt");
+    dictPerC = new Dictionary(dictFilePerC);
+    InputStream dictFileLocP = getClass().getResourceAsStream("/es/locationP.txt");
+    dictLocP = new Dictionary(dictFileLocP);
+    InputStream dictFileMiscP = getClass().getResourceAsStream("/es/miscP.txt");
+    dictMiscP = new Dictionary(dictFileMiscP);
     InputStream dictFileOrgP = getClass().getResourceAsStream("/es/organizationP.txt");
     dictOrgP = new Dictionary(dictFileOrgP);
     InputStream dictFilePersonP = getClass().getResourceAsStream("/es/personP.txt");
@@ -52,18 +52,18 @@ public class DictCoNLLNameFinderTrainer extends AbstractNameFinderTrainer {
   
   public DictCoNLLNameFinderTrainer(int beamsize) {
     super(beamsize);
-    InputStream dictFileLoc = getClass().getResourceAsStream("/es/locationC.txt");
-    dictLocC = new Dictionary(dictFileLoc);
-    InputStream dictFileMisc = getClass().getResourceAsStream("/es/miscC.txt");
-    dictMiscC = new Dictionary(dictFileMisc);
-    InputStream dictFileOrg = getClass().getResourceAsStream("/es/organizationC.txt");
-    dictOrgC = new Dictionary(dictFileOrg);
-    InputStream dictFilePer = getClass().getResourceAsStream("/es/personC.txt");
-    dictPerP = new Dictionary(dictFilePer);
-    InputStream dictFileKnownLoc = getClass().getResourceAsStream("/es/locationP.txt");
-    dictLocP = new Dictionary(dictFileKnownLoc);
-    InputStream dictFileKnownMisc = getClass().getResourceAsStream("/es/miscP.txt");
-    dictMiscP = new Dictionary(dictFileKnownMisc);
+    InputStream dictFileLocC = getClass().getResourceAsStream("/es/locationC.txt");
+    dictLocC = new Dictionary(dictFileLocC);
+    InputStream dictFileMiscC = getClass().getResourceAsStream("/es/miscC.txt");
+    dictMiscC = new Dictionary(dictFileMiscC);
+    InputStream dictFileOrgC = getClass().getResourceAsStream("/es/organizationC.txt");
+    dictOrgC = new Dictionary(dictFileOrgC);
+    InputStream dictFilePerC = getClass().getResourceAsStream("/es/personC.txt");
+    dictPerC = new Dictionary(dictFilePerC);
+    InputStream dictFileLocP = getClass().getResourceAsStream("/es/locationP.txt");
+    dictLocP = new Dictionary(dictFileLocP);
+    InputStream dictFileMiscP = getClass().getResourceAsStream("/es/miscP.txt");
+    dictMiscP = new Dictionary(dictFileMiscP);
     InputStream dictFileOrgP = getClass().getResourceAsStream("/es/organizationP.txt");
     dictOrgP = new Dictionary(dictFileOrgP);
     InputStream dictFilePersonP = getClass().getResourceAsStream("/es/personP.txt");
