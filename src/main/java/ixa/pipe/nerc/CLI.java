@@ -20,6 +20,7 @@ import ixa.kaflib.KAFDocument;
 import ixa.pipe.nerc.eval.Evaluate;
 import ixa.pipe.nerc.train.BaselineNameFinderTrainer;
 import ixa.pipe.nerc.train.Dict3NameFinderTrainer;
+import ixa.pipe.nerc.train.DictCoNLLNameFinderTrainer;
 import ixa.pipe.nerc.train.InputOutputUtils;
 import ixa.pipe.nerc.train.DictLbjNameFinderTrainer;
 import ixa.pipe.nerc.train.NameFinderTrainer;
@@ -102,7 +103,7 @@ public class CLI {
         .type(Integer.class)
         .help("Choose beam size for decoding: 1 is faster and amounts to greedy search");
     trainParser.addArgument("-f","--features")
-        .choices("baseline","dict3","dictlbj").required(true).help("Train NERC models");
+        .choices("baseline","dict3","dict4","dictlbj").required(true).help("Train NERC models");
     trainParser.addArgument("-p", "--params").required(true)
         .help("load the parameters file");
     trainParser.addArgument("-i", "--input").required(true)
@@ -191,6 +192,9 @@ public class CLI {
         }
         else if (parsedArguments.getString("features").equalsIgnoreCase("dict3")) {
           nercTrainer = new Dict3NameFinderTrainer(trainFile,testFile,lang, decoding,corpusFormat);
+        }
+        else if (parsedArguments.getString("features").equalsIgnoreCase("dict4")) {
+          nercTrainer = new DictCoNLLNameFinderTrainer(trainFile,testFile,lang,decoding,corpusFormat);
         }
         else if (parsedArguments.getString("features").equalsIgnoreCase("dictlbj")) {
           nercTrainer = new DictLbjNameFinderTrainer(trainFile,testFile,lang, decoding,corpusFormat);
