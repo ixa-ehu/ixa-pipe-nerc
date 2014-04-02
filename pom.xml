@@ -82,7 +82,7 @@
 								<transformer
 									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
 									<manifestEntries>
-										<Main-Class>ixa.pipe.nerc.CLI</Main-Class>
+										<Main-Class>es.ehu.si.ixa.pipe.nerc.NERC</Main-Class>
 									</manifestEntries>
 								</transformer>
 							</transformers>
@@ -99,7 +99,7 @@
 				<artifactId>exec-maven-plugin</artifactId>
 				<version>1.2.1</version>
 				<configuration>
-					<mainClass>ixa.pipe.nerc.CLI</mainClass>
+					<mainClass>es.ehu.si.ixa.pipe.nerc.NERC</mainClass>
 				</configuration>
 			</plugin>
 

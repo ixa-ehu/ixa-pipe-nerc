@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>ixa</groupId>
-  <artifactId>ixa-pipe-nerc</artifactId>
+  <groupId>es.ehu.si</groupId>
+  <artifactId>ixa.pipe.nerc</artifactId>
   <name>ixa-pipe-nerc</name>
   <version>1.0</version>
   <description>NERC tagger of IXA pipeline, a multilingual NLP pipeline.
@@ -34,7 +34,7 @@
               <transformers>
                 <transformer>
                   <manifestEntries>
-                    <Main-Class>ixa.pipe.nerc.CLI</Main-Class>
+                    <Main-Class>es.ehu.si.ixa.pipe.nerc.NERC</Main-Class>
                   </manifestEntries>
                 </transformer>
               </transformers>
@@ -50,7 +50,7 @@
         <artifactId>exec-maven-plugin</artifactId>
         <version>1.2.1</version>
         <configuration>
-          <mainClass>ixa.pipe.nerc.CLI</mainClass>
+          <mainClass>es.ehu.si.ixa.pipe.nerc.NERC</mainClass>
         </configuration>
       </plugin>
       <plugin>
