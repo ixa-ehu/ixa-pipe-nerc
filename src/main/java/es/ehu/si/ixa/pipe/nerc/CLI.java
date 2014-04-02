@@ -20,6 +20,7 @@ import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.TrainingParameters;
 
 import org.apache.commons.io.FilenameUtils;
+import org.jdom2.JDOMException;
 
 import es.ehu.si.ixa.pipe.nerc.eval.Evaluate;
 import es.ehu.si.ixa.pipe.nerc.train.BaselineNameFinderTrainer;
@@ -30,7 +31,7 @@ import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
 import es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer;
 
 public class CLI {
-
+  
   Namespace parsedArguments = null;
   ArgumentParser parser = ArgumentParsers
       .newArgumentParser("ixa-pipe-nerc-1.0.jar")
@@ -41,92 +42,34 @@ public class CLI {
   Subparser trainParser;
   Subparser evalParser;
 
-  public CLI() {
+ public CLI() { 
+  annotateParser = subparsers.addParser("tag").help("Tagging CLI");
+  loadAnnotateParameters();
+  trainParser = subparsers.addParser("train").help("Training CLI");
+  loadTrainingParameters();
+  evalParser = subparsers.addParser("eval").help("Evaluation CLI");
+  loadEvalParameters();
+}
+  
+ public static void main(String[] args) throws IOException, JDOMException {
     
-    annotateParser = subparsers.addParser("tag").help("Tagging CLI");
-    loadAnnotateParameters();
-    trainParser = subparsers.addParser("train").help("Training CLI");
-    loadTrainingParameters();
-    evalParser = subparsers.addParser("eval").help("Evaluation CLI");
-    loadEvalParameters();
+    CLI cmdLine = new CLI();
+    cmdLine.parseArgs(args);
   }
-
-  private void loadAnnotateParameters() {
-    annotateParser.addArgument("-l", "--lang").choices("en", "es")
-        .required(false)
-        .help("Choose a language to perform annotation with ixa-pipe-nerc");
-    annotateParser.addArgument("-m", "--model")
-        .choices("baseline", "dict3", "dictlbj").required(false)
-        .help("Choose model to perform NERC annotation");
-    annotateParser
-        .addArgument("--beamsize")
-        .setDefault(3)
-        .type(Integer.class)
-        .help(
-            "Choose beam size for decoding: 1 is faster and amounts to greedy search");
-    annotateParser
-        .addArgument("-g", "--gazetteers")
-        .choices("tag", "post")
-        .required(false)
-        .help(
-            "Use gazetteers directly for tagging or "
-                + "for post-processing the probabilistic NERC output.\n");
-
-  }
-
-  private void loadTrainingParameters() {
-    trainParser
-        .addArgument("--decoding")
-        .setDefault(3)
-        .type(Integer.class)
-        .help(
-            "Choose beam size for decoding: 1 is faster and amounts to greedy search");
-    trainParser.addArgument("-f", "--features")
-        .choices("baseline", "dict3", "dict4", "dictlbj").required(true)
-        .help("Train NERC models");
-    trainParser.addArgument("-p", "--params").required(true)
-        .help("load the parameters file");
-    trainParser.addArgument("-i", "--input").required(true)
-        .help("Input training set");
-    trainParser.addArgument("-e", "--evalSet").required(true)
-        .help("Input testset for evaluation");
-    trainParser.addArgument("-d", "--devSet").required(false)
-        .help("Input development set for cross-evaluation");
-    trainParser.addArgument("-o", "--output").required(false)
-        .help("choose output file to save the annotation");
-    trainParser.addArgument("-c", "--corpus").setDefault("opennlp")
-        .choices("conll", "opennlp").help("choose format input of corpus");
-
-  }
-
-  private void loadEvalParameters() {
-    evalParser.addArgument("--inputModel")
-        .choices("baseline", "dict3", "dictlbj").required(true)
-        .help("Choose model to evaluate");
-    evalParser
-        .addArgument("--beam")
-        .setDefault(3)
-        .type(Integer.class)
-        .help(
-            "Choose beam size for evaluation: 1 is faster and amounts to greedy search");
-    evalParser.addArgument("-t", "--testSet").required(true)
-        .help("Input testset for evaluation");
-    evalParser.addArgument("-l", "--language").required(true)
-        .choices("en", "es")
-        .help("Choose language to load model for evaluation");
-    evalParser.addArgument("--evalReport").required(false)
-        .choices("brief", "detailed", "error")
-        .help("choose type of evaluation report; defaults to detailed");
-    evalParser.addArgument("-c", "--corpus").setDefault("opennlp")
-        .choices("conll", "opennlp").help("choose format input of corpus");
-
-  }
-
+  
   public void parseArgs(String[] args) throws IOException {
     try {
       parsedArguments = parser.parseArgs(args);
       System.err.println("CLI options: " + parsedArguments);
+      if (args[0].equals("tag")) {
       annotate(System.in,System.out);
+      }
+      else if (args[0].equals("eval")) {
+        eval();
+      }
+      else if (args[0].equals("train")){
+        train();
+      }
     } catch (ArgumentParserException e) {
       parser.handleError(e);
       System.out
@@ -172,22 +115,20 @@ public class CLI {
     breader.close();
   }
 
-  public void train(String[] args) throws IOException {
-
-    if (parsedArguments.get("features") != null) {
+  public void train() throws IOException {
 
       NameFinderTrainer nercTrainer = null;
-      int decoding = parsedArguments.getInt("decoding");
       String trainFile = parsedArguments.getString("input");
-      String testFile = parsedArguments.getString("evalSet");
+      String testFile = parsedArguments.getString("testSet");
       String devFile = parsedArguments.getString("devSet");
       String outModel = null;
-      String corpusFormat = parsedArguments.getString("corpus");
       // load training parameters file
       String paramFile = parsedArguments.getString("params");
       TrainingParameters params = InputOutputUtils
           .loadTrainingParameters(paramFile);
       String lang = params.getSettings().get("Language");
+      String corpusFormat = params.getSettings().get("Corpus");
+      Integer beamsize = Integer.valueOf(params.getSettings().get("Beamsize"));
       String evalParam = params.getSettings().get("CrossEval");
       String[] evalRange = evalParam.split("[ :-]");
 
@@ -201,19 +142,19 @@ public class CLI {
 
       if (parsedArguments.getString("features").equalsIgnoreCase("baseline")) {
         nercTrainer = new BaselineNameFinderTrainer(trainFile, testFile, lang,
-            decoding, corpusFormat);
+            beamsize, corpusFormat);
       } else if (parsedArguments.getString("features")
           .equalsIgnoreCase("dict3")) {
         nercTrainer = new Dict3NameFinderTrainer(trainFile, testFile, lang,
-            decoding, corpusFormat);
+            beamsize, corpusFormat);
       } else if (parsedArguments.getString("features")
           .equalsIgnoreCase("dict4")) {
         nercTrainer = new DictCoNLLNameFinderTrainer(trainFile, testFile, lang,
-            decoding, corpusFormat);
+            beamsize, corpusFormat);
       } else if (parsedArguments.getString("features").equalsIgnoreCase(
           "dictlbj")) {
         nercTrainer = new DictLbjNameFinderTrainer(trainFile, testFile, lang,
-            decoding, corpusFormat);
+            beamsize, corpusFormat);
       }
 
       TokenNameFinderModel trainedModel = null;
@@ -230,16 +171,15 @@ public class CLI {
       InputOutputUtils.saveModel(trainedModel, outModel);
       System.out.println();
       System.out.println("Wrote trained NERC model to " + outModel);
-    }
+    
   }
 
-  public void eval(String[] args) throws IOException {
+  public void eval() throws IOException {
 
-    if (parsedArguments.get("inputModel") != null) {
       String testFile = parsedArguments.getString("testSet");
-      String model = parsedArguments.getString("inputModel");
+      String model = parsedArguments.getString("model");
       String lang = parsedArguments.getString("language");
-      int beam = parsedArguments.getInt("beam");
+      int beam = parsedArguments.getInt("beamsize");
       String corpusFormat = parsedArguments.getString("corpus");
 
       Evaluate evaluator = new Evaluate(testFile, model, lang, beam,
@@ -257,8 +197,71 @@ public class CLI {
       } else {
         evaluator.detailEvaluate();
       }
-    }
+  }
+  
+  private void loadAnnotateParameters() {
+    annotateParser.addArgument("-l", "--lang").choices("en", "es")
+        .required(false)
+        .help("Choose a language to perform annotation with ixa-pipe-nerc");
+    annotateParser.addArgument("-m", "--model")
+        .choices("baseline", "dict3", "dictlbj").required(false)
+        .help("Choose model to perform NERC annotation");
+    annotateParser
+        .addArgument("--beamsize")
+        .setDefault(3)
+        .type(Integer.class)
+        .help(
+            "Choose beam size for decoding: 1 is faster and amounts to greedy search");
+    annotateParser
+        .addArgument("-g", "--gazetteers")
+        .choices("tag", "post")
+        .required(false)
+        .help(
+            "Use gazetteers directly for tagging or "
+                + "for post-processing the probabilistic NERC output.\n");
 
   }
+
+  
+  private void loadTrainingParameters() {
+    trainParser.addArgument("-f", "--features")
+        .choices("baseline", "dict3", "dict4", "dictlbj").required(true)
+        .help("Train NERC models");
+    trainParser.addArgument("-p", "--params").required(true)
+        .help("load the parameters file");
+    trainParser.addArgument("-i", "--input").required(true)
+        .help("Input training set");
+    trainParser.addArgument("-t", "--testSet").required(true)
+        .help("Input testset for evaluation");
+    trainParser.addArgument("-d", "--devSet").required(false)
+        .help("Input development set for cross-evaluation");
+    trainParser.addArgument("-o", "--output").required(false)
+        .help("choose output file to save the annotation");
+
+  }
+
+  private void loadEvalParameters() {
+    evalParser.addArgument("-m","--model")
+        .choices("baseline", "dict3", "dictlbj").required(true)
+        .help("Choose model to evaluate");
+    evalParser.addArgument("-l", "--language").required(true)
+        .choices("en", "es")
+        .help("Choose language to load model for evaluation");
+    evalParser.addArgument("-c", "--corpus").setDefault("opennlp")
+        .choices("conll", "opennlp").help("choose format input of corpus");
+    evalParser
+        .addArgument("--beamsize")
+        .setDefault(3)
+        .type(Integer.class)
+        .help(
+            "Choose beam size for evaluation: 1 is faster and amounts to greedy search");
+    evalParser.addArgument("-t", "--testSet").required(true)
+        .help("Input testset for evaluation");
+    
+    evalParser.addArgument("--evalReport").required(false)
+        .choices("brief", "detailed", "error")
+        .help("choose type of evaluation report; defaults to detailed");
+  }
+
 
 }
