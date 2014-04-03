@@ -21,6 +21,7 @@ import es.ehu.si.ixa.pipe.nerc.train.Dict3NameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.DictLbjNameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -40,64 +41,71 @@ import opennlp.tools.util.Span;
 
  public class StatisticalNameFinder implements NameFinder {
 
-   private InputStream trainedModel;
+   private InputStream trainedModelInputStream;
    private static TokenNameFinderModel nercModel;
    private NameFinderME nameFinder;
    private NameFactory nameFactory;
    private NameFinderTrainer nameFinderTrainer;
    public static final int DEFAULT_BEAM_SIZE = 3;
    
-  public StatisticalNameFinder(String lang, String model, int beamsize) {
+  public StatisticalNameFinder(String lang, String model, String features, int beamsize) {
   
     try {
-      if (trainedModel == null) {
-        trainedModel = getModel(lang,model);
+      if (model.equalsIgnoreCase("baseline")) {
+        trainedModelInputStream = getModel(lang,model);
+        System.err.println("No model chosen, reverting to baseline model!");
       }
-      nercModel = new TokenNameFinderModel(trainedModel);
+      else if (trainedModelInputStream == null) {
+        trainedModelInputStream = new FileInputStream(model);
+      }
+      nercModel = new TokenNameFinderModel(trainedModelInputStream);
     } catch (IOException e) {
       e.printStackTrace();
     } finally {
-      if (trainedModel != null) {
+      if (trainedModelInputStream != null) {
         try {
-          trainedModel.close();
+          trainedModelInputStream.close();
         } catch (IOException e) {
         }
       }
     }
-    nameFinderTrainer = getNameFinderTrainer(model,beamsize);
+    nameFinderTrainer = getNameFinderTrainer(features,beamsize);
     nameFinder = new NameFinderME(nercModel,nameFinderTrainer.createFeatureGenerator(),beamsize);
   }
   
-  public StatisticalNameFinder(String lang, String model) {
-	  this(lang,model,DEFAULT_BEAM_SIZE);
+  public StatisticalNameFinder(String lang,String model,String features) {
+	  this(lang,model,features,DEFAULT_BEAM_SIZE);
   }
   
-  public StatisticalNameFinder(String lang, NameFactory nameFactory, String model, int beamsize) {
-    
-    
+  public StatisticalNameFinder(String lang, NameFactory nameFactory, String model, String features, int beamsize) {
+   
     this.nameFactory = nameFactory;
     
     try {
-      if (trainedModel == null) {
-        trainedModel = getModel(lang,model);
+      if (model.equalsIgnoreCase("baseline")) {
+        trainedModelInputStream = getModel(lang,model);
+        System.err.println("No model chosen, reverting to baseline model!");
       }
-      nercModel = new TokenNameFinderModel(trainedModel);
+      else if (trainedModelInputStream == null) {
+        trainedModelInputStream = new FileInputStream(model);
+      }
+      nercModel = new TokenNameFinderModel(trainedModelInputStream);
     } catch (IOException e) {
       e.printStackTrace();
     } finally {
-      if (trainedModel != null) {
+      if (trainedModelInputStream != null) {
         try {
-          trainedModel.close();
+          trainedModelInputStream.close();
         } catch (IOException e) {
         }
       }
     }
-    nameFinderTrainer = getNameFinderTrainer(model,beamsize);
+    nameFinderTrainer = getNameFinderTrainer(features,beamsize);
     nameFinder = new NameFinderME(nercModel,nameFinderTrainer.createFeatureGenerator(),beamsize);
   }
   
-  public StatisticalNameFinder(String lang, NameFactory nameFactory, String model) {
-	  this(lang,nameFactory,model,DEFAULT_BEAM_SIZE);
+  public StatisticalNameFinder(String lang, NameFactory nameFactory, String model, String features) {
+	  this(lang,nameFactory,model,features,DEFAULT_BEAM_SIZE);
   }
   
   /**
@@ -166,45 +174,28 @@ import opennlp.tools.util.Span;
     nameFinder.clearAdaptiveData();
   }
   
-  public NameFinderTrainer getNameFinderTrainer(String model,int beamsize) {
-    if (model.equalsIgnoreCase("baseline")) {
+  public NameFinderTrainer getNameFinderTrainer(String features, int beamsize) {
+    if (features.equalsIgnoreCase("baseline")) {
       nameFinderTrainer = new BaselineNameFinderTrainer(beamsize);
     }
-    else if (model.equalsIgnoreCase("dict3")) {
+    else if (features.equalsIgnoreCase("dict3")) {
       nameFinderTrainer = new Dict3NameFinderTrainer(beamsize);
     }
-    else if (model.equalsIgnoreCase("dictlbj")) {
+    else if (features.equalsIgnoreCase("dictlbj")) {
       nameFinderTrainer = new DictLbjNameFinderTrainer(beamsize);
       }
     return nameFinderTrainer;
   }
   
-  public InputStream getModel(String lang, String model) {
+  private InputStream getModel(String lang, String model) {
 
     if (lang.equalsIgnoreCase("en")) {
-      if (model.equalsIgnoreCase("baseline")) {
-        trainedModel = getClass().getResourceAsStream("/en/en-nerc-perceptron-baseline-c0-b3.bin");
-      }
-      if (model.equalsIgnoreCase("dict3")) {
-        trainedModel = getClass().getResourceAsStream("/en/en-nerc-perceptron-baseline-c0-b3.bin");
-      }
-      if (model.equalsIgnoreCase("dictlbj")) {
-        trainedModel = getClass().getResourceAsStream("/en/en-nerc-perceptron-baseline-c0-b3.bin");
-      }
+      trainedModelInputStream = getClass().getResourceAsStream("/en/en-nerc-perceptron-baseline-c0-b3.bin");
     }
-
     if (lang.equalsIgnoreCase("es")) {
-      if (model.equalsIgnoreCase("baseline")) {
-        trainedModel = getClass().getResourceAsStream("/es/es-nerc-maxent-baseline-500-c4-b3.bin");
+      trainedModelInputStream = getClass().getResourceAsStream("/es/es-nerc-maxent-baseline-500-c4-b3.bin");
     }
-      if (model.equalsIgnoreCase("dict3")) {
-        trainedModel = getClass().getResourceAsStream("/es/es-nerc-maxent-baseline-500-c4-b3.bin");
-      }
-      if (model.equalsIgnoreCase("dictlbj")) {
-        trainedModel = getClass().getResourceAsStream("/es/es-nerc-maxent-baseline-500-c4-b3.bin");
-      }
-    }
-    return trainedModel;
+    return trainedModelInputStream;
   }
   
 }

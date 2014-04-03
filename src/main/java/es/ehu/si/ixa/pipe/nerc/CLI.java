@@ -54,10 +54,10 @@ public class CLI {
  public static void main(String[] args) throws IOException, JDOMException {
     
     CLI cmdLine = new CLI();
-    cmdLine.parseArgs(args);
+    cmdLine.parseCLI(args);
   }
   
-  public void parseArgs(String[] args) throws IOException {
+  public void parseCLI(String[] args) throws IOException {
     try {
       parsedArguments = parser.parseArgs(args);
       System.err.println("CLI options: " + parsedArguments);
@@ -67,7 +67,7 @@ public class CLI {
       else if (args[0].equals("eval")) {
         eval();
       }
-      else if (args[0].equals("train")){
+      else if (args[0].equals("train")) {
         train();
       }
     } catch (ArgumentParserException e) {
@@ -82,6 +82,7 @@ public class CLI {
       throws IOException {
 
     int beamsize = parsedArguments.getInt("beamsize");
+    String features = parsedArguments.getString("features");
     String gazetteer = parsedArguments.getString("gazetteers");
     String model;
     if (parsedArguments.get("model") == null) {
@@ -104,10 +105,10 @@ public class CLI {
     }
     kaf.addLinguisticProcessor("entities", "ixa-pipe-nerc-" + lang, "1.0");
     if (parsedArguments.get("gazetteers") != null) {
-      Annotate annotator = new Annotate(lang, gazetteer, model, beamsize);
+      Annotate annotator = new Annotate(lang, gazetteer, model, features, beamsize);
       annotator.annotateNEsToKAF(kaf);
     } else {
-      Annotate annotator = new Annotate(lang, model, beamsize);
+      Annotate annotator = new Annotate(lang, model, features, beamsize);
       annotator.annotateNEsToKAF(kaf);
     }
     bwriter.write(kaf.toString());
@@ -177,13 +178,13 @@ public class CLI {
   public void eval() throws IOException {
 
       String testFile = parsedArguments.getString("testSet");
+      String features = parsedArguments.getString("features");
       String model = parsedArguments.getString("model");
       String lang = parsedArguments.getString("language");
       int beam = parsedArguments.getInt("beamsize");
       String corpusFormat = parsedArguments.getString("corpus");
 
-      Evaluate evaluator = new Evaluate(testFile, model, lang, beam,
-          corpusFormat);
+      Evaluate evaluator = new Evaluate(testFile, model,features, lang, beam,corpusFormat);
       if (parsedArguments.getString("evalReport") != null) {
         if (parsedArguments.getString("evalReport").equalsIgnoreCase("brief")) {
           evaluator.evaluate();
@@ -200,11 +201,16 @@ public class CLI {
   }
   
   private void loadAnnotateParameters() {
-    annotateParser.addArgument("-l", "--lang").choices("en", "es")
+    annotateParser.addArgument("-l", "--lang").choices("en","es")
         .required(false)
         .help("Choose a language to perform annotation with ixa-pipe-nerc");
+    annotateParser.addArgument("-f", "--features")
+        .choices("baseline","dict3","dict4","dictlbj")
+        .required(false)
+        .setDefault("baseline")
+        .help("Choose features for NERC; it defaults to baseline");
     annotateParser.addArgument("-m", "--model")
-        .choices("baseline", "dict3", "dictlbj").required(false)
+        .required(false)
         .help("Choose model to perform NERC annotation");
     annotateParser
         .addArgument("--beamsize")
@@ -221,14 +227,13 @@ public class CLI {
                 + "for post-processing the probabilistic NERC output.\n");
 
   }
-
   
   private void loadTrainingParameters() {
     trainParser.addArgument("-f", "--features")
         .choices("baseline", "dict3", "dict4", "dictlbj").required(true)
-        .help("Train NERC models");
+        .help("Choose features to train NERC model");
     trainParser.addArgument("-p", "--params").required(true)
-        .help("load the parameters file");
+        .help("Load the parameters file");
     trainParser.addArgument("-i", "--input").required(true)
         .help("Input training set");
     trainParser.addArgument("-t", "--testSet").required(true)
@@ -236,17 +241,29 @@ public class CLI {
     trainParser.addArgument("-d", "--devSet").required(false)
         .help("Input development set for cross-evaluation");
     trainParser.addArgument("-o", "--output").required(false)
-        .help("choose output file to save the annotation");
+        .help("Choose output file to save the annotation");
 
   }
 
   private void loadEvalParameters() {
     evalParser.addArgument("-m","--model")
-        .choices("baseline", "dict3", "dictlbj").required(true)
-        .help("Choose model to evaluate");
-    evalParser.addArgument("-l", "--language").required(true)
+        .required(true)
+        .help("Choose model");
+    evalParser.addArgument("-f","--features")
+        .choices("baseline", "dict3", "dictlbj")
+        .required(true)
+        .help("Choose features for evaluation");
+    evalParser.addArgument("-l", "--language")
+        .required(true)
         .choices("en", "es")
         .help("Choose language to load model for evaluation");
+    evalParser.addArgument("-t", "--testSet")
+        .required(true)
+        .help("Input testset for evaluation");
+    evalParser.addArgument("--evalReport")
+        .required(false)
+        .choices("brief", "detailed", "error")
+        .help("Choose type of evaluation report; defaults to detailed");
     evalParser.addArgument("-c", "--corpus").setDefault("opennlp")
         .choices("conll", "opennlp").help("choose format input of corpus");
     evalParser
@@ -255,12 +272,6 @@ public class CLI {
         .type(Integer.class)
         .help(
             "Choose beam size for evaluation: 1 is faster and amounts to greedy search");
-    evalParser.addArgument("-t", "--testSet").required(true)
-        .help("Input testset for evaluation");
-    
-    evalParser.addArgument("--evalReport").required(false)
-        .choices("brief", "detailed", "error")
-        .help("choose type of evaluation report; defaults to detailed");
   }
 
 

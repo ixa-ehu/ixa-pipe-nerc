@@ -4,6 +4,7 @@ import es.ehu.si.ixa.pipe.nerc.StatisticalNameFinder;
 import es.ehu.si.ixa.pipe.nerc.train.AbstractNameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedList;
@@ -28,11 +29,10 @@ public class Evaluate {
   private NameFinderME nameFinder;
   
   
-  public Evaluate(String testData, String model, String lang, int beamsize, String corpusFormat) throws IOException {
+  public Evaluate(String testData, String model, String features, String lang, int beamsize, String corpusFormat) throws IOException {
     
     testSamples = AbstractNameFinderTrainer.getNameStream(testData, lang, corpusFormat);
-    StatisticalNameFinder statFinder = new StatisticalNameFinder(lang,model);
-    trainedModel = statFinder.getModel(lang, model);
+    trainedModel = new FileInputStream(model);
     
     try {
       nercModel = new TokenNameFinderModel(trainedModel);
@@ -46,7 +46,8 @@ public class Evaluate {
         }
       }
     }
-    nameFinderTrainer = statFinder.getNameFinderTrainer(model,beamsize);
+    StatisticalNameFinder statFinder = new StatisticalNameFinder(lang,model,features);
+    nameFinderTrainer = statFinder.getNameFinderTrainer(features,beamsize);
     nameFinder = new NameFinderME(nercModel,nameFinderTrainer.createFeatureGenerator(),beamsize);
   }
   
