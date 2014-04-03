@@ -40,8 +40,7 @@ import opennlp.tools.util.Span;
  */
 
  public class StatisticalNameFinder implements NameFinder {
-
-   private InputStream trainedModelInputStream;
+   
    private static TokenNameFinderModel nercModel;
    private NameFinderME nameFinder;
    private NameFactory nameFactory;
@@ -49,16 +48,20 @@ import opennlp.tools.util.Span;
    public static final int DEFAULT_BEAM_SIZE = 3;
    
   public StatisticalNameFinder(String lang, String model, String features, int beamsize) {
-  
+    
+    InputStream trainedModelInputStream = null;
     try {
-      if (model.equalsIgnoreCase("baseline")) {
-        trainedModelInputStream = getModel(lang,model);
-        System.err.println("No model chosen, reverting to baseline model!");
+      if (nercModel == null) {
+        if (model.equalsIgnoreCase("baseline")) {
+          trainedModelInputStream = getModel(lang,model);
+          System.err.println("No model chosen, reverting to baseline model!");
+        }
+        else {
+          trainedModelInputStream = new FileInputStream(model);
+        }
+        nercModel = new TokenNameFinderModel(trainedModelInputStream);
       }
-      else if (trainedModelInputStream == null) {
-        trainedModelInputStream = new FileInputStream(model);
-      }
-      nercModel = new TokenNameFinderModel(trainedModelInputStream);
+      
     } catch (IOException e) {
       e.printStackTrace();
     } finally {
@@ -80,16 +83,18 @@ import opennlp.tools.util.Span;
   public StatisticalNameFinder(String lang, NameFactory nameFactory, String model, String features, int beamsize) {
    
     this.nameFactory = nameFactory;
-    
+    InputStream trainedModelInputStream = null;
     try {
-      if (model.equalsIgnoreCase("baseline")) {
-        trainedModelInputStream = getModel(lang,model);
-        System.err.println("No model chosen, reverting to baseline model!");
+      if (nercModel == null) {
+        if (model.equalsIgnoreCase("baseline")) {
+          trainedModelInputStream = getModel(lang,model);
+          System.err.println("No model chosen, reverting to baseline model!");
+        }
+        else {
+          trainedModelInputStream = new FileInputStream(model);
+        }
+        nercModel = new TokenNameFinderModel(trainedModelInputStream);
       }
-      else if (trainedModelInputStream == null) {
-        trainedModelInputStream = new FileInputStream(model);
-      }
-      nercModel = new TokenNameFinderModel(trainedModelInputStream);
     } catch (IOException e) {
       e.printStackTrace();
     } finally {
@@ -188,7 +193,7 @@ import opennlp.tools.util.Span;
   }
   
   private InputStream getModel(String lang, String model) {
-
+    InputStream trainedModelInputStream = null;
     if (lang.equalsIgnoreCase("en")) {
       trainedModelInputStream = getClass().getResourceAsStream("/en/en-nerc-perceptron-baseline-c0-b3.bin");
     }
