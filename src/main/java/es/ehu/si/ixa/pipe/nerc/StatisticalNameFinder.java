@@ -53,7 +53,7 @@ import opennlp.tools.util.Span;
     try {
       if (nercModel == null) {
         if (model.equalsIgnoreCase("baseline")) {
-          trainedModelInputStream = getModel(lang,model);
+          trainedModelInputStream = getBaselineModelStream(lang,model);
           System.err.println("No model chosen, reverting to baseline model!");
         }
         else {
@@ -87,7 +87,7 @@ import opennlp.tools.util.Span;
     try {
       if (nercModel == null) {
         if (model.equalsIgnoreCase("baseline")) {
-          trainedModelInputStream = getModel(lang,model);
+          trainedModelInputStream = getBaselineModelStream(lang,model);
           System.err.println("No model chosen, reverting to baseline model!");
         }
         else {
@@ -186,13 +186,16 @@ import opennlp.tools.util.Span;
     else if (features.equalsIgnoreCase("dict3")) {
       nameFinderTrainer = new Dict3NameFinderTrainer(beamsize);
     }
+    else if (features.equalsIgnoreCase("dict4")) {
+      nameFinderTrainer = new Dict3NameFinderTrainer(beamsize);
+    }
     else if (features.equalsIgnoreCase("dictlbj")) {
       nameFinderTrainer = new DictLbjNameFinderTrainer(beamsize);
-      }
+    }
     return nameFinderTrainer;
   }
   
-  private InputStream getModel(String lang, String model) {
+  private InputStream getBaselineModelStream(String lang, String model) {
     InputStream trainedModelInputStream = null;
     if (lang.equalsIgnoreCase("en")) {
       trainedModelInputStream = getClass().getResourceAsStream("/en/en-nerc-perceptron-baseline-c0-b3.bin");
