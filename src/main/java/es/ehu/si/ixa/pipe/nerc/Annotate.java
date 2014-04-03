@@ -87,6 +87,7 @@ public class Annotate {
         tokenIds[i] = sentence.get(i).getId();
       }
       if (STATISTICAL) {
+        //TODO clearAdaptiveFeatures; evaluate
         allSpans = nameFinder.nercToSpans(tokens);
       }
       if (POSTPROCESS) {
@@ -95,7 +96,6 @@ public class Annotate {
         List<Span> locDictSpans = locDictFinder.nercToSpansExact(tokens);
         perDictFinder.concatenateSpans(perDictSpans,orgDictSpans);
         perDictFinder.concatenateSpans(perDictSpans,locDictSpans);
-        // TODO postprocessing
         perDictFinder.postProcessDuplicatedSpans(allSpans, perDictSpans);
         perDictFinder.concatenateSpans(allSpans, perDictSpans);
       }
