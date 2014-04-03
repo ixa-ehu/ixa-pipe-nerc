@@ -15,7 +15,7 @@
 
 # Sample machine learning properties file
 
-Algorithm=MAXENT
+Algorithm=PERCEPTRON
 Iterations=500
 Cutoff=0
 Threads=4
@@ -23,7 +23,13 @@ Threads=4
 #### Custom parameters added by ixa-pipe-nerc ####
  
 Language=en
-  
+
+# Beamsize 1 amounts to greedy search
+Beamsize=3
+
+# Formats opennlp or conll
+Corpus=opennlp
+
 ## Cross Evaluation if empty no cross evaluation is performed;
 ## Cross Evaluation takes two values as arguments, namely, 50:100;
 ## These values represent: 
