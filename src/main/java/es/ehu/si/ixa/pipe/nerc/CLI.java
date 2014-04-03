@@ -29,6 +29,7 @@ import es.ehu.si.ixa.pipe.nerc.train.DictCoNLLNameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.DictLbjNameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
 import es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer;
+import es.ehu.si.ixa.pipe.nerc.train.OpenNLPDefaultTrainer;
 
 public class CLI {
   
@@ -141,7 +142,11 @@ public class CLI {
             + ".bin";
       }
 
-      if (parsedArguments.getString("features").equalsIgnoreCase("baseline")) {
+      if (parsedArguments.getString("features").equalsIgnoreCase("opennlp")) {
+        nercTrainer = new OpenNLPDefaultTrainer(trainFile, testFile, lang,
+            beamsize, corpusFormat);
+      }
+      else if (parsedArguments.getString("features").equalsIgnoreCase("baseline")) {
         nercTrainer = new BaselineNameFinderTrainer(trainFile, testFile, lang,
             beamsize, corpusFormat);
       } else if (parsedArguments.getString("features")
@@ -172,7 +177,6 @@ public class CLI {
       InputOutputUtils.saveModel(trainedModel, outModel);
       System.out.println();
       System.out.println("Wrote trained NERC model to " + outModel);
-    
   }
 
   public void eval() throws IOException {
@@ -205,7 +209,7 @@ public class CLI {
         .required(false)
         .help("Choose a language to perform annotation with ixa-pipe-nerc");
     annotateParser.addArgument("-f", "--features")
-        .choices("baseline","dict3","dict4","dictlbj")
+        .choices("opennlp","baseline","dict3","dict4","dictlbj")
         .required(false)
         .setDefault("baseline")
         .help("Choose features for NERC; it defaults to baseline");
@@ -225,12 +229,11 @@ public class CLI {
         .help(
             "Use gazetteers directly for tagging or "
                 + "for post-processing the probabilistic NERC output.\n");
-
   }
   
   private void loadTrainingParameters() {
     trainParser.addArgument("-f", "--features")
-        .choices("baseline", "dict3", "dict4", "dictlbj").required(true)
+        .choices("opennlp","baseline", "dict3", "dict4", "dictlbj").required(true)
         .help("Choose features to train NERC model");
     trainParser.addArgument("-p", "--params").required(true)
         .help("Load the parameters file");
@@ -242,7 +245,6 @@ public class CLI {
         .help("Input development set for cross-evaluation");
     trainParser.addArgument("-o", "--output").required(false)
         .help("Choose output file to save the annotation");
-
   }
 
   private void loadEvalParameters() {
@@ -250,7 +252,7 @@ public class CLI {
         .required(true)
         .help("Choose model");
     evalParser.addArgument("-f","--features")
-        .choices("baseline", "dict3", "dictlbj")
+        .choices("opennlp","baseline", "dict3", "dict4","dictlbj")
         .required(true)
         .help("Choose features for evaluation");
     evalParser.addArgument("-l", "--language")
