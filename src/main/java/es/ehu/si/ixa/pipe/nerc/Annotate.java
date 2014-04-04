@@ -75,6 +75,9 @@ public class Annotate {
    */
   public Annotate(final String lang, final String model, final String features,
       final int beamsize) {
+    if (model.equalsIgnoreCase("baseline")) {
+      System.err.println("No model chosen, reverting to baseline model!");
+    }
     NameFactory nameFactory = new NameFactory();
     nameFinder = new StatisticalNameFinder(lang, nameFactory, model, features, beamsize);
     statitiscal = true;
@@ -92,6 +95,9 @@ public class Annotate {
    */
   public Annotate(final String lang, final String dictOption, final String model,
       final String features, final int beamsize) {
+    if (model.equalsIgnoreCase("baseline")) {
+      System.err.println("No model chosen, reverting to baseline model!");
+   }
     NameFactory nameFactory = new NameFactory();
     nameFinder = new StatisticalNameFinder(lang, nameFactory, model, features, beamsize);
     //TODO remove hard coding of these dictionaries

@@ -80,7 +80,6 @@ public class StatisticalNameFinder implements NameFinder {
       if (nercModel == null) {
         if (model.equalsIgnoreCase("baseline")) {
           trainedModelInputStream = getBaselineModelStream(lang, model);
-          System.err.println("No model chosen, reverting to baseline model!");
         } else {
           trainedModelInputStream = new FileInputStream(model);
         }
@@ -134,7 +133,6 @@ public class StatisticalNameFinder implements NameFinder {
       if (nercModel == null) {
         if (model.equalsIgnoreCase("baseline")) {
           trainedModelInputStream = getBaselineModelStream(lang, model);
-          System.err.println("No model chosen, reverting to baseline model!");
         } else {
           trainedModelInputStream = new FileInputStream(model);
         }
