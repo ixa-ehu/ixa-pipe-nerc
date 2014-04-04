@@ -19,65 +19,75 @@ package es.ehu.si.ixa.pipe.nerc;
 import opennlp.tools.util.Span;
 
 /**
- * This class provides the functionality to create {@link Name} objects. E.g., the 
- * {@link Annotate} class uses the createName functions of this class to create
- * every {@link Name}
- * 
+ * This class provides the functionality to create {@link Name} objects. E.g.,
+ * the {@link Annotate} class uses the createName functions of this class to
+ * create every {@link Name}
+ *
  * @author ragerri
  * @version 2014-03-12
- * 
+ *
  */
 
 public class NameFactory {
 
-  
   /**
-   * Constructs a {@link Name} as a String with a class type (e.g. Person, 
+   * Constructs a {@link Name} as a String with a class type (e.g. Person,
    * location, organization, etc.)
-   * 
-   * @param nameString string to be added to a Name object
-   * @param neType the type of the Name
+   *
+   * @param nameString
+   *          string to be added to a Name object
+   * @param neType
+   *          the type of the Name
    * @return a new Name object
-   * 
+   *
    */
-  public Name createName(String nameString, String neType) {
+  public final Name createName(final String nameString, final String neType) {
     Name name = new Name();
     name.setValue(nameString);
     name.setType(neType);
     return name;
   }
-  
+
   /**
-   * Constructs a {@link Name} as a String with a type and a {@link Span} specified in terms of 
-   * the number of tokens it contains.
-   * 
-   * @param nameString string to be added to a Name object
-   * @param neType the type of the Name
-   * @param neSpan the span of the Name
+   * Constructs a {@link Name} as a String with a type and a {@link Span}
+   * specified in terms of the number of tokens it contains.
+   *
+   * @param nameString
+   *          string to be added to a Name object
+   * @param neType
+   *          the type of the Name
+   * @param neSpan
+   *          the span of the Name
    * @return a new Name object
-   * 
+   *
    */
-  
-  public Name createName(String nameString, String neType, Span neSpan) {
+
+  public final Name createName(final String nameString, final String neType,
+      final Span neSpan) {
     Name name = new Name();
     name.setValue(nameString);
     name.setType(neType);
     name.setSpan(neSpan);
     return name;
   }
-  
+
   /**
-   * Constructs a {@link Name} as a String with corresponding offsets and length from
-   * which to calculate start and end position of the Name. 
-   * 
-   * @param nameString string to be added to a Name object
-   * @param neType the type of the Name
-   * @param offset the starting offset of the Name
-   * @param length of the string
+   * Constructs a {@link Name} as a String with corresponding offsets and length
+   * from which to calculate start and end position of the Name.
+   *
+   * @param nameString
+   *          string to be added to a Name object
+   * @param neType
+   *          the type of the Name
+   * @param offset
+   *          the starting offset of the Name
+   * @param length
+   *          of the string
    * @return a new Name object
-   * 
+   *
    */
-  public Name createName(String nameString, String neType, int offset, int length) {
+  public final Name createName(final String nameString, final String neType,
+      final int offset, final int length) {
     Name name = new Name();
     name.setValue(nameString);
     name.setType(neType);
@@ -85,20 +95,25 @@ public class NameFactory {
     name.setNameLength(length);
     return name;
   }
-  
+
   /**
    * Constructs a Name as a String with corresponding offsets and length from
-   * which to calculate start and end position of the Name. 
-   * 
-   * @param nameString string to be added to a Name object
-   * @param type the type of the Name
-   * @para neSpan the Span
-   * @param offset the starting offset of the Name
-   * @param length of the string
+   * which to calculate start and end position of the Name.
+   *
+   * @param nameString
+   *          string to be added to a Name object
+   * @param neType
+   *          the type of the Name
+   * @param neSpan the Span
+   * @param offset
+   *          the starting offset of the Name
+   * @param length
+   *          of the string
    * @return a new Name object
-   * 
+   *
    */
-  public Name createName(String nameString, String neType, Span neSpan, int offset, int length) {
+  public final Name createName(final String nameString, final String neType,
+      final Span neSpan, final int offset, final int length) {
     Name name = new Name();
     name.setValue(nameString);
     name.setType(neType);

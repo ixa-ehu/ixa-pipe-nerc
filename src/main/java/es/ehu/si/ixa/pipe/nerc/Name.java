@@ -18,33 +18,41 @@ package es.ehu.si.ixa.pipe.nerc;
 
 import opennlp.tools.util.Span;
 
-
 /**
- * A <code>Name</code> object contains a single String, a {@link Span}, a startOffset and 
- * the length of the String. These attributes are set or returned
- * in response to requests.
- * 
+ * A <code>Name</code> object contains a single String, a {@link Span}, a
+ * startOffset and the length of the String. These attributes are set or
+ * returned in response to requests.
+ *
  * @author ragerri
  * @version 2013-03-12
- * 
+ *
  */
-
 public class Name {
 
+  /**
+   * The string of the name.
+   */
   private String str;
+
+  /**
+   * The {@link Span} of the Name.
+   */
   private Span neSpan;
+  /**
+   * The Name Entity class.
+   */
   private String type;
 
   /**
-   * Start position of the <code>Name</code> in the original input string
+   * Start position of the <code>Name</code> in the original input string.
    */
   private int startOffset = -1;
 
   /**
-   * Length of the Name in the original input string
+   * Length of the Name in the original input string.
    */
   private int nameLength = -1;
-  
+
   /**
    * Create a new <code>Name</code> with a null content (i.e., str).
    */
@@ -52,151 +60,176 @@ public class Name {
   }
 
   /**
-   * Create a new <code>Name</code> with the given string
-   * 
-   * @param str The new label's content
-   * @param type
+   * Create a new <code>Name</code> with the given string.
+   *
+   * @param aStr
+   *          the new label's content
+   * @param aType
+   *          the class of the name
    */
-  public Name(String str, String type) {
-    this.str = str;
-    this.type = type.toUpperCase();
+  public Name(final String aStr, final String aType) {
+    this.str = aStr;
+    this.type = aType.toUpperCase();
   }
-  
+
   /**
-   * Create a new <code>Name</code> with the given string and Span
-   * 
-   * @param str The new label's content
-   * @param type
-   * @param neSpan the span of the Name
+   * Create a new <code>Name</code> with the given string and Span.
+   *
+   * @param aStr
+   *          the new label's content
+   * @param aType
+   *          the Named Entity class of the Name
+   * @param aNeSpan
+   *          the span of the Name
    */
-  public Name(String str, String type, Span neSpan) { 
-    this.str = str;
-    this.type = type.toUpperCase();
-    this.neSpan = neSpan;
+  public Name(final String aStr, final String aType, final Span aNeSpan) {
+    this.str = aStr;
+    this.type = aType.toUpperCase();
+    this.neSpan = aNeSpan;
   }
 
   /**
    * Creates a new <code>Name</code> with the given content.
-   * 
-   * @param str
+   *
+   * @param aStr
    *          The new label's content
-   * @param type
-   * @param startOffset
+   * @param aType
+   *          Named Entity class of the Name
+   * @param aStartOffset
    *          Start offset in original text
-   * @param nameLength
+   * @param aNameLength
    *          End offset in original text
    */
-  public Name(String str, String type, int startOffset, int nameLength) {
-    this.str = str;
-    this.type = type.toUpperCase();
-    setStartOffset(startOffset);
-    setNameLength(nameLength);
+  public Name(final String aStr, final String aType,
+      final int aStartOffset, final int aNameLength) {
+    this.str = aStr;
+    this.type = aType.toUpperCase();
+    setStartOffset(aStartOffset);
+    setNameLength(aNameLength);
   }
-  
+
   /**
    * Creates a new <code>Name</code> with the given content.
-   * 
-   * @param str
+   *
+   * @param aStr
    *          The new label's content
-   * @param type 
-   * @param neSpan the name span
-   * @param startOffset
+   * @param aType
+   *          Name Entity class of the Name
+   * @param aNeSpan
+   *          the name span
+   * @param aStartOffset
    *          Start offset in original text
-   * @param nameLength
+   * @param aNameLength
    *          End offset in original text
    */
-  public Name(String str, String type, Span neSpan, int startOffset, int nameLength) {
-    this.str = str;
-    this.type = type.toUpperCase();
-    this.neSpan = neSpan;
-    setStartOffset(startOffset);
-    setNameLength(nameLength);
+  public Name(final String aStr, final String aType, final Span aNeSpan,
+      final int aStartOffset, final int aNameLength) {
+    this.str = aStr;
+    this.type = aType.toUpperCase();
+    this.neSpan = aNeSpan;
+    setStartOffset(aStartOffset);
+    setNameLength(aNameLength);
   }
 
   /**
    * Return the word value of the label (or null if none).
-   * 
+   *
    * @return String the word value for the label
    */
-  public String value() {
+  public final String value() {
     return str;
   }
-  
+
   /**
-   * Return the type of the Name
-   * 
-   * @return
+   * Return the type of the Name.
+   *
+   * @return the type of the Name
    */
-  public String getType() { 
+  public final String getType() {
     return type;
   }
-  
+
   /**
    * Return the Span (or null if none).
-   * 
+   *
    * @return the Span
    */
-  public Span getSpan() {
+  public final Span getSpan() {
     return neSpan;
   }
-  
 
   /**
    * Set the value for the label.
-   * 
+   *
    * @param value
    *          The value for the label
    */
-  public void setValue(final String value) {
+  public final void setValue(final String value) {
     str = value;
   }
-  
+
   /**
-   * Set type of the Name
+   * Set type of the Name.
+   *
    * @param neType
+   *          the class of the Name
    */
-  public void setType(final String neType) { 
+  public final void setType(final String neType) {
     type = neType.toUpperCase();
   }
-  
+
   /**
-   * Set the Span for the Name
-   * 
-   * @param neSpan 
+   * Set the Span for the Name.
+   *
+   * @param span
+   *          the Span of the name
    */
-  public void setSpan(final Span span) {
+  public final void setSpan(final Span span) {
     neSpan = span;
   }
 
   /**
    * Set the label from a String.
-   * 
-   * @param str
+   *
+   * @param aStr
    *          The str for the label
    */
-  public void setFromString(final String str) {
-    this.str = str;
+  public final void setFromString(final String aStr) {
+    this.str = aStr;
   }
 
   @Override
-  public String toString() {
+  public final String toString() {
     return str;
   }
 
-  public int startOffset() {
+  /**
+   * @return the starting offset
+   */
+  public final int startOffset() {
     return startOffset;
   }
 
-  public int nameLength() {
+  /**
+   * @return the length in characters of the name
+   */
+  public final int nameLength() {
     return nameLength;
   }
 
-  public void setStartOffset(int beginPosition) {
+  /**
+   * @param beginPosition
+   *          the starting character
+   */
+  public final void setStartOffset(final int beginPosition) {
     this.startOffset = beginPosition;
   }
 
-  public void setNameLength(int nameLength) {
-    this.nameLength = nameLength;
+  /**
+   * @param aNameLength
+   *          the length of the name
+   */
+  public final void setNameLength(final int aNameLength) {
+    this.nameLength = aNameLength;
   }
- 
 }
