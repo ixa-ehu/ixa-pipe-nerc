@@ -38,7 +38,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>ixa.kaflib</groupId>
-			<artifactId>kaflib</artifactId>
+			<artifactId>kaflib-naf</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
