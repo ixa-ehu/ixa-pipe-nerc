@@ -20,56 +20,101 @@ import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.eval.EvaluationMonitor;
 
+/**
+ * Evaluation class mostly using {@link TokenNameFinderEvaluator}.
+ *
+ * @author ragerri
+ * @version 2013-04-04
+ */
 public class Evaluate {
-  
+
+  /**
+   * The reference corpus to evaluate against.
+   */
   private ObjectStream<NameSample> testSamples;
-  private InputStream trainedModel;
-  private TokenNameFinderModel nercModel;
+  /**
+   * Static instance of {@link TokenNameFinderModel}.
+   */
+  private static TokenNameFinderModel nercModel;
+  /**
+   * The name finder trainer to use for appropriate features.
+   */
   private NameFinderTrainer nameFinderTrainer;
+  /**
+   * An instance of the probabilistic {@link NameFinderME}.
+   */
   private NameFinderME nameFinder;
-  
-  
-  public Evaluate(String testData, String model, String features, String lang, int beamsize, String corpusFormat) throws IOException {
-    
+
+  /**
+   * Construct an evaluator.
+   *
+   * @param testData the reference data to evaluate against
+   * @param model the model to be evaluated
+   * @param features the features
+   * @param lang the language
+   * @param beamsize the beam size for decoding
+   * @param corpusFormat the format of the testData corpus
+   * @throws IOException if input data not available
+   */
+  public Evaluate(final String testData, final String model, final String features, final String lang,
+      final int beamsize, final String corpusFormat) throws IOException {
+
     testSamples = AbstractNameFinderTrainer.getNameStream(testData, lang, corpusFormat);
-    trainedModel = new FileInputStream(model);
-    
+    InputStream trainedModelInputStream = null;
     try {
-      nercModel = new TokenNameFinderModel(trainedModel);
+      if (nercModel == null) {
+        trainedModelInputStream = new FileInputStream(model);
+        nercModel = new TokenNameFinderModel(trainedModelInputStream);
+      }
     } catch (IOException e) {
       e.printStackTrace();
     } finally {
-      if (trainedModel != null) {
+      if (trainedModelInputStream != null) {
         try {
-          trainedModel.close();
+          trainedModelInputStream.close();
         } catch (IOException e) {
+          System.err.println("Could not load model!");
         }
       }
     }
-    StatisticalNameFinder statFinder = new StatisticalNameFinder(lang,model,features);
-    nameFinderTrainer = statFinder.getNameFinderTrainer(features,beamsize);
-    nameFinder = new NameFinderME(nercModel,nameFinderTrainer.createFeatureGenerator(),beamsize);
+    StatisticalNameFinder statFinder = new StatisticalNameFinder(lang, model, features);
+    nameFinderTrainer = statFinder.getNameFinderTrainer(features, beamsize);
+    nameFinder = new NameFinderME(nercModel, nameFinderTrainer.createFeatureGenerator(), beamsize);
   }
-  
-  public void evaluate() throws IOException {
+
+  /**
+   * Evaluate and print precision, recall and F measure.
+   * @throws IOException if test corpus not loaded
+   */
+  public final void evaluate() throws IOException {
     TokenNameFinderEvaluator evaluator = new TokenNameFinderEvaluator(nameFinder);
     evaluator.evaluate(testSamples);
     System.out.println(evaluator.getFMeasure());
   }
-  
-  public void detailEvaluate() throws IOException {
+  /**
+   * Evaluate and print the precision, recall and F measure per
+   * named entity class.
+   *
+   * @throws IOException if test corpus not loaded
+   */
+  public final void detailEvaluate() throws IOException {
     List<EvaluationMonitor<NameSample>> listeners = new LinkedList<EvaluationMonitor<NameSample>>();
     TokenNameFinderDetailedFMeasureListener detailedFListener = new TokenNameFinderDetailedFMeasureListener();
     listeners.add(detailedFListener);
-    TokenNameFinderEvaluator evaluator = new TokenNameFinderEvaluator(nameFinder,listeners.toArray(new TokenNameFinderEvaluationMonitor[listeners.size()]));
+    TokenNameFinderEvaluator evaluator = new TokenNameFinderEvaluator(nameFinder,
+        listeners.toArray(new TokenNameFinderEvaluationMonitor[listeners.size()]));
     evaluator.evaluate(testSamples);
     System.out.println(detailedFListener.toString());
-    
   }
-  public void evalError() throws IOException {
+  /**
+   * Evaluate and print every error.
+   * @throws IOException if test corpus not loaded
+   */
+  public final void evalError() throws IOException {
     List<EvaluationMonitor<NameSample>> listeners = new LinkedList<EvaluationMonitor<NameSample>>();
     listeners.add(new NameEvaluationErrorListener());
-    TokenNameFinderEvaluator evaluator = new TokenNameFinderEvaluator(nameFinder,listeners.toArray(new TokenNameFinderEvaluationMonitor[listeners.size()]));
+    TokenNameFinderEvaluator evaluator = new TokenNameFinderEvaluator(nameFinder,
+        listeners.toArray(new TokenNameFinderEvaluationMonitor[listeners.size()]));
     evaluator.evaluate(testSamples);
     System.out.println(evaluator.getFMeasure());
   }

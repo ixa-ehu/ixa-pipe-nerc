@@ -18,14 +18,14 @@ import opennlp.tools.util.featuregen.WindowFeatureGenerator;
 
 public class DictCoNLLNameFinderTrainer extends AbstractNameFinderTrainer {
   
-  static Dictionary dictPerC;
-  static Dictionary dictPerP;
-  static Dictionary dictOrgC;
-  static Dictionary dictOrgP;
-  static Dictionary dictLocC;
-  static Dictionary dictLocP;
-  static Dictionary dictMiscC;
-  static Dictionary dictMiscP;
+  Dictionary dictPerC;
+  Dictionary dictPerP;
+  Dictionary dictOrgC;
+  Dictionary dictOrgP;
+  Dictionary dictLocC;
+  Dictionary dictLocP;
+  Dictionary dictMiscC;
+  Dictionary dictMiscP;
   
   
   public DictCoNLLNameFinderTrainer(String trainData, String testData, String lang, int beamsize,  String corpusFormat) throws IOException {

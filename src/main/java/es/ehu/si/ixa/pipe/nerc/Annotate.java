@@ -31,52 +31,100 @@ import opennlp.tools.util.Span;
 
 /**
  * @author ragerri
- * 
+ *
  */
 public class Annotate {
- 
-  private NameFinder nameFinder;
-  private DictionaryNameFinder perDictFinder;
-  private DictionaryNameFinder orgDictFinder;
-  private DictionaryNameFinder locDictFinder;
-  
-  private boolean STATISTICAL;
-  private boolean POSTPROCESS; 
-  private boolean DICTTAG;
-  
-  public Annotate(String lang, String model, String features,int beamsize) {
-    NameFactory nameFactory = new NameFactory();
-    nameFinder = new StatisticalNameFinder(lang,nameFactory,model,features,beamsize);
-    STATISTICAL = true;
-  }
-  
-  public Annotate(String lang, String gazetteerOption,String model,String features,int beamsize) {
-    NameFactory nameFactory = new NameFactory();
-    nameFinder = new StatisticalNameFinder(lang,nameFactory,model,features,beamsize);
-    perDictFinder = createDictNameFinder("en/en-wiki-person.txt","PERSON",nameFactory);
-    orgDictFinder = createDictNameFinder("en/en-wiki-organization.txt","ORGANIZATION",nameFactory);
-    locDictFinder = createDictNameFinder("en/en-wiki-location.txt","LOCATION",nameFactory);
-    if (gazetteerOption.equalsIgnoreCase("post")) { 
-      POSTPROCESS = true;
-      STATISTICAL = true;
-    }
-    if (gazetteerOption.equalsIgnoreCase("tag")) {
-      DICTTAG = true;
-      STATISTICAL = false;
-      POSTPROCESS = false;
-    }
-  }
-  
+
   /**
-   * Classify Named Entities and write them to a {@link KAFDocument} 
-   * using stastitical models, post-processing and/or dictionaries only. 
-   * 
-   * @param kaf
-   * @throws IOException
+   * The NameFinder to do the annotation.
    */
-  public void annotateNEsToKAF(KAFDocument kaf)
+  private NameFinder nameFinder;
+  /**
+   * The dictionary name finders to do the post processing.
+   */
+  private DictionaryNameFinder perDictFinder;
+  /**
+   * The dictionary name finders to do the post processing.
+   */
+  private DictionaryNameFinder orgDictFinder;
+  /**
+   * The dictionary name finders to do the post processing.
+   */
+  private DictionaryNameFinder locDictFinder;
+  /**
+   * True if the name finder is statistical.
+   */
+  private boolean statitiscal;
+  /**
+   * Activates post processing of statistical name finder with dictionary
+   * name finders.
+   */
+  private boolean postProcess;
+  /**
+   * Activates name finding using dictionaries only.
+   */
+  private boolean dictTag;
+
+  /**
+   * Construct a probabilistic annotator.
+   *
+   * @param lang the language
+   * @param model the model
+   * @param features the features
+   * @param beamsize the beam size for decoding
+   */
+  public Annotate(final String lang, final String model, final String features,
+      final int beamsize) {
+    if (model.equalsIgnoreCase("baseline")) {
+      System.err.println("No model chosen, reverting to baseline model!");
+    }
+    NameFactory nameFactory = new NameFactory();
+    nameFinder = new StatisticalNameFinder(lang, nameFactory, model, features, beamsize);
+    statitiscal = true;
+  }
+
+  /**
+   * Construct an annotator with options for post processing of probabilistic
+   * annotation and tagging with dictionaries only.
+   *
+   * @param lang the language
+   * @param dictOption whether dictionaries are used for tagging or post processing
+   * @param model the model
+   * @param features the features
+   * @param beamsize the beam size for decoding
+   */
+  public Annotate(final String lang, final String dictOption, final String model,
+      final String features, final int beamsize) {
+    if (model.equalsIgnoreCase("baseline") && !dictOption.equalsIgnoreCase("tag")) {
+      System.err.println("No model chosen, reverting to baseline model!");
+   }
+    NameFactory nameFactory = new NameFactory();
+    nameFinder = new StatisticalNameFinder(lang, nameFactory, model, features, beamsize);
+    //TODO remove hard coding of these dictionaries
+    perDictFinder = createDictNameFinder("en/en-wiki-person.txt", "PERSON", nameFactory);
+    orgDictFinder = createDictNameFinder("en/en-wiki-organization.txt", "ORGANIZATION", nameFactory);
+    locDictFinder = createDictNameFinder("en/en-wiki-location.txt", "LOCATION", nameFactory);
+    if (dictOption.equalsIgnoreCase("post")) {
+      postProcess = true;
+      statitiscal = true;
+    }
+    if (dictOption.equalsIgnoreCase("tag")) {
+      dictTag = true;
+      statitiscal = false;
+      postProcess = false;
+    }
+  }
+
+  /**
+   * Classify Named Entities and write them to a {@link KAFDocument}
+   * using stastitical models, post-processing and/or dictionaries only.
+   *
+   * @param kaf the kaf document to be used for annotation
+   * @throws IOException throws exception if problems with the kaf document
+   */
+  public final void annotateNEsToKAF(final KAFDocument kaf)
       throws IOException {
-    
+
     List<Span> allSpans = new ArrayList<Span>();
     List<List<WF>> sentences = kaf.getSentences();
     for (List<WF> sentence : sentences) {
@@ -86,55 +134,55 @@ public class Annotate {
         tokens[i] = sentence.get(i).getForm();
         tokenIds[i] = sentence.get(i).getId();
       }
-      if (STATISTICAL) {
+      if (statitiscal) {
         //TODO clearAdaptiveFeatures; evaluate
         allSpans = nameFinder.nercToSpans(tokens);
       }
-      if (POSTPROCESS) {
+      if (postProcess) {
         List<Span> perDictSpans = perDictFinder.nercToSpansExact(tokens);
         List<Span> orgDictSpans = orgDictFinder.nercToSpansExact(tokens);
         List<Span> locDictSpans = locDictFinder.nercToSpansExact(tokens);
-        perDictFinder.concatenateSpans(perDictSpans,orgDictSpans);
-        perDictFinder.concatenateSpans(perDictSpans,locDictSpans);
+        perDictFinder.concatenateSpans(perDictSpans, orgDictSpans);
+        perDictFinder.concatenateSpans(perDictSpans, locDictSpans);
         perDictFinder.postProcessDuplicatedSpans(allSpans, perDictSpans);
         perDictFinder.concatenateSpans(allSpans, perDictSpans);
       }
-      if (DICTTAG) {
+      if (dictTag) {
         allSpans = perDictFinder.nercToSpansExact(tokens);
         List<Span> orgDictSpans = orgDictFinder.nercToSpansExact(tokens);
         List<Span> locDictSpans = locDictFinder.nercToSpansExact(tokens);
-        perDictFinder.concatenateSpans(allSpans,orgDictSpans);
-        perDictFinder.concatenateSpans(allSpans,locDictSpans);
+        perDictFinder.concatenateSpans(allSpans, orgDictSpans);
+        perDictFinder.concatenateSpans(allSpans, locDictSpans);
       }
       Span[] allSpansArray = NameFinderME.dropOverlappingSpans(allSpans.toArray(new Span[allSpans.size()]));
       List<Name> names = nameFinder.getNamesFromSpans(allSpansArray, tokens);
       for (Name name : names) {
-        Integer start_index = name.getSpan().getStart();
-        Integer end_index = name.getSpan().getEnd();
+        Integer startIndex = name.getSpan().getStart();
+        Integer endIndex = name.getSpan().getEnd();
         List<Term> nameTerms = kaf.getTermsFromWFs(Arrays.asList(Arrays
-            .copyOfRange(tokenIds, start_index, end_index)));
+            .copyOfRange(tokenIds, startIndex, endIndex)));
         List<List<Term>> references = new ArrayList<List<Term>>();
         references.add(nameTerms);
         kaf.createEntity(name.getType(), references);
       }
     }
   }
-  
+
   /**
-   * Construct a {@link DictionaryNameFinder} using a {@link Dictionary}, a NE type and a {@link NameFactory} to 
-   * create {@link Name} objects
-   * 
-   * @param dictFile
-   * @param type
-   * @param nameFactory
+   * Construct a {@link DictionaryNameFinder} using a {@link Dictionary},
+   * a NE type and a {@link NameFactory} to create {@link Name} objects.
+   *
+   * @param dictFile the dictionary to be used
+   * @param type the named entity class
+   * @param nameFactory the factory
    * @return an instance of a {@link DictionaryNameFinder}
    */
-  public DictionaryNameFinder createDictNameFinder(String dictFile, String type, NameFactory nameFactory) { 
-    InputStream dictStream = getClass().getResourceAsStream("/"+dictFile);
+  public final DictionaryNameFinder createDictNameFinder(final String dictFile, final String type,
+      final NameFactory nameFactory) {
+    InputStream dictStream = getClass().getResourceAsStream("/" + dictFile);
     Dictionary dict = new Dictionary(dictStream);
-    DictionaryNameFinder dictNameFinder = new DictionaryNameFinder(dict,type,nameFactory);
+    DictionaryNameFinder dictNameFinder = new DictionaryNameFinder(dict, type, nameFactory);
     return dictNameFinder;
   }
-  
 }
-  
+

@@ -8,21 +8,47 @@ import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.LineIterator;
 
+/**
+ * It defines a Dictionary class consisting of
+ * a list of strings.
+ *
+ * @author ragerri
+ *
+ */
 public class Dictionary {
-  
-  public final List<String> dictList = new ArrayList<String>();
-  
-  
-  public Dictionary(InputStream dictFile) {
+
+  /**
+   * The list to store the dictionary.
+   */
+  private final List<String> dictList = new ArrayList<String>();
+
+  /**
+   * Dictionary constructor.
+   * @param fileInputStream the inputStream of the file
+   */
+  public Dictionary(final InputStream fileInputStream) {
       try {
-        loadDict(dictFile);
+        loadDict(fileInputStream);
       } catch (IOException e) {
         e.getMessage();
       }
   }
-  
-  private void loadDict(InputStream file) throws IOException {
-    LineIterator lineIterator = IOUtils.lineIterator(file, "UTF-8");
+
+  /**
+   * Get the dictionary.
+   *
+   * @return the dictionary as a list
+   */
+  public final List<String> getDict() {
+    return dictList;
+  }
+  /**
+   *
+   * @param fileInputStream the inputstream of the file
+   * @throws IOException input output exception
+   */
+  private void loadDict(final InputStream fileInputStream) throws IOException {
+    LineIterator lineIterator = IOUtils.lineIterator(fileInputStream, "UTF-8");
     try {
       while (lineIterator.hasNext()) {
         String line = lineIterator.nextLine();

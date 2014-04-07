@@ -28,12 +28,12 @@ import opennlp.tools.util.featuregen.WindowFeatureGenerator;
 
 public class Dict3NameFinderTrainer extends AbstractNameFinderTrainer {
 
-  static Dictionary dictPer;
-  static Dictionary dictOrg;
-  static Dictionary dictLoc;
-  static Dictionary dictKnownPer;
-  static Dictionary dictKnownOrg;
-  static Dictionary dictKnownLoc;
+  Dictionary dictPer;
+  Dictionary dictOrg;
+  Dictionary dictLoc;
+  Dictionary dictKnownPer;
+  Dictionary dictKnownOrg;
+  Dictionary dictKnownLoc;
   
   
   public Dict3NameFinderTrainer(String trainData, String testData, String lang, int beamsize,  String corpusFormat) throws IOException {
@@ -80,7 +80,7 @@ public class Dict3NameFinderTrainer extends AbstractNameFinderTrainer {
             new BigramNameFeatureGenerator(),
             new Prefix34FeatureGenerator(),
             new SuffixFeatureGenerator(),
-            new DictionaryFeatures("PERSON",dictPer),
+            new DictionaryFeatures("PERSON",dictPer), 
             new DictionaryFeatures("ORGANIZATION",dictOrg),
             new DictionaryFeatures("LOCATION",dictLoc),
             new DictionaryFeatures("KPERSON",dictKnownPer),

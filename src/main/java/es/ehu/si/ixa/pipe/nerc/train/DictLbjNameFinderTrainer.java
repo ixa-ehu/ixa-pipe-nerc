@@ -29,36 +29,36 @@ import opennlp.tools.util.featuregen.WindowFeatureGenerator;
 
 public class DictLbjNameFinderTrainer extends AbstractNameFinderTrainer {
 
-  static Dictionary cardinalNumber;
-  static Dictionary currencyFinal;
-  static Dictionary knownCorporations;
-  static Dictionary knownCountry;
-  static Dictionary knownJobs;
-  static Dictionary knownName;
-  static Dictionary knownNamesBig;
-  static Dictionary knownNationalities;
-  static Dictionary knownPlace;
-  static Dictionary knownState;
-  static Dictionary knownTitle;
-  static Dictionary measurements;
-  static Dictionary ordinalNumber;
-  static Dictionary temporalWords;
-  static Dictionary wikiArtWork;
-  static Dictionary wikiArtWorkRedirects;
-  static Dictionary wikiCompetitionsBattlesEvents;
-  static Dictionary wikiCompetitionsBattlesEventsRedirects;
-  static Dictionary wikiFilms;
-  static Dictionary wikiFilmsRedirects;
-  static Dictionary wikiLocations;
-  static Dictionary wikiLocationRedirects;
-  static Dictionary wikiManMadeObjectNames;
-  static Dictionary wikiManMadeObjectNamesRedirects;
-  static Dictionary wikiOrganizations;
-  static Dictionary wikiOrganizationsRedirects;
-  static Dictionary wikiPeople;
-  static Dictionary wikiPeopleRedirects;
-  static Dictionary wikiSongs;
-  static Dictionary wikiSongsRedirects;
+  Dictionary cardinalNumber;
+  Dictionary currencyFinal;
+  Dictionary knownCorporations;
+  Dictionary knownCountry;
+  Dictionary knownJobs;
+  Dictionary knownName;
+  Dictionary knownNamesBig;
+  Dictionary knownNationalities;
+  Dictionary knownPlace;
+  Dictionary knownState;
+  Dictionary knownTitle;
+  Dictionary measurements;
+  Dictionary ordinalNumber;
+  Dictionary temporalWords;
+  Dictionary wikiArtWork;
+  Dictionary wikiArtWorkRedirects;
+  Dictionary wikiCompetitionsBattlesEvents;
+  Dictionary wikiCompetitionsBattlesEventsRedirects;
+  Dictionary wikiFilms;
+  Dictionary wikiFilmsRedirects;
+  Dictionary wikiLocations;
+  Dictionary wikiLocationRedirects;
+  Dictionary wikiManMadeObjectNames;
+  Dictionary wikiManMadeObjectNamesRedirects;
+  Dictionary wikiOrganizations;
+  Dictionary wikiOrganizationsRedirects;
+  Dictionary wikiPeople;
+  Dictionary wikiPeopleRedirects;
+  Dictionary wikiSongs;
+  Dictionary wikiSongsRedirects;
   
   
   public DictLbjNameFinderTrainer(String trainData, String testData, String lang, int beamsize, String corpusFormat) throws IOException {
