@@ -16,12 +16,6 @@
 
 package es.ehu.si.ixa.pipe.nerc;
 
-import es.ehu.si.ixa.pipe.nerc.train.BaselineNameFinderTrainer;
-import es.ehu.si.ixa.pipe.nerc.train.Dict3NameFinderTrainer;
-import es.ehu.si.ixa.pipe.nerc.train.DictLbjNameFinderTrainer;
-import es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer;
-
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -31,6 +25,10 @@ import java.util.List;
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.Span;
+import es.ehu.si.ixa.pipe.nerc.train.BaselineNameFinderTrainer;
+import es.ehu.si.ixa.pipe.nerc.train.Dict3NameFinderTrainer;
+import es.ehu.si.ixa.pipe.nerc.train.DictLbjNameFinderTrainer;
+import es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer;
 
 /**
  * Named Entity Recognition module based on Apache OpenNLP Machine Learning API.
@@ -79,10 +77,9 @@ public class StatisticalNameFinder implements NameFinder {
     try {
       if (nercModel == null) {
         if (model.equalsIgnoreCase("baseline")) {
-          trainedModelInputStream = getBaselineModelStream(lang,model);
+          trainedModelInputStream = getBaselineModelStream(lang, model);
           System.err.println("No NERC model chosen, reverting to baseline model!");
-        }
-        else {
+        } else {
           trainedModelInputStream = getBaselineModelStream(lang, model);
         }
         nercModel = new TokenNameFinderModel(trainedModelInputStream);
@@ -134,14 +131,13 @@ public class StatisticalNameFinder implements NameFinder {
     try {
       if (nercModel == null) {
         if (model.equalsIgnoreCase("baseline")) {
-          trainedModelInputStream = getBaselineModelStream(lang,model);
+          trainedModelInputStream = getBaselineModelStream(lang, model);
           System.err.println("No NERC model chosen, reverting to baseline model!");
-        }
-        else {
+        } else {
           trainedModelInputStream = getBaselineModelStream(lang, model);
         }
         nercModel = new TokenNameFinderModel(trainedModelInputStream);
-      } 
+      }
     } catch (IOException e) {
       e.printStackTrace();
     } finally {
