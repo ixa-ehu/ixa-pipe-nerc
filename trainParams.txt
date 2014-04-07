@@ -15,7 +15,7 @@
 
 # Sample machine learning properties file
 
-Algorithm=PERCEPTRON
+Algorithm=PERCEPTRON_SEQUENCE
 Iterations=500
 Cutoff=0
 Threads=4
