@@ -59,8 +59,8 @@ import opennlp.tools.util.Span;
         else {
           trainedModelInputStream = new FileInputStream(model);
         }
+        nercModel = new TokenNameFinderModel(trainedModelInputStream);
       }
-      nercModel = new TokenNameFinderModel(trainedModelInputStream);
     } catch (IOException e) {
       e.printStackTrace();
     } finally {
@@ -92,8 +92,8 @@ import opennlp.tools.util.Span;
         else {
           trainedModelInputStream = new FileInputStream(model);
         }
-      }
-      nercModel = new TokenNameFinderModel(trainedModelInputStream);
+        nercModel = new TokenNameFinderModel(trainedModelInputStream);
+      } 
     } catch (IOException e) {
       e.printStackTrace();
     } finally {
