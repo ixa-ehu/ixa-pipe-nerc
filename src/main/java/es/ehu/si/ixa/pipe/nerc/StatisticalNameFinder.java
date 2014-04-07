@@ -54,14 +54,13 @@ import opennlp.tools.util.Span;
       if (nercModel == null) {
         if (model.equalsIgnoreCase("baseline")) {
           trainedModelInputStream = getBaselineModelStream(lang,model);
-          System.err.println("No model chosen, reverting to baseline model!");
+          System.err.println("No NERC model chosen, reverting to baseline model!");
         }
         else {
           trainedModelInputStream = new FileInputStream(model);
         }
-        nercModel = new TokenNameFinderModel(trainedModelInputStream);
       }
-      
+      nercModel = new TokenNameFinderModel(trainedModelInputStream);
     } catch (IOException e) {
       e.printStackTrace();
     } finally {
@@ -88,7 +87,7 @@ import opennlp.tools.util.Span;
       if (nercModel == null) {
         if (model.equalsIgnoreCase("baseline")) {
           trainedModelInputStream = getBaselineModelStream(lang,model);
-          System.err.println("No model chosen, reverting to baseline model!");
+          System.err.println("No NERC model chosen, reverting to baseline model!");
         }
         else {
           trainedModelInputStream = new FileInputStream(model);
