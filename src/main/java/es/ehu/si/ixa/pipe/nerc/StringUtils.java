@@ -33,7 +33,7 @@ public final class StringUtils {
    * Private constructor.
    */
   private StringUtils() {
-    new AssertionError();
+    throw new AssertionError("This class is not meant to be instantiated!");
   }
 
   /**
