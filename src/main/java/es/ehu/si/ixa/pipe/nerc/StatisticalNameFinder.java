@@ -73,30 +73,9 @@ public class StatisticalNameFinder implements NameFinder {
   public StatisticalNameFinder(final String lang, final String model,
       final String features, final int beamsize) {
 
-    InputStream trainedModelInputStream = null;
-    try {
-      if (nercModel == null) {
-        if (model.equalsIgnoreCase("baseline")) {
-          trainedModelInputStream = getBaselineModelStream(lang, model);
-          System.err.println("No NERC model chosen, reverting to baseline model!");
-        } else {
-          trainedModelInputStream = getBaselineModelStream(lang, model);
-        }
-        nercModel = new TokenNameFinderModel(trainedModelInputStream);
-      }
-    } catch (IOException e) {
-      e.printStackTrace();
-    } finally {
-      if (trainedModelInputStream != null) {
-        try {
-          trainedModelInputStream.close();
-        } catch (IOException e) {
-          System.err.println("Could not load model!");
-        }
-      }
-    }
+    TokenNameFinderModel nerModel = loadModel(lang, model);
     nameFinderTrainer = getNameFinderTrainer(features, beamsize);
-    nameFinder = new NameFinderME(nercModel,
+    nameFinder = new NameFinderME(nerModel,
         nameFinderTrainer.createFeatureGenerator(), beamsize);
   }
 
@@ -127,30 +106,9 @@ public class StatisticalNameFinder implements NameFinder {
       final String model, final String features, final int beamsize) {
 
     this.nameFactory = aNameFactory;
-    InputStream trainedModelInputStream = null;
-    try {
-      if (nercModel == null) {
-        if (model.equalsIgnoreCase("baseline")) {
-          trainedModelInputStream = getBaselineModelStream(lang, model);
-          System.err.println("No NERC model chosen, reverting to baseline model!");
-        } else {
-          trainedModelInputStream = getBaselineModelStream(lang, model);
-        }
-        nercModel = new TokenNameFinderModel(trainedModelInputStream);
-      }
-    } catch (IOException e) {
-      e.printStackTrace();
-    } finally {
-      if (trainedModelInputStream != null) {
-        try {
-          trainedModelInputStream.close();
-        } catch (IOException e) {
-          System.err.println("Could not load model!");
-        }
-      }
-    }
+    TokenNameFinderModel nerModel = loadModel(lang, model);
     nameFinderTrainer = getNameFinderTrainer(features, beamsize);
-    nameFinder = new NameFinderME(nercModel,
+    nameFinder = new NameFinderME(nerModel,
         nameFinderTrainer.createFeatureGenerator(), beamsize);
   }
 
@@ -242,23 +200,36 @@ public class StatisticalNameFinder implements NameFinder {
   }
 
   /**
-   * Instantiates a NameFinderTrainer with specific features and beam size.
+   * Loads statically the probabilistic model. Every instance of this finder
+   * will share the same model.
    *
-   * @param features the features
-   * @param beamsize the beam size
-   * @return an instance of a NameFinderTrainer
+   * @param lang the language
+   * @param model the model to be loaded
+   * @return the model as a {@link TokenNameFinder} objectH
    */
-  public final NameFinderTrainer getNameFinderTrainer(final String features, final int beamsize) {
-    if (features.equalsIgnoreCase("baseline")) {
-      nameFinderTrainer = new BaselineNameFinderTrainer(beamsize);
-    } else if (features.equalsIgnoreCase("dict3")) {
-      nameFinderTrainer = new Dict3NameFinderTrainer(beamsize);
-    } else if (features.equalsIgnoreCase("dict4")) {
-      nameFinderTrainer = new Dict3NameFinderTrainer(beamsize);
-    } else if (features.equalsIgnoreCase("dictlbj")) {
-      nameFinderTrainer = new DictLbjNameFinderTrainer(beamsize);
+  public final TokenNameFinderModel loadModel(final String lang, final String model) {
+    InputStream trainedModelInputStream = null;
+    try {
+      if (nercModel == null) {
+        if (model.equalsIgnoreCase("baseline")) {
+          trainedModelInputStream = getBaselineModelStream(lang, model);
+        } else {
+          trainedModelInputStream = getBaselineModelStream(lang, model);
+        }
+        nercModel = new TokenNameFinderModel(trainedModelInputStream);
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    } finally {
+      if (trainedModelInputStream != null) {
+        try {
+          trainedModelInputStream.close();
+        } catch (IOException e) {
+          System.err.println("Could not load model!");
+        }
+      }
     }
-    return nameFinderTrainer;
+    return nercModel;
   }
 
   /**
@@ -280,6 +251,26 @@ public class StatisticalNameFinder implements NameFinder {
           "/es/es-nerc-maxent-baseline-500-c4-b3.bin");
     }
     return trainedModelInputStream;
+  }
+
+  /**
+   * Instantiates a NameFinderTrainer with specific features and beam size.
+   *
+   * @param features the features
+   * @param beamsize the beam size
+   * @return an instance of a NameFinderTrainer
+   */
+  public final NameFinderTrainer getNameFinderTrainer(final String features, final int beamsize) {
+    if (features.equalsIgnoreCase("baseline")) {
+      nameFinderTrainer = new BaselineNameFinderTrainer(beamsize);
+    } else if (features.equalsIgnoreCase("dict3")) {
+      nameFinderTrainer = new Dict3NameFinderTrainer(beamsize);
+    } else if (features.equalsIgnoreCase("dict4")) {
+      nameFinderTrainer = new Dict3NameFinderTrainer(beamsize);
+    } else if (features.equalsIgnoreCase("dictlbj")) {
+      nameFinderTrainer = new DictLbjNameFinderTrainer(beamsize);
+    }
+    return nameFinderTrainer;
   }
 
 }

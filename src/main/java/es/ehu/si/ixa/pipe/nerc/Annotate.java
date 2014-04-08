@@ -76,7 +76,7 @@ public class Annotate {
   public Annotate(final String lang, final String model, final String features,
       final int beamsize) {
     if (model.equalsIgnoreCase("baseline")) {
-      System.err.println("No model chosen, reverting to baseline model!");
+      System.err.println("No NERC model chosen, reverting to baseline model!");
     }
     NameFactory nameFactory = new NameFactory();
     nameFinder = new StatisticalNameFinder(lang, nameFactory, model, features, beamsize);
@@ -96,7 +96,7 @@ public class Annotate {
   public Annotate(final String lang, final String dictOption, final String model,
       final String features, final int beamsize) {
     if (model.equalsIgnoreCase("baseline") && !dictOption.equalsIgnoreCase("tag")) {
-      System.err.println("No model chosen, reverting to baseline model!");
+      System.err.println("No NERC model chosen, reverting to baseline model!");
    }
     NameFactory nameFactory = new NameFactory();
     nameFinder = new StatisticalNameFinder(lang, nameFactory, model, features, beamsize);
