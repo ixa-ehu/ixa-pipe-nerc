@@ -45,9 +45,9 @@ public class CLI {
    * Argument parser instance.
    */
   private ArgumentParser argParser = ArgumentParsers
-      .newArgumentParser("ixa-pipe-nerc-1.0.jar")
+      .newArgumentParser("ixa-pipe-nerc-$version.jar")
       .description(
-          "ixa-pipe-nerc-1.0 is a multilingual NERC module developed by IXA NLP Group.\n");
+          "ixa-pipe-nerc is a multilingual NERC module developed by IXA NLP Group.\n");
   /**
    * Sub parser instance.
    */
@@ -118,7 +118,7 @@ public class CLI {
     } catch (ArgumentParserException e) {
       argParser.handleError(e);
       System.out
-          .println("Run java -jar target/ixa-pipe-nerc-1.0.jar (tag|train|eval) -help for details");
+          .println("Run java -jar target/ixa-pipe-nerc-$version.jar (tag|train|eval) -help for details");
       System.exit(1);
     }
   }
@@ -267,7 +267,7 @@ public class CLI {
         .required(false)
         .help("Choose a language to perform annotation with ixa-pipe-nerc");
     annotateParser.addArgument("-f", "--features")
-        .choices("opennlp", "baseline", "baseline2", "dictlbj")
+        .choices("opennlp", "baseline","dictlbj")
         .required(false).setDefault("baseline")
         .help("Choose features for NERC; it defaults to baseline");
     annotateParser.addArgument("-m", "--model").required(false)
@@ -292,7 +292,7 @@ public class CLI {
    */
   private void loadTrainingParameters() {
     trainParser.addArgument("-f", "--features")
-        .choices("opennlp", "baseline", "baseline2", "dictlbj")
+        .choices("opennlp", "baseline", "dictlbj")
         .required(true).help("Choose features to train NERC model");
     trainParser.addArgument("-p", "--params").required(true)
         .help("Load the parameters file");
