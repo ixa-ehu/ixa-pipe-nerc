@@ -4,9 +4,9 @@ ixa-pipe-nerc
 
 ixa-pipe-nerc is a Named Entity Recognition and Classification tagger for English and Spanish. 
 ixa-pipe-nerc is part of IXA Pipeline ("is a pipeline"), a multilingual NLP pipeline developed 
-by the IXA NLP Group [ixa2.si.ehu.es/ixa-pipes]. 
+by the IXA NLP Group (ixa2.si.ehu.es/ixa-pipes). 
 
-Please go to [ixa2.si.ehu.es/ixa-pipes] for general information about the IXA
+Please go to (ixa2.si.ehu.es/ixa-pipes) for general information about the IXA
 pipeline tools but also for **official releases, including source code and binary
 packages for all the tools in the IXA pipeline**.
 
@@ -19,8 +19,8 @@ the installation instructions.
 
 ixa-pipe-nerc provides NERC for English and Spanish. The named entity types are based on:
 
-+ **CONLL**: LOCATION, MISC, ORGANIZATION and PERSON. See (CoNLL 2002)[http://www.clips.ua.ac.be/conll2002/ner/]
-and (CoNLL 2003)[http://www.clips.ua.ac.be/conll2003/ner/] for more information. 
++ **CONLL**: LOCATION, MISC, ORGANIZATION and PERSON. See [CoNLL 2002](http://www.clips.ua.ac.be/conll2002/ner/)
+and [CoNLL 2003](http://www.clips.ua.ac.be/conll2003/ner/) for more information. 
 + **ONTONOTES 5.0**: 18 Named Entity types: TIME, LAW, GPE, NORP, LANGUAGE,
 PERCENT, FACILITY, PRODUCT, ORDINAL, LOCATION, PERSON, WORK_OF_ART, MONEY, DATE, EVENT, QUANTITY, ORGANIZATION, CARDINAL 
 
@@ -46,7 +46,7 @@ project)[http://opennlp.apache.org].
   Named Entity Recognition. In CoNLL. These models are more accurate but
   much slower than the opennlp and baseline models; **only for English**.
 
-Therefore, the following models are provided in the (nerc-resources.tgz)[ixa2.si.ehu.es/ixa-pipes/models/nerc-resources.tgz] package: 
+Therefore, the following models are provided in the [nerc-resources.tgz](ixa2.si.ehu.es/ixa-pipes/models/nerc-resources.tgz) package: 
 
 + **English Models**: we offer a variety of Perceptron based models (Collins 2002): 
 The *CoNLL 2003 models* trained on train and dev sets and evaluated on test set.
@@ -100,11 +100,11 @@ If you want to know more, please follow reading.
 ixa-pipe-nerc reads NAF documents (with <wf> and <term> elements) via standard input and outputs NAF
 through standard output. The NAF format specification is here:
 
-[http://wordpress.let.vupr.nl/naf/]
+(http://wordpress.let.vupr.nl/naf/)
 
 You can get the necessary input for ixa-pipe-nerc by piping 
-(ixa-pipe-tok)[https://github.com/ixa-ehu/ixa-pipe-tok] and 
-(ixa-pipe-pos)[https://github.com/ixa-ehu/ixa-pipe-pos] as shown in the
+[ixa-pipe-tok](https://github.com/ixa-ehu/ixa-pipe-tok) and 
+[ixa-pipe-pos](https://github.com/ixa-ehu/ixa-pipe-pos) as shown in the
 example. 
 
 There are several options to tag with ixa-pipe-nerc: 
@@ -204,7 +204,7 @@ cd ixa-pipe-nerc/
 mvn javadoc:jar
 ````
 
-Which will create a jar file core/target/ixa-pipe-nerc-1.0-javadoc.jar
+Which will create a jar file core/target/ixa-pipe-nerc-$version-javadoc.jar
 
 ## Module contents
 
@@ -312,7 +312,7 @@ mvn clean package
 This step will create a directory called target/ which contains various directories and files.
 Most importantly, there you will find the module executable:
 
-ixa-pipe-nerc-1.0.jar
+ixa-pipe-nerc-$version.jar
 
 This executable contains every dependency the module needs, so it is completely portable as long
 as you have a JVM 1.7 installed.
