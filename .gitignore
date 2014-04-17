@@ -13,3 +13,4 @@ octave-core
 *.project
 *.pydevproject
 *.settings
+*.checkstyle
