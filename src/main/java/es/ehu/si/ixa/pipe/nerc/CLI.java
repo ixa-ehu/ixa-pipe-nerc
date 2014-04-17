@@ -208,12 +208,6 @@ public class CLI {
         "baseline")) {
       nercTrainer = new BaselineNameFinderTrainer(trainFile, testFile, lang,
           beamsize, corpusFormat);
-    } else if (parsedArguments.getString("features").equalsIgnoreCase("dict3")) {
-      nercTrainer = new Dict3NameFinderTrainer(trainFile, testFile, lang,
-          beamsize, corpusFormat);
-    } else if (parsedArguments.getString("features").equalsIgnoreCase("dict4")) {
-      nercTrainer = new DictCoNLLNameFinderTrainer(trainFile, testFile, lang,
-          beamsize, corpusFormat);
     } else if (parsedArguments.getString("features")
         .equalsIgnoreCase("dictlbj")) {
       nercTrainer = new DictLbjNameFinderTrainer(trainFile, testFile, lang,
@@ -275,7 +269,7 @@ public class CLI {
         .required(false)
         .help("Choose a language to perform annotation with ixa-pipe-nerc");
     annotateParser.addArgument("-f", "--features")
-        .choices("opennlp", "baseline", "dict3", "dict4", "dictlbj")
+        .choices("opennlp", "baseline", "dictlbj")
         .required(false).setDefault("baseline")
         .help("Choose features for NERC; it defaults to baseline");
     annotateParser.addArgument("-m", "--model").required(false)
@@ -300,7 +294,7 @@ public class CLI {
    */
   private void loadTrainingParameters() {
     trainParser.addArgument("-f", "--features")
-        .choices("opennlp", "baseline", "dict3", "dict4", "dictlbj")
+        .choices("opennlp", "baseline", "dictlbj")
         .required(true).help("Choose features to train NERC model");
     trainParser.addArgument("-p", "--params").required(true)
         .help("Load the parameters file");
@@ -320,7 +314,7 @@ public class CLI {
   private void loadEvalParameters() {
     evalParser.addArgument("-m", "--model").required(true).help("Choose model");
     evalParser.addArgument("-f", "--features")
-        .choices("opennlp", "baseline", "dict3", "dict4", "dictlbj")
+        .choices("opennlp", "baseline","dictlbj")
         .required(true).help("Choose features for evaluation");
     evalParser.addArgument("-l", "--language").required(true)
         .choices("en", "es")
