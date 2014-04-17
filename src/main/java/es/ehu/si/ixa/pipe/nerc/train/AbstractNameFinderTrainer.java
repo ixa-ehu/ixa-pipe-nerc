@@ -19,33 +19,75 @@ import opennlp.tools.util.featuregen.AdaptiveFeatureGenerator;
 
 import org.apache.commons.io.FileUtils;
 
+/**
+ * Abstract class for common training functionalities. Every other trainer
+ * class needs to extend this class.
+ *
+ * @author ragerri
+ * @version 2014-04-17
+ *
+ */
 public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
-  
-  protected String lang;  
+
+  protected String lang;
+  /**
+   * String holding the training data.
+   */
   protected String trainData;
+  /**
+   * String holding the testData.
+   */
   protected String testData;
+  /**
+   * ObjectStream of the training data.
+   */
   protected ObjectStream<NameSample> trainSamples;
+  /**
+   * ObjectStream of the test data.
+   */
   protected ObjectStream<NameSample> testSamples;
- 
-  // beamsize value needs to be established in any class extending this one
-  protected int beamSize; 
-  // this needs to be implemented by any class extending this one
+  /**
+   * beamsize value needs to be established in any class extending this one.
+   */
+  protected int beamSize;
+  /**
+   * features needs to be implemented by any class extending this one.
+   */
   protected AdaptiveFeatureGenerator features;
-  
+
+  /**
+   * Constructs a trainer with training and test data, and with options
+   * for language, beamsize for decoding, and corpus format (conll or opennlp).
+   * 
+   * @param trainData
+   * @param testData
+   * @param lang
+   * @param beamsize
+   * @param corpusFormat
+   * @throws IOException
+   */
   public AbstractNameFinderTrainer(String trainData, String testData, String lang, int beamsize, String corpusFormat) throws IOException {
-    
+
     this.lang = lang;
     this.trainData = trainData;
     this.testData = testData;
-    trainSamples = getNameStream(trainData,lang,corpusFormat);
-    testSamples = getNameStream(testData,lang,corpusFormat);
+    trainSamples = getNameStream(trainData, lang, corpusFormat);
+    testSamples = getNameStream(testData, lang, corpusFormat);
     this.beamSize = beamsize;
   }
-  
-  public AbstractNameFinderTrainer(int beamsize) {
+
+  /**
+   * Constructs a trainer with only beamsize as option.
+   * This is used for tagging time with the appropriate features.
+   * @param beamsize
+   */
+  public AbstractNameFinderTrainer(final int beamsize) {
     this.beamSize = beamsize;
   }
-  
+
+  /* (non-Javadoc)
+   * @see es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer#train(opennlp.tools.util.TrainingParameters)
+   */
   public TokenNameFinderModel train(TrainingParameters params) {
     if (features == null) {
       throw new IllegalStateException(
@@ -68,8 +110,11 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
     return trainedModel;
   }
 
+  /* (non-Javadoc)
+   * @see es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer#trainCrossEval(java.lang.String, java.lang.String, opennlp.tools.util.TrainingParameters, java.lang.String[])
+   */
   public TokenNameFinderModel trainCrossEval(String trainData,
-      String devData, TrainingParameters params, String[] evalRange) {
+      final String devData, final TrainingParameters params, final String[] evalRange) {
 
     // get best parameters from cross evaluation
     List<Integer> bestParams = null;
@@ -100,7 +145,7 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
     List<List<Integer>> allParams = new ArrayList<List<Integer>>();
     List<Integer> finalParams = new ArrayList<Integer>();
     Map<String, Object> resources = null;
-    
+
     // F:<iterations,cutoff> Map
     Map<List<Integer>, Double> results = new LinkedHashMap<List<Integer>, Double>();
     // maximum iterations and cutoff
@@ -112,7 +157,7 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
         TrainingParameters.ITERATIONS_PARAM));
     List<Integer> iterList = new ArrayList<Integer>(Collections.nCopies(
         iterParam, 0));
-    
+
     for (int c = 0; c < cutoffList.size() + 1; c++) {
       int start = Integer.valueOf(evalRange[0]);
       int iterRange = Integer.valueOf(evalRange[1]);
@@ -120,8 +165,8 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
         // reading data for training and test
         ObjectStream<String> trainStream = InputOutputUtils.readInputData(trainData);
         ObjectStream<String> devStream = InputOutputUtils.readInputData(devData);
-        ObjectStream<NameSample> trainSamples = new Conll03NameStream(lang,trainStream);
-        ObjectStream<NameSample> devSamples = new Conll03NameStream(lang,devStream);
+        ObjectStream<NameSample> trainSamples = new Conll03NameStream(lang, trainStream);
+        ObjectStream<NameSample> devSamples = new Conll03NameStream(lang, devStream);
 
         // dynamic creation of parameters
         params.put(TrainingParameters.ITERATIONS_PARAM, Integer.toString(i));
