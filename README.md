@@ -21,8 +21,8 @@ ixa-pipe-nerc provides NERC for English and Spanish. The named entity types are 
 
 + **CONLL**: LOCATION, MISC, ORGANIZATION and PERSON. See [CoNLL 2002](http://www.clips.ua.ac.be/conll2002/ner/)
 and [CoNLL 2003](http://www.clips.ua.ac.be/conll2003/ner/) for more information. 
-+ **ONTONOTES 5.0**: 18 Named Entity types: TIME, LAW, GPE, NORP, LANGUAGE,
-PERCENT, FACILITY, PRODUCT, ORDINAL, LOCATION, PERSON, WORK_OF_ART, MONEY, DATE, EVENT, QUANTITY, ORGANIZATION, CARDINAL 
++ **ONTONOTES 4.0**: 18 Named Entity types: TIME, LAW, GPE, NORP, LANGUAGE,
+PERCENT, FACILITY, PRODUCT, ORDINAL, LOCATION, PERSON, WORK_OF_ART, MONEY, DATE, EVENT, QUANTITY, ORGANIZATION, CARDINAL.
 
 We currently provide two very fast language independent featuresets and one
 featureset more accurate but considerably slower. The language independent
@@ -49,14 +49,14 @@ Therefore, the following models are provided in the [nerc-resources.tgz](http://
 
 * **English Models**: we offer a variety of Perceptron based models (Collins 2002): 
 The *CoNLL 2003 models* trained on train and dev sets and evaluated on test set.
-The *Ontonotes 5.0* models provided are trained on the *full corpus*. Not
+The *Ontonotes 4.0* models provided are trained on the *full corpus*. Not
 train/test has been done yet, but these models are suitable for production use. 
   + CoNLL **en-nerc-perceptron-opennlp-c0-b3-testa.bin**: F1 83.80
   + CoNLL **en-nerc-perceptron-baseline-c0-b3.testa.bin**: F1 84.53
   + CoNLL **en-nerc-perceptron-dictlbj-c0-b3.testa.bin**: F1 87.20
-  + Ontonotes **en-nerc-perceptron-opennlp-c0-b3-ontonotes.bin**
-  + Ontonotes **en-nerc-perceptron-baseline-c0-b3-ontonotes.bin**
-  + Ontonotes **en-nerc-perceptron-dictlbj-c0-b3-ontonotes.bin**
+  + Ontonotes **en-nerc-perceptron-opennlp-c0-b3-ontonotes-4.0.bin**
+  + Ontonotes **en-nerc-perceptron-baseline-c0-b3-ontonotes-4.0.bin**
+  + Ontonotes **en-nerc-perceptron-dictlbj-c0-b3-ontonotes-4.0.bin**
 
 + **Spanish Models**: we obtained better results overall with Maximum Entropy
   models (Ratnapharki 1999). The best results are obtained when a c0 (cutoff 0)
