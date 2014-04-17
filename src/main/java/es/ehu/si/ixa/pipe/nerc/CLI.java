@@ -24,8 +24,6 @@ import org.jdom2.JDOMException;
 
 import es.ehu.si.ixa.pipe.nerc.eval.Evaluate;
 import es.ehu.si.ixa.pipe.nerc.train.BaselineNameFinderTrainer;
-import es.ehu.si.ixa.pipe.nerc.train.Dict3NameFinderTrainer;
-import es.ehu.si.ixa.pipe.nerc.train.DictCoNLLNameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.DictLbjNameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
 import es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer;
@@ -269,7 +267,7 @@ public class CLI {
         .required(false)
         .help("Choose a language to perform annotation with ixa-pipe-nerc");
     annotateParser.addArgument("-f", "--features")
-        .choices("opennlp", "baseline", "dictlbj")
+        .choices("opennlp", "baseline", "baseline2", "dictlbj")
         .required(false).setDefault("baseline")
         .help("Choose features for NERC; it defaults to baseline");
     annotateParser.addArgument("-m", "--model").required(false)
@@ -294,7 +292,7 @@ public class CLI {
    */
   private void loadTrainingParameters() {
     trainParser.addArgument("-f", "--features")
-        .choices("opennlp", "baseline", "dictlbj")
+        .choices("opennlp", "baseline", "baseline2", "dictlbj")
         .required(true).help("Choose features to train NERC model");
     trainParser.addArgument("-p", "--params").required(true)
         .help("Load the parameters file");

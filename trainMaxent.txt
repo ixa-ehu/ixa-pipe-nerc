@@ -22,7 +22,7 @@ Threads=4
 
 #### Custom parameters added by ixa-pipe-nerc ####
  
-Language=en
+Language=es
 
 # Beamsize 1 amounts to greedy search
 Beamsize=3

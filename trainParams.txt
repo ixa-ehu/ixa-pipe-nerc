@@ -15,7 +15,7 @@
 
 # Sample machine learning properties file
 
-Algorithm=PERCEPTRON_SEQUENCE
+Algorithm=PERCEPTRON
 Iterations=500
 Cutoff=0
 Threads=4
@@ -28,7 +28,7 @@ Language=en
 Beamsize=3
 
 # Formats opennlp or conll
-Corpus=conll
+Corpus=opennlp
 
 ## Cross Evaluation if empty no cross evaluation is performed;
 ## Cross Evaluation takes two values as arguments, namely, 50:100;

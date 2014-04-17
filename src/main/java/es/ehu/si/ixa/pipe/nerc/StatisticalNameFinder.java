@@ -16,6 +16,7 @@
 
 package es.ehu.si.ixa.pipe.nerc;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -26,9 +27,9 @@ import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.Span;
 import es.ehu.si.ixa.pipe.nerc.train.BaselineNameFinderTrainer;
-import es.ehu.si.ixa.pipe.nerc.train.Dict3NameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.DictLbjNameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer;
+import es.ehu.si.ixa.pipe.nerc.train.OpenNLPDefaultTrainer;
 
 /**
  * Named Entity Recognition module based on Apache OpenNLP Machine Learning API.
@@ -205,7 +206,7 @@ public class StatisticalNameFinder implements NameFinder {
    *
    * @param lang the language
    * @param model the model to be loaded
-   * @return the model as a {@link TokenNameFinder} objectH
+   * @return the model as a {@link TokenNameFinder} object
    */
   public final TokenNameFinderModel loadModel(final String lang, final String model) {
     InputStream trainedModelInputStream = null;
@@ -214,7 +215,7 @@ public class StatisticalNameFinder implements NameFinder {
         if (model.equalsIgnoreCase("baseline")) {
           trainedModelInputStream = getBaselineModelStream(lang, model);
         } else {
-          trainedModelInputStream = getBaselineModelStream(lang, model);
+          trainedModelInputStream = new FileInputStream(model);
         }
         nercModel = new TokenNameFinderModel(trainedModelInputStream);
       }
@@ -244,11 +245,11 @@ public class StatisticalNameFinder implements NameFinder {
     InputStream trainedModelInputStream = null;
     if (lang.equalsIgnoreCase("en")) {
       trainedModelInputStream = getClass().getResourceAsStream(
-          "/en/en-nerc-perceptron-baseline-c0-b3.bin");
+          "/en/en-nerc-perceptron-baseline-c0-b3-testa.bin");
     }
     if (lang.equalsIgnoreCase("es")) {
       trainedModelInputStream = getClass().getResourceAsStream(
-          "/es/es-nerc-maxent-baseline-500-c4-b3.bin");
+          "/es/es-nerc-maxent-baseline-750-c4-b3-testa.bin");
     }
     return trainedModelInputStream;
   }
@@ -263,12 +264,10 @@ public class StatisticalNameFinder implements NameFinder {
   public final NameFinderTrainer getNameFinderTrainer(final String features, final int beamsize) {
     if (features.equalsIgnoreCase("baseline")) {
       nameFinderTrainer = new BaselineNameFinderTrainer(beamsize);
-    } else if (features.equalsIgnoreCase("dict3")) {
-      nameFinderTrainer = new Dict3NameFinderTrainer(beamsize);
-    } else if (features.equalsIgnoreCase("dict4")) {
-      nameFinderTrainer = new Dict3NameFinderTrainer(beamsize);
     } else if (features.equalsIgnoreCase("dictlbj")) {
       nameFinderTrainer = new DictLbjNameFinderTrainer(beamsize);
+    } else if (features.equalsIgnoreCase("opennlp")) {
+      nameFinderTrainer = new OpenNLPDefaultTrainer(beamsize);
     }
     return nameFinderTrainer;
   }
