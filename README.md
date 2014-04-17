@@ -54,7 +54,7 @@ The *CoNLL 2003 models* trained on train and dev sets and evaluated on test set.
 The *Ontonotes 5.0* models provided are trained on the *full corpus*. Not
 train/test has been done yet, but these models are suitable for production use. 
 ++ CoNLL **en-nerc-perceptron-opennlp-c0-b3-testa.bin**: F1 83.80
-++ CoNLL **en-nerc-perceptron-baseline-c0-b3.testa.bin**: F1 84.52
+++ CoNLL **en-nerc-perceptron-baseline-c0-b3.testa.bin**: F1 84.53
 ++ CoNLL **en-nerc-perceptron-dictlbj-c0-b3.testa.bin**: F1 87.20
 ++ Ontonotes **en-nerc-perceptron-opennlp-c0-b3-ontonotes.bin**
 ++ Ontonotes **en-nerc-perceptron-baseline-c0-b3-ontonotes.bin**
