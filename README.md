@@ -13,7 +13,7 @@ packages for all the tools in the IXA pipeline**.
 This document is intended to be the **usage guide of ixa-pipe-nerc**. If you really need to clone
 and install this repository instead of using the releases provided in
 [http://ixa2.si.ehu.es/ixa-pipes], please scroll down to the end of the document for
-the [installation instructions](#INSTALLATION) 
+the [installation instructions](#installation) 
 
 ## OVERVIEW
 
