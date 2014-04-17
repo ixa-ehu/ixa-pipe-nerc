@@ -13,7 +13,7 @@ packages for all the tools in the IXA pipeline**.
 This document is intended to be the **usage guide of ixa-pipe-nerc**. If you really need to clone
 and install this repository instead of using the releases provided in
 [http://ixa2.si.ehu.es/ixa-pipes], please scroll down to the end of the document for
-the installation instructions. 
+the (installation instructions)[#INSTALLATION] 
 
 ## OVERVIEW
 
@@ -130,9 +130,9 @@ There are several options to tag with ixa-pipe-nerc:
 + **gazetteers**: two mutually exclusive options are available only for LOC, PER and ORG classes.
   This option needs to be re-implemented to allow to add customized
   dictionaries for whatever NE class, but this is a **pending issue**.
-  ++ **post**: post-process the probabilistic tagging by dictionary look up and
+  + **post**: post-process the probabilistic tagging by dictionary look up and
   correct/add those NE classes deemed to be incorrect by the dictionary.
-  ++ **tag**: tag only those entities that appear in the dictionaries.
+  + **tag**: tag only those entities that appear in the dictionaries.
 
 **Example**: 
 
@@ -224,8 +224,7 @@ Installing the ixa-pipe-nerc requires the following steps:
 If you already have installed in your machine the Java 1.7+ and MAVEN 3, please go to step 3
 directly. Otherwise, follow these steps:
 
-1. Install JDK 1.7
--------------------
+### 1. Install JDK 1.7
 
 If you do not install JDK 1.7 in a default location, you will probably need to configure the PATH in .bashrc or .bash_profile:
 
