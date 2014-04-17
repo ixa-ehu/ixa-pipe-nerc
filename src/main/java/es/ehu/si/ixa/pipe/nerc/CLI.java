@@ -155,7 +155,8 @@ public class CLI {
     } else {
       lang = parsedArguments.getString("lang");
     }
-    kaf.addLinguisticProcessor("entities", "ixa-pipe-nerc-" + lang, "1.0");
+    KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor("entities", "ixa-pipe-nerc-" + lang, "1.0");
+    newLp.setBeginTimestamp();
     if (parsedArguments.get("gazetteers") != null) {
       Annotate annotator = new Annotate(lang, gazetteer, model, features,
           beamsize);
@@ -164,6 +165,7 @@ public class CLI {
       Annotate annotator = new Annotate(lang, model, features, beamsize);
       annotator.annotateNEsToKAF(kaf);
     }
+    newLp.setEndTimestamp();
     bwriter.write(kaf.toString());
     bwriter.close();
     breader.close();
