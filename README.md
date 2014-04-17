@@ -13,7 +13,7 @@ packages for all the tools in the IXA pipeline**.
 This document is intended to be the **usage guide of ixa-pipe-nerc**. If you really need to clone
 and install this repository instead of using the releases provided in
 [http://ixa2.si.ehu.es/ixa-pipes], please scroll down to the end of the document for
-the (installation instructions)[#INSTALLATION] 
+the [installation instructions](#INSTALLATION) 
 
 ## OVERVIEW
 
@@ -29,8 +29,7 @@ featureset more accurate but considerably slower. The language independent
 features are based on the features presented by Zhang and Johnson (2003) with several differences: We do not use POS
 tags, chunking or gazetteers in our baseline models but we do use
 bigrams as a feature. To avoid duplication of efforts, we use the machine
-learning API provided by the (Apache OpenNLP
-project)[http://opennlp.apache.org].
+learning API provided by the [Apache OpenNLP project](http://opennlp.apache.org).
 
 **We provide several models per dataset and per language depending on the featureset used**: 
 
