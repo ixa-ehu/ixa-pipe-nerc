@@ -294,7 +294,7 @@ Download the models and untar the archive into the src/main/resources directory:
 
 ````shell
 cd ixa-pipe-nerc/src/main/resources
-wget http://ixa2.si.ehu.es/ixa-pipes/models/nerc-resources.tgz
+wget [http://ixa2.si.ehu.es/ixa-pipes/models/nerc-resources.tgz]
 tar xvzf nerc-resources.tgz
 ````
 The nerc-resources contains the baseline models to which ixa-pipe-nerc backs off if not model is provided as parameter
