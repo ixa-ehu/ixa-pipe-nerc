@@ -4,15 +4,15 @@ ixa-pipe-nerc
 
 ixa-pipe-nerc is a Named Entity Recognition and Classification tagger for English and Spanish. 
 ixa-pipe-nerc is part of IXA Pipeline ("is a pipeline"), a multilingual NLP pipeline developed 
-by the IXA NLP Group (ixa2.si.ehu.es/ixa-pipes). 
+by the IXA NLP Group [http://ixa2.si.ehu.es/ixa-pipes]. 
 
-Please go to (ixa2.si.ehu.es/ixa-pipes) for general information about the IXA
+Please go to [http://ixa2.si.ehu.es/ixa-pipes] for general information about the IXA
 pipeline tools but also for **official releases, including source code and binary
 packages for all the tools in the IXA pipeline**.
 
 This document is intended to be the **usage guide of ixa-pipe-nerc**. If you really need to clone
 and install this repository instead of using the releases provided in
-[ixa2.si.ehu.es/ixa-pipes], please scroll down to the end of the document for
+[http://ixa2.si.ehu.es/ixa-pipes], please scroll down to the end of the document for
 the installation instructions. 
 
 ## OVERVIEW
@@ -46,28 +46,28 @@ project)[http://opennlp.apache.org].
   Named Entity Recognition. In CoNLL. These models are more accurate but
   much slower than the opennlp and baseline models; **only for English**.
 
-Therefore, the following models are provided in the [nerc-resources.tgz](ixa2.si.ehu.es/ixa-pipes/models/nerc-resources.tgz) package: 
+Therefore, the following models are provided in the [nerc-resources.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-resources.tgz) package: 
 
-+ **English Models**: we offer a variety of Perceptron based models (Collins 2002): 
+* **English Models**: we offer a variety of Perceptron based models (Collins 2002): 
 The *CoNLL 2003 models* trained on train and dev sets and evaluated on test set.
 The *Ontonotes 5.0* models provided are trained on the *full corpus*. Not
 train/test has been done yet, but these models are suitable for production use. 
-..+ CoNLL **en-nerc-perceptron-opennlp-c0-b3-testa.bin**: F1 83.80
-..+ CoNLL **en-nerc-perceptron-baseline-c0-b3.testa.bin**: F1 84.53
-..+ CoNLL **en-nerc-perceptron-dictlbj-c0-b3.testa.bin**: F1 87.20
-..+ Ontonotes **en-nerc-perceptron-opennlp-c0-b3-ontonotes.bin**
-..+ Ontonotes **en-nerc-perceptron-baseline-c0-b3-ontonotes.bin**
-..+ Ontonotes **en-nerc-perceptron-dictlbj-c0-b3-ontonotes.bin**
+  + CoNLL **en-nerc-perceptron-opennlp-c0-b3-testa.bin**: F1 83.80
+  + CoNLL **en-nerc-perceptron-baseline-c0-b3.testa.bin**: F1 84.53
+  + CoNLL **en-nerc-perceptron-dictlbj-c0-b3.testa.bin**: F1 87.20
+  + Ontonotes **en-nerc-perceptron-opennlp-c0-b3-ontonotes.bin**
+  + Ontonotes **en-nerc-perceptron-baseline-c0-b3-ontonotes.bin**
+  + Ontonotes **en-nerc-perceptron-dictlbj-c0-b3-ontonotes.bin**
 
 + **Spanish Models**: we obtained better results overall with Maximum Entropy
   models (Ratnapharki 1999). The best results are obtained when a c0 (cutoff 0)
   is used, but those models are slower for production than when a c4 (cutoff 4)
   is used. Therefore, we provide both types for opennlp and baseline features: 
 
-..+ CoNLL **es-nerc-maxent-opennlp-750-c0-b3-testa.bin**: F1 80.01
-..+ CoNLL **es-nerc-maxent-opennlp-750-c4-b3-testa.bin**: F1 77.85
-..+ CoNLL **es-nerc-maxent-baseline-750-c0-b3-testa.bin**: F1 80.25
-..+ CoNLL **es-nerc-maxent-baseline-750-c4-b3-testa.bin**: F1 79.73
+  + CoNLL **es-nerc-maxent-opennlp-750-c0-b3-testa.bin**: F1 80.01
+  + CoNLL **es-nerc-maxent-opennlp-750-c4-b3-testa.bin**: F1 77.85
+  + CoNLL **es-nerc-maxent-baseline-750-c0-b3-testa.bin**: F1 80.25
+  + CoNLL **es-nerc-maxent-baseline-750-c4-b3-testa.bin**: F1 79.73
 
 ## USING ixa-pipe-nerc
 
@@ -113,11 +113,11 @@ There are several options to tag with ixa-pipe-nerc:
   in the NAF header will be used.
 + **features**: choose features to use during the decoding. Currently 3 feature
   types are provided: 
-..+ **opennlp**: it implements the default features as available in the Apache
+  + **opennlp**: it implements the default features as available in the Apache
      OpenNLP API.
-..+ **baseline**: it implements local, language independent features. These
+  + **baseline**: it implements local, language independent features. These
      features generate reasonably accurate and very fast models.
-..+ **dictlbj**: baseline features with additional dictionary-based features as
+  + **dictlbj**: baseline features with additional dictionary-based features as
      implemented by Ratinov and Roth (2009). Design Challenges and Misconceptions in 
      Named Entity Recognition. In CoNLL. These models are more accurate but
      much slower than the opennlp and baseline models.
@@ -154,15 +154,15 @@ The following options are available via the train subcommand:
   chosen, ixa-pipe-nerc will save the model in a file named following the
   features used.
 + **params**: this is where most of the training options are specified.
-..+ **Algorithm**: choose between PERCEPTRON or MAXENT.
-..+ **Iterations**: choose number of iterations.
-..+ **Cutoff**: consider only events above the cutoff number specified.
-..+ **Threads**: multi-threading, only works with MAXENT.
-..+ **Language**: en or es. 
-..+ **Beamsize**: choose beamsize for decoding. It defaults to 3.
-..+ **Corpus**: corpus format. Currently opennlp native format or CoNLL 2003
+  + **Algorithm**: choose between PERCEPTRON or MAXENT.
+  + **Iterations**: choose number of iterations.
+  + **Cutoff**: consider only events above the cutoff number specified.
+  + **Threads**: multi-threading, only works with MAXENT.
+  + **Language**: en or es. 
+  + **Beamsize**: choose beamsize for decoding. It defaults to 3.
+  + **Corpus**: corpus format. Currently opennlp native format or CoNLL 2003
     are accepted.
-..+ **CrossEval**: choose the range of iterations at which to perform
+  + **CrossEval**: choose the range of iterations at which to perform
   evaluation. This parameter tells the trainer to find the best number of
   iterations for MAXENT training on a development set. Then that iteration
   number will be used to train the final model. In a very experimental state. 
@@ -183,9 +183,9 @@ options:
 + **language**: inpunt en or es.
 + **testSet**: testset to evaluate the model.
 + **evalReport**: choose the detail in displaying the results: 
-..+ **brief**: just the Precision, Recall and F scores.
-..+ **detailed**: scores per NE class. 
-..+ **error**: print to stdout all the false positives.
+  + **brief**: just the Precision, Recall and F scores.
+  + **detailed**: scores per NE class. 
+  + **error**: print to stdout all the false positives.
 + **corpus**: choose between native opennlp and conll 2003 formats.
 + **beamsize**: choose beamsize for decoding.
 
