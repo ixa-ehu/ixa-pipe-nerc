@@ -4,10 +4,8 @@
   <groupId>es.ehu.si</groupId>
   <artifactId>ixa.pipe.nerc</artifactId>
   <name>ixa-pipe-nerc</name>
-  <version>1.0</version>
-  <description>NERC tagger of IXA pipeline, a multilingual NLP pipeline.
-	All models trained by the IXA NLP Group of the University of the
-	Basque Country (ixa.si.ehu.es).</description>
+  <version>1.0.0</version>
+  <description>NERC tagger of IXA pipeline, a multilingual NLP pipeline. All models trained by the IXA NLP Group of the University of the Basque Country (ixa.si.ehu.es).</description>
   <url>http://maven.apache.org</url>
   <prerequisites>
     <maven>3.0</maven>
@@ -19,6 +17,14 @@
       <email>rodrigo.agerri@ehu.es</email>
     </developer>
   </developers>
+  <scm>
+    <developerConnection>ragerri</developerConnection>
+    <url>https://github.com/ixa-ehu/ixa-pipe-nerc</url>
+  </scm>
+  <organization>
+    <name>IXA Pipeline</name>
+    <url>ixa2.si.ehu.es/ixa-pipes</url>
+  </organization>
   <build>
     <plugins>
       <plugin>
