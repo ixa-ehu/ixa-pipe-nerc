@@ -15,10 +15,9 @@ and install this repository instead of using the releases provided in
 [ixa2.si.ehu.es/ixa-pipes], please scroll down to the end of the document for
 the installation instructions. 
 
-OVERVIEW
-========
+## OVERVIEW
 
-*ixa-pipe-nerc* provides NERC for English and Spanish. The named entity types are based on:
+ixa-pipe-nerc provides NERC for English and Spanish. The named entity types are based on:
 
 + **CONLL**: LOCATION, MISC, ORGANIZATION and PERSON. See (CoNLL 2002)[http://www.clips.ua.ac.be/conll2002/ner/]
 and (CoNLL 2003)[http://www.clips.ua.ac.be/conll2003/ner/] for more information. 
@@ -45,7 +44,7 @@ project)[http://opennlp.apache.org].
 + **dictlbj features**: baseline features with additional dictionary-based features as
   implemented by Ratinov and Roth (2009). Design Challenges and Misconceptions in 
   Named Entity Recognition. In CoNLL. These models are more accurate but
-  much slower than the opennlp and baseline models. **only for English**.
+  much slower than the opennlp and baseline models; **only for English**.
 
 Therefore, the following models are provided in the (nerc-resources.tgz)[ixa2.si.ehu.es/ixa-pipes/models/nerc-resources.tgz] package: 
 
@@ -53,25 +52,24 @@ Therefore, the following models are provided in the (nerc-resources.tgz)[ixa2.si
 The *CoNLL 2003 models* trained on train and dev sets and evaluated on test set.
 The *Ontonotes 5.0* models provided are trained on the *full corpus*. Not
 train/test has been done yet, but these models are suitable for production use. 
-++ CoNLL **en-nerc-perceptron-opennlp-c0-b3-testa.bin**: F1 83.80
-++ CoNLL **en-nerc-perceptron-baseline-c0-b3.testa.bin**: F1 84.53
-++ CoNLL **en-nerc-perceptron-dictlbj-c0-b3.testa.bin**: F1 87.20
-++ Ontonotes **en-nerc-perceptron-opennlp-c0-b3-ontonotes.bin**
-++ Ontonotes **en-nerc-perceptron-baseline-c0-b3-ontonotes.bin**
-++ Ontonotes **en-nerc-perceptron-dictlbj-c0-b3-ontonotes.bin**
+..+ CoNLL **en-nerc-perceptron-opennlp-c0-b3-testa.bin**: F1 83.80
+..+ CoNLL **en-nerc-perceptron-baseline-c0-b3.testa.bin**: F1 84.53
+..+ CoNLL **en-nerc-perceptron-dictlbj-c0-b3.testa.bin**: F1 87.20
+..+ Ontonotes **en-nerc-perceptron-opennlp-c0-b3-ontonotes.bin**
+..+ Ontonotes **en-nerc-perceptron-baseline-c0-b3-ontonotes.bin**
+..+ Ontonotes **en-nerc-perceptron-dictlbj-c0-b3-ontonotes.bin**
 
 + **Spanish Models**: we obtained better results overall with Maximum Entropy
   models (Ratnapharki 1999). The best results are obtained when a c0 (cutoff 0)
   is used, but those models are slower for production than when a c4 (cutoff 4)
   is used. Therefore, we provide both types for opennlp and baseline features: 
 
-++ CoNLL **es-nerc-maxent-opennlp-750-c0-b3-testa.bin**: F1 80.01
-++ CoNLL **es-nerc-maxent-opennlp-750-c4-b3-testa.bin**: F1 77.85
-++ CoNLL **es-nerc-maxent-baseline-750-c0-b3-testa.bin**: F1 80.25
-++ CoNLL **es-nerc-maxent-baseline-750-c4-b3-testa.bin**: F1 79.73
+..+ CoNLL **es-nerc-maxent-opennlp-750-c0-b3-testa.bin**: F1 80.01
+..+ CoNLL **es-nerc-maxent-opennlp-750-c4-b3-testa.bin**: F1 77.85
+..+ CoNLL **es-nerc-maxent-baseline-750-c0-b3-testa.bin**: F1 80.25
+..+ CoNLL **es-nerc-maxent-baseline-750-c4-b3-testa.bin**: F1 79.73
 
-USING ixa-pipe-nerc
-===================
+## USING ixa-pipe-nerc
 
 ixa-pipe-nerc provides 3 basic functionalities:
 
@@ -89,8 +87,7 @@ parameter:
 java -jar target/ixa-pipe-nerc-$version.jar (tag|train|eval) -help
 ````
 
-1. NERC Tagging with ixa-pipe-nerc 
-----------------------------------
+### NERC Tagging with ixa-pipe-nerc 
 
 If you are in hurry, just execute: 
 
@@ -116,11 +113,11 @@ There are several options to tag with ixa-pipe-nerc:
   in the NAF header will be used.
 + **features**: choose features to use during the decoding. Currently 3 feature
   types are provided: 
-  ++ **opennlp**: it implements the default features as available in the Apache
+..+ **opennlp**: it implements the default features as available in the Apache
      OpenNLP API.
-  ++ **baseline**: it implements local, language independent features. These
+..+ **baseline**: it implements local, language independent features. These
      features generate reasonably accurate and very fast models.
-  ++ **dictlbj**: baseline features with additional dictionary-based features as
+..+ **dictlbj**: baseline features with additional dictionary-based features as
      implemented by Ratinov and Roth (2009). Design Challenges and Misconceptions in 
      Named Entity Recognition. In CoNLL. These models are more accurate but
      much slower than the opennlp and baseline models.
@@ -143,8 +140,7 @@ There are several options to tag with ixa-pipe-nerc:
 cat file.txt | ixa-pipe-tok | ixa-pipe-pos | java -jar $PATH/target/ixa-pipe-nerc-$version.jar tag
 ````
 
-2. Training new models
-----------------------
+### Training new models
 
 The following options are available via the train subcommand:
 
@@ -158,15 +154,15 @@ The following options are available via the train subcommand:
   chosen, ixa-pipe-nerc will save the model in a file named following the
   features used.
 + **params**: this is where most of the training options are specified.
-  ++ **Algorithm**: choose between PERCEPTRON or MAXENT.
-  ++ **Iterations**: choose number of iterations.
-  ++ **Cutoff**: consider only events above the cutoff number specified.
-  ++ **Threads**: multi-threading, only works with MAXENT.
-  ++ **Language**: en or es. 
-  ++ **Beamsize**: choose beamsize for decoding. It defaults to 3.
-  ++ **Corpus**: corpus format. Currently opennlp native format or CoNLL 2003
-  are accepted.
-  ++ **CrossEval**: choose the range of iterations at which to perform
+..+ **Algorithm**: choose between PERCEPTRON or MAXENT.
+..+ **Iterations**: choose number of iterations.
+..+ **Cutoff**: consider only events above the cutoff number specified.
+..+ **Threads**: multi-threading, only works with MAXENT.
+..+ **Language**: en or es. 
+..+ **Beamsize**: choose beamsize for decoding. It defaults to 3.
+..+ **Corpus**: corpus format. Currently opennlp native format or CoNLL 2003
+    are accepted.
+..+ **CrossEval**: choose the range of iterations at which to perform
   evaluation. This parameter tells the trainer to find the best number of
   iterations for MAXENT training on a development set. Then that iteration
   number will be used to train the final model. In a very experimental state. 
@@ -177,8 +173,7 @@ The following options are available via the train subcommand:
 java -jar target/ixa.pipe.nerc-1.0.jar train -f baseline -p trainParams.txt -i train.data -t test.data -o test-nerc.bin
 ````
 
-3. Evaluation
--------------
+### Evaluation
 
 To evaluate a trained model, the eval subcommand provides the following
 options: 
@@ -188,9 +183,9 @@ options:
 + **language**: inpunt en or es.
 + **testSet**: testset to evaluate the model.
 + **evalReport**: choose the detail in displaying the results: 
-  ++ **brief**: just the Precision, Recall and F scores.
-  ++ **detailed**: scores per NE class. 
-  ++ **error**: print to stdout all the false positives.
+..+ **brief**: just the Precision, Recall and F scores.
+..+ **detailed**: scores per NE class. 
+..+ **error**: print to stdout all the false positives.
 + **corpus**: choose between native opennlp and conll 2003 formats.
 + **beamsize**: choose beamsize for decoding.
 
@@ -200,8 +195,7 @@ options:
 java -jar target/ixa.pipe.nerc-$version.jar eval -m test-nerc.bin -f baseline -l en -t test.data -c conll
 ````
 
-ADDITIONAL DOCUMENTATION VIA JAVADOC
-====================================
+## JAVADOC
 
 It is possible to generate the javadoc of the module by executing:
 
@@ -212,8 +206,7 @@ mvn javadoc:jar
 
 Which will create a jar file core/target/ixa-pipe-nerc-1.0-javadoc.jar
 
-Module contents
-===============
+## Module contents
 
 The contents of the module are the following:
 
@@ -224,8 +217,7 @@ The contents of the module are the following:
     target/                 it contains binary executable and other directories
 
 
-INSTALLATION
-============
+## INSTALLATION
 
 Installing the ixa-pipe-nerc requires the following steps:
 
@@ -257,8 +249,7 @@ java -version
 
 You should now see that your JDK is 1.7
 
-2. Install MAVEN 3
-------------------
+### 2. Install MAVEN 3
 
 Download MAVEN 3 from
 
@@ -288,8 +279,7 @@ mvn -version
 
 You should see reference to the MAVEN version you have just installed plus the JDK 7 that is using.
 
-3. Get module source code
---------------------------
+### 3. Get module source code
 
 If you must get the module source code from here do this:
 
@@ -297,8 +287,7 @@ If you must get the module source code from here do this:
 git clone https://github.com/ixa-ehu/ixa-pipe-nerc
 ````
 
-4. Download the Resources
--------------------------
+### 4. Download the Resources
 
 You will need to download the trained models and other resources and copy them to ixa-pipe-nerc/src/main/resources/
 for the module to work properly:
@@ -313,8 +302,7 @@ tar xvzf nerc-resources.tgz
 The nerc-resources contains the baseline models to which ixa-pipe-nerc backs off if not model is provided as parameter
 for tagging.
 
-5. Compile
-----------
+### 5. Compile
 
 ````shell
 cd ixa-pipe-nerc
@@ -334,8 +322,8 @@ To install the module in the local maven repository, usually located in ~/.m2/, 
 ````shell
 mvn clean install
 ````
-Contact information
-===================
+
+## Contact information
 
 ````shell
 Rodrigo Agerri
