@@ -96,7 +96,7 @@ cat file.txt | ixa-pipe-tok | ixa-pipe-pos | java -jar $PATH/target/ixa-pipe-ner
 
 If you want to know more, please follow reading.
 
-ixa-pipe-nerc reads NAF documents (with <wf> and <term> elements) via standard input and outputs NAF
+ixa-pipe-nerc reads NAF documents (with *wf* and *term* elements) via standard input and outputs NAF
 through standard output. The NAF format specification is here:
 
 (http://wordpress.let.vupr.nl/naf/)
@@ -179,7 +179,7 @@ options:
 
 + **model**: input the name of the model to evaluate.
 + **features**: as explained for *train* and *tag* subcommands.
-+ **language**: inpunt en or es.
++ **language**: input en or es.
 + **testSet**: testset to evaluate the model.
 + **evalReport**: choose the detail in displaying the results: 
   + **brief**: just the Precision, Recall and F scores.
