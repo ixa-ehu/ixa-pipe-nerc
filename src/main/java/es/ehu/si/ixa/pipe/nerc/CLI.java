@@ -33,10 +33,15 @@ import es.ehu.si.ixa.pipe.nerc.train.OpenNLPDefaultTrainer;
  * Main class of ixa-pipe-nerc.
  *
  * @author ragerri
+ * @version 2014-04-18
  *
  */
 public class CLI {
 
+  /**
+   * Get dinamically the version of ixa-pipe-nerc by looking at the MANIFEST file.
+   */
+  private final String version =  CLI.class.getPackage().getImplementationVersion();
   /**
    * Name space of the arguments provided at the CLI.
    */
@@ -45,7 +50,7 @@ public class CLI {
    * Argument parser instance.
    */
   private ArgumentParser argParser = ArgumentParsers
-      .newArgumentParser("ixa-pipe-nerc-$version.jar")
+      .newArgumentParser("ixa-pipe-nerc-" + version + ".jar")
       .description(
           "ixa-pipe-nerc is a multilingual NERC module developed by IXA NLP Group.\n");
   /**
@@ -118,7 +123,7 @@ public class CLI {
     } catch (ArgumentParserException e) {
       argParser.handleError(e);
       System.out
-          .println("Run java -jar target/ixa-pipe-nerc-$version.jar (tag|train|eval) -help for details");
+          .println("Run java -jar target/ixa-pipe-nerc-" + version + ".jar (tag|train|eval) -help for details");
       System.exit(1);
     }
   }
@@ -155,7 +160,7 @@ public class CLI {
     } else {
       lang = parsedArguments.getString("lang");
     }
-    KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor("entities", "ixa-pipe-nerc-" + lang, "1.0");
+    KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor("entities", "ixa-pipe-nerc-" + lang, version);
     newLp.setBeginTimestamp();
     if (parsedArguments.get("gazetteers") != null) {
       Annotate annotator = new Annotate(lang, gazetteer, model, features,
@@ -269,7 +274,7 @@ public class CLI {
         .required(false)
         .help("Choose a language to perform annotation with ixa-pipe-nerc");
     annotateParser.addArgument("-f", "--features")
-        .choices("opennlp", "baseline","dictlbj")
+        .choices("opennlp", "baseline", "dictlbj")
         .required(false).setDefault("baseline")
         .help("Choose features for NERC; it defaults to baseline");
     annotateParser.addArgument("-m", "--model").required(false)
@@ -314,7 +319,7 @@ public class CLI {
   private void loadEvalParameters() {
     evalParser.addArgument("-m", "--model").required(true).help("Choose model");
     evalParser.addArgument("-f", "--features")
-        .choices("opennlp", "baseline","dictlbj")
+        .choices("opennlp", "baseline", "dictlbj")
         .required(true).help("Choose features for evaluation");
     evalParser.addArgument("-l", "--language").required(true)
         .choices("en", "es")

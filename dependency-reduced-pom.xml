@@ -41,6 +41,9 @@
                 <transformer>
                   <manifestEntries>
                     <Main-Class>es.ehu.si.ixa.pipe.nerc.CLI</Main-Class>
+                    <groupId>${project.groupId}</groupId>
+                    <artifactId>${project.artifactId}</artifactId>
+                    <Implementation-Version>${project.version}</Implementation-Version>
                   </manifestEntries>
                 </transformer>
               </transformers>
