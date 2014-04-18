@@ -39,7 +39,7 @@ import es.ehu.si.ixa.pipe.nerc.train.OpenNLPDefaultTrainer;
 public class CLI {
 
   /**
-   * Get dinamically the version of ixa-pipe-nerc by looking at the MANIFEST file.
+   * Get dynamically the version of ixa-pipe-nerc by looking at the MANIFEST file.
    */
   private final String version =  CLI.class.getPackage().getImplementationVersion();
   /**

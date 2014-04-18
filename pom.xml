@@ -20,7 +20,7 @@
 	<prerequisites>
 		<maven>3.0</maven>
 	</prerequisites>
-	<url>http://maven.apache.org</url>
+	<url>http://ixa2.si.ehu.es/ixa-pipes</url>
 	<repositories>
 		<repository>
 			<id>ixa-ehu.github</id>
