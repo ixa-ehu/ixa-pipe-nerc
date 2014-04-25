@@ -72,7 +72,7 @@ train/test has been done yet, but these models are suitable for production use.
 
 ixa-pipe-nerc provides 3 basic functionalities:
 
-1. **tag**: reads a NAF document containing <wf> and <term> elements and tags named
+1. **tag**: reads a NAF document containing *wf* and *term* elements and tags named
    entities.
 2. **train**: trains new model for English or Spanish with several options
    available.

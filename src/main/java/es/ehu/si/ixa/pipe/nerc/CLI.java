@@ -52,7 +52,7 @@ public class CLI {
   private ArgumentParser argParser = ArgumentParsers
       .newArgumentParser("ixa-pipe-nerc-" + version + ".jar")
       .description(
-          "ixa-pipe-nerc is a multilingual NERC module developed by IXA NLP Group.\n");
+          "ixa-pipe-nerc-" + version + " is a multilingual NERC module developed by IXA NLP Group.\n");
   /**
    * Sub parser instance.
    */
