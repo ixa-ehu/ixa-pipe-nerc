@@ -158,7 +158,7 @@ The following options are available via the train subcommand:
   + **Cutoff**: consider only events above the cutoff number specified.
   + **Threads**: multi-threading, only works with MAXENT.
   + **Language**: en or es.
-  + **Types**: choose Named Entity types to do the training.
+  + **Types**: choose the Named Entity types to do the training.
   + **Beamsize**: choose beamsize for decoding. It defaults to 3.
   + **Corpus**: corpus format. Currently opennlp native format or CoNLL 2003
     are accepted.
@@ -188,7 +188,7 @@ options:
   + **error**: print to stdout all the false positives.
 + **corpus**: choose between native opennlp and conll 2003 formats.
 + **beamsize**: choose beamsize for decoding.
-
++ **netypes**: choose the Named Entity types to do the evaluation.
 **Example**:
 
 ````shell

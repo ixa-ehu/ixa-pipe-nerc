@@ -81,6 +81,7 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
     if (netypes.length() != 0) {
       String[] neTypes = netypes.split(",");
       trainSamples = new NameSampleTypeFilter(neTypes, trainSamples);
+      testSamples = new NameSampleTypeFilter(neTypes, testSamples);
     }
   }
 
