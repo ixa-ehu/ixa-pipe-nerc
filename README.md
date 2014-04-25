@@ -157,7 +157,8 @@ The following options are available via the train subcommand:
   + **Iterations**: choose number of iterations.
   + **Cutoff**: consider only events above the cutoff number specified.
   + **Threads**: multi-threading, only works with MAXENT.
-  + **Language**: en or es. 
+  + **Language**: en or es.
+  + **Types**: choose Named Entity types to do the training.
   + **Beamsize**: choose beamsize for decoding. It defaults to 3.
   + **Corpus**: corpus format. Currently opennlp native format or CoNLL 2003
     are accepted.

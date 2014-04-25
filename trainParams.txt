@@ -24,6 +24,12 @@ Threads=4
  
 Language=en
 
+# Named Entity types; if empty all ne types in the training corpus.
+# Otherwise, separate with comma, eg., location,organization,person,misc
+
+#Types=
+Types=location,organization,person
+
 # Beamsize 1 amounts to greedy search
 Beamsize=3
 

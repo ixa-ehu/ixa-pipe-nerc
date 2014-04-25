@@ -3,14 +3,18 @@ package es.ehu.si.ixa.pipe.nerc.train;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.NameSample;
 import opennlp.tools.namefind.NameSampleDataStream;
+import opennlp.tools.namefind.NameSampleTypeFilter;
 import opennlp.tools.namefind.TokenNameFinderEvaluator;
 import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.ObjectStream;
@@ -66,7 +70,7 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
    * @param corpusFormat
    * @throws IOException
    */
-  public AbstractNameFinderTrainer(String trainData, String testData, String lang, int beamsize, String corpusFormat) throws IOException {
+  public AbstractNameFinderTrainer(String trainData, String testData, String lang, int beamsize, String corpusFormat, String netypes) throws IOException {
 
     this.lang = lang;
     this.trainData = trainData;
@@ -74,6 +78,10 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
     trainSamples = getNameStream(trainData, lang, corpusFormat);
     testSamples = getNameStream(testData, lang, corpusFormat);
     this.beamSize = beamsize;
+    if (netypes.length() != 0) {
+      String[] neTypes = netypes.split(",");
+      trainSamples = new NameSampleTypeFilter(neTypes, trainSamples);
+    }
   }
 
   /**
@@ -99,8 +107,7 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
     try {
       trainedModel = NameFinderME.train(lang, null,
           trainSamples, params, features, resources);
-      nerEvaluator = this.evaluate(trainedModel,
-          testSamples);
+      nerEvaluator = evaluate(trainedModel, testSamples);
     } catch (IOException e) {
       System.err.println("IO error while loading traing and test sets!");
       e.printStackTrace();
@@ -208,7 +215,7 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
 
   public TokenNameFinderEvaluator evaluate(TokenNameFinderModel trainedModel,
       ObjectStream<NameSample> testSamples) {
-    NameFinderME nerTagger = new NameFinderME(trainedModel,features,beamSize);
+    NameFinderME nerTagger = new NameFinderME(trainedModel, features, beamSize);
     TokenNameFinderEvaluator nerEvaluator = new TokenNameFinderEvaluator(
         nerTagger);
     try {
@@ -225,11 +232,11 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
 	  ObjectStream<NameSample> samples;
 	  if (corpusFormat.equalsIgnoreCase("conll")) {
 		  ObjectStream<String> nameStream = InputOutputUtils.readInputData(trainData);
-	      samples = new Conll03NameStream(lang,nameStream);
+	      samples = new Conll03NameStream(lang, nameStream);
 	  }
 	  else if (corpusFormat.equalsIgnoreCase("conll") && lang.equalsIgnoreCase("es") || lang.equalsIgnoreCase("nl")) {
 	    ObjectStream<String> nameStream = InputOutputUtils.readInputData(trainData);
-		samples = new Conll02NameStream(lang,nameStream);
+		samples = new Conll02NameStream(lang, nameStream);
 	  }
 	  else {
 	    ObjectStream<String> nameStream = InputOutputUtils.readInputData(trainData);

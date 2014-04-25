@@ -193,6 +193,7 @@ public class CLI {
     TrainingParameters params = InputOutputUtils
         .loadTrainingParameters(paramFile);
     String lang = params.getSettings().get("Language");
+    String netypes = params.getSettings().get("Types");
     String corpusFormat = params.getSettings().get("Corpus");
     Integer beamsize = Integer.valueOf(params.getSettings().get("Beamsize"));
     String evalParam = params.getSettings().get("CrossEval");
@@ -208,15 +209,15 @@ public class CLI {
 
     if (parsedArguments.getString("features").equalsIgnoreCase("opennlp")) {
       nercTrainer = new OpenNLPDefaultTrainer(trainFile, testFile, lang,
-          beamsize, corpusFormat);
+          beamsize, corpusFormat, netypes);
     } else if (parsedArguments.getString("features").equalsIgnoreCase(
         "baseline")) {
       nercTrainer = new BaselineNameFinderTrainer(trainFile, testFile, lang,
-          beamsize, corpusFormat);
+          beamsize, corpusFormat, netypes);
     } else if (parsedArguments.getString("features")
         .equalsIgnoreCase("dictlbj")) {
       nercTrainer = new DictLbjNameFinderTrainer(trainFile, testFile, lang,
-          beamsize, corpusFormat);
+          beamsize, corpusFormat, netypes);
     }
 
     TokenNameFinderModel trainedModel = null;
@@ -248,9 +249,10 @@ public class CLI {
     String lang = parsedArguments.getString("language");
     int beam = parsedArguments.getInt("beamsize");
     String corpusFormat = parsedArguments.getString("corpus");
+    String netypes = parsedArguments.getString("netypes");
 
     Evaluate evaluator = new Evaluate(testFile, model, features, lang, beam,
-        corpusFormat);
+        corpusFormat, netypes);
     if (parsedArguments.getString("evalReport") != null) {
       if (parsedArguments.getString("evalReport").equalsIgnoreCase("brief")) {
         evaluator.evaluate();
@@ -331,6 +333,9 @@ public class CLI {
         .help("Choose type of evaluation report; defaults to detailed");
     evalParser.addArgument("-c", "--corpus").setDefault("opennlp")
         .choices("conll", "opennlp").help("choose format input of corpus");
+    evalParser.addArgument("-n","--netypes")
+        .required(false)
+        .help("Choose ne types to do the evaluation; it defaults to all represented in the testset");
     evalParser
         .addArgument("--beamsize")
         .setDefault(DEFAULT_BEAM_SIZE)

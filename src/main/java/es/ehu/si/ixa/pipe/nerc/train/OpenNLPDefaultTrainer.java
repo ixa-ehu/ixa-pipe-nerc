@@ -21,8 +21,8 @@ import opennlp.tools.util.featuregen.WindowFeatureGenerator;
 public class OpenNLPDefaultTrainer extends AbstractNameFinderTrainer {
  
   
-  public OpenNLPDefaultTrainer(String trainData, String testData, String lang, int beamsize, String corpusFormat) throws IOException {
-    super(trainData,testData,lang,beamsize,corpusFormat);
+  public OpenNLPDefaultTrainer(String trainData, String testData, String lang, int beamsize, String corpusFormat, String netypes) throws IOException {
+    super(trainData, testData, lang, beamsize, corpusFormat, netypes);
     features = createFeatureGenerator();
   }
   

@@ -23,8 +23,8 @@ import opennlp.tools.util.featuregen.WindowFeatureGenerator;
 public class BaselineNameFinderTrainer extends AbstractNameFinderTrainer {
  
   
-  public BaselineNameFinderTrainer(String trainData, String testData, String lang, int beamsize, String corpusFormat) throws IOException {
-    super(trainData,testData,lang,beamsize,corpusFormat);
+  public BaselineNameFinderTrainer(String trainData, String testData, String lang, int beamsize, String corpusFormat, String netypes) throws IOException {
+    super(trainData,testData,lang,beamsize,corpusFormat, netypes);
     features = createFeatureGenerator();
   }
   

@@ -61,8 +61,8 @@ public class DictLbjNameFinderTrainer extends AbstractNameFinderTrainer {
   Dictionary wikiSongsRedirects;
   
   
-  public DictLbjNameFinderTrainer(String trainData, String testData, String lang, int beamsize, String corpusFormat) throws IOException {
-    super(trainData,testData,lang,beamsize,corpusFormat);
+  public DictLbjNameFinderTrainer(String trainData, String testData, String lang, int beamsize, String corpusFormat, String netypes) throws IOException {
+    super(trainData,testData,lang,beamsize,corpusFormat, netypes);
     
     InputStream cardinalNumberFile = getClass().getResourceAsStream("/lbj/cardinalNumber.txt");
     cardinalNumber = new Dictionary(cardinalNumberFile);

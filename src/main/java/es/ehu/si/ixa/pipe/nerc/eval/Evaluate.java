@@ -14,6 +14,7 @@ import opennlp.tools.cmdline.namefind.NameEvaluationErrorListener;
 import opennlp.tools.cmdline.namefind.TokenNameFinderDetailedFMeasureListener;
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.NameSample;
+import opennlp.tools.namefind.NameSampleTypeFilter;
 import opennlp.tools.namefind.TokenNameFinderEvaluationMonitor;
 import opennlp.tools.namefind.TokenNameFinderEvaluator;
 import opennlp.tools.namefind.TokenNameFinderModel;
@@ -57,9 +58,13 @@ public class Evaluate {
    * @throws IOException if input data not available
    */
   public Evaluate(final String testData, final String model, final String features, final String lang,
-      final int beamsize, final String corpusFormat) throws IOException {
+      final int beamsize, final String corpusFormat, String netypes) throws IOException {
 
     testSamples = AbstractNameFinderTrainer.getNameStream(testData, lang, corpusFormat);
+    if (netypes != null) {
+      String[] neTypes = netypes.split(",");
+      testSamples = new NameSampleTypeFilter(neTypes, testSamples);
+    }
     InputStream trainedModelInputStream = null;
     try {
       if (nercModel == null) {
