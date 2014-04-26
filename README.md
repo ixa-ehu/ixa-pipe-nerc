@@ -89,7 +89,7 @@ to try them, for production use, we recommend using:
   + English 3 NE types multicorpora baseline model: **en-nerc-perceptron-conll03-ontonotes-4.0-3-types-baseline-c0-b3.bin**
   + Spanish CoNLL 4 NE types baseline c4 model: **es-nerc-maxent-baseline-750-c4-b3-testa.bin**.
 
-The default models provided in the (binary distribution of ixa-pipe-nerc)[http://ixa2.si.ehu.es/ixa-pipes/models/nerc-default-resources.tgz] are: 
+The default models provided in the [binary distribution of ixa-pipe-nerc](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-default-resources.tgz) are: 
   + English CoNLL 4 NE types multi corpora baseline model: **en-nerc-perceptron-conll03-ontonotes-4.0-4-types-baseline-c0-b3.bin**
   + Spanish baseline c4 model: **es-nerc-maxent-baseline-750-c4-b3-testa.bin**.
 
