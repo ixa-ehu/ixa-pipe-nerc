@@ -31,7 +31,16 @@ tags, chunking or gazetteers in our baseline models but we do use
 bigrams as a feature. To avoid duplication of efforts, we use the machine
 learning API provided by the [Apache OpenNLP project](http://opennlp.apache.org).
 
-**We provide several models per dataset and per language depending on the featureset used**: 
+We distribute the ixa-pipe-nerc resources in two packages: 
+
+  + The [nerc-default-resources.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-default-resources.tgz) which contains the **required default 
+  resources for ixa-pipe-nerc to compile and run**. This package is distributed in the
+  releases of IXA Pipeline. 
+  + The [nerc-resources.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-resources.tgz) package, which contains **every model and resource** available.
+
+### Models
+
+Several models per dataset and per language depending on the featureset used are available: 
 
 + **opennlp features**: it implements the default features as available in the Apache
   OpenNLP API. We implement this featureset to make available models that are
@@ -45,14 +54,6 @@ learning API provided by the [Apache OpenNLP project](http://opennlp.apache.org)
   Named Entity Recognition. In CoNLL. These models are more accurate but
   much slower than the opennlp and baseline models; **only for English**.
 
-We provide two packages containing ixa-pipe-nerc resources: 
-
-  + The [nerc-default-resources.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-default-resources.tgz) which contains the **required default 
-  resources for ixa-pipe-nerc to compile and run**. This package is distributed in the
-  releases of IXA Pipeline. 
-  + The [nerc-resources.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-resources.tgz) package, which contains **every model and resource** available.
-
-### Models
 
 * **English Models**: we offer a variety of Perceptron based models (Collins 2002):
   
