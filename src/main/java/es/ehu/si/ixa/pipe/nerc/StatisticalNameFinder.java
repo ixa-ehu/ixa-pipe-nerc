@@ -245,7 +245,7 @@ public class StatisticalNameFinder implements NameFinder {
     InputStream trainedModelInputStream = null;
     if (lang.equalsIgnoreCase("en")) {
       trainedModelInputStream = getClass().getResourceAsStream(
-          "/en/en-nerc-perceptron-conll03-ontonotes-4.0-4-types-baseline-c0-b3-testa.bin");
+          "/en/en-nerc-perceptron-conll03-ontonotes-4.0-4-types-baseline-c0-b3.bin");
     }
     if (lang.equalsIgnoreCase("es")) {
       trainedModelInputStream = getClass().getResourceAsStream(
