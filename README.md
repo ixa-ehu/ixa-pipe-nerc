@@ -45,7 +45,14 @@ learning API provided by the [Apache OpenNLP project](http://opennlp.apache.org)
   Named Entity Recognition. In CoNLL. These models are more accurate but
   much slower than the opennlp and baseline models; **only for English**.
 
-Therefore, the following models are provided in the [nerc-resources.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-resources.tgz) package: 
+We provide two packages containing ixa-pipe-nerc resources: 
+
+  + The [nerc-default-resources.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-default-resources.tgz) which contains the **required default 
+  resources for ixa-pipe-nerc to compile and run**. This package is distributed in the
+  releases of IXA Pipeline. 
+  + The [nerc-resources.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-resources.tgz) package, which contains **every model and resource** available.
+
+### Models
 
 * **English Models**: we offer a variety of Perceptron based models (Collins 2002):
   
@@ -89,7 +96,7 @@ to try them, for production use, we recommend using:
   + English 3 NE types multicorpora baseline model: **en-nerc-perceptron-conll03-ontonotes-4.0-3-types-baseline-c0-b3.bin**
   + Spanish CoNLL 4 NE types baseline c4 model: **es-nerc-maxent-baseline-750-c4-b3-testa.bin**.
 
-The default models provided in the [binary distribution of ixa-pipe-nerc](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-default-resources.tgz) are: 
+The default models provided in the package [nerc-resources.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-default-resources.tgz) are: 
   + English CoNLL 4 NE types multi corpora baseline model: **en-nerc-perceptron-conll03-ontonotes-4.0-4-types-baseline-c0-b3.bin**
   + Spanish baseline c4 model: **es-nerc-maxent-baseline-750-c4-b3-testa.bin**.
 
@@ -316,7 +323,7 @@ git clone https://github.com/ixa-ehu/ixa-pipe-nerc
 You will need to download the trained models and other resources and copy them to ixa-pipe-nerc/src/main/resources/
 for the module to work properly:
 
-Download the **default models** and untar the archive into the src/main/resources directory:
+Download the [default models](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-default-resources.tgz) and untar the archive into the src/main/resources directory:
 
 ````shell
 cd ixa-pipe-nerc/src/main/resources
@@ -324,7 +331,7 @@ wget http://ixa2.si.ehu.es/ixa-pipes/models/nerc-default-resources.tgz
 tar xvzf nerc-default-resources.tgz
 ````
 The nerc-default-resources package contains the baseline models to which ixa-pipe-nerc backs off if not model is provided as parameter
-for tagging.
+for tagging. If you require other models, as explained in the [overview](#overview), please additionally download the [nerc-resources](http://ixa2.si.ehu.es/ixa-pipes/nerc-resources.tgz) package. 
 
 ### 5. Compile
 
