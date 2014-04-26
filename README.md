@@ -47,16 +47,30 @@ learning API provided by the [Apache OpenNLP project](http://opennlp.apache.org)
 
 Therefore, the following models are provided in the [nerc-resources.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-resources.tgz) package: 
 
-* **English Models**: we offer a variety of Perceptron based models (Collins 2002): 
-The *CoNLL 2003 models* trained on train and dev sets and evaluated on test set.
-The *Ontonotes 4.0* models provided are trained on the *full corpus*. Not
-train/test has been done yet, but these models are suitable for production use. 
-  + CoNLL **en-nerc-perceptron-opennlp-c0-b3-testa.bin**: F1 83.80
-  + CoNLL **en-nerc-perceptron-baseline-c0-b3.testa.bin**: F1 84.53
-  + CoNLL **en-nerc-perceptron-dictlbj-c0-b3.testa.bin**: F1 87.20
-  + Ontonotes **en-nerc-perceptron-opennlp-c0-b3-ontonotes-4.0.bin**
-  + Ontonotes **en-nerc-perceptron-baseline-c0-b3-ontonotes-4.0.bin**
-  + Ontonotes **en-nerc-perceptron-dictlbj-c0-b3-ontonotes-4.0.bin**
+* **English Models**: we offer a variety of Perceptron based models (Collins 2002):
+  
+  + **CoNLL 2003 models** trained on train and dev sets and evaluated on test set.
+    + CoNLL opennlp features: **en-nerc-perceptron-opennlp-c0-b3-testa.bin**: F1 83.80
+    + CoNLL baseline features: **en-nerc-perceptron-baseline-c0-b3.testa.bin**: F1 84.53
+    + CoNLL dictlbj features: **en-nerc-perceptron-dictlbj-c0-b3.testa.bin**: F1 87.20
+ 
+ + **Ontonotes 4.0**: 
+    + Trained on the **full corpus** with the **18 NE types**, suitable **for production use**.
+      + Ontonotes 18 NE types opennlp features: **en-nerc-perceptron-opennlp-c0-b3-ontonotes-4.0.bin**
+      + Ontonotes 18 NE types baseline features: **en-nerc-perceptron-baseline-c0-b3-ontonotes-4.0.bin**
+      + Ontonotes 18 NE types dictlbj features: **en-nerc-perceptron-dictlbj-c0-b3-ontonotes-4.0.bin**
+    + **Using 5K sentences at random for testset** from the corpus and leaving the rest (90K
+      aprox) for training.
+      + Ontonotes CoNLL 4 NE types opennlp features: **en-nerc-perceptron-ontonotes-4.0-4-types-opennlp-c0-b3.bin**: F1 86.04
+      + Ontonotes 3 NE types opennlp features: **en-nerc-perceptron-ontonotes-4.0-3-types-opennlp-c0-b3.bin**: F1 88.83
+      + Ontonotes CoNLL 4 NE types baseline features: **en-nerc-perceptron-ontonotes-4.0-4-types-baseline-c0-b3.bin**: F1 86.21
+      + Ontonotes 3 NE types baseline features: **en-nerc-perceptron-ontonotes-4.0-3-types-baseline-c0-b3.bin**: F1 89.41
+
++ **English multi corpora models**: We also provide 4 models trained with a mixture of Ontonotes and CoNLL datasets, with the aim of improving the models robustness across domains.  The models are trained using the *full Ontonotes* corpus and the *train and dev* sets of the CoNLL 2003 corpus. The testset was prepared by taking 8K sentences at random leaving the rest for training (103K sentences). We use both *baseline* and *opennlp* featuresets (models trained with the *opennlp* features are directly usable with the Apache OpenNLP CLI).
+  + **CoNLL 4 NE types opennlp features**: en-nerc-perceptron-conll03-ontonotes-4.0-4-types-opennlp-c0-b3.bin: F1 86.63
+  + **3 NE types opennlp features**: en-nerc-perceptron-conll03-ontonotes-4.0-3-types-opennlp-c0-b3.bin: F1 88.11
+  + **CoNLL 4 NE types baseline features**: en-nerc-perceptron-conll03-ontonotes-4.0-4-types-baseline-c0-b3.bin: F1 87.36
+  + **3 NE types baseline features**: en-nerc-perceptron-conll03-ontonotes-4.0-3-types-baseline-c0-b3.bin: 88.95
 
 + **Spanish Models**: we obtained better results overall with Maximum Entropy
   models (Ratnapharki 1999). The best results are obtained when a c0 (cutoff 0)
@@ -67,6 +81,17 @@ train/test has been done yet, but these models are suitable for production use.
   + CoNLL **es-nerc-maxent-opennlp-750-c4-b3-testa.bin**: F1 77.85
   + CoNLL **es-nerc-maxent-baseline-750-c0-b3-testa.bin**: F1 80.25
   + CoNLL **es-nerc-maxent-baseline-750-c4-b3-testa.bin**: F1 79.73
+
+**Summarizing**, and even though the best way of knowing which model to use is
+to try them, for production use, we recommend using: 
+  + English 18 NE types ontonotes baseline model: **en-nerc-perceptron-baseline-c0-b3-ontonotes-4.0.bin**
+  + English CoNLL 4 NE types multi corpora baseline model: **en-nerc-perceptron-conll03-ontonotes-4.0-4-types-baseline-c0-b3.bin**
+  + English 3 NE types multicorpora baseline model: **en-nerc-perceptron-conll03-ontonotes-4.0-3-types-baseline-c0-b3.bin**
+  + Spanish CoNLL 4 NE types baseline c4 model: **es-nerc-maxent-baseline-750-c4-b3-testa.bin**.
+
+The default models provided in the [binary distribution of ixa-pipe-nerc](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-default-resources.tgz) are: 
+  + English CoNLL 4 NE types multi corpora baseline model: **en-nerc-perceptron-conll03-ontonotes-4.0-4-types-baseline-c0-b3.bin**
+  + Spanish baseline c4 model: **es-nerc-maxent-baseline-750-c4-b3-testa.bin**.
 
 ## USING ixa-pipe-nerc
 
@@ -122,7 +147,7 @@ There are several options to tag with ixa-pipe-nerc:
      much slower than the opennlp and baseline models.
 + **model**: provide the model to do the tagging. If no model is provided via
   this parameter, ixa-pipe-nerc will revert to the CoNLL baseline model distributed
-  in the nerc-resources.tgz. 
+  in the nerc-default-resources.tgz. 
 + **beamsize**: choose beam size for decoding. There is no definitive evidence
   that using larger or smaller beamsize actually improves accuracy. It is known
   to slow things down considerably if beamsize is set to 100, for example.
@@ -291,14 +316,14 @@ git clone https://github.com/ixa-ehu/ixa-pipe-nerc
 You will need to download the trained models and other resources and copy them to ixa-pipe-nerc/src/main/resources/
 for the module to work properly:
 
-Download the models and untar the archive into the src/main/resources directory:
+Download the **default models** and untar the archive into the src/main/resources directory:
 
 ````shell
 cd ixa-pipe-nerc/src/main/resources
-wget http://ixa2.si.ehu.es/ixa-pipes/models/nerc-resources.tgz
-tar xvzf nerc-resources.tgz
+wget http://ixa2.si.ehu.es/ixa-pipes/models/nerc-default-resources.tgz
+tar xvzf nerc-default-resources.tgz
 ````
-The nerc-resources contains the baseline models to which ixa-pipe-nerc backs off if not model is provided as parameter
+The nerc-default-resources package contains the baseline models to which ixa-pipe-nerc backs off if not model is provided as parameter
 for tagging.
 
 ### 5. Compile
