@@ -66,13 +66,7 @@ Therefore, the following models are provided in the [nerc-resources.tgz](http://
       + Ontonotes CoNLL 4 NE types baseline features: **en-nerc-perceptron-ontonotes-4.0-4-types-baseline-c0-b3.bin**: F1 86.21
       + Ontonotes 3 NE types baseline features: **en-nerc-perceptron-ontonotes-4.0-3-types-baseline-c0-b3.bin**: F1 89.41
 
-* **English multi corpora models**: We also provide 8 models trained with a mixture 
-  of Ontonotes and CoNLL datasets, with the aim of improving the models robustness across domains.
-  The models are trained using the *full Ontonotes* corpus and the *train and dev* sets of the CoNLL 
-  2003 corpus. The testset was prepared by taking 8K sentences at random leaving the rest 
-  for training (103K sentences). We use both *baseline* and *opennlp* featuresets (as before, models  
-  trained with the *opennlp* features are directly usable with the Apache
-  OpenNLP CLI). 
++ **English multi corpora models**: We also provide 4 models trained with a mixture of Ontonotes and CoNLL datasets, with the aim of improving the models robustness across domains.  The models are trained using the *full Ontonotes* corpus and the *train and dev* sets of the CoNLL 2003 corpus. The testset was prepared by taking 8K sentences at random leaving the rest for training (103K sentences). We use both *baseline* and *opennlp* featuresets (models trained with the *opennlp* features are directly usable with the Apache OpenNLP CLI).
   + **CoNLL 4 NE types opennlp features**: en-nerc-perceptron-conll03-ontonotes-4.0-4-types-opennlp-c0-b3.bin: F1 86.63
   + **3 NE types opennlp features**: en-nerc-perceptron-conll03-ontonotes-4.0-3-types-opennlp-c0-b3.bin: F1 88.11
   + **CoNLL 4 NE types baseline features**: en-nerc-perceptron-conll03-ontonotes-4.0-4-types-baseline-c0-b3.bin: F1 87.36
