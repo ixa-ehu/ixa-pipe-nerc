@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 %{
 
   private NameFactory nameFactory;
-  private static final Logger LOGGER = Logger.getLogger(NumericEntitesLexer.class.getName());
+  private static final Logger LOGGER = Logger.getLogger(NumericEntitiesLexer.class.getName());
   private boolean seenUntokenizableCharacter;
   private enum UntokenizableOptions { NONE_DELETE, FIRST_DELETE, ALL_DELETE, NONE_KEEP, FIRST_KEEP, ALL_KEEP }
   private UntokenizableOptions untokenizable = UntokenizableOptions.FIRST_DELETE;
@@ -51,13 +51,16 @@ import java.util.regex.Pattern;
     Name name = nameFactory.createName(nameString, neType, yychar, yylength());
     return name;
   }
+  
+  private Name makeName() {
+    return makeName("MISC","MISC");
+  }
 
 %}
 
   ////////////////
   //// MACROS ////
   ///////////////
-
 
 /*---- GENERIC NUMBERS ----*/
 
@@ -74,69 +77,134 @@ MISC_SYMBOL = [+%&~\^|\\¦\u00A7¨\u00A9\u00AC\u00AE¯\u00B0-\u00B3\u00B4-\u00BA
 /* Math and other symbols that stand alone: °²× ∀ */
 // bullet chars: 2219, 00b7, 2022, 2024
 
+//////////////
+//// DATE ////
+//////////////
 
-/*---- TIMES ----*/
+/*---- NUMERIC DATE ----*/
 
-/*---- PERCENT ----*/
+// 12/-04/-2013
+DATE_STANDARD = {DIGIT}{1,2}[\-\/]{DIGIT}{1,2}[\-\/]{DIGIT}{2,4}
+// 2013-/04/-12
+DATE_BASQUE = {DIGIT}{2,4}[\-\/]{DIGIT}{1,2}[\-\/]{DIGIT}{1,2}
+DATE2 = "(?:[1-9]|[0-3][0-9])\\\\?/(?:[1-9]|[0-3][0-9])\\\\?/[1-3][0-9]{3}"
+DATE3 = "[12][0-9]{3}[-/](?:0?[1-9]|1[0-2])[-/][0-3][0-9]"
+YEAR = "[1-3][0-9]{3}|'?[0-9]{2}"
+DAY = "(?:[1-9]|[12][0-9]|3[01])(?:st|nd|rd|\\.)?"
 
-PERCENT = {NUMBER}\\s*(percent|por ciento|%)
-PERCENT_NUMBER = %\\s*{NUMBER}
+NUMERIC_DATE = {DATE_STANDARD}|{DATE_BASQUE}|{DATE2}|{DATE3}|YEAR
 
-/*---- MONEY ----*/
+/*---- WORD DATE ----*/
 
-DOLLAR = ([A-Z]*\$|#)
-/* These are cent and pound sign, euro and euro, and Yen, Lira */
-OTHER_CURRENCIES= [\u00A2\u00A3\u00A4\u00A5\u0080\u20A0\u20AC\u060B\u0E3F\u20A4\uFFE0\uFFE1\uFFE5\uFFE6]
-
-////////////////
-//// DATES ////
-///////////////
-
-/*---- NUMERIC DATES ----*/
-
-NUMERIC_DATE = {DIGIT}{1,2}[\-\/]{DIGIT}{1,2}[\-\/]{DIGIT}{2,4}
-
-/*---- WORD DATES ----*/
-
-MONTH_DE = 
+MONTH_DE = Januar|Jänner|Februar|März|April|Juni|Juli|August|September|Oktober|November|Dezember
 MONTH_EN = January|February|March|April|June|July|August|September|October|November|December
 MONTH_ES = Enero|Febrero|Marzo|Abril|Mayo|Junio|Julio|Agosto|Septiembre|Octubre|Noviembre|Diciembre
-MONTH_FR = 
-MONTH_IT =
-MONTH_NL =
+MONTH_FR = Janvier|Février|Mars|Avril|Juin|Juillet|Août|Septembre|Octobre|Novembre|Décembre
+MONTH_IT = Gennaio|Febbraio|Marzo|Aprile|Giugno|Luglio|Agosto|Settembre|Ottobre|Novembre|Dicembre
+MONTH_NL = Januari|februari|maart|april|juni|juli|augustus|september|oktober|november|december
+
 MONTH = {MONTH_DE}|{MONTH_EN}|{MONTH_ES}|{MONTH_FR}|{MONTH_IT}|{MONTH_NL}
 
-DAY_DE = 
+DAY_DE = Montag|Dienstag|Mittwoch|Donnerstag|Freitag|Samstag|Sonntag
 DAY_EN = Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday
 DAY_ES = Lunes|Martes|Miércoles|Jueves|Viernes|Sábado|Domingo
-DAY_FR = 
-DAY_IT = 
-DAY_NL =
+DAY_FR = Lundi|Mardi|Mercredi|Jeudi|Vendredi|Samedi|Dimanche
+DAY_IT = Lunedi|Martedì|Mercoledì|Giovedi|Venerdì|Sabato|Domenica
+DAY_NL = Maandag|dinsdag|woensdag|donderdag|vrijdag|zaterdag|zondagh
 
-WORD_DATE = {MONTH}|{DAY}
+DAY_SYMBOL = {DAY_DE}|{DAY_EN}|{DAY_ES}|{DAY_FR}|{DAY_IT}|{DAY_NL}
 
-/*---- ABBREV_DATES ----*/
+WORD_DATE = {MONTH}|{DAY_SYMBOL}
 
-ABBREV_MONTH_DE = Jän|März|Mai|Okt|Dez
-ABBREV_MONTH_EN = Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec
-ABBREV_MONTH_ES = Ene|Febr|May|Abr|Ag|Dic
-ABBREV_MONTH_FR = janv|févr|mars|avril|juin|juil|août|déc
-ABBREV_MONTH_IT = genn|febbr|magg|giugno|luglio|sett|ott
-ABBREV_MONTH_NL = maart|mei|juni|juli|okt
+
+/*---- ABBREV_DATE ----*/
+
+ABBREV_MONTH_DE = (Jän|März|Mai|Okt|Dez)\\.?
+ABBREV_MONTH_EN = (Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)\\.?
+ABBREV_MONTH_ES = (Ene|Febr|May|Abr|Ag|Dic)\\.?
+ABBREV_MONTH_FR = (janv|févr|mars|avril|juin|juil|août|déc)\\.?
+ABBREV_MONTH_IT = (genn|febbr|magg|giugno|luglio|sett|ott)\\.?
+ABBREV_MONTH_NL = (maart|mei|juni|juli|okt)\\.?
+
 ABBREV_MONTH = {ABBREV_MONTH_DE}|{ABBREV_MONTH_EN}|{ABBREV_MONTH_ES}|{ABBREV_MONTH_FR}|{ABBREV_MONTH_IT}|{ABBREV_MONTH_NL}
 
 
-ABBREV_DAY_DE = So|Mo|Di|Mi|Do|Fr|Sa
-ABBREV_DAY_EN = Mon|Tue|Tues|Wed|Thu|Thurs|Fri|Sat|Sun
-ABBREV_DAY_ES = Lun|Mar|Miér|Jue|Vier|Sáb|Dom
-ABBREV_DAY_FR = lun|mer|jeu|ven|sam|dim
-ABBREV_DAY_IT = mar|gio|ven|sab
-ABBREV_DAY_NL = ma|woe|vrij|za|zo|wo|vr 
+ABBREV_DAY_DE = (So|Mo|Di|Mi|Do|Fr|Sa)\\.?
+ABBREV_DAY_EN = (Mon|Tue|Tues|Wed|Thu|Thurs|Fri|Sat|Sun)\\.?
+ABBREV_DAY_ES = (Lun|Mar|Miér|Jue|Vier|Sáb|Dom)\\.?
+ABBREV_DAY_FR = (lun|mer|jeu|ven|sam|dim)\\.?
+ABBREV_DAY_IT = (mar|gio|ven|sab)\\.?
+ABBREV_DAY_NL = (ma|woe|vrij|za|zo|wo|vr)\\.?
 
 ABBREV_DAY = {ABBREV_DAY_DE}|{ABBREV_DAY_EN}|{ABBREV_DAY_ES}|{ABBREV_DAY_FR}|{ABBREV_DAY_IT}|{ABBREV_DAY_NL}
-ABBREV_DATE = ({ABBREV_MONTH}|{ABBREV_DAY}
 
-DATE = {NUMERIC_DATE}|{WORD_DATE}|{ABBREV_DATE}
+ABBREV_DATE = {ABBREV_MONTH}|{ABBREV_DAY}
+
+/*---- DATE EXPRESSIONS ----*/
+
+MONTH_DAY_YEAR = ({MONTH}|{ABBREV_MONTH}){DAY}{YEAR}?
+YEAR_MONTH_DAY = {YEAR}({MONTH}|{ABBREV_MONTH}){DAY}
+DAY_MONTH_YEAR = {DAY}\\s+(of|de)?({MONTH}|{ABBREV_MONTH})(\\s+(of|de)?{YEAR})?
+
+SIMPLE_DATE = {NUMERIC_DATE}|{WORD_DATE}|{ABBREV_DATE}
+DATE_YEAR = {SIMPLE_DATE},?\\s+{YEAR}
+
+/*---- DATE ----*/
+
+DATE = {MONTH_DAY_YEAR}|{YEAR_MONTH_DAY}|{DAY_MONTH_YEAR}|{SIMPLE_DATE}|{DATE_YEAR} 
+
+///////////////
+//// TIME ////
+///////////////
+
+/*---- GENERIC TIME WORDS ----*/
+
+TIME_WORDS_DE = "Morgen|Abend|Nacht|Uhr|Mitternacht|Mittags|Abendessen|Abendbrot|Nachmittag|Mittag|Dämmerung|Sonnenaufgang|Sonnenuntergang|Tagesanbruch|Tag"
+TIME_WORDS_EN = "(morning|evening|night|noon|midnight|teatime|lunchtime|dinnertime|suppertime|afternoon|midday|dusk|dawn|sunup|sundown|daybreak|day)"
+TIME_WORDS_ES = "mañana|tarde|noche|mediodía|medianoche|hora del té|hora del café|cena|suppertime|atardecer|alba|amanecer|ocaso|"
+TIME_WORDS_FR = "matin|soirée|nuit|midi|minuit|heure du thé|midi|dîner|souper|après-midi|midi|crépuscule|aube|lever du soleil|coucher du soleil|lever du jour|jour"
+TIME_WORDS_IT = "mattina|sera|notte|mezzogiorno|mezzanotte|teatime|pranzo|cena|suppertime|pomeriggio|mezzogiorno|alba|giorno"
+TIME_WORDS_NL = "ochtend|avond|nacht|middag|midnight|teatime|lunch|etenstijd|suppertime|middag|schemering|zonsopgang|zonsondergang|dageraad|dag"
+
+TIME_WORDS = {TIME_WORDS_DE}|{TIME_WORDS_EN}|{TIME_WORDS_ES}|{TIME_WORDS_FR}|{TIME_WORDS_IT}|{TIME_WORDS_NL}
+
+
+/*---- NUMERIC TIME ----*/
+
+TWELVE_TIME = "[0-2]?[0-9]:[0-5][0-9]"
+TWENTYFOUR_TIME = "[0-2][0-9]:[0-5][0-9]:[0-5][0-9]"
+ARMY_TIME = "0([0-9])([0-9]){2}" 
+AMPM = "(a\\.?m\\.?)|(p\\.?m\\.?)"
+
+/*---- TIME EXPRESSIONS ----*/
+TIME_AM = {TWELVE_TIME}\\s*{AMPM}?
+
+TIME = {TIME_AM}|{TWENTYFOUR_TIME}|{ARMY_TIME}|{TIME_WORDS}
+
+///////////////
+//// MONEY ////
+///////////////
+
+CURRENCY_WORD = "(?:dollar|cent|euro|pound)s?|penny|pence|yen|yuan|won"
+CURRENCY_SYMBOL = "\\$|&#163|#|US\\$|HK\\$|A\\$|\u00A2|\u00A3|\u00A4|\u00A5|\u0080|\u20A0|\u20AC|\u060B|\u0E3F|\u20A4|\uFFE0|\uFFE1|\uFFE5|\uFFE6"
+
+SYMBOL_MONEY = {CURRENCY_SYMBOL}\\s*{NUMBER}
+MONEY_SYMBOL = {NUMBER}\\s*({CURRENCY_SYMBOL}|{CURRENCY_WORD})
+
+/*---- MONEY ----*/
+
+MONEY = {SYMBOL_MONEY}|{MONEY_SYMBOL}
+
+/////////////////
+//// PERCENT ////
+/////////////////
+
+NUMBER_PERCENT = {NUMBER}\\s*(prozent|percent|por ciento|pour cent|per cento|procent|%)
+PERCENT_NUMBER = %\\s*{NUMBER}
+PERCENT_ABBREV = {NUMBER}\\s*pct\\.?
+
+/*---- PERCENT ----*/
+PERCENT = {NUMBER_PERCENT}|{PERCENT_NUMBER}|{PERCENT_ABBREV}
 
 /* ------------------------Lexical Rules Section---------------------- */
 
@@ -146,254 +214,30 @@ DATE = {NUMERIC_DATE}|{WORD_DATE}|{ABBREV_DATE}
 /*---- DATES ----*/
 
 {DATE}                      { String txt = yytext();
-                                return makeToken(txt, "DATE");
+                                return makeName(txt, "DATE");
                             }
 
+/*---- TIME ----*/
+
+{TIME}                      { String txt = yytext();
+                                return makeName(txt, "TIME");
+                            }
 /*---- MONEY ----*/
 
-{DOLLAR}                    { return makeToken(); }
-{OTHER_CURRENCIES}          {   if (normalizeCurrency) {
-			        				String normString = normalizeCurrency(yytext());
-			        				return makeToken(normString);
-                                } 
-                                else {
-                                return makeToken();
-                                }
-                            }
-                          
+{MONEY}                    { String txt = yytext();
+                                return makeName(txt, "MONEY");
+                           }
+
+/*---- PERCENT ----*/       
+
+{PERCENT}                   { String txt = yytext();
+                                return makeName(txt, "PERCENT");
+                            } 
                             
-/* -------- NON BREAKING PREFIXES ------------*/
-
-/* Any acronym can be treated as sentence final iff followed by this list 
-* of words (pronouns, determiners, and prepositions, etc.). "U.S." is the single 
-* big source of errors.  Character classes make this rule case sensitive! (This is needed!!) 
-*/
-{ACRONYMS}/({SPACENLS})({ACRO_NEXT_WORD}){SPACENL} {
-                          // try to work around an apparent jflex bug where it
-                          // gets a space at the token end by getting
-                          // wrong the length of the trailing context.
-                          while (yylength() > 0) {
-                            char last = yycharat(yylength()-1);
-                            if (last == ' ' || last == '\t' || (last >= '\n' && last <= '\r' || last == '\u0085')) {
-                              yypushback(1);
-                            } else {
-                              break;
-                            }
-                          }
-                          String s;
-                          if (sptb3Normalize && ! "U.S.".equals(yytext())) {
-                            yypushback(1); // return a period for next time
-                            s = yytext();
-                          } else {
-                            s = yytext();
-                            yypushback(1); // return a period for next time
-                          }
-                          return makeToken(s);
-                        }
-
-/* Special case to get ca., fig. or Prop. before numbers */
-{ABBREV_NUMBER}/{SPACENL}?[:digit:]   {
-                          // try to work around an apparent jflex bug where it
-                          // gets a space at the token end by getting
-                          // wrong the length of the trailing context.
-                          while (yylength() > 0) {
-                            char last = yycharat(yylength()-1);
-                            if (last == ' ' || last == '\t' || (last >= '\n' && last <= '\r' || last == '\u0085')) {
-                              yypushback(1);
-                            } else {
-                              break;
-                            }
-                          }
-			  				return makeToken();
-						}
-						
-/* Special case to get pty. ltd. or pty limited. 
- * Also added "Co." since someone complained, but usually a comma after it. 
- */
-(pt[eyEY]|co)\./{SPACE}(ltd|lim)  { return makeToken(); }
-
-{ABBREV_DATES}/{SENTEND}   {    String s;
-                          	if (sptb3Normalize && ! "U.S.".equals(yytext())) {
-                                yypushback(1); // return a period for next time
-                                s = yytext();
-                                } 
-                                else {
-                                    s = yytext();
-                                    yypushback(1); // return a period for next time
-                                }
-                          	return makeToken(s); 
-                            }
-
-
-{ABBREV_DATES}/[^][^]        { return makeToken(); }
-
-/* this one should only match at the end of file
- * since the previous one matches even newlines
-*/
-{ABBREV_DATES}               { String s;
-                              if (sptb3Normalize && ! "U.S.".equals(yytext())) {
-                              yypushback(1); // return a period for next time
-                              s = yytext();
-                              } else {
-                                s = yytext();
-                                yypushback(1); // return a period for next time
-                              }
-                              return makeToken(s);
-                             }
-
-{SPECIAL_ABBREV_PREFIX}     { return makeToken(); }
-{ABBREV_UPPER}/{SPACE}      { return makeToken(); }
-
-{ACRONYM}/{SPACENL}         { return makeToken(); }
-{APOS_DIGIT_DIGIT}/{SPACENL} { return makeToken(); }
-
-{WORD}\./{INTRA_SENT_PUNCT} {   String origTxt = yytext();
-                                String normString = normalizeSoftHyphen(origTxt);
-				return makeToken(normString); 
-                            }
-
-{PHONE}                 	{ String txt = yytext();
-                          		if (normalizeSpace) {
-                            	txt = txt.replace(' ', '\u00A0'); // change space to non-breaking space
-                          	}
-                          		if (normalizeBrackets) {
-                            		txt = LEFT_PAREN_PATTERN.matcher(txt).replaceAll(openRB);
-                            		txt = RIGHT_PAREN_PATTERN.matcher(txt).replaceAll(closeRB);
-                          		}
-                          	return makeToken(txt);
-                        	}
-
-/*---- QUOTES ----*/ 
-{DOUBLE_QUOTE}/[A-Za-z0-9$]  { return normalizeQuotes(yytext(), true); }
-{DOUBLE_QUOTE}               { return normalizeQuotes(yytext(), false); }
-
-{LESS_THAN}              	{ return makeToken("<"); }
-{GREATER_THAN}           	{ return makeToken(">"); }
-
-{SMILEY}/[^A-Za-z] 			{ 	String txt = yytext();
-                  				if (normalizeBrackets) {
-                    				txt = LEFT_PAREN_PATTERN.matcher(txt).replaceAll(openRB);
-                    				txt = RIGHT_PAREN_PATTERN.matcher(txt).replaceAll(closeRB);
-                  				}
-                  				return makeToken(txt);
-                			}
-                			
-{ASIANSMILEY}        		{ 	String txt = yytext();
-                  				if (normalizeBrackets) {
-                    			txt = LEFT_PAREN_PATTERN.matcher(txt).replaceAll(openRB);
-                    			txt = RIGHT_PAREN_PATTERN.matcher(txt).replaceAll(closeRB);
-                  				}
-                  				return makeToken(txt);
-                			}
-                			
-/*---- BRACKETS ----*/ 
-
-\{                          {   if (normalizeOtherBrackets) {
-                    	            return makeToken(openCB); 
-                            }
-                  	        else {
-                    		    return makeToken();
-                  			}
-                	    	}
-\}              		
-			    			{   if (normalizeOtherBrackets) {
-                    		        return makeToken(closeCB); 
-                                    }
-                  	    	    else {
-                    		        return makeToken();
-                  		    	}
-                	    	}
-                
-\[                          {   if (normalizeOtherBrackets) {
-                                    return makeToken(openSB); 
-                                }
-                                else {
-                                    return makeToken();
-                                }
-                            }       
-\]                          {   if (normalizeOtherBrackets) {
-                                    return makeToken(closeSB); 
-                                }
-                                else {
-                                    return makeToken();
-                                }                    
-                            }
-\(                          {   if (normalizeBrackets) {
-                                    return makeToken(openRB); 
-                                }
-                                else {
-                                    return makeToken();
-                                }
-                            }
-\)                          {   if (normalizeBrackets) {
-                                    return makeToken(closeRB); 
-                                }
-                                else {
-                                    return makeToken();
-                                }
-                            }
-
-{HYPHENS}       			{ 	if (yylength() >= 3 && yylength() <= 4 && ptb3Dashes) {
-                    			return makeToken(ptbDash);
-                  				} else {
-                    			return makeToken();
-                  				}
-                			}
-                			
-{LDOTS}         			{ return normalizeMultiDots(yytext()); }
-
-{OTHER_PUNCT}      			{ return makeToken(); }
-{ASTERISK}         			{ 	if (escapeForwardSlash) {
-                    			return makeToken(escape(yytext(), '*')); }
-                  				else {
-                    			return makeToken();
-                  				}
-                			}
-
-/*---- START and END Sentence ----*/
-                			
-{INTRA_SENT_PUNCT}       	{ return makeToken(); }
-[?!]+          	 			{ return makeToken(); }
-
-[.¡¿\u037E\u0589\u061F\u06D4\u0700-\u0702\u07FA\u3002]  { return makeToken(); }
-=               			{ return makeToken(); }
-\/              			{ 	if (escapeForwardSlash) {
-                    			return makeToken(escape(yytext(), '/')); }
-                  				else {
-                    			return makeToken();
-                  				}
-                			}
-
-/*---- OTHER NONBREAKING WORDS with ACRONYMS and HYPHENS ----*/                			
-{WORD_AMP}\./{INTRA_SENT_PUNCT}	{ return makeToken(normalizeSoftHyphen(yytext())); }
-{WORD_AMP}        			{ return makeToken(normalizeSoftHyphen(yytext())); }
-{OTHER_HYPHEN_WORDS}\./{INTRA_SENT_PUNCT}	{ return makeToken(); }
-{OTHER_HYPHEN_WORDS}        { return makeToken(); }
-{WORD_HYPHEN_ACRONYM}\./{INTRA_SENT_PUNCT}	{ return normalizeAmpNext(); }
-{WORD_HYPHEN_ACRONYM}       { return normalizeAmpNext(); }
-
-/*---- QUOTES ----*/
-/* invert quote - often but not always right */
-'/[A-Za-z][^ \t\n\r\u00A0] 	{ return normalizeQuotes(yytext(), true); }
-                                         
-{APOS_AUX}        			{   return normalizeQuotes(yytext(), false); }
-{QUOTES}        			{   return normalizeQuotes(yytext(), false); }
-{FAKEDUCKFEET}  			{   return makeToken(); }
-{MISC_SYMBOL}    			{   return makeToken(); }
-
-{PARAGRAPH}                             {   if (tokenizeParagraphs) { 
-                                                return makeToken(PARAGRAPH_TOKEN);
-                                            }
-                                        } 
-
-{NEWLINE}      				{   if (tokenizeNLs) {
-                      			        return makeToken(NEWLINE_TOKEN); 
-                			    }
-                			}							
 
 /*---- skip non printable characters ----*/
 
-[\\x00-\\x19]|{SPACES}		{ }
+[\\x00-\\x19]		{ }
 
 /*---- warn about other non tokenized characters ----*/
 
@@ -414,17 +258,17 @@ DATE = {NUMERIC_DATE}|{WORD_DATE}|{ABBREV_DATE}
               this.seenUntokenizableCharacter = true;
               break;
             case NONE_KEEP:
-              return makeToken();
+              return makeName();
             case FIRST_KEEP:
               if ( ! this.seenUntokenizableCharacter) {
                 LOGGER.warning(msg);
                 this.seenUntokenizableCharacter = true;
               }
-              return makeToken();
+              return makeName();
             case ALL_KEEP:
               LOGGER.warning(msg);
               this.seenUntokenizableCharacter = true;
-              return makeToken();
+              return makeName();
           }
         }
 <<EOF>> 					{ return null; }
