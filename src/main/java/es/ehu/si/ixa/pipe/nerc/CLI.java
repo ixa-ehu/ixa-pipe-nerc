@@ -30,7 +30,7 @@ import es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.OpenNLPDefaultTrainer;
 
 /**
- * Main class of ixa-pipe-nerc.
+ * Main class of ixa-pipe-nerc, the ixa pipes (ixa2.si.ehu.es/ixa-pipes) ner tagger.
  *
  * @author ragerri
  * @version 2014-04-18
@@ -140,7 +140,8 @@ public class CLI {
 
     int beamsize = parsedArguments.getInt("beamsize");
     String features = parsedArguments.getString("features");
-    String gazetteer = parsedArguments.getString("gazetteers");
+    String gazetteerOption = parsedArguments.getString("gazetteers");
+    String ruleBasedOption = parsedArguments.getString("ruleBased");
     String model;
     if (parsedArguments.get("model") == null) {
       model = "baseline";
@@ -162,8 +163,9 @@ public class CLI {
     }
     KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor("entities", "ixa-pipe-nerc-" + lang, version);
     newLp.setBeginTimestamp();
-    if (parsedArguments.get("gazetteers") != null) {
-      Annotate annotator = new Annotate(lang, gazetteer, model, features,
+    
+    if (parsedArguments.get("gazetteers") != null || parsedArguments.get("ruleBased") != null) {
+      Annotate annotator = new Annotate(lang, gazetteerOption, ruleBasedOption, model, features,
           beamsize);
       annotator.annotateNEsToKAF(kaf);
     } else {
@@ -293,7 +295,12 @@ public class CLI {
         .required(false)
         .help(
             "Use gazetteers directly for tagging or "
-                + "for post-processing the probabilistic NERC output.\n");
+                + "for post-processing the probabilistic NERC output");
+    annotateParser
+        .addArgument("-r","--ruleBased")
+        .choices("numeric")
+        .required(false)
+        .help("Use rules for NER tagging");
   }
 
   /**

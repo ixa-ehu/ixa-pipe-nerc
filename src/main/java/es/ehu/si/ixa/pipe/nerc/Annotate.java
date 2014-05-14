@@ -52,9 +52,13 @@ public class Annotate {
    */
   private DictionaryNameFinder locDictFinder;
   /**
+   * The NameFinder Lexer for rule-based name finding
+   */
+  private NameFinderLexer lexerFinder;
+  /**
    * True if the name finder is statistical.
    */
-  private boolean statitiscal;
+  private boolean statistical;
   /**
    * Activates post processing of statistical name finder with dictionary
    * name finders.
@@ -64,6 +68,11 @@ public class Annotate {
    * Activates name finding using dictionaries only.
    */
   private boolean dictTag;
+  
+  /**
+   * Activates name finding using {@code NameFinderLexer}s
+   */
+  private boolean lexerFind;
 
   /**
    * Construct a probabilistic annotator.
@@ -80,7 +89,7 @@ public class Annotate {
     }
     NameFactory nameFactory = new NameFactory();
     nameFinder = new StatisticalNameFinder(lang, nameFactory, model, features, beamsize);
-    statitiscal = true;
+    statistical = true;
   }
 
   /**
@@ -93,25 +102,39 @@ public class Annotate {
    * @param features the features
    * @param beamsize the beam size for decoding
    */
-  public Annotate(final String lang, final String dictOption, final String model,
+  public Annotate(final String lang, final String dictOption, final String ruleBasedOption, final String model,
       final String features, final int beamsize) {
-    if (model.equalsIgnoreCase("baseline") && !dictOption.equalsIgnoreCase("tag")) {
+    if (dictOption != null) {
+      if (model.equalsIgnoreCase("baseline") && !dictOption.equalsIgnoreCase("tag")) {
       System.err.println("No NERC model chosen, reverting to baseline model!");
-   }
+      }
+    }
     NameFactory nameFactory = new NameFactory();
     nameFinder = new StatisticalNameFinder(lang, nameFactory, model, features, beamsize);
     //TODO remove hard coding of these dictionaries
     perDictFinder = createDictNameFinder("en/en-wiki-person.txt", "PERSON", nameFactory);
     orgDictFinder = createDictNameFinder("en/en-wiki-organization.txt", "ORGANIZATION", nameFactory);
     locDictFinder = createDictNameFinder("en/en-wiki-location.txt", "LOCATION", nameFactory);
-    if (dictOption.equalsIgnoreCase("post")) {
-      postProcess = true;
-      statitiscal = true;
+    if (dictOption != null) {
+      if (dictOption.equalsIgnoreCase("post")) {
+        postProcess = true;
+        statistical = true;
+      }
+      if (dictOption.equalsIgnoreCase("tag")) {
+        dictTag = true;
+        statistical = false;
+        postProcess = false;
+      }
     }
-    if (dictOption.equalsIgnoreCase("tag")) {
-      dictTag = true;
-      statitiscal = false;
-      postProcess = false;
+    if (ruleBasedOption != null) {
+      if (ruleBasedOption.equalsIgnoreCase("numeric") && !dictOption.equalsIgnoreCase("tag")) {
+        lexerFind = true;
+        statistical = true;
+      }
+      else {
+        lexerFind = true;
+        statistical = false;
+      }
     }
   }
 
@@ -134,7 +157,7 @@ public class Annotate {
         tokens[i] = sentence.get(i).getForm();
         tokenIds[i] = sentence.get(i).getId();
       }
-      if (statitiscal) {
+      if (statistical) {
         //TODO clearAdaptiveFeatures; evaluate
         allSpans = nameFinder.nercToSpans(tokens);
       }
