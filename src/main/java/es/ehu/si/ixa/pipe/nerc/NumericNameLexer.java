@@ -22,7 +22,7 @@ import java.io.IOException;
 
 /**
  *  IxaPipeTokenizer is based on the {@link IxaPipeLexer} class. 
- *  This Tokenizer overrides {@link AbstractNameFinderLexer} getToken() method 
+ *  This Tokenizer overrides {@link AbstractNameLexer} getToken() method 
  *  by using the {@link IxaPipeLexer} yylex() method.  
  *  
  * This Tokenizer tokenizes running text but also provides normalization functions 
@@ -98,10 +98,10 @@ import java.io.IOException;
  * 
  */
  
-public class NumericEntitiesFinder<T> extends AbstractNameFinderLexer<T> {
+public class NumericNameLexer<T> extends AbstractNameLexer<T> {
 
   
-  private NumericEntitiesLexer jlexer;
+  private NumericLexer jlexer;
   
   /**
    * Construct a new Tokenizer which uses the @link JFlexLexer specification
@@ -114,8 +114,8 @@ public class NumericEntitiesFinder<T> extends AbstractNameFinderLexer<T> {
    * @option options Paragraph options
    * 
    */
-  public NumericEntitiesFinder(BufferedReader breader, NameFactory nameFactory) {
-    jlexer = new NumericEntitiesLexer(breader, nameFactory);
+  public NumericNameLexer(BufferedReader breader, NameFactory nameFactory) {
+    jlexer = new NumericLexer(breader, nameFactory);
   }
 
   /**

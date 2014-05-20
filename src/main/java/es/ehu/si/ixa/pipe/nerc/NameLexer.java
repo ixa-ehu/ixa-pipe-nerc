@@ -44,7 +44,7 @@ import java.util.List;
  * @author ragerri
  * @version 2013-18-12
  */
-public interface NameFinderLexer<T> extends Iterator<T> {
+public interface NameLexer<T> extends Iterator<T> {
 
   /**
    * Returns the next token from this Tokenizer.

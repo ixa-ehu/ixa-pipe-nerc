@@ -12,11 +12,11 @@ import java.util.regex.Pattern;
 
 %%
 
-%class NumericEntitiesLexer
+%class NumericLexer
 %unicode
 %type Name
-%caseless
 %char
+%caseless
 
 /* 
  * Member variables and functions
@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 %{
 
   private NameFactory nameFactory;
-  private static final Logger LOGGER = Logger.getLogger(NumericEntitiesLexer.class.getName());
+  private static final Logger LOGGER = Logger.getLogger(NumericLexer.class.getName());
   private boolean seenUntokenizableCharacter;
   private enum UntokenizableOptions { NONE_DELETE, FIRST_DELETE, ALL_DELETE, NONE_KEEP, FIRST_KEEP, ALL_KEEP }
   private UntokenizableOptions untokenizable = UntokenizableOptions.FIRST_DELETE;
@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
   /////////////////
   
   
-  public NumericEntitiesLexer(Reader breader, NameFactory aNameFactory) {
+  public NumericLexer(Reader breader, NameFactory aNameFactory) {
     this(breader);
     this.nameFactory = aNameFactory;
   }
@@ -62,20 +62,19 @@ import java.util.regex.Pattern;
   //// MACROS ////
   ///////////////
 
+/*---- SPACES ----*/
+
+SPACE = [ \t\u0020\u00A0\u2000-\u200A\u3000]
+
 /*---- GENERIC NUMBERS ----*/
 
 DIGIT = [:digit:]|[\u07C0-\u07C9]
 NUM = {DIGIT}+|{DIGIT}*([.:,\u00AD\u066B\u066C]{DIGIT}+)+
 NUMBER = [\-+]?{NUM}[.,]?
-SUBSUPNUM = [\u207A\u207B\u208A\u208B]?([\u2070\u00B9\u00B2\u00B3\u2074-\u2079]+|[\u2080-\u2089]+)
 FRACTION = ({DIGIT}{1,4}[- \u00A0])?{DIGIT}{1,4}(\\?\/|\u2044){DIGIT}{1,4}
 FRACTION_TB3 = ({DIGIT}{1,4}-)?{DIGIT}{1,4}(\\?\/|\u2044){DIGIT}{1,4}
 OTHER_FRACTION = [\u00BC\u00BD\u00BE\u2153-\u215E]
-/* U+2200-U+2BFF has a lot of the various mathematical, etc. symbol ranges */
-MISC_SYMBOL = [+%&~\^|\\¦\u00A7¨\u00A9\u00AC\u00AE¯\u00B0-\u00B3\u00B4-\u00BA\u00D7\u00F7\u0387\u05BE\u05C0\u05C3\u05C6\u05F3\u05F4\u0600-\u0603\u0606-\u060A\u060C\u0614\u061B\u061E\u066A\u066D\u0703-\u070D\u07F6\u07F7\u07F8\u0964\u0965\u0E4F\u1FBD\u2016\u2017\u2020-\u2023\u2030-\u2038\u203B\u203E-\u2042\u2044\u207A-\u207F\u208A-\u208E\u2100-\u214F\u2190-\u21FF\u2200-\u2BFF\u3012\u30FB\uFF01-\uFF0F\uFF1A-\uFF20\uFF3B-\uFF40\uFF5B-\uFF65\uFF65]
-/* \uFF65 is Halfwidth katakana middle dot; \u30FB is Katakana middle dot */
-/* Math and other symbols that stand alone: °²× ∀ */
-// bullet chars: 2219, 00b7, 2022, 2024
+
 
 //////////////
 //// DATE ////
@@ -87,19 +86,21 @@ MISC_SYMBOL = [+%&~\^|\\¦\u00A7¨\u00A9\u00AC\u00AE¯\u00B0-\u00B3\u00B4-\u00BA
 DATE_STANDARD = {DIGIT}{1,2}[\-\/]{DIGIT}{1,2}[\-\/]{DIGIT}{2,4}
 // 2013-/04/-12
 DATE_BASQUE = {DIGIT}{2,4}[\-\/]{DIGIT}{1,2}[\-\/]{DIGIT}{1,2}
-DATE2 = "(?:[1-9]|[0-3][0-9])\\\\?/(?:[1-9]|[0-3][0-9])\\\\?/[1-3][0-9]{3}"
-DATE3 = "[12][0-9]{3}[-/](?:0?[1-9]|1[0-2])[-/][0-3][0-9]"
-YEAR = "[1-3][0-9]{3}|'?[0-9]{2}"
-DAY = "(?:[1-9]|[12][0-9]|3[01])(?:st|nd|rd|\\.)?"
+//DATE2 = ([1-9]|[0-3][0-9])\\?\/([1-9]|[0-3][0-9])\\?\/[1-3][0-9]{3}
+//DATE3 = [12][0-9]{3}[-/](0?[1-9]|1[0-2])[-/][0-3][0-9]
+YEAR = [1-3][0-9]{3}|[0-9]{2}
+APOSYEAR = {SPACE}'[0-9]{2}s?{SPACE}
+DAY = ([1-9]|[12][0-9]|3[01])(st|nd|rd|th|\.)?
 
-NUMERIC_DATE = {DATE_STANDARD}|{DATE_BASQUE}|{DATE2}|{DATE3}|YEAR
+//NUMERIC_DATE = {DATE_STANDARD}|{DATE_BASQUE}|{DATE2}|{DATE3}|{YEAR}
+NUMERIC_DATE = {DATE_STANDARD}|{DATE_BASQUE}|{APOSYEAR}
 
 /*---- WORD DATE ----*/
 
-MONTH_DE = Januar|Jänner|Februar|März|April|Juni|Juli|August|September|Oktober|November|Dezember
+MONTH_DE = Januar|Jänner|Februar|März|April|Mai|Juni|Juli|August|September|Oktober|November|Dezember
 MONTH_EN = January|February|March|April|June|July|August|September|October|November|December
 MONTH_ES = Enero|Febrero|Marzo|Abril|Mayo|Junio|Julio|Agosto|Septiembre|Octubre|Noviembre|Diciembre
-MONTH_FR = Janvier|Février|Mars|Avril|Juin|Juillet|Août|Septembre|Octobre|Novembre|Décembre
+MONTH_FR = Janvier|Février|Mars|Avril|Mai|Juin|Juillet|Août|Septembre|Octobre|Novembre|Décembre
 MONTH_IT = Gennaio|Febbraio|Marzo|Aprile|Giugno|Luglio|Agosto|Settembre|Ottobre|Novembre|Dicembre
 MONTH_NL = Januari|februari|maart|april|juni|juli|augustus|september|oktober|november|december
 
@@ -116,25 +117,23 @@ DAY_SYMBOL = {DAY_DE}|{DAY_EN}|{DAY_ES}|{DAY_FR}|{DAY_IT}|{DAY_NL}
 
 WORD_DATE = {MONTH}|{DAY_SYMBOL}
 
-
 /*---- ABBREV_DATE ----*/
 
-ABBREV_MONTH_DE = (Jän|März|Mai|Okt|Dez)\\.?
-ABBREV_MONTH_EN = (Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)\\.?
-ABBREV_MONTH_ES = (Ene|Febr|May|Abr|Ag|Dic)\\.?
-ABBREV_MONTH_FR = (janv|févr|mars|avril|juin|juil|août|déc)\\.?
-ABBREV_MONTH_IT = (genn|febbr|magg|giugno|luglio|sett|ott)\\.?
-ABBREV_MONTH_NL = (maart|mei|juni|juli|okt)\\.?
+ABBREV_MONTH_DE = (Jän|März|Mai|Okt|Dez)\.?{SPACE}
+ABBREV_MONTH_EN = (Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)\.?{SPACE}
+ABBREV_MONTH_ES = (Ene|Febr|Abr|Ag|Dic)\.?{SPACE}
+ABBREV_MONTH_FR = (janv|févr|mars|avril|juin|juil|août|déc)\.?{SPACE}
+ABBREV_MONTH_IT = (genn|febbr|magg|giugno|luglio|sett|ott)\.?{SPACE}
+ABBREV_MONTH_NL = (maart|mei|juni|juli|okt)\.?{SPACE}
 
 ABBREV_MONTH = {ABBREV_MONTH_DE}|{ABBREV_MONTH_EN}|{ABBREV_MONTH_ES}|{ABBREV_MONTH_FR}|{ABBREV_MONTH_IT}|{ABBREV_MONTH_NL}
 
-
-ABBREV_DAY_DE = (So|Mo|Di|Mi|Do|Fr|Sa)\\.?
-ABBREV_DAY_EN = (Mon|Tue|Tues|Wed|Thu|Thurs|Fri|Sat|Sun)\\.?
-ABBREV_DAY_ES = (Lun|Mar|Miér|Jue|Vier|Sáb|Dom)\\.?
-ABBREV_DAY_FR = (lun|mer|jeu|ven|sam|dim)\\.?
-ABBREV_DAY_IT = (mar|gio|ven|sab)\\.?
-ABBREV_DAY_NL = (ma|woe|vrij|za|zo|wo|vr)\\.?
+ABBREV_DAY_DE = (So|Mo|Di|Mi|Do|Fr|Sa)\.{SPACE}
+ABBREV_DAY_EN = (Mon|Tue|Tues|Wed|Thu|Thurs|Fri|Sat|Sun)\.?{SPACE}
+ABBREV_DAY_ES = (Lun|Mar|Miér|Jue|Vier|Sáb|Dom)\.?{SPACE}
+ABBREV_DAY_FR = (lun|mer|jeu|ven|sam|dim)\.?{SPACE}
+ABBREV_DAY_IT = (mar|gio|ven|sab)\.?{SPACE}
+ABBREV_DAY_NL = (ma|woe|vrij|za|zo|wo|vr)\.?{SPACE}
 
 ABBREV_DAY = {ABBREV_DAY_DE}|{ABBREV_DAY_EN}|{ABBREV_DAY_ES}|{ABBREV_DAY_FR}|{ABBREV_DAY_IT}|{ABBREV_DAY_NL}
 
@@ -142,54 +141,61 @@ ABBREV_DATE = {ABBREV_MONTH}|{ABBREV_DAY}
 
 /*---- DATE EXPRESSIONS ----*/
 
-MONTH_DAY_YEAR = ({MONTH}|{ABBREV_MONTH}){DAY}{YEAR}?
-YEAR_MONTH_DAY = {YEAR}({MONTH}|{ABBREV_MONTH}){DAY}
-DAY_MONTH_YEAR = {DAY}\\s+(of|de)?({MONTH}|{ABBREV_MONTH})(\\s+(of|de)?{YEAR})?
+MONTHS = {MONTH}|{ABBREV_MONTH}
+DAY_MONTH_YEAR = {DAY}{SPACE}+(of|de)?{SPACE}*({MONTHS}|May){SPACE}+(of|de)?{SPACE}*{YEAR}?
+MONTH_DAY_YEAR = ({MONTHS}|May){SPACE}+{DAY}{SPACE}*{YEAR}?
+YEAR_MONTH_DAY = {YEAR}{SPACE}+({MONTHS}|May){SPACE}+(the)?{DAY}
 
 SIMPLE_DATE = {NUMERIC_DATE}|{WORD_DATE}|{ABBREV_DATE}
-DATE_YEAR = {SIMPLE_DATE},?\\s+{YEAR}
+DATE_YEAR = {SIMPLE_DATE}{SPACE}+,?{SPACE}+{YEAR}
 
 /*---- DATE ----*/
 
-DATE = {MONTH_DAY_YEAR}|{YEAR_MONTH_DAY}|{DAY_MONTH_YEAR}|{SIMPLE_DATE}|{DATE_YEAR} 
+DATE = {DAY_MONTH_YEAR}|{MONTH_DAY_YEAR}|{YEAR_MONTH_DAY}|{SIMPLE_DATE}|{DATE_YEAR}
 
-///////////////
+//////////////
 //// TIME ////
-///////////////
+//////////////
 
 /*---- GENERIC TIME WORDS ----*/
 
-TIME_WORDS_DE = "Morgen|Abend|Nacht|Uhr|Mitternacht|Mittags|Abendessen|Abendbrot|Nachmittag|Mittag|Dämmerung|Sonnenaufgang|Sonnenuntergang|Tagesanbruch|Tag"
-TIME_WORDS_EN = "(morning|evening|night|noon|midnight|teatime|lunchtime|dinnertime|suppertime|afternoon|midday|dusk|dawn|sunup|sundown|daybreak|day)"
-TIME_WORDS_ES = "mañana|tarde|noche|mediodía|medianoche|hora del té|hora del café|cena|suppertime|atardecer|alba|amanecer|ocaso|"
-TIME_WORDS_FR = "matin|soirée|nuit|midi|minuit|heure du thé|midi|dîner|souper|après-midi|midi|crépuscule|aube|lever du soleil|coucher du soleil|lever du jour|jour"
-TIME_WORDS_IT = "mattina|sera|notte|mezzogiorno|mezzanotte|teatime|pranzo|cena|suppertime|pomeriggio|mezzogiorno|alba|giorno"
-TIME_WORDS_NL = "ochtend|avond|nacht|middag|midnight|teatime|lunch|etenstijd|suppertime|middag|schemering|zonsopgang|zonsondergang|dageraad|dag"
+TIME_WORDS_DE = Morgen|Abend|Nacht|Uhr|Mitternacht|Mittags|Abendessen|Abendbrot|Nachmittag|Mittag|Dämmerung|Sonnenaufgang|Sonnenuntergang|Tagesanbruch|Tag
+TIME_WORDS_EN = (morning|evening|night|noon|midnight|teatime|lunchtime|dinnertime|suppertime|afternoon|midday|dusk|dawn|sunup|sundown|daybreak|day|decade)
+TIME_WORDS_ES = década|mañana|tarde|noche|mediodía|medianoche|hora{SPACE}del{SPACE}té|hora{SPACE}del{SPACE}café|cena|suppertime|atardecer|alba|amanecer|ocaso
+TIME_WORDS_FR = matin|soirée|nuit|midi|minuit|heure{SPACE}du{SPACE}thé|midi|dîner|souper|après-midi|midi|crépuscule|aube|lever{SPACE}du{SPACE}soleil|coucher{SPACE}du{SPACE}soleil|lever{SPACE}du{SPACE}jour|jour
+TIME_WORDS_IT = mattina|sera|notte|mezzogiorno|mezzanotte|teatime|pranzo|cena|suppertime|pomeriggio|mezzogiorno|alba|giorno
+TIME_WORDS_NL = ochtend|avond|nacht|middag|midnight|teatime|lunch|etenstijd|suppertime|middag|schemering|zonsopgang|zonsondergang|dageraad|dag
 
 TIME_WORDS = {TIME_WORDS_DE}|{TIME_WORDS_EN}|{TIME_WORDS_ES}|{TIME_WORDS_FR}|{TIME_WORDS_IT}|{TIME_WORDS_NL}
 
+/*---- TIME WORDS EXPRESSIONS ----*/
+
+TIME_WORDS_EXPRESSIONS_EN = (over{SPACE}an?){SPACE}{TIME_WORDS_EN}
+TIME_WORDS_EXPRESSIONS_ES = (a{SPACE}lo{SPACE}largo{SPACE}de{SPACE}|durante|en{SPACE}una){SPACE}{TIME_WORDS_ES}
+
+TIME_WORDS_EXPRESSIONS = {TIME_WORDS_EXPRESSIONS_EN}|{TIME_WORDS_EXPRESSIONS_ES}
 
 /*---- NUMERIC TIME ----*/
 
-TWELVE_TIME = "[0-2]?[0-9]:[0-5][0-9]"
-TWENTYFOUR_TIME = "[0-2][0-9]:[0-5][0-9]:[0-5][0-9]"
-ARMY_TIME = "0([0-9])([0-9]){2}" 
-AMPM = "(a\\.?m\\.?)|(p\\.?m\\.?)"
+TWELVE_TIME = [0-2]?[0-9]:[0-5][0-9]
+TWENTYFOUR_TIME = [0-2][0-9]:[0-5][0-9]:[0-5][0-9]
+ARMY_TIME = 0([0-9])([0-9]){2}
+AMPM = (a\.?m\.?)|(p\.?m\.?)
 
 /*---- TIME EXPRESSIONS ----*/
-TIME_AM = {TWELVE_TIME}\\s*{AMPM}?
+TIME_AMPM = {TWELVE_TIME}{SPACE}*{AMPM}?
 
-TIME = {TIME_AM}|{TWENTYFOUR_TIME}|{ARMY_TIME}|{TIME_WORDS}
+TIME = {TIME_WORDS_EXPRESSIONS}|{TIME_AMPM}|{TWENTYFOUR_TIME}|{ARMY_TIME}|{TIME_WORDS}
 
 ///////////////
 //// MONEY ////
 ///////////////
 
-CURRENCY_WORD = "(?:dollar|cent|euro|pound)s?|penny|pence|yen|yuan|won"
-CURRENCY_SYMBOL = "\\$|&#163|#|US\\$|HK\\$|A\\$|\u00A2|\u00A3|\u00A4|\u00A5|\u0080|\u20A0|\u20AC|\u060B|\u0E3F|\u20A4|\uFFE0|\uFFE1|\uFFE5|\uFFE6"
+CURRENCY_WORD = (dollar|cent|euro|pound)s?|penny|pence|yen|yuan|won
+CURRENCY_SYMBOL = \$|&#163|#|US\$|HK\$|A\$|\u00A2|\u00A3|\u00A4|\u00A5|\u0080|\u20A0|\u20AC|\u060B|\u0E3F|\u20A4|\uFFE0|\uFFE1|\uFFE5|\uFFE6
 
-SYMBOL_MONEY = {CURRENCY_SYMBOL}\\s*{NUMBER}
-MONEY_SYMBOL = {NUMBER}\\s*({CURRENCY_SYMBOL}|{CURRENCY_WORD})
+SYMBOL_MONEY = {CURRENCY_SYMBOL}{SPACE}*{NUMBER}
+MONEY_SYMBOL = {NUMBER}{SPACE}*({CURRENCY_SYMBOL}|{CURRENCY_WORD})
 
 /*---- MONEY ----*/
 
@@ -199,9 +205,9 @@ MONEY = {SYMBOL_MONEY}|{MONEY_SYMBOL}
 //// PERCENT ////
 /////////////////
 
-NUMBER_PERCENT = {NUMBER}\\s*(prozent|percent|por ciento|pour cent|per cento|procent|%)
-PERCENT_NUMBER = %\\s*{NUMBER}
-PERCENT_ABBREV = {NUMBER}\\s*pct\\.?
+NUMBER_PERCENT = {NUMBER}{SPACE}*(prozent|percent|por ciento|pour cent|per cento|procent|%)
+PERCENT_NUMBER = %{SPACE}*{NUMBER}
+PERCENT_ABBREV = {NUMBER}{SPACE}*pct\.?
 
 /*---- PERCENT ----*/
 PERCENT = {NUMBER_PERCENT}|{PERCENT_NUMBER}|{PERCENT_ABBREV}
@@ -213,28 +219,20 @@ PERCENT = {NUMBER_PERCENT}|{PERCENT_NUMBER}|{PERCENT_ABBREV}
 
 /*---- DATES ----*/
 
-{DATE}                      { String txt = yytext();
-                                return makeName(txt, "DATE");
-                            }
+
+{DATE}                      { String txt = yytext(); return makeName(txt, "DATE"); }
 
 /*---- TIME ----*/
 
-{TIME}                      { String txt = yytext();
-                                return makeName(txt, "TIME");
-                            }
+{TIME}                      { String txt = yytext(); return makeName(txt, "TIME"); }
 /*---- MONEY ----*/
 
-{MONEY}                    { String txt = yytext();
-                                return makeName(txt, "MONEY");
-                           }
+{MONEY}                     { String txt = yytext(); return makeName(txt, "MONEY"); }
 
 /*---- PERCENT ----*/       
 
-{PERCENT}                   { String txt = yytext();
-                                return makeName(txt, "PERCENT");
-                            } 
+{PERCENT}                   { String txt = yytext(); return makeName(txt, "PERCENT"); } 
                             
-
 /*---- skip non printable characters ----*/
 
 [\\x00-\\x19]		{ }

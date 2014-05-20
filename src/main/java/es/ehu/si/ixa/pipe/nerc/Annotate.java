@@ -20,8 +20,10 @@ import ixa.kaflib.KAFDocument;
 import ixa.kaflib.Term;
 import ixa.kaflib.WF;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -34,7 +36,8 @@ import opennlp.tools.util.Span;
  *
  */
 public class Annotate {
-
+  
+  NameFactory nameFactory;
   /**
    * The NameFinder to do the annotation.
    */
@@ -54,7 +57,7 @@ public class Annotate {
   /**
    * The NameFinder Lexer for rule-based name finding
    */
-  private NameFinderLexer lexerFinder;
+  private NumericNameFinder numericLexerFinder;
   /**
    * True if the name finder is statistical.
    */
@@ -73,7 +76,7 @@ public class Annotate {
    * Activates name finding using {@code NameFinderLexer}s
    */
   private boolean lexerFind;
-
+  
   /**
    * Construct a probabilistic annotator.
    *
@@ -87,7 +90,7 @@ public class Annotate {
     if (model.equalsIgnoreCase("baseline")) {
       System.err.println("No NERC model chosen, reverting to baseline model!");
     }
-    NameFactory nameFactory = new NameFactory();
+    nameFactory = new NameFactory();
     nameFinder = new StatisticalNameFinder(lang, nameFactory, model, features, beamsize);
     statistical = true;
   }
@@ -102,6 +105,7 @@ public class Annotate {
    * @param features the features
    * @param beamsize the beam size for decoding
    */
+  //TODO this constructor needs heavy refactoring
   public Annotate(final String lang, final String dictOption, final String ruleBasedOption, final String model,
       final String features, final int beamsize) {
     if (dictOption != null) {
@@ -109,7 +113,7 @@ public class Annotate {
       System.err.println("No NERC model chosen, reverting to baseline model!");
       }
     }
-    NameFactory nameFactory = new NameFactory();
+    nameFactory = new NameFactory();
     nameFinder = new StatisticalNameFinder(lang, nameFactory, model, features, beamsize);
     //TODO remove hard coding of these dictionaries
     perDictFinder = createDictNameFinder("en/en-wiki-person.txt", "PERSON", nameFactory);
@@ -127,13 +131,17 @@ public class Annotate {
       }
     }
     if (ruleBasedOption != null) {
-      if (ruleBasedOption.equalsIgnoreCase("numeric") && !dictOption.equalsIgnoreCase("tag")) {
-        lexerFind = true;
-        statistical = true;
-      }
-      else {
-        lexerFind = true;
-        statistical = false;
+      if (ruleBasedOption.equalsIgnoreCase("numeric")) {
+        if (dictOption != null) {
+          if (dictOption.equalsIgnoreCase("tag")) {
+            lexerFind = true;
+            statistical = false;
+          }
+        }
+        else {
+          lexerFind = true;
+          statistical = true;
+        }
       }
     }
   }
@@ -165,17 +173,26 @@ public class Annotate {
         List<Span> perDictSpans = perDictFinder.nercToSpansExact(tokens);
         List<Span> orgDictSpans = orgDictFinder.nercToSpansExact(tokens);
         List<Span> locDictSpans = locDictFinder.nercToSpansExact(tokens);
-        perDictFinder.concatenateSpans(perDictSpans, orgDictSpans);
-        perDictFinder.concatenateSpans(perDictSpans, locDictSpans);
-        perDictFinder.postProcessDuplicatedSpans(allSpans, perDictSpans);
-        perDictFinder.concatenateSpans(allSpans, perDictSpans);
+        SpanUtils.concatenateSpans(perDictSpans, orgDictSpans);
+        SpanUtils.concatenateSpans(perDictSpans, locDictSpans);
+        SpanUtils.postProcessDuplicatedSpans(allSpans, perDictSpans);
+        SpanUtils.concatenateSpans(allSpans, perDictSpans);
       }
       if (dictTag) {
         allSpans = perDictFinder.nercToSpansExact(tokens);
         List<Span> orgDictSpans = orgDictFinder.nercToSpansExact(tokens);
         List<Span> locDictSpans = locDictFinder.nercToSpansExact(tokens);
-        perDictFinder.concatenateSpans(allSpans, orgDictSpans);
-        perDictFinder.concatenateSpans(allSpans, locDictSpans);
+        SpanUtils.concatenateSpans(allSpans, orgDictSpans);
+        SpanUtils.concatenateSpans(allSpans, locDictSpans);
+      }
+      if (lexerFind) {
+        String sentenceText = StringUtils.getSentenceFromTokens(tokens);
+        //System.err.println("Sentence: " + sentenceText);
+        StringReader stringReader = new StringReader(sentenceText);
+        BufferedReader sentenceReader = new BufferedReader(stringReader);
+        numericLexerFinder = new NumericNameFinder(sentenceReader, nameFactory);
+        List<Span> numericSpans = numericLexerFinder.nercToSpans(tokens);
+        SpanUtils.concatenateSpans(allSpans, numericSpans);
       }
       Span[] allSpansArray = NameFinderME.dropOverlappingSpans(allSpans.toArray(new Span[allSpans.size()]));
       List<Name> names = nameFinder.getNamesFromSpans(allSpansArray, tokens);

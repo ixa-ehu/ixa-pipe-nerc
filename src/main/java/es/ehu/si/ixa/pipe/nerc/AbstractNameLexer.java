@@ -40,7 +40,7 @@ import java.util.NoSuchElementException;
    * @version 2013-18-12
    */
 
-  public abstract class AbstractNameFinderLexer<T> implements NameFinderLexer<T> {
+  public abstract class AbstractNameLexer<T> implements NameLexer<T> {
 
     protected T nextToken; // = null;
 
