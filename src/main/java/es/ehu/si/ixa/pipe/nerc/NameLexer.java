@@ -20,34 +20,34 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Tokenizers break up text into individual Objects. The decisions to specify
- * this interface are pragmatically based on the main Tokenizer implementation
- * provided by ixa-pipe-tok, namely, the @link IxaPipeTokenizer. That
+ * NameLexers break up text into individual Objects. The decisions to specify
+ * this interface are pragmatically based on the main NameLexer implementation
+ * provided by ixa-pipe-nerc, namely, the @link NumericNameLexer. That
  * implementation uses JFlex to create a scanner which recognizes certain
- * patterns in running text and creates @link Token objects. The default API of {@link
- * IxaPipeLexer} provides a <code>yylex()</code> method that behaves roughly like a
+ * patterns in running text and creates @link Name objects. The default API of {@link
+ * NumericLexer} provides a <code>yylex()</code> method that behaves roughly like a
  * <code>next()</code> Iterator function.
  * 
- * Thus, Tokenizer implementations will probably implement and/or override the
- * <code>next()</code> function. For example @link IxaPipeTokenizer provides
+ * Thus, NameLexer implementations will probably implement and/or override the
+ * <code>next()</code> function. For example @link NumericNameLexer provides
  * an implementation of
  * <code>next()<code> that uses internally the <code>yylex()</code> function of @link
- * IxaPipeLexer to obtain the Token objects. Other implementations, e.g., a 
- * @link WhiteSpaceTokenizer, are also expected to implement the <code>next()</code> function.
+ * NumericLexer to obtain the Name objects. Other implementations are 
+ * also expected to implement the <code>next()</code> function.
  * 
  * The same reason (JFlex API) dictates that implementations of this interface
  * are expected to have a constructor takes a Reader as argument.
  * 
- * A Tokenizer extends the Iterator interface, but it also provides a lookahead
+ * A NameLexer extends the Iterator interface, but it also provides a lookahead
  * operation <code>lookAhead()</code>.
  * 
  * @author ragerri
- * @version 2013-18-12
+ * @version 2014-05-14
  */
 public interface NameLexer<T> extends Iterator<T> {
 
   /**
-   * Returns the next token from this Tokenizer.
+   * Returns the next token from this NameLexer.
    * 
    * @return the next token
    * @throws java.util.NoSuchElementException
@@ -56,7 +56,7 @@ public interface NameLexer<T> extends Iterator<T> {
   public T next();
 
   /**
-   * Returns <code>true</code> if and only if this Tokenizer has more elements.
+   * Returns <code>true</code> if and only if this NameLexer has more elements.
    */
   public boolean hasNext();
 
@@ -67,7 +67,7 @@ public interface NameLexer<T> extends Iterator<T> {
   public void remove();
 
   /**
-   * Returns the next token, without removing it, from the Tokenizer, so that
+   * Returns the next token, without removing it, from the NameLexer, so that
    * the same token will be again returned on the next call to next() or
    * lookAhead(). This is useful for conditional decisions on sentence
    * boundaries, for example.
@@ -79,10 +79,10 @@ public interface NameLexer<T> extends Iterator<T> {
   public T lookAhead();
 
   /**
-   * Returns all tokens of this Tokenizer as a List
+   * Returns all tokens of this NameLexer as a List
    * 
    * @return A list of all the tokens
    */
-  public List<T> tokenize();
+  public List<T> nameLex();
 
 }

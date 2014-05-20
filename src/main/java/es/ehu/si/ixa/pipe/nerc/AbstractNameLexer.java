@@ -21,23 +21,23 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
   /**
-   * An abstract tokenizer which implements Tokenizer interface. It also provides 
+   * An abstract NameLexer which implements the {@code NameLexer} interface. It also provides 
    * a <code>getToken()</code> function which does need to be implemented/override by any 
-   * Tokenizer extending the @link AbstractTokenizer. By implementing the <code>getToken()</code>
+   * NameLexer extending the @link AbstractNameLexer. By implementing the <code>getToken()</code>
    * method implementations specify actual behaviour of the functions provided 
-   * by this Tokenizer, which makes it easier to actually implement new Tokenizers;
+   * by this NameLexer, which makes it easier to actually implement new NameLexers.
    * 
-   * ixa-pipe-tok provides an example in the @link JFlexLexerTokenizer where an 
+   * ixa-pipe-nerc provides an example in the @link NumericNameLexer where an 
    * implementation of <code>getToken()</code> makes the <code>next()</code> 
    * function behave like the <code>yylex()</code> function provided by
-   *  @link JFlexLexer. It also specifies the behaviour of the other functions of 
-   * this Tokenizer. 
+   *  @link NumericLexer. It also specifies the behaviour of the other functions of 
+   * this lexer. 
    * 
    * Null tokens not allowed, because null is used in the protected nextToken field to state that no more
    * tokens are available.
    *
    * @author ragerri
-   * @version 2013-18-12
+   * @version 2014-05-14
    */
 
   public abstract class AbstractNameLexer<T> implements NameLexer<T> {
@@ -51,7 +51,7 @@ import java.util.NoSuchElementException;
     protected abstract T getToken();
 
     /**
-     * Returns the next token from this Tokenizer by calling getToken()
+     * Returns the next token from this NumericLexer by calling getToken()
      *
      * @return the next token
      * @throws java.util.NoSuchElementException
@@ -71,7 +71,7 @@ import java.util.NoSuchElementException;
 
     /**
      * Uses getToken() to 
-     * returns <code>true</code> if this Tokenizer has more tokens
+     * returns <code>true</code> if this NameLexer has more tokens
      * 
      */
     public boolean hasNext() {
@@ -110,7 +110,7 @@ import java.util.NoSuchElementException;
      *
      * @return A list of all tokens remaining in the underlying Reader
      */
-    public List<T> tokenize() {
+    public List<T> nameLex() {
       final long start = System.nanoTime();
       List<T> result = new ArrayList<T>();
       while (hasNext()) {
@@ -118,7 +118,7 @@ import java.util.NoSuchElementException;
       }
       final long duration = System.nanoTime() - start;
       final double toksPerSecond = (double) result.size() / ((double) duration / 1000000000.0);
-      System.err.printf("ixa-pipe-tok tokenized %d tokens at %.2f tokens per second.%n", result.size(), toksPerSecond);
+      System.err.printf("ixa-pipe-nerc recognized %d entities at %.2f entity per second.%n", result.size(), toksPerSecond);
       return result;
     }
 

@@ -27,7 +27,7 @@ public class NumericNameFinder implements NameFinder {
 
   public List<Span> nercToSpans(final String[] tokens) {
     List<Span> neSpans = new ArrayList<Span>();
-    List<Name> flexNameList = numericLexer.tokenize();
+    List<Name> flexNameList = numericLexer.nameLex();
     for (Name name : flexNameList) {
       //System.err.println("numeric name: " + name.value());
       List<Integer> neIds = StringUtils.exactTokenFinderIgnoreCase(name.value(), tokens);
