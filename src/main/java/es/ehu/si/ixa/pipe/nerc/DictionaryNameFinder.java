@@ -142,7 +142,6 @@ public class DictionaryNameFinder implements NameFinder {
     List<Name> names = getNamesFromSpans(neSpans, tokens);
     return names;
   }
-
   /**
    * Detects Named Entities in a {@link Dictionary} by NE type ignoring case.
    *

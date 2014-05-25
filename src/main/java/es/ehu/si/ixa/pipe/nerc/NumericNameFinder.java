@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import es.ehu.si.ixa.pipe.nerc.lexer.NumericNameLexer;
+
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.util.Span;
 

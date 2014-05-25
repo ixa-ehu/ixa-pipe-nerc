@@ -14,11 +14,12 @@
    limitations under the License.
  */
 
-package es.ehu.si.ixa.pipe.nerc;
+package es.ehu.si.ixa.pipe.nerc.lexer;
   
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+
 
   /**
    * An abstract NameLexer which implements the {@code NameLexer} interface. It also provides 

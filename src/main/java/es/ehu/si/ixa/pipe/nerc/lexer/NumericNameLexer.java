@@ -14,10 +14,13 @@
    limitations under the License.
  */
 
-package es.ehu.si.ixa.pipe.nerc;
+package es.ehu.si.ixa.pipe.nerc.lexer;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+
+import es.ehu.si.ixa.pipe.nerc.CLI;
+import es.ehu.si.ixa.pipe.nerc.NameFactory;
 
 
 /**

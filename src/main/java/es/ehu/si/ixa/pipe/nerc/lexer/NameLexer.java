@@ -14,10 +14,11 @@
    limitations under the License.
  */
 
-package es.ehu.si.ixa.pipe.nerc;
+package es.ehu.si.ixa.pipe.nerc.lexer;
 
 import java.util.Iterator;
 import java.util.List;
+
 
 /**
  * NameLexers break up text into individual Objects. The decisions to specify
