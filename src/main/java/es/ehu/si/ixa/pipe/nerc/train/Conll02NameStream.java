@@ -63,7 +63,7 @@ public class Conll02NameStream implements ObjectStream<NameSample>{
     
     String type = beginTag.substring(2);
     
-    if ("PER".equals(type)) {
+    /*if ("PER".equals(type)) {
       type = "person";
     }
     else if ("LOC".equals(type)) {
@@ -77,7 +77,7 @@ public class Conll02NameStream implements ObjectStream<NameSample>{
     }
     else {
       throw new InvalidFormatException("Unknown type: " + type);
-    }
+    }*/
     
     return new Span(begin, end, type);
   }

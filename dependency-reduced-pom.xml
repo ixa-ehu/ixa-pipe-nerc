@@ -76,10 +76,6 @@
       <id>ixa-ehu.github</id>
       <url>https://raw.github.com/ixa-ehu/kaflib-mvn-repo/master</url>
     </repository>
-    <repository>
-      <id>eaio.com</id>
-      <url>http://eaio.com/maven2</url>
-    </repository>
   </repositories>
   <dependencies>
     <dependency>
