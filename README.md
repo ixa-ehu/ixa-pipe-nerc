@@ -3,12 +3,12 @@ ixa-pipe-nerc
 =============
 
 ixa-pipe-nerc is a Named Entity Recognition and Classification tagger for English and Spanish. 
-ixa-pipe-nerc is part of IXA Pipeline ("is a pipeline"), a multilingual NLP pipeline developed 
+ixa-pipe-nerc is part of IXA pipes, a multilingual NLP pipeline developed 
 by the IXA NLP Group [http://ixa2.si.ehu.es/ixa-pipes]. 
 
 Please go to [http://ixa2.si.ehu.es/ixa-pipes] for general information about the IXA
-pipeline tools but also for **official releases, including source code and binary
-packages for all the tools in the IXA pipeline**.
+pipes tools but also for **official releases, including source code and binary
+packages for all the tools in the IXA pipes toolkit**.
 
 This document is intended to be the **usage guide of ixa-pipe-nerc**. If you really need to clone
 and install this repository instead of using the releases provided in
@@ -31,7 +31,7 @@ tags, chunking or gazetteers in our baseline models but we do use
 bigrams as a feature. To avoid duplication of efforts, we use the machine
 learning API provided by the [Apache OpenNLP project](http://opennlp.apache.org).
 
-We distribute the ixa-pipe-nerc resources in two packages: 
+**We distribute the ixa-pipe-nerc resources in two packages**: 
 
   + The [nerc-default-resources.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-default-resources.tgz) which contains the **required default 
   resources for ixa-pipe-nerc to compile and run**. This package is distributed in the
@@ -97,7 +97,7 @@ to try them, for production use, we recommend using:
   + English 3 NE types multicorpora baseline model: **en-nerc-perceptron-conll03-ontonotes-4.0-3-types-baseline-c0-b3.bin**
   + Spanish CoNLL 4 NE types baseline c4 model: **es-nerc-maxent-baseline-750-c4-b3-testa.bin**.
 
-The default models provided in the package [nerc-resources.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-default-resources.tgz) are: 
+The default models provided in the package [nerc-default-resources.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-default-resources.tgz) are: 
   + English CoNLL 4 NE types multi corpora baseline model: **en-nerc-perceptron-conll03-ontonotes-4.0-4-types-baseline-c0-b3.bin**
   + Spanish baseline c4 model: **es-nerc-maxent-baseline-750-c4-b3-testa.bin**.
 

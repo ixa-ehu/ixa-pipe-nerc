@@ -28,7 +28,7 @@ Language=en
 # Otherwise, separate with comma, eg., location,organization,person,misc
 
 #Types=
-Types=location,misc,organization,person
+Types=location,organization,person,misc
 
 # Beamsize 1 amounts to greedy search
 Beamsize=3
