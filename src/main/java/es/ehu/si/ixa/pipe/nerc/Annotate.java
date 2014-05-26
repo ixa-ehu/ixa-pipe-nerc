@@ -59,10 +59,6 @@ public class Annotate {
    */
   private NumericNameFinder numericLexerFinder;
   /**
-   * The Lucene base name finder.
-   */
-  private LuceneNameFinder luceneNameFinder;
-  /**
    * True if the name finder is statistical.
    */
   private boolean statistical;
@@ -80,10 +76,6 @@ public class Annotate {
    * Activates name finding using {@code NameFinderLexer}s.
    */
   private boolean lexerFind;
-  /**
-   * Activates Lucene based name finding, e.g., {@code LuceneNameFinder}.
-   */
-  private boolean useLucene;
   
   /**
    * Construct a probabilistic annotator.
@@ -114,7 +106,7 @@ public class Annotate {
    * @param beamsize the beam size for decoding
    */
   //TODO this constructor needs heavy refactoring
-  public Annotate(final String lang, final String dictOption, final String ruleBasedOption, final String luceneOption, final String model,
+  public Annotate(final String lang, final String dictOption, final String ruleBasedOption, final String model,
       final String features, final int beamsize) {
     if (dictOption != null) {
       if (model.equalsIgnoreCase("baseline") && !dictOption.equalsIgnoreCase("tag")) {
@@ -151,11 +143,6 @@ public class Annotate {
           statistical = true;
         }
       }
-    }
-    if (luceneOption != null) {
-      useLucene = true;
-      luceneNameFinder = new LuceneNameFinder(luceneOption, nameFactory);
-      
     }
   }
 
@@ -206,10 +193,6 @@ public class Annotate {
         numericLexerFinder = new NumericNameFinder(sentenceReader, nameFactory);
         List<Span> numericSpans = numericLexerFinder.nercToSpans(tokens);
         SpanUtils.concatenateSpans(allSpans, numericSpans);
-      }
-      if (useLucene) {
-        List<Span> neLuceneSpans = luceneNameFinder.nercToSpans(tokens);
-        //SpanUtils.concatenateSpans(allSpans, neLuceneSpans);
       }
       Span[] allSpansArray = NameFinderME.dropOverlappingSpans(allSpans.toArray(new Span[allSpans.size()]));
       List<Name> names = nameFinder.getNamesFromSpans(allSpansArray, tokens);

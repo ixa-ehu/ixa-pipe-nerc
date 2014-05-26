@@ -23,7 +23,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.jdom2.JDOMException;
 
 import es.ehu.si.ixa.pipe.nerc.eval.Evaluate;
-import es.ehu.si.ixa.pipe.nerc.lucene.IndexFiles;
 import es.ehu.si.ixa.pipe.nerc.train.BaselineNameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.DictLbjNameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
@@ -71,10 +70,7 @@ public class CLI {
    * The parser that manages the evaluation sub-command.
    */
   private Subparser evalParser;
-  /**
-   * The parser that manages Lucene Indexes creation.
-   */
-  private Subparser luceneParser;
+
   /**
    * Default beam size for decoding.
    */
@@ -90,9 +86,6 @@ public class CLI {
     loadTrainingParameters();
     evalParser = subParsers.addParser("eval").help("Evaluation CLI");
     loadEvalParameters();
-    luceneParser = subParsers.addParser("luceneIndexer").help("Lucene indexer CLI");
-    loadLuceneIndexerParameters();
-    
   }
 
   /**
@@ -126,8 +119,6 @@ public class CLI {
         eval();
       } else if (args[0].equals("train")) {
         train();
-      } else if (args[0].equals("luceneIndexer")) {
-        createLuceneIndex();
       }
     } catch (ArgumentParserException e) {
       argParser.handleError(e);
@@ -151,7 +142,6 @@ public class CLI {
     String features = parsedArguments.getString("features");
     String gazetteerOption = parsedArguments.getString("gazetteers");
     String ruleBasedOption = parsedArguments.getString("lexer");
-    String luceneOption= parsedArguments.getString("lucene");
     String model;
     if (parsedArguments.get("model") == null) {
       model = "baseline";
@@ -175,9 +165,8 @@ public class CLI {
     newLp.setBeginTimestamp();
     
     if (parsedArguments.get("gazetteers") != null ||
-        parsedArguments.get("lexer") != null ||
-        parsedArguments.get("lucene") != null) {
-      Annotate annotator = new Annotate(lang, gazetteerOption, ruleBasedOption, luceneOption, model, features,
+        parsedArguments.get("lexer") != null) {
+      Annotate annotator = new Annotate(lang, gazetteerOption, ruleBasedOption, model, features,
           beamsize);
       annotator.annotateNEsToKAF(kaf);
     } 
@@ -282,14 +271,6 @@ public class CLI {
       evaluator.detailEvaluate();
     }
   }
-  
-  private final void createLuceneIndex() throws IOException {
-    String inputDir = parsedArguments.getString("inputDir");
-    String indexDir = parsedArguments.getString("indexDir");
-    String options = parsedArguments.getString("options");
-    IndexFiles indexer = new IndexFiles(options);
-    indexer.createIndex(inputDir, indexDir, options);
-  }
 
   /**
    * Create the available parameters for NER tagging.
@@ -374,14 +355,6 @@ public class CLI {
         .type(Integer.class)
         .help(
             "Choose beam size for evaluation: 1 is faster and amounts to greedy search");
-  }
-  
-  private void loadLuceneIndexerParameters() {
-    luceneParser.addArgument("--inputDir");
-    luceneParser.addArgument("--indexDir");
-    luceneParser.addArgument("-o", "--options")
-        .required(false)
-        .setDefault("create");
   }
 
 }
