@@ -1,4 +1,4 @@
-package es.ehu.si.ixa.pipe.nerc;
+package es.ehu.si.ixa.pipe.nerc.lexer;
 
 /* --------------------------Usercode Section------------------------ */
 
@@ -6,6 +6,9 @@ package es.ehu.si.ixa.pipe.nerc;
 import java.io.Reader;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+
+import es.ehu.si.ixa.pipe.nerc.Name;
+import es.ehu.si.ixa.pipe.nerc.NameFactory;
 
 	
 /* -----------------Options and Declarations Section----------------- */
@@ -160,8 +163,8 @@ DATE = {DAY_MONTH_YEAR}|{MONTH_DAY_YEAR}|{YEAR_MONTH_DAY}|{SIMPLE_DATE}|{DATE_YE
 /*---- GENERIC TIME WORDS ----*/
 
 TIME_WORDS_DE = Morgen|Abend|Nacht|Uhr|Mitternacht|Mittags|Abendessen|Abendbrot|Nachmittag|Mittag|Dämmerung|Sonnenaufgang|Sonnenuntergang|Tagesanbruch|Tag
-TIME_WORDS_EN = (morning|evening|night|noon|midnight|teatime|lunchtime|dinnertime|suppertime|afternoon|midday|dusk|dawn|sunup|sundown|daybreak|day|decade)
-TIME_WORDS_ES = década|mañana|tarde|noche|mediodía|medianoche|hora{SPACE}del{SPACE}té|hora{SPACE}del{SPACE}café|cena|suppertime|atardecer|alba|amanecer|ocaso
+TIME_WORDS_EN = (morning|evening|night|noon|midnight|teatime|lunchtime|dinnertime|suppertime|afternoon|midday|dusk|dawn|sunup|sundown|daybreak|day)
+TIME_WORDS_ES = mañana|tarde|noche|mediodía|medianoche|hora{SPACE}del{SPACE}té|hora{SPACE}del{SPACE}café|cena|suppertime|atardecer|alba|amanecer|ocaso
 TIME_WORDS_FR = matin|soirée|nuit|midi|minuit|heure{SPACE}du{SPACE}thé|midi|dîner|souper|après-midi|midi|crépuscule|aube|lever{SPACE}du{SPACE}soleil|coucher{SPACE}du{SPACE}soleil|lever{SPACE}du{SPACE}jour|jour
 TIME_WORDS_IT = mattina|sera|notte|mezzogiorno|mezzanotte|teatime|pranzo|cena|suppertime|pomeriggio|mezzogiorno|alba|giorno
 TIME_WORDS_NL = ochtend|avond|nacht|middag|midnight|teatime|lunch|etenstijd|suppertime|middag|schemering|zonsopgang|zonsondergang|dageraad|dag
@@ -170,7 +173,7 @@ TIME_WORDS = {TIME_WORDS_DE}|{TIME_WORDS_EN}|{TIME_WORDS_ES}|{TIME_WORDS_FR}|{TI
 
 /*---- TIME WORDS EXPRESSIONS ----*/
 
-TIME_WORDS_EXPRESSIONS_EN = (over{SPACE}an?){SPACE}{TIME_WORDS_EN}
+TIME_WORDS_EXPRESSIONS_EN = (over{SPACE}the){SPACE}{TIME_WORDS_EN}
 TIME_WORDS_EXPRESSIONS_ES = (a{SPACE}lo{SPACE}largo{SPACE}de{SPACE}|durante|en{SPACE}una){SPACE}{TIME_WORDS_ES}
 
 TIME_WORDS_EXPRESSIONS = {TIME_WORDS_EXPRESSIONS_EN}|{TIME_WORDS_EXPRESSIONS_ES}
@@ -247,24 +250,24 @@ PERCENT = {NUMBER_PERCENT}|{PERCENT_NUMBER}|{PERCENT_ABBREV}
               break;
             case FIRST_DELETE:
               if ( ! this.seenUntokenizableCharacter) {
-                LOGGER.warning(msg);
+                //LOGGER.warning(msg);
                 this.seenUntokenizableCharacter = true;
               }
               break;
             case ALL_DELETE:
-              LOGGER.warning(msg);
+              //LOGGER.warning(msg);
               this.seenUntokenizableCharacter = true;
               break;
             case NONE_KEEP:
               return makeName();
             case FIRST_KEEP:
               if ( ! this.seenUntokenizableCharacter) {
-                LOGGER.warning(msg);
+                //LOGGER.warning(msg);
                 this.seenUntokenizableCharacter = true;
               }
               return makeName();
             case ALL_KEEP:
-              LOGGER.warning(msg);
+              //LOGGER.warning(msg);
               this.seenUntokenizableCharacter = true;
               return makeName();
           }

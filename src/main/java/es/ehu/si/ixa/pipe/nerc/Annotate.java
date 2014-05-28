@@ -45,15 +45,7 @@ public class Annotate {
   /**
    * The dictionary name finders to do the post processing.
    */
-  private DictionaryNameFinder perDictFinder;
-  /**
-   * The dictionary name finders to do the post processing.
-   */
-  private DictionaryNameFinder orgDictFinder;
-  /**
-   * The dictionary name finders to do the post processing.
-   */
-  private DictionaryNameFinder locDictFinder;
+  private DictionaryMapNameFinder dictFinder;
   /**
    * The NameFinder Lexer for rule-based name finding.
    */
@@ -95,18 +87,8 @@ public class Annotate {
     statistical = true;
   }
 
-  /**
-   * Construct an annotator with options for post processing of probabilistic
-   * annotation and tagging with dictionaries only.
-   *
-   * @param lang the language
-   * @param dictOption whether dictionaries are used for tagging or post processing
-   * @param model the model
-   * @param features the features
-   * @param beamsize the beam size for decoding
-   */
   //TODO this constructor needs heavy refactoring
-  public Annotate(final String lang, final String dictOption, final String ruleBasedOption, final String model,
+  public Annotate(final String lang, final String dictOption, final String dictPath, final String ruleBasedOption, final String model,
       final String features, final int beamsize) {
     if (dictOption != null) {
       if (model.equalsIgnoreCase("baseline") && !dictOption.equalsIgnoreCase("tag")) {
@@ -115,11 +97,9 @@ public class Annotate {
     }
     nameFactory = new NameFactory();
     nameFinder = new StatisticalNameFinder(lang, nameFactory, model, features, beamsize);
-    //TODO remove hard coding of these dictionaries
-    perDictFinder = createDictNameFinder("en/en-wiki-person.txt", "PERSON", nameFactory);
-    orgDictFinder = createDictNameFinder("en/en-wiki-organization.txt", "ORGANIZATION", nameFactory);
-    locDictFinder = createDictNameFinder("en/en-wiki-location.txt", "LOCATION", nameFactory);
-    if (dictOption != null) {
+    if (dictOption != null && dictPath != null) {
+      DictionaryMap dictionary = new DictionaryMap(dictPath);
+      dictFinder = new DictionaryMapNameFinder(dictionary, nameFactory);
       if (dictOption.equalsIgnoreCase("post")) {
         postProcess = true;
         statistical = true;
@@ -170,20 +150,12 @@ public class Annotate {
         allSpans = nameFinder.nercToSpans(tokens);
       }
       if (postProcess) {
-        List<Span> perDictSpans = perDictFinder.nercToSpansExact(tokens);
-        List<Span> orgDictSpans = orgDictFinder.nercToSpansExact(tokens);
-        List<Span> locDictSpans = locDictFinder.nercToSpansExact(tokens);
-        SpanUtils.concatenateSpans(perDictSpans, orgDictSpans);
-        SpanUtils.concatenateSpans(perDictSpans, locDictSpans);
-        SpanUtils.postProcessDuplicatedSpans(allSpans, perDictSpans);
-        SpanUtils.concatenateSpans(allSpans, perDictSpans);
+        List<Span> dictSpans = dictFinder.nercToSpansExact(tokens);
+        SpanUtils.postProcessDuplicatedSpans(allSpans, dictSpans);
+        SpanUtils.concatenateSpans(allSpans, dictSpans);
       }
       if (dictTag) {
-        allSpans = perDictFinder.nercToSpansExact(tokens);
-        List<Span> orgDictSpans = orgDictFinder.nercToSpansExact(tokens);
-        List<Span> locDictSpans = locDictFinder.nercToSpansExact(tokens);
-        SpanUtils.concatenateSpans(allSpans, orgDictSpans);
-        SpanUtils.concatenateSpans(allSpans, locDictSpans);
+        allSpans = dictFinder.nercToSpans(tokens);
       }
       if (lexerFind) {
         String sentenceText = StringUtils.getSentenceFromTokens(tokens);
@@ -217,11 +189,10 @@ public class Annotate {
    * @param nameFactory the factory
    * @return an instance of a {@link DictionaryNameFinder}
    */
-  public final DictionaryNameFinder createDictNameFinder(final String dictFile, final String type,
+  public final DictionaryMapNameFinder createDictNameFinder(final String dictPath,
       final NameFactory nameFactory) {
-    InputStream dictStream = getClass().getResourceAsStream("/" + dictFile);
-    Dictionary dict = new Dictionary(dictStream);
-    DictionaryNameFinder dictNameFinder = new DictionaryNameFinder(dict, type, nameFactory);
+    DictionaryMap dict = new DictionaryMap(dictPath);
+    DictionaryMapNameFinder dictNameFinder = new DictionaryMapNameFinder(dict, nameFactory);
     return dictNameFinder;
   }
 }

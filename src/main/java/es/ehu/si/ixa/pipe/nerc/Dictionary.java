@@ -42,6 +42,7 @@ public class Dictionary {
   public final List<String> getDict() {
     return dictList;
   }
+  
   /**
    *
    * @param fileInputStream the inputstream of the file

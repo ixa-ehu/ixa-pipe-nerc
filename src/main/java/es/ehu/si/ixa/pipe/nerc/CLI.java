@@ -141,6 +141,7 @@ public class CLI {
     int beamsize = parsedArguments.getInt("beamsize");
     String features = parsedArguments.getString("features");
     String gazetteerOption = parsedArguments.getString("gazetteers");
+    String dictPath = parsedArguments.getString("dictPath");
     String ruleBasedOption = parsedArguments.getString("lexer");
     String model;
     if (parsedArguments.get("model") == null) {
@@ -165,8 +166,9 @@ public class CLI {
     newLp.setBeginTimestamp();
     
     if (parsedArguments.get("gazetteers") != null ||
-        parsedArguments.get("lexer") != null) {
-      Annotate annotator = new Annotate(lang, gazetteerOption, ruleBasedOption, model, features,
+        parsedArguments.get("lexer") != null ||
+        parsedArguments.get("dictPath") != null) {
+      Annotate annotator = new Annotate(lang, gazetteerOption, dictPath, ruleBasedOption, model, features,
           beamsize);
       annotator.annotateNEsToKAF(kaf);
     } 
@@ -278,35 +280,35 @@ public class CLI {
   private void loadAnnotateParameters() {
     annotateParser.addArgument("-l", "--lang").choices("en", "es")
         .required(false)
-        .help("Choose a language to perform annotation with ixa-pipe-nerc");
+        .help("Choose a language to perform annotation with ixa-pipe-nerc\n");
     annotateParser.addArgument("-f", "--features")
         .choices("opennlp", "baseline", "dictlbj")
         .required(false).setDefault("baseline")
-        .help("Choose features for NERC; it defaults to baseline");
+        .help("Choose features for NERC; it defaults to baseline\n");
     annotateParser.addArgument("-m", "--model").required(false)
-        .help("Choose model to perform NERC annotation");
+        .help("Choose model to perform NERC annotation\n");
     annotateParser
         .addArgument("--beamsize")
         .setDefault(DEFAULT_BEAM_SIZE)
         .type(Integer.class)
         .help(
-            "Choose beam size for decoding: 1 is faster and amounts to greedy search");
+            "Choose beam size for decoding: 1 is faster and amounts to greedy search\n");
     annotateParser
         .addArgument("-g", "--gazetteers")
         .choices("tag", "post")
         .required(false)
         .help(
             "Use gazetteers directly for tagging or "
-                + "for post-processing the probabilistic NERC output");
+                + "for post-processing the probabilistic NERC output\n");
+    annotateParser
+        .addArgument("--dictPath")
+        .required(false)
+        .help("Path to the gazetteers for annotation\n");
     annotateParser
         .addArgument("--lexer")
         .choices("numeric")
         .required(false)
-        .help("Use lexer rules for NER tagging");
-    annotateParser
-        .addArgument("--lucene")
-        .required(false)
-        .help("Use lucene search functionalities over an indexed gazetteer.");
+        .help("Use lexer rules for NER tagging\n");
   }
 
   /**
@@ -315,46 +317,46 @@ public class CLI {
   private void loadTrainingParameters() {
     trainParser.addArgument("-f", "--features")
         .choices("opennlp", "baseline", "dictlbj")
-        .required(true).help("Choose features to train NERC model");
+        .required(true).help("Choose features to train NERC model\n");
     trainParser.addArgument("-p", "--params").required(true)
-        .help("Load the parameters file");
+        .help("Load the parameters file\n");
     trainParser.addArgument("-i", "--input").required(true)
-        .help("Input training set");
+        .help("Input training set\n");
     trainParser.addArgument("-t", "--testSet").required(true)
-        .help("Input testset for evaluation");
+        .help("Input testset for evaluation\n");
     trainParser.addArgument("-d", "--devSet").required(false)
-        .help("Input development set for cross-evaluation");
+        .help("Input development set for cross-evaluation\n");
     trainParser.addArgument("-o", "--output").required(false)
-        .help("Choose output file to save the annotation");
+        .help("Choose output file to save the annotation\n");
   }
 
   /**
    * Create the parameters available for evaluation.
    */
   private void loadEvalParameters() {
-    evalParser.addArgument("-m", "--model").required(true).help("Choose model");
+    evalParser.addArgument("-m", "--model").required(true).help("Choose model\n");
     evalParser.addArgument("-f", "--features")
         .choices("opennlp", "baseline", "dictlbj")
-        .required(true).help("Choose features for evaluation");
+        .required(true).help("Choose features for evaluation\n");
     evalParser.addArgument("-l", "--language").required(true)
         .choices("en", "es")
-        .help("Choose language to load model for evaluation");
+        .help("Choose language to load model for evaluation\n");
     evalParser.addArgument("-t", "--testSet").required(true)
-        .help("Input testset for evaluation");
+        .help("Input testset for evaluation\n");
     evalParser.addArgument("--evalReport").required(false)
         .choices("brief", "detailed", "error")
-        .help("Choose type of evaluation report; defaults to detailed");
+        .help("Choose type of evaluation report; defaults to detailed\n");
     evalParser.addArgument("-c", "--corpus").setDefault("opennlp")
-        .choices("conll", "opennlp").help("choose format input of corpus");
+        .choices("conll", "opennlp").help("choose format input of corpus\n");
     evalParser.addArgument("-n","--netypes")
         .required(false)
-        .help("Choose ne types to do the evaluation; it defaults to all represented in the testset");
+        .help("Choose ne types to do the evaluation; it defaults to all represented in the testset\n");
     evalParser
         .addArgument("--beamsize")
         .setDefault(DEFAULT_BEAM_SIZE)
         .type(Integer.class)
         .help(
-            "Choose beam size for evaluation: 1 is faster and amounts to greedy search");
+            "Choose beam size for evaluation: 1 is faster and amounts to greedy search\n");
   }
 
 }
