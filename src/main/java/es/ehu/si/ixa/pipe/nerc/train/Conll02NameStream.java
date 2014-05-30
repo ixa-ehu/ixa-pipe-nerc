@@ -62,23 +62,6 @@ public class Conll02NameStream implements ObjectStream<NameSample>{
   static final Span extract(int begin, int end, String beginTag) throws InvalidFormatException {
     
     String type = beginTag.substring(2);
-    
-    if ("PER".equals(type)) {
-      type = "person";
-    }
-    else if ("LOC".equals(type)) {
-      type = "location";
-    }
-    else if ("MISC".equals(type)) {
-      type = "misc";
-    }
-    else if ("ORG".equals(type)) {
-      type = "organization";
-    }
-    else {
-      throw new InvalidFormatException("Unknown type: " + type);
-    }
-    
     return new Span(begin, end, type);
   }
 
