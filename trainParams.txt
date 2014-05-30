@@ -34,7 +34,7 @@ Types=location,organization,person,misc
 Beamsize=3
 
 # Formats opennlp or conll
-Corpus=opennlp
+Corpus=conll
 
 ## Cross Evaluation if empty no cross evaluation is performed;
 ## Cross Evaluation takes two values as arguments, namely, 50:100;

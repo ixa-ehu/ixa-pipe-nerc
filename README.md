@@ -332,7 +332,7 @@ wget http://ixa2.si.ehu.es/ixa-pipes/models/nerc-default-resources.tgz
 tar xvzf nerc-default-resources.tgz
 ````
 The nerc-default-resources package contains the baseline models to which ixa-pipe-nerc backs off if not model is provided as parameter
-for tagging. If you require other models, as explained in the [overview](#overview), please additionally download the [nerc-resources](http://ixa2.si.ehu.es/ixa-pipes/nerc-resources.tgz) package. 
+for tagging. If you require other models, as explained in the [overview](#overview), please additionally download the [nerc-resources](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-resources.tgz) package. 
 
 ### 5. Compile
 
