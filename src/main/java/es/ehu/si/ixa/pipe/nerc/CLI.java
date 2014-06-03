@@ -22,6 +22,7 @@ import opennlp.tools.util.TrainingParameters;
 import org.apache.commons.io.FilenameUtils;
 import org.jdom2.JDOMException;
 
+import es.ehu.si.ixa.pipe.nerc.eval.CorpusEvaluate;
 import es.ehu.si.ixa.pipe.nerc.eval.Evaluate;
 import es.ehu.si.ixa.pipe.nerc.train.BaselineNameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.DictLbjNameFinderTrainer;
@@ -30,18 +31,21 @@ import es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.OpenNLPDefaultTrainer;
 
 /**
- * Main class of ixa-pipe-nerc, the ixa pipes (ixa2.si.ehu.es/ixa-pipes) ner tagger.
- *
+ * Main class of ixa-pipe-nerc, the ixa pipes (ixa2.si.ehu.es/ixa-pipes) ner
+ * tagger.
+ * 
  * @author ragerri
  * @version 2014-04-18
- *
+ * 
  */
 public class CLI {
 
   /**
-   * Get dynamically the version of ixa-pipe-nerc by looking at the MANIFEST file.
+   * Get dynamically the version of ixa-pipe-nerc by looking at the MANIFEST
+   * file.
    */
-  private final String version =  CLI.class.getPackage().getImplementationVersion();
+  private final String version = CLI.class.getPackage()
+      .getImplementationVersion();
   /**
    * Name space of the arguments provided at the CLI.
    */
@@ -49,10 +53,10 @@ public class CLI {
   /**
    * Argument parser instance.
    */
-  private ArgumentParser argParser = ArgumentParsers
-      .newArgumentParser("ixa-pipe-nerc-" + version + ".jar")
-      .description(
-          "ixa-pipe-nerc-" + version + " is a multilingual NERC module developed by IXA NLP Group.\n");
+  private ArgumentParser argParser = ArgumentParsers.newArgumentParser(
+      "ixa-pipe-nerc-" + version + ".jar").description(
+      "ixa-pipe-nerc-" + version
+          + " is a multilingual NERC module developed by IXA NLP Group.\n");
   /**
    * Sub parser instance.
    */
@@ -75,9 +79,10 @@ public class CLI {
    * Default beam size for decoding.
    */
   public static final int DEFAULT_BEAM_SIZE = 3;
+
   /**
-   * Construct a CLI object with the three sub-parsers to manage
-   * the command line parameters.
+   * Construct a CLI object with the three sub-parsers to manage the command
+   * line parameters.
    */
   public CLI() {
     annotateParser = subParsers.addParser("tag").help("Tagging CLI");
@@ -90,13 +95,16 @@ public class CLI {
 
   /**
    * Main entry point of ixa-pipe-nerc.
-   *
+   * 
    * @param args
    *          the arguments passed through the CLI
-   * @throws IOException exception if input data not available
-   * @throws JDOMException if problems with the xml formatting of NAF
+   * @throws IOException
+   *           exception if input data not available
+   * @throws JDOMException
+   *           if problems with the xml formatting of NAF
    */
-  public static void main(final String[] args) throws IOException, JDOMException {
+  public static void main(final String[] args) throws IOException,
+      JDOMException {
 
     CLI cmdLine = new CLI();
     cmdLine.parseCLI(args);
@@ -104,10 +112,11 @@ public class CLI {
 
   /**
    * Parse the command interface parameters with the argParser.
-   *
+   * 
    * @param args
    *          the arguments passed through the CLI
-   * @throws IOException exception if problems with the incoming data
+   * @throws IOException
+   *           exception if problems with the incoming data
    */
   public final void parseCLI(final String[] args) throws IOException {
     try {
@@ -122,21 +131,24 @@ public class CLI {
       }
     } catch (ArgumentParserException e) {
       argParser.handleError(e);
-      System.out
-          .println("Run java -jar target/ixa-pipe-nerc-" + version + ".jar (tag|train|eval) -help for details");
+      System.out.println("Run java -jar target/ixa-pipe-nerc-" + version
+          + ".jar (tag|train|eval) -help for details");
       System.exit(1);
     }
   }
 
   /**
    * Main method to do Named Entity tagging.
-   *
-   * @param inputStream the input stream containing the content to tag
-   * @param outputStream the output stream providing the named entities
-   * @throws IOException exception if problems in input or output streams
+   * 
+   * @param inputStream
+   *          the input stream containing the content to tag
+   * @param outputStream
+   *          the output stream providing the named entities
+   * @throws IOException
+   *           exception if problems in input or output streams
    */
-  public final void annotate(final InputStream inputStream, final OutputStream outputStream)
-      throws IOException {
+  public final void annotate(final InputStream inputStream,
+      final OutputStream outputStream) throws IOException {
 
     int beamsize = parsedArguments.getInt("beamsize");
     String features = parsedArguments.getString("features");
@@ -162,17 +174,17 @@ public class CLI {
     } else {
       lang = parsedArguments.getString("lang");
     }
-    KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor("entities", "ixa-pipe-nerc-" + lang, version);
+    KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor(
+        "entities", "ixa-pipe-nerc-" + lang, version);
     newLp.setBeginTimestamp();
-    
-    if (parsedArguments.get("gazetteers") != null ||
-        parsedArguments.get("lexer") != null ||
-        parsedArguments.get("dictPath") != null) {
-      Annotate annotator = new Annotate(lang, gazetteerOption, dictPath, ruleBasedOption, model, features,
-          beamsize);
+
+    if (parsedArguments.get("gazetteers") != null
+        || parsedArguments.get("lexer") != null
+        || parsedArguments.get("dictPath") != null) {
+      Annotate annotator = new Annotate(lang, gazetteerOption, dictPath,
+          ruleBasedOption, model, features, beamsize);
       annotator.annotateNEsToKAF(kaf);
-    } 
-    else {
+    } else {
       Annotate annotator = new Annotate(lang, model, features, beamsize);
       annotator.annotateNEsToKAF(kaf);
     }
@@ -184,8 +196,9 @@ public class CLI {
 
   /**
    * Main access to the train functionalities.
-   *
-   * @throws IOException input output exception if problems with corpora
+   * 
+   * @throws IOException
+   *           input output exception if problems with corpora
    */
   public final void train() throws IOException {
 
@@ -244,12 +257,14 @@ public class CLI {
 
   /**
    * Main evaluation entry point.
-   *
-   * @throws IOException throws exception if test set not available
+   * 
+   * @throws IOException
+   *           throws exception if test set not available
    */
   public final void eval() throws IOException {
 
     String testFile = parsedArguments.getString("testSet");
+    String predFile = parsedArguments.getString("prediction");
     String features = parsedArguments.getString("features");
     String model = parsedArguments.getString("model");
     String lang = parsedArguments.getString("language");
@@ -257,20 +272,30 @@ public class CLI {
     String corpusFormat = parsedArguments.getString("corpus");
     String netypes = parsedArguments.getString("netypes");
 
-    Evaluate evaluator = new Evaluate(testFile, model, features, lang, beam,
-        corpusFormat, netypes);
-    if (parsedArguments.getString("evalReport") != null) {
-      if (parsedArguments.getString("evalReport").equalsIgnoreCase("brief")) {
-        evaluator.evaluate();
-      } else if (parsedArguments.getString("evalReport").equalsIgnoreCase(
-          "error")) {
-        evaluator.evalError();
-      } else if (parsedArguments.getString("evalReport").equalsIgnoreCase(
-          "detailed")) {
+    if (parsedArguments.getString("model") != null) {
+      Evaluate evaluator = new Evaluate(testFile, model, features, lang, beam,
+          corpusFormat, netypes);
+      if (parsedArguments.getString("evalReport") != null) {
+        if (parsedArguments.getString("evalReport").equalsIgnoreCase("brief")) {
+          evaluator.evaluate();
+        } else if (parsedArguments.getString("evalReport").equalsIgnoreCase(
+            "error")) {
+          evaluator.evalError();
+        } else if (parsedArguments.getString("evalReport").equalsIgnoreCase(
+            "detailed")) {
+          evaluator.detailEvaluate();
+        }
+      } else {
         evaluator.detailEvaluate();
       }
-    } else {
-      evaluator.detailEvaluate();
+    }
+    else if (parsedArguments.getString("prediction") != null) {
+      CorpusEvaluate corpusEvaluator = new CorpusEvaluate(testFile, predFile,
+          lang, corpusFormat, netypes);
+      corpusEvaluator.evaluate();
+    }
+    else {
+      System.err.println("Provide either a model or a predictionFile to perform evaluation!");
     }
   }
 
@@ -282,8 +307,8 @@ public class CLI {
         .required(false)
         .help("Choose a language to perform annotation with ixa-pipe-nerc\n");
     annotateParser.addArgument("-f", "--features")
-        .choices("opennlp", "baseline", "dictlbj")
-        .required(false).setDefault("baseline")
+        .choices("opennlp", "baseline", "dictlbj").required(false)
+        .setDefault("baseline")
         .help("Choose features for NERC; it defaults to baseline\n");
     annotateParser.addArgument("-m", "--model").required(false)
         .help("Choose model to perform NERC annotation\n");
@@ -300,14 +325,9 @@ public class CLI {
         .help(
             "Use gazetteers directly for tagging or "
                 + "for post-processing the probabilistic NERC output\n");
-    annotateParser
-        .addArgument("--dictPath")
-        .required(false)
+    annotateParser.addArgument("--dictPath").required(false)
         .help("Path to the gazetteers for annotation\n");
-    annotateParser
-        .addArgument("--lexer")
-        .choices("numeric")
-        .required(false)
+    annotateParser.addArgument("--lexer").choices("numeric").required(false)
         .help("Use lexer rules for NER tagging\n");
   }
 
@@ -316,8 +336,8 @@ public class CLI {
    */
   private void loadTrainingParameters() {
     trainParser.addArgument("-f", "--features")
-        .choices("opennlp", "baseline", "dictlbj")
-        .required(true).help("Choose features to train NERC model\n");
+        .choices("opennlp", "baseline", "dictlbj").required(true)
+        .help("Choose features to train NERC model\n");
     trainParser.addArgument("-p", "--params").required(true)
         .help("Load the parameters file\n");
     trainParser.addArgument("-i", "--input").required(true)
@@ -334,23 +354,27 @@ public class CLI {
    * Create the parameters available for evaluation.
    */
   private void loadEvalParameters() {
-    evalParser.addArgument("-m", "--model").required(true).help("Choose model\n");
+    evalParser.addArgument("-m", "--model").required(false)
+        .help("Choose model\n");
     evalParser.addArgument("-f", "--features")
-        .choices("opennlp", "baseline", "dictlbj")
-        .required(true).help("Choose features for evaluation\n");
+        .choices("opennlp", "baseline", "dictlbj").required(true)
+        .help("Choose features for evaluation\n");
     evalParser.addArgument("-l", "--language").required(true)
         .choices("en", "es")
         .help("Choose language to load model for evaluation\n");
     evalParser.addArgument("-t", "--testSet").required(true)
         .help("Input testset for evaluation\n");
+    evalParser.addArgument("--prediction").required(false);
     evalParser.addArgument("--evalReport").required(false)
         .choices("brief", "detailed", "error")
         .help("Choose type of evaluation report; defaults to detailed\n");
     evalParser.addArgument("-c", "--corpus").setDefault("opennlp")
         .choices("conll", "opennlp").help("choose format input of corpus\n");
-    evalParser.addArgument("-n","--netypes")
+    evalParser
+        .addArgument("-n", "--netypes")
         .required(false)
-        .help("Choose ne types to do the evaluation; it defaults to all represented in the testset\n");
+        .help(
+            "Choose ne types to do the evaluation; it defaults to all represented in the testset\n");
     evalParser
         .addArgument("--beamsize")
         .setDefault(DEFAULT_BEAM_SIZE)

@@ -155,7 +155,7 @@ public class Annotate {
         SpanUtils.concatenateSpans(allSpans, dictSpans);
       }
       if (dictTag) {
-        allSpans = dictFinder.nercToSpans(tokens);
+        allSpans = dictFinder.nercToSpansExact(tokens);
       }
       if (lexerFind) {
         String sentenceText = StringUtils.getSentenceFromTokens(tokens);

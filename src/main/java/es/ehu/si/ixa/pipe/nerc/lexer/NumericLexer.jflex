@@ -132,11 +132,11 @@ ABBREV_MONTH_NL = (maart|mei|juni|juli|okt)\.?{SPACE}
 ABBREV_MONTH = {ABBREV_MONTH_DE}|{ABBREV_MONTH_EN}|{ABBREV_MONTH_ES}|{ABBREV_MONTH_FR}|{ABBREV_MONTH_IT}|{ABBREV_MONTH_NL}
 
 ABBREV_DAY_DE = (So|Mo|Di|Mi|Do|Fr|Sa)\.{SPACE}
-ABBREV_DAY_EN = (Mon|Tue|Tues|Wed|Thu|Thurs|Fri|Sat|Sun)\.?{SPACE}
-ABBREV_DAY_ES = (Lun|Mar|Miér|Jue|Vier|Sáb|Dom)\.?{SPACE}
-ABBREV_DAY_FR = (lun|mer|jeu|ven|sam|dim)\.?{SPACE}
-ABBREV_DAY_IT = (mar|gio|ven|sab)\.?{SPACE}
-ABBREV_DAY_NL = (ma|woe|vrij|za|zo|wo|vr)\.?{SPACE}
+ABBREV_DAY_EN = (Mon|Tue|Tues|Wed|Thu|Thurs|Fri|Sat|Sun)\.{SPACE}
+ABBREV_DAY_ES = (Lun|Mar|Miér|Jue|Vier|Sáb|Dom)\.{SPACE}
+ABBREV_DAY_FR = (lun|mer|jeu|ven|sam|dim)\.{SPACE}
+ABBREV_DAY_IT = (mar|gio|ven|sab)\.{SPACE}
+ABBREV_DAY_NL = (ma|woe|vrij|za|zo|wo|vr)\.{SPACE}
 
 ABBREV_DAY = {ABBREV_DAY_DE}|{ABBREV_DAY_EN}|{ABBREV_DAY_ES}|{ABBREV_DAY_FR}|{ABBREV_DAY_IT}|{ABBREV_DAY_NL}
 
