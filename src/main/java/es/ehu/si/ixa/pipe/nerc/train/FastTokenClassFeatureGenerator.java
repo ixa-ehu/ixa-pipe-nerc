@@ -81,7 +81,7 @@ public class FastTokenClassFeatureGenerator extends FeatureGeneratorAdapter {
         feat = "num";
       }
     }
-    /*else if (pattern.isAllCapitalLetter() && token.length() == 1) {
+    else if (pattern.isAllCapitalLetter() && token.length() == 1) {
       feat = "sc";
     }
     else if (pattern.isAllCapitalLetter()) {
@@ -92,7 +92,7 @@ public class FastTokenClassFeatureGenerator extends FeatureGeneratorAdapter {
     }
     else if (pattern.isInitialCapitalLetter()) {
       feat = "ic";
-    }*/
+    }
     else {
       feat = "other";
     }
