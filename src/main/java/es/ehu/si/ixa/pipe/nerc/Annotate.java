@@ -22,7 +22,6 @@ import ixa.kaflib.WF;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -173,6 +172,7 @@ public class Annotate {
         Integer endIndex = name.getSpan().getEnd();
         List<Term> nameTerms = kaf.getTermsFromWFs(Arrays.asList(Arrays
             .copyOfRange(tokenIds, startIndex, endIndex)));
+        
         List<List<Term>> references = new ArrayList<List<Term>>();
         references.add(nameTerms);
         kaf.createEntity(name.getType(), references);

@@ -91,6 +91,9 @@ public class Conll03NameStream implements ObjectStream<NameSample>{
       }
 
       String fields[] = line.split(" ");
+      /*for (String field : fields) {
+        System.err.println(field);
+      }*/
 
       // For English: WORD  POS-TAG SC-TAG NE-TAG
       if (lang.equalsIgnoreCase("en") && (fields.length == 4)) {
