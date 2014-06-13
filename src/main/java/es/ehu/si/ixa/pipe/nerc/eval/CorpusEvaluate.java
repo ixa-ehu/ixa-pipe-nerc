@@ -45,8 +45,8 @@ public class CorpusEvaluate {
   public CorpusEvaluate(final String referenceData, final String predictionData, final String lang,
       final String corpusFormat, String netypes) throws IOException {
 
-    predictionSamples = AbstractNameFinderTrainer.getNameStream(referenceData, lang, corpusFormat);
-    referenceSamples = AbstractNameFinderTrainer.getNameStream(predictionData, lang, corpusFormat);
+    referenceSamples = AbstractNameFinderTrainer.getNameStream(referenceData, lang, corpusFormat);
+    predictionSamples = AbstractNameFinderTrainer.getNameStream(predictionData, lang, corpusFormat);
     if (netypes != null) {
       String[] neTypes = netypes.split(",");
       referenceSamples = new NameSampleTypeFilter(neTypes, referenceSamples);

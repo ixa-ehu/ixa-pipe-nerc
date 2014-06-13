@@ -187,14 +187,14 @@ AMPM = (a\.?m\.?)|(p\.?m\.?)
 
 /*---- TIME EXPRESSIONS ----*/
 TIME_AMPM = {TWELVE_TIME}{SPACE}*{AMPM}?
-
-TIME = {TIME_WORDS_EXPRESSIONS}|{TIME_AMPM}|{TWENTYFOUR_TIME}|{ARMY_TIME}|{TIME_WORDS}
+TIMEAMPM = {NUMBER}{SPACE}*{AMPM}
+TIME = {TIME_WORDS_EXPRESSIONS}|{TIME_AMPM}|{TIMEAMPM}|{TWENTYFOUR_TIME}|{ARMY_TIME}|{TIME_WORDS}
 
 ///////////////
 //// MONEY ////
 ///////////////
 
-CURRENCY_WORD = (dollar|cent|euro|pound)s?|penny|pence|yen|yuan|won
+CURRENCY_WORD = (dollar|cent|euro|pound)s?|penny|pence|yen|yuan|won|USD
 CURRENCY_SYMBOL = \$|&#163|#|US\$|HK\$|A\$|\u00A2|\u00A3|\u00A4|\u00A5|\u0080|\u20A0|\u20AC|\u060B|\u0E3F|\u20A4|\uFFE0|\uFFE1|\uFFE5|\uFFE6
 
 SYMBOL_MONEY = {CURRENCY_SYMBOL}{SPACE}*{NUMBER}
