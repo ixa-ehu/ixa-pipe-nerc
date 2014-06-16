@@ -303,7 +303,7 @@ public class CLI {
    * Create the available parameters for NER tagging.
    */
   private void loadAnnotateParameters() {
-    annotateParser.addArgument("-l", "--lang").choices("en", "es")
+    annotateParser.addArgument("-l", "--lang").choices("de", "en", "es", "it", "nl")
         .required(false)
         .help("Choose a language to perform annotation with ixa-pipe-nerc\n");
     annotateParser.addArgument("-f", "--features")
@@ -360,7 +360,7 @@ public class CLI {
         .choices("opennlp", "baseline", "dictlbj").required(true)
         .help("Choose features for evaluation\n");
     evalParser.addArgument("-l", "--language").required(true)
-        .choices("en", "es")
+        .choices("de", "en", "es", "it", "nl")
         .help("Choose language to load model for evaluation\n");
     evalParser.addArgument("-t", "--testSet").required(true)
         .help("Input testset for evaluation\n");

@@ -96,7 +96,7 @@ public class Conll03NameStream implements ObjectStream<NameSample>{
       }*/
 
       // For English: WORD  POS-TAG SC-TAG NE-TAG
-      if (lang.equalsIgnoreCase("en") && (fields.length == 4)) {
+      if ((lang.equalsIgnoreCase("en") || lang.equalsIgnoreCase("it"))  && (fields.length == 4)) {
         sentence.add(fields[0]);
         tags.add(fields[3]); // 3 is NE-TAG
       }

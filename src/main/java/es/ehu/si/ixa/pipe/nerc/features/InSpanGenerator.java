@@ -1,4 +1,4 @@
-package es.ehu.si.ixa.pipe.nerc.train;
+package es.ehu.si.ixa.pipe.nerc.features;
 
 import es.ehu.si.ixa.pipe.nerc.NameFinder;
 

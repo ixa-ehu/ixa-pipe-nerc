@@ -21,7 +21,9 @@ Cutoff=0
 Threads=4
 
 #### Custom parameters added by ixa-pipe-nerc ####
- 
+
+# Languages supported: de, en, es, it, nl
+
 Language=en
 
 # Named Entity types; if empty all ne types in the training corpus.
