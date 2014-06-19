@@ -10,13 +10,13 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 
 
-public class DictionaryMap {
+public class Dictionaries {
 
   public static List<String> dictNames = new ArrayList<String>();
   public static List<HashMap<String, String>> dictionaries = null;
   public static List<HashMap<String, String>> dictionariesIgnoreCase = null;
   
-  public DictionaryMap(final String inputDir) {
+  public Dictionaries(final String inputDir) {
     try {
       loadDictionaries(inputDir);
     } catch (IOException e) {

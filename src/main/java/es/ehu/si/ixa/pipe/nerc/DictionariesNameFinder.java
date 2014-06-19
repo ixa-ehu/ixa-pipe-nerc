@@ -43,7 +43,7 @@ import opennlp.tools.util.Span;
  * 
  */
 
-public class DictionaryMapNameFinder implements NameFinder {
+public class DictionariesNameFinder implements NameFinder {
 
   /**
    * The name factory to create Name objects.
@@ -52,7 +52,7 @@ public class DictionaryMapNameFinder implements NameFinder {
   /**
    * The dictionary to find the names.
    */
-  private DictionaryMap dict;
+  private Dictionaries dict;
   /**
    * Debugging switch.
    */
@@ -67,7 +67,7 @@ public class DictionaryMapNameFinder implements NameFinder {
    * @param aType
    *          the named entity class
    */
-  public DictionaryMapNameFinder(final DictionaryMap aDict) {
+  public DictionariesNameFinder(final Dictionaries aDict) {
     this.dict = aDict;
   }
 
@@ -82,7 +82,7 @@ public class DictionaryMapNameFinder implements NameFinder {
    * @param aNameFactory
    *          the factory
    */
-  public DictionaryMapNameFinder(final DictionaryMap aDict,
+  public DictionariesNameFinder(final Dictionaries aDict,
       final NameFactory aNameFactory) {
     this.dict = aDict;
     this.nameFactory = aNameFactory;

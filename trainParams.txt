@@ -16,13 +16,15 @@
 # Sample machine learning properties file
 
 Algorithm=PERCEPTRON
-Iterations=500
+Iterations=10
 Cutoff=0
 Threads=4
 
 #### Custom parameters added by ixa-pipe-nerc ####
- 
-Language=en
+
+# Languages supported: de, en, es, it, nl
+
+Language=es
 
 # Named Entity types; if empty all ne types in the training corpus.
 # Otherwise, separate with comma, eg., location,organization,person,misc

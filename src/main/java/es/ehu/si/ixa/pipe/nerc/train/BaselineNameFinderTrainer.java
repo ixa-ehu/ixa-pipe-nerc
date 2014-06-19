@@ -5,14 +5,14 @@ import java.io.IOException;
 import opennlp.tools.util.featuregen.AdaptiveFeatureGenerator;
 import opennlp.tools.util.featuregen.BigramNameFeatureGenerator;
 import opennlp.tools.util.featuregen.CachedFeatureGenerator;
-import opennlp.tools.util.featuregen.CharacterNgramFeatureGenerator;
 import opennlp.tools.util.featuregen.OutcomePriorFeatureGenerator;
 import opennlp.tools.util.featuregen.PreviousMapFeatureGenerator;
 import opennlp.tools.util.featuregen.SentenceFeatureGenerator;
 import opennlp.tools.util.featuregen.SuffixFeatureGenerator;
-import opennlp.tools.util.featuregen.TokenClassFeatureGenerator;
 import opennlp.tools.util.featuregen.TokenFeatureGenerator;
 import opennlp.tools.util.featuregen.WindowFeatureGenerator;
+import es.ehu.si.ixa.pipe.nerc.features.Prefix34FeatureGenerator;
+import es.ehu.si.ixa.pipe.nerc.features.TokenClassFeatureGenerator;
 
 /**
  * Training NER based on Apache OpenNLP Machine Learning API.  

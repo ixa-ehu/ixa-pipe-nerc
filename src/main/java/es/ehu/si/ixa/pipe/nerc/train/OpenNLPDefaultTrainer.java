@@ -2,6 +2,8 @@ package es.ehu.si.ixa.pipe.nerc.train;
 
 import java.io.IOException;
 
+import es.ehu.si.ixa.pipe.nerc.features.TokenClassFeatureGenerator;
+
 import opennlp.tools.util.featuregen.AdaptiveFeatureGenerator;
 import opennlp.tools.util.featuregen.BigramNameFeatureGenerator;
 import opennlp.tools.util.featuregen.CachedFeatureGenerator;

@@ -1,4 +1,4 @@
-package es.ehu.si.ixa.pipe.nerc.train;
+package es.ehu.si.ixa.pipe.nerc.features;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -18,6 +18,7 @@ package es.ehu.si.ixa.pipe.nerc.train;
  */
 
 import java.util.List;
+
 
 import opennlp.tools.util.featuregen.FeatureGeneratorAdapter;
 

@@ -1,4 +1,4 @@
-package es.ehu.si.ixa.pipe.nerc.train;
+package es.ehu.si.ixa.pipe.nerc.features;
 
 import es.ehu.si.ixa.pipe.nerc.Dictionary;
 import es.ehu.si.ixa.pipe.nerc.DictionaryNameFinder;
@@ -22,7 +22,7 @@ public class DictionaryFeatures extends FeatureGeneratorAdapter {
   public void setDictionary(Dictionary dict) {
     setDictionary("",dict);
   }
-  
+  //TODO this is too slow
   public void setDictionary(String name, Dictionary dict) {
     isg = new InSpanGenerator(name, new DictionaryNameFinder(dict));
   }

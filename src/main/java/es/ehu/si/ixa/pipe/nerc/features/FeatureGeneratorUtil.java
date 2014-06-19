@@ -1,4 +1,5 @@
-package es.ehu.si.ixa.pipe.nerc.train;
+package es.ehu.si.ixa.pipe.nerc.features;
+
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more

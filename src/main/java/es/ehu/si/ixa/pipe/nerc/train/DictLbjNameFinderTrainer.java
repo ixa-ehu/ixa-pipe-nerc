@@ -2,6 +2,9 @@
 package es.ehu.si.ixa.pipe.nerc.train;
 
 import es.ehu.si.ixa.pipe.nerc.Dictionary;
+import es.ehu.si.ixa.pipe.nerc.features.DictionaryFeatures;
+import es.ehu.si.ixa.pipe.nerc.features.Prefix34FeatureGenerator;
+import es.ehu.si.ixa.pipe.nerc.features.TokenClassFeatureGenerator;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,7 +16,6 @@ import opennlp.tools.util.featuregen.OutcomePriorFeatureGenerator;
 import opennlp.tools.util.featuregen.PreviousMapFeatureGenerator;
 import opennlp.tools.util.featuregen.SentenceFeatureGenerator;
 import opennlp.tools.util.featuregen.SuffixFeatureGenerator;
-import opennlp.tools.util.featuregen.TokenClassFeatureGenerator;
 import opennlp.tools.util.featuregen.TokenFeatureGenerator;
 import opennlp.tools.util.featuregen.WindowFeatureGenerator;
 
@@ -62,7 +64,7 @@ public class DictLbjNameFinderTrainer extends AbstractNameFinderTrainer {
   
   
   public DictLbjNameFinderTrainer(String trainData, String testData, String lang, int beamsize, String corpusFormat, String netypes) throws IOException {
-    super(trainData,testData,lang,beamsize,corpusFormat, netypes);
+    super(trainData, testData, lang, beamsize, corpusFormat, netypes);
     
     InputStream cardinalNumberFile = getClass().getResourceAsStream("/lbj/cardinalNumber.txt");
     cardinalNumber = new Dictionary(cardinalNumberFile);
@@ -205,6 +207,7 @@ public class DictLbjNameFinderTrainer extends AbstractNameFinderTrainer {
         new SentenceFeatureGenerator(true, false),
         new Prefix34FeatureGenerator(),
         new SuffixFeatureGenerator(),
+        //TODO this is too slow, change this feature generator
         new DictionaryFeatures("CARDINAL",cardinalNumber),
         new DictionaryFeatures("CURRENCY",currencyFinal),
         new DictionaryFeatures("CORPORATIONS",knownCorporations),
