@@ -27,7 +27,7 @@ Language=es
 # Named Entity types; if empty all ne types in the training corpus.
 # Otherwise, separate with comma, eg., location,organization,person,misc
 
-Types=
+Types=location,person
 #Types=location,misc,organization,person
 
 
