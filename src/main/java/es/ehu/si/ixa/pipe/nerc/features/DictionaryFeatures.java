@@ -22,7 +22,7 @@ public class DictionaryFeatures extends FeatureGeneratorAdapter {
   public void setDictionary(Dictionary dict) {
     setDictionary("",dict);
   }
-  
+  //TODO this is too slow
   public void setDictionary(String name, Dictionary dict) {
     isg = new InSpanGenerator(name, new DictionaryNameFinder(dict));
   }

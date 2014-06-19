@@ -227,18 +227,22 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
   }
   
   public static ObjectStream<NameSample> getNameStream(String trainData, String lang, String corpusFormat) throws IOException {
-	  ObjectStream<NameSample> samples;
+	  ObjectStream<NameSample> samples = null;
 	  if (corpusFormat.equalsIgnoreCase("conll")) {
 		  ObjectStream<String> nameStream = InputOutputUtils.readInputData(trainData);
 	      samples = new Conll03NameStream(lang, nameStream);
 	  }
-	  else if (corpusFormat.equalsIgnoreCase("conll") && lang.equalsIgnoreCase("es") || lang.equalsIgnoreCase("nl")) {
+	  else if (corpusFormat.equalsIgnoreCase("conll") && (lang.equalsIgnoreCase("es") || lang.equalsIgnoreCase("nl"))) {
 	    ObjectStream<String> nameStream = InputOutputUtils.readInputData(trainData);
 		samples = new Conll02NameStream(lang, nameStream);
 	  }
-	  else {
+	  else if (corpusFormat.equalsIgnoreCase("opennlp")){
 	    ObjectStream<String> nameStream = InputOutputUtils.readInputData(trainData);
 		samples = new NameSampleDataStream(nameStream);	
+	  }
+	  else {
+	    System.err.println("Test set corpus format not valid!!");
+	    System.exit(1);
 	  }
 	  return samples;
   }

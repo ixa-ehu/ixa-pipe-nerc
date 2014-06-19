@@ -16,7 +16,7 @@
 # Sample machine learning properties file
 
 Algorithm=PERCEPTRON
-Iterations=500
+Iterations=10
 Cutoff=0
 Threads=4
 
@@ -24,7 +24,7 @@ Threads=4
 
 # Languages supported: de, en, es, it, nl
 
-Language=en
+Language=es
 
 # Named Entity types; if empty all ne types in the training corpus.
 # Otherwise, separate with comma, eg., location,organization,person,misc

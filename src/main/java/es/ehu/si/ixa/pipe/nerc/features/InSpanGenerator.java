@@ -9,7 +9,7 @@ import opennlp.tools.util.featuregen.FeatureGeneratorAdapter;
 
 /**
  * Generates features if the tokens are recognized by the provided
- * {@link StatisticalNameFinder} finder
+ * {@link NameFinder} finder
  */
 public class InSpanGenerator extends FeatureGeneratorAdapter {
 

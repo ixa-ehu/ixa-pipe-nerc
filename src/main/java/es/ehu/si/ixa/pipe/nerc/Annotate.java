@@ -44,7 +44,7 @@ public class Annotate {
   /**
    * The dictionary name finders to do the post processing.
    */
-  private DictionaryMapNameFinder dictFinder;
+  private DictionariesNameFinder dictFinder;
   /**
    * The NameFinder Lexer for rule-based name finding.
    */
@@ -97,8 +97,8 @@ public class Annotate {
     nameFactory = new NameFactory();
     nameFinder = new StatisticalNameFinder(lang, nameFactory, model, features, beamsize);
     if (dictOption != null && dictPath != null) {
-      DictionaryMap dictionary = new DictionaryMap(dictPath);
-      dictFinder = new DictionaryMapNameFinder(dictionary, nameFactory);
+      Dictionaries dictionary = new Dictionaries(dictPath);
+      dictFinder = new DictionariesNameFinder(dictionary, nameFactory);
       if (dictOption.equalsIgnoreCase("post")) {
         postProcess = true;
         statistical = true;
@@ -189,10 +189,10 @@ public class Annotate {
    * @param nameFactory the factory
    * @return an instance of a {@link DictionaryNameFinder}
    */
-  public final DictionaryMapNameFinder createDictNameFinder(final String dictPath,
+  public final DictionariesNameFinder createDictNameFinder(final String dictPath,
       final NameFactory nameFactory) {
-    DictionaryMap dict = new DictionaryMap(dictPath);
-    DictionaryMapNameFinder dictNameFinder = new DictionaryMapNameFinder(dict, nameFactory);
+    Dictionaries dict = new Dictionaries(dictPath);
+    DictionariesNameFinder dictNameFinder = new DictionariesNameFinder(dict, nameFactory);
     return dictNameFinder;
   }
 }

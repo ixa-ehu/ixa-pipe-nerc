@@ -64,7 +64,7 @@ public class DictLbjNameFinderTrainer extends AbstractNameFinderTrainer {
   
   
   public DictLbjNameFinderTrainer(String trainData, String testData, String lang, int beamsize, String corpusFormat, String netypes) throws IOException {
-    super(trainData,testData,lang,beamsize,corpusFormat, netypes);
+    super(trainData, testData, lang, beamsize, corpusFormat, netypes);
     
     InputStream cardinalNumberFile = getClass().getResourceAsStream("/lbj/cardinalNumber.txt");
     cardinalNumber = new Dictionary(cardinalNumberFile);
@@ -207,6 +207,7 @@ public class DictLbjNameFinderTrainer extends AbstractNameFinderTrainer {
         new SentenceFeatureGenerator(true, false),
         new Prefix34FeatureGenerator(),
         new SuffixFeatureGenerator(),
+        //TODO this is too slow, change this feature generator
         new DictionaryFeatures("CARDINAL",cardinalNumber),
         new DictionaryFeatures("CURRENCY",currencyFinal),
         new DictionaryFeatures("CORPORATIONS",knownCorporations),
