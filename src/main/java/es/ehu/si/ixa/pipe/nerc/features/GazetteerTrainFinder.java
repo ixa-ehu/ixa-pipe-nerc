@@ -28,7 +28,6 @@ import es.ehu.si.ixa.pipe.nerc.StringUtils;
 
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.util.Span;
-import opennlp.tools.util.StringList;
 
 
 public class GazetteerTrainFinder implements NameFinder {

@@ -94,7 +94,8 @@ public class Dictionaries {
         
         List<String> fileLines = FileUtils.readLines(fileList.get(i), "UTF-8");
         for (String line : fileLines) {
-          String[] lineArray = line.split(";");
+          String[] lineArray = line.split("\t");
+          if (lineArray.length == 2) {
           dictionaries.get(i).populate(lineArray[0], lineArray[1]);
           if ((!line.equalsIgnoreCase("in")) && (!line.equalsIgnoreCase("on"))
               && (!line.equalsIgnoreCase("us"))
@@ -103,6 +104,7 @@ public class Dictionaries {
             dictionariesIgnoreCase.get(i).populate(lineArray[0].toLowerCase(),
                 lineArray[1]);
           }
+        }
         }
       }
       System.err.println("found " + dictionaries.size() + " gazetteers");
