@@ -27,7 +27,7 @@ import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.Span;
 import es.ehu.si.ixa.pipe.nerc.train.BaselineNameFinderTrainer;
-import es.ehu.si.ixa.pipe.nerc.train.DictLbjNameFinderTrainer;
+import es.ehu.si.ixa.pipe.nerc.train.DictNameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.OpenNLPDefaultTrainer;
 
@@ -109,7 +109,7 @@ public class StatisticalNameFinder implements NameFinder {
       final String features, final int beamsize, final String dictPath) {
 
     TokenNameFinderModel nerModel = loadModel(lang, model);
-    nameFinderTrainer = new DictLbjNameFinderTrainer(dictPath, beamsize);
+    nameFinderTrainer = new DictNameFinderTrainer(dictPath, beamsize);
     nameFinder = new NameFinderME(nerModel,
         nameFinderTrainer.createFeatureGenerator(), beamsize);
   }
@@ -179,7 +179,7 @@ public class StatisticalNameFinder implements NameFinder {
 
     this.nameFactory = aNameFactory;
     TokenNameFinderModel nerModel = loadModel(lang, model);
-    nameFinderTrainer = new DictLbjNameFinderTrainer(dictPath, beamsize);
+    nameFinderTrainer = new DictNameFinderTrainer(dictPath, beamsize);
     nameFinder = new NameFinderME(nerModel,
         nameFinderTrainer.createFeatureGenerator(), beamsize);
   }

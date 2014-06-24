@@ -2,7 +2,7 @@ package es.ehu.si.ixa.pipe.nerc.eval;
 
 import es.ehu.si.ixa.pipe.nerc.StatisticalNameFinder;
 import es.ehu.si.ixa.pipe.nerc.train.AbstractNameFinderTrainer;
-import es.ehu.si.ixa.pipe.nerc.train.DictLbjNameFinderTrainer;
+import es.ehu.si.ixa.pipe.nerc.train.DictNameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer;
 
 import java.io.FileInputStream;
@@ -85,7 +85,7 @@ public class Evaluate {
     }
    
     if (features.equalsIgnoreCase("dictlbj")) {
-      nameFinderTrainer = new DictLbjNameFinderTrainer(dictPath, beamsize);
+      nameFinderTrainer = new DictNameFinderTrainer(dictPath, beamsize);
     }
     else {
       StatisticalNameFinder statFinder = new StatisticalNameFinder(lang, model, features);

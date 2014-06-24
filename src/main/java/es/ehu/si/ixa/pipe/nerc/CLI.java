@@ -25,7 +25,7 @@ import org.jdom2.JDOMException;
 import es.ehu.si.ixa.pipe.nerc.eval.CorpusEvaluate;
 import es.ehu.si.ixa.pipe.nerc.eval.Evaluate;
 import es.ehu.si.ixa.pipe.nerc.train.BaselineNameFinderTrainer;
-import es.ehu.si.ixa.pipe.nerc.train.DictLbjNameFinderTrainer;
+import es.ehu.si.ixa.pipe.nerc.train.DictNameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
 import es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.OpenNLPDefaultTrainer;
@@ -237,7 +237,7 @@ public class CLI {
     } else if (parsedArguments.getString("features")
         .equalsIgnoreCase("dictlbj")) {
       if (parsedArguments.get("dictPath") != null) {
-        nercTrainer = new DictLbjNameFinderTrainer(dictPath, trainFile, testFile, lang,
+        nercTrainer = new DictNameFinderTrainer(dictPath, trainFile, testFile, lang,
             beamsize, corpusFormat, netypes);
       }
       else {

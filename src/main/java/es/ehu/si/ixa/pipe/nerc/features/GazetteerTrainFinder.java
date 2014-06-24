@@ -111,7 +111,6 @@ public class GazetteerTrainFinder implements NameFinder {
           String entryForSearch = StringUtils.getSentenceFromTokens(tokens);
           //TODO try with lbj dictionaries
           //TODO change contains method with hashcode
-
           if (dictionary.getDict().containsKey(entryForSearch)) {
             nameFound = new Span(offsetFrom, offsetTo + 1, dictionary.getDict().get(entryForSearch));
           }
