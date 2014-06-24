@@ -208,7 +208,7 @@ MONEY = {SYMBOL_MONEY}|{MONEY_SYMBOL}
 //// PERCENT ////
 /////////////////
 
-NUMBER_PERCENT = {NUMBER}{SPACE}*(prozent|percent|por ciento|pour cent|per cento|procent|%)
+NUMBER_PERCENT = {NUMBER}{SPACE}*(prozent|percent|por{SPACE}ciento|pour{SPACE}cent|per{SPACE}cento|procent|%)
 PERCENT_NUMBER = %{SPACE}*{NUMBER}
 PERCENT_ABBREV = {NUMBER}{SPACE}*pct\.?
 

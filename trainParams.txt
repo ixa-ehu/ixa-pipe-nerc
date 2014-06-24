@@ -16,7 +16,7 @@
 # Sample machine learning properties file
 
 Algorithm=PERCEPTRON
-Iterations=10
+Iterations=500
 Cutoff=0
 Threads=4
 
@@ -24,12 +24,12 @@ Threads=4
 
 # Languages supported: de, en, es, it, nl
 
-Language=es
+Language=en
 
 # Named Entity types; if empty all ne types in the training corpus.
 # Otherwise, separate with comma, eg., location,organization,person,misc
 
-Types=location,person
+Types=
 #Types=location,organization,person,misc
 
 # Beamsize 1 amounts to greedy search

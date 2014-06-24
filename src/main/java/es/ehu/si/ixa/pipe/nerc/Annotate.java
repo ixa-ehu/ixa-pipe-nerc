@@ -95,7 +95,7 @@ public class Annotate {
       }
     }
     nameFactory = new NameFactory();
-    nameFinder = new StatisticalNameFinder(lang, nameFactory, model, features, beamsize);
+    nameFinder = new StatisticalNameFinder(lang, nameFactory, model, features, beamsize, dictPath);
     if (dictOption != null && dictPath != null) {
       Dictionaries dictionary = new Dictionaries(dictPath);
       dictFinder = new DictionariesNameFinder(dictionary, nameFactory);

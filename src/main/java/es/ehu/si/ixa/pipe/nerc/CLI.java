@@ -206,6 +206,7 @@ public class CLI {
     String trainFile = parsedArguments.getString("input");
     String testFile = parsedArguments.getString("testSet");
     String devFile = parsedArguments.getString("devSet");
+    String dictPath = parsedArguments.getString("dictPath");
     String outModel = null;
     // load training parameters file
     String paramFile = parsedArguments.getString("params");
@@ -235,8 +236,14 @@ public class CLI {
           beamsize, corpusFormat, netypes);
     } else if (parsedArguments.getString("features")
         .equalsIgnoreCase("dictlbj")) {
-      nercTrainer = new DictLbjNameFinderTrainer(trainFile, testFile, lang,
-          beamsize, corpusFormat, netypes);
+      if (parsedArguments.get("dictPath") != null) {
+        nercTrainer = new DictLbjNameFinderTrainer(dictPath, trainFile, testFile, lang,
+            beamsize, corpusFormat, netypes);
+      }
+      else {
+        System.err.println("You need to provide the directory containing the dictionaries!\n");
+        System.exit(1);
+      }
     }
 
     TokenNameFinderModel trainedModel = null;
@@ -266,6 +273,7 @@ public class CLI {
     String testFile = parsedArguments.getString("testSet");
     String predFile = parsedArguments.getString("prediction");
     String features = parsedArguments.getString("features");
+    String dictPath = parsedArguments.getString("dictPath");
     String model = parsedArguments.getString("model");
     String lang = parsedArguments.getString("language");
     int beam = parsedArguments.getInt("beamsize");
@@ -273,7 +281,7 @@ public class CLI {
     String netypes = parsedArguments.getString("netypes");
 
     if (parsedArguments.getString("model") != null) {
-      Evaluate evaluator = new Evaluate(testFile, model, features, lang, beam,
+      Evaluate evaluator = new Evaluate(dictPath, testFile, model, features, lang, beam,
           corpusFormat, netypes);
       if (parsedArguments.getString("evalReport") != null) {
         if (parsedArguments.getString("evalReport").equalsIgnoreCase("brief")) {
@@ -338,6 +346,7 @@ public class CLI {
     trainParser.addArgument("-f", "--features")
         .choices("opennlp", "baseline", "dictlbj").required(true)
         .help("Choose features to train NERC model\n");
+    trainParser.addArgument("--dictPath").required(false).help("Provide directory containing dictionaries for its use with dictlbj featureset\n");
     trainParser.addArgument("-p", "--params").required(true)
         .help("Load the parameters file\n");
     trainParser.addArgument("-i", "--input").required(true)
@@ -359,6 +368,8 @@ public class CLI {
     evalParser.addArgument("-f", "--features")
         .choices("opennlp", "baseline", "dictlbj").required(true)
         .help("Choose features for evaluation\n");
+    evalParser.addArgument("--dictPath").required(false)
+    .help("Path to the gazetteers for evaluation if dictlbj features are used\n");
     evalParser.addArgument("-l", "--language").required(true)
         .choices("de", "en", "es", "it", "nl")
         .help("Choose language to load model for evaluation\n");

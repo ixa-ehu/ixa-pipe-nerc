@@ -14,35 +14,24 @@
    limitations under the License.
  */
 
-package es.ehu.si.ixa.pipe.nerc;
+package es.ehu.si.ixa.pipe.nerc.features;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+
+import es.ehu.si.ixa.pipe.nerc.Dictionary;
+import es.ehu.si.ixa.pipe.nerc.Name;
+import es.ehu.si.ixa.pipe.nerc.NameFactory;
+import es.ehu.si.ixa.pipe.nerc.NameFinder;
+import es.ehu.si.ixa.pipe.nerc.StringUtils;
 
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.util.Span;
+import opennlp.tools.util.StringList;
 
-/**
- * Named Entity Recognition module based on {@link Dictionary} objects This
- * class provides the following functionalities:
- * 
- * <ol>
- * <li>string matching against of a string (typically tokens) against a
- * Dictionary containing names. This function is also used to implement
- * Dictionary based features in the training package.
- * <li>tag: Provided a Dictionary it tags only the names it matches against it
- * <li>post: This function checks for names in the Dictionary that have not been
- * detected by a {@link StatisticalNameFinder}; it also corrects the Name type
- * for those detected by a {@link StatisticalNameFinder} but also present in a
- * dictionary
- * </ol>
- * 
- * @author ragerri 2014/03/14
- * 
- */
 
-public class DictionariesNameFinder implements NameFinder {
+public class GazetteerTrainFinder implements NameFinder {
 
   /**
    * The name factory to create Name objects.
@@ -51,23 +40,15 @@ public class DictionariesNameFinder implements NameFinder {
   /**
    * The dictionary to find the names.
    */
-  private Dictionaries dictionaries;
+  private Dictionary dictionary;
   /**
    * Debugging switch.
    */
   private final boolean debug = false;
 
-  /**
-   * Construct a DictionaryNameFinder using one dictionary and one named entity
-   * class.
-   * 
-   * @param aDict
-   *          the dictionary
-   * @param aType
-   *          the named entity class
-   */
-  public DictionariesNameFinder(final Dictionaries aDictionaries) {
-    this.dictionaries = aDictionaries;
+ 
+  public GazetteerTrainFinder(final Dictionary aDictionary) {
+    this.dictionary = aDictionary;
   }
 
   /**
@@ -81,12 +62,12 @@ public class DictionariesNameFinder implements NameFinder {
    * @param aNameFactory
    *          the factory
    */
-  public DictionariesNameFinder(final Dictionaries aDictionaries,
+  public GazetteerTrainFinder(final Dictionary aDictionary,
       final NameFactory aNameFactory) {
-    this.dictionaries = aDictionaries;
+    this.dictionary = aDictionary;
     this.nameFactory = aNameFactory;
   }
-
+ 
   /**
    * {@link Dictionary} based Named Entity Detection and Classification.
    * 
@@ -111,52 +92,39 @@ public class DictionariesNameFinder implements NameFinder {
    * @return spans of the Named Entities
    */
   public final List<Span> nercToSpans(final String[] tokens) {
-    List<Span> neSpans = new ArrayList<Span>();
-    for (Dictionary neDict : dictionaries.getIgnoreCaseDictionaries()) {
-      for (Map.Entry<String, String> neEntry : neDict.getDict().entrySet()) {
-        String neForm = neEntry.getKey();
-        String neType = neEntry.getValue();
-        List<Integer> neIds = StringUtils.exactTokenFinderIgnoreCase(neForm,
-            tokens);
-        if (!neIds.isEmpty()) {
-          Span neSpan = new Span(neIds.get(0), neIds.get(1), neType);
-          if (debug) {
-            System.err.println(neSpans.toString());
+    List<Span> namesFound = new LinkedList<Span>();
+
+    for (int offsetFrom = 0; offsetFrom < tokens.length; offsetFrom++) {
+      Span nameFound = null;
+      String tokensSearching[] = new String[] {};
+
+      for (int offsetTo = offsetFrom; offsetTo < tokens.length; offsetTo++) {
+        int lengthSearching = offsetTo - offsetFrom + 1;
+
+        if (lengthSearching > dictionary.getMaxTokenCount()) {
+          break;
+        } else {
+          tokensSearching = new String[lengthSearching];
+          System.arraycopy(tokens, offsetFrom, tokensSearching, 0,
+              lengthSearching);
+
+          String entryForSearch = StringUtils.getSentenceFromTokens(tokens);
+          //TODO try with lbj dictionaries
+          //TODO change contains method with hashcode
+
+          if (dictionary.getDict().containsKey(entryForSearch)) {
+            nameFound = new Span(offsetFrom, offsetTo + 1, dictionary.getDict().get(entryForSearch));
           }
-          neSpans.add(neSpan);
         }
       }
-    }
 
-    return neSpans;
-  }
-
-  /**
-   * Detects Named Entities in a {@link Dictionary} by NE type This method is
-   * case sensitive.
-   * 
-   * @param tokens
-   *          the tokenized sentence
-   * @return spans of the Named Entities all
-   */
-  public final List<Span> nercToSpansExact(final String[] tokens) {
-    List<Span> neSpans = new ArrayList<Span>();
-    for (Dictionary neDict : dictionaries.getDictionaries()) {
-      for (Map.Entry<String, String> neEntry : neDict.getDict().entrySet()) {
-        String neForm = neEntry.getKey();
-        String neType = neEntry.getValue();
-        List<Integer> neIds = StringUtils.exactTokenFinder(neForm,
-            tokens);
-        if (!neIds.isEmpty()) {
-          Span neSpan = new Span(neIds.get(0), neIds.get(1), neType);
-          if (debug) {
-            System.err.println(neSpans.toString());
-          }
-          neSpans.add(neSpan);
-        }
+      if (nameFound != null) {
+        namesFound.add(nameFound);
+        // skip over the found tokens for the next search
+        offsetFrom += (nameFound.length() - 1);
       }
     }
-    return neSpans;
+    return namesFound;
   }
 
   /**
