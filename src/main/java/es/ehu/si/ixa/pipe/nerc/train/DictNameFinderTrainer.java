@@ -1,31 +1,19 @@
 package es.ehu.si.ixa.pipe.nerc.train;
 
-import es.ehu.si.ixa.pipe.nerc.Dictionaries;
-import es.ehu.si.ixa.pipe.nerc.Dictionary;
-import es.ehu.si.ixa.pipe.nerc.features.DictionaryFeatures;
-import es.ehu.si.ixa.pipe.nerc.features.Prefix34FeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.features.TokenClassFeatureGenerator;
-
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import opennlp.tools.util.featuregen.AdaptiveFeatureGenerator;
-import opennlp.tools.util.featuregen.BigramNameFeatureGenerator;
 import opennlp.tools.util.featuregen.CachedFeatureGenerator;
-import opennlp.tools.util.featuregen.OutcomePriorFeatureGenerator;
-import opennlp.tools.util.featuregen.PreviousMapFeatureGenerator;
-import opennlp.tools.util.featuregen.SentenceFeatureGenerator;
-import opennlp.tools.util.featuregen.SuffixFeatureGenerator;
-import opennlp.tools.util.featuregen.TokenFeatureGenerator;
-import opennlp.tools.util.featuregen.WindowFeatureGenerator;
+import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
+import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
+import es.ehu.si.ixa.pipe.nerc.features.DictionaryFeatureGenerator;
 
 /**
  * Training NER based on Apache OpenNLP Machine Learning API. This class
  * implements Gazetteer features.
  *
- * @author ragerri 2014/06/24
+ * @author ragerri 2014/06/25
  *
  */
 
@@ -40,7 +28,7 @@ public class DictNameFinderTrainer extends AbstractNameFinderTrainer {
    */
   private Dictionary dictionary;
   /**
-   * The prefix to be used in the {@link DictionaryFeatures}.
+   * The prefix to be used in the {@link DictionaryFeatureGenerator}.
    */
   private String prefix;
 
@@ -86,29 +74,12 @@ public class DictNameFinderTrainer extends AbstractNameFinderTrainer {
    * @see es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer#createFeatureGenerator()
    */
   public final AdaptiveFeatureGenerator createFeatureGenerator() {
-    List<AdaptiveFeatureGenerator> featureList = createFeaturesList();
+    List<AdaptiveFeatureGenerator> featureList = DefaultNameFinderTrainer.createFeatureList();
+    BaselineNameFinderTrainer.addToFeatureList(featureList);
     addDictionariesToFeatureList(featureList);
     AdaptiveFeatureGenerator[] featuresArray = featureList
         .toArray(new AdaptiveFeatureGenerator[featureList.size()]);
     return new CachedFeatureGenerator(featuresArray);
-  }
-
-  /**
-   * Create a list of {@link AdaptiveFeatureGenerator} features.
-   *
-   * @return the list of features
-   */
-  private List<AdaptiveFeatureGenerator> createFeaturesList() {
-
-    List<AdaptiveFeatureGenerator> featuresList = new ArrayList<AdaptiveFeatureGenerator>(Arrays.asList(
-        new WindowFeatureGenerator(new TokenFeatureGenerator(), 2, 2),
-        new WindowFeatureGenerator(new TokenClassFeatureGenerator(true), 2, 2),
-        new OutcomePriorFeatureGenerator(), new PreviousMapFeatureGenerator(),
-        new BigramNameFeatureGenerator(), new SentenceFeatureGenerator(true,
-            false), new Prefix34FeatureGenerator(),
-        new SuffixFeatureGenerator()));
-    return featuresList;
-
   }
 
   /**
@@ -118,10 +89,10 @@ public class DictNameFinderTrainer extends AbstractNameFinderTrainer {
    */
   private void addDictionariesToFeatureList(
       List<AdaptiveFeatureGenerator> featureList) {
-    for (int i = 0; i < dictionaries.getDictionaries().size(); i++) {
+    for (int i = 0; i < dictionaries.getIgnoreCaseDictionaries().size(); i++) {
       prefix = dictionaries.getDictNames().get(i);
-      dictionary = dictionaries.getDictionaries().get(i);
-      featureList.add(new DictionaryFeatures(prefix, dictionary));
+      dictionary = dictionaries.getIgnoreCaseDictionaries().get(i);
+      featureList.add(new DictionaryFeatureGenerator(prefix, dictionary));
     }
   }
 

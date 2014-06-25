@@ -28,7 +28,7 @@ import es.ehu.si.ixa.pipe.nerc.train.BaselineNameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.DictNameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
 import es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer;
-import es.ehu.si.ixa.pipe.nerc.train.OpenNLPDefaultTrainer;
+import es.ehu.si.ixa.pipe.nerc.train.DefaultNameFinderTrainer;
 
 /**
  * Main class of ixa-pipe-nerc, the ixa pipes (ixa2.si.ehu.es/ixa-pipes) ner
@@ -228,7 +228,7 @@ public class CLI {
     }
 
     if (parsedArguments.getString("features").equalsIgnoreCase("opennlp")) {
-      nercTrainer = new OpenNLPDefaultTrainer(trainFile, testFile, lang,
+      nercTrainer = new DefaultNameFinderTrainer(trainFile, testFile, lang,
           beamsize, corpusFormat, netypes);
     } else if (parsedArguments.getString("features").equalsIgnoreCase(
         "baseline")) {

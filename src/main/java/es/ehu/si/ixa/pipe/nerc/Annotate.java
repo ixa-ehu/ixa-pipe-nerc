@@ -27,6 +27,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
+import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
+
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.util.Span;
 
@@ -157,7 +160,7 @@ public class Annotate {
         allSpans = dictFinder.nercToSpansExact(tokens);
       }
       if (lexerFind) {
-        String sentenceText = StringUtils.getSentenceFromTokens(tokens);
+        String sentenceText = StringUtils.getStringFromTokens(tokens);
         //System.err.println("Sentence: " + sentenceText);
         StringReader stringReader = new StringReader(sentenceText);
         BufferedReader sentenceReader = new BufferedReader(stringReader);

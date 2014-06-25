@@ -14,23 +14,25 @@
    limitations under the License.
  */
 
-package es.ehu.si.ixa.pipe.nerc.features;
+package es.ehu.si.ixa.pipe.nerc;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import es.ehu.si.ixa.pipe.nerc.Dictionary;
-import es.ehu.si.ixa.pipe.nerc.Name;
-import es.ehu.si.ixa.pipe.nerc.NameFactory;
-import es.ehu.si.ixa.pipe.nerc.NameFinder;
-import es.ehu.si.ixa.pipe.nerc.StringUtils;
+import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
+
 
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.util.Span;
 
 
-public class GazetteerTrainFinder implements NameFinder {
+/**
+ * It detects named entities by dictionary look-up.
+ * @author ragerri
+ *
+ */
+public class DictionaryNameFinder implements NameFinder {
 
   /**
    * The name factory to create Name objects.
@@ -46,22 +48,11 @@ public class GazetteerTrainFinder implements NameFinder {
   private final boolean debug = false;
 
  
-  public GazetteerTrainFinder(final Dictionary aDictionary) {
+  public DictionaryNameFinder(final Dictionary aDictionary) {
     this.dictionary = aDictionary;
   }
 
-  /**
-   * Construct a DictionaryNameFinder with a dictionary, a type and a name
-   * factory.
-   * 
-   * @param aDict
-   *          the dictionary
-   * @param aType
-   *          the named entity class
-   * @param aNameFactory
-   *          the factory
-   */
-  public GazetteerTrainFinder(final Dictionary aDictionary,
+  public DictionaryNameFinder(final Dictionary aDictionary,
       final NameFactory aNameFactory) {
     this.dictionary = aDictionary;
     this.nameFactory = aNameFactory;
@@ -84,7 +75,7 @@ public class GazetteerTrainFinder implements NameFinder {
   }
 
   /**
-   * Detects Named Entities in a {@link Dictionary} by NE type ignoring case.
+   * Detects Named Entities against a {@link Dictionary} ignoring case.
    * 
    * @param tokens
    *          the tokenized sentence
@@ -107,9 +98,49 @@ public class GazetteerTrainFinder implements NameFinder {
           System.arraycopy(tokens, offsetFrom, tokensSearching, 0,
               lengthSearching);
 
-          String entryForSearch = StringUtils.getSentenceFromTokens(tokens);
-          //TODO try with lbj dictionaries
-          //TODO change contains method with hashcode
+          String entryForSearch = StringUtils.getStringFromTokens(tokensSearching).toLowerCase();
+          
+          if (dictionary.getDict().containsKey(entryForSearch)) {
+            nameFound = new Span(offsetFrom, offsetTo + 1, dictionary.getDict().get(entryForSearch));
+          }
+        }
+      }
+
+      if (nameFound != null) {
+        namesFound.add(nameFound);
+        // skip over the found tokens for the next search
+        offsetFrom += (nameFound.length() - 1);
+      }
+    }
+    return namesFound;
+  }
+  
+  /**
+   * Detects Named Entities in a {@link Dictionary} taking case into account.
+   * 
+   * @param tokens
+   *          the tokenized sentence
+   * @return spans of the Named Entities
+   */
+  public final List<Span> nercToSpansCased(final String[] tokens) {
+    List<Span> namesFound = new LinkedList<Span>();
+
+    for (int offsetFrom = 0; offsetFrom < tokens.length; offsetFrom++) {
+      Span nameFound = null;
+      String tokensSearching[] = new String[] {};
+
+      for (int offsetTo = offsetFrom; offsetTo < tokens.length; offsetTo++) {
+        int lengthSearching = offsetTo - offsetFrom + 1;
+
+        if (lengthSearching > dictionary.getMaxTokenCount()) {
+          break;
+        } else {
+          tokensSearching = new String[lengthSearching];
+          System.arraycopy(tokens, offsetFrom, tokensSearching, 0,
+              lengthSearching);
+
+          String entryForSearch = StringUtils.getStringFromTokens(tokensSearching);
+          
           if (dictionary.getDict().containsKey(entryForSearch)) {
             nameFound = new Span(offsetFrom, offsetTo + 1, dictionary.getDict().get(entryForSearch));
           }

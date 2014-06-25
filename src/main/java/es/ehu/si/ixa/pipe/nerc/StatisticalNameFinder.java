@@ -29,7 +29,7 @@ import opennlp.tools.util.Span;
 import es.ehu.si.ixa.pipe.nerc.train.BaselineNameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.DictNameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer;
-import es.ehu.si.ixa.pipe.nerc.train.OpenNLPDefaultTrainer;
+import es.ehu.si.ixa.pipe.nerc.train.DefaultNameFinderTrainer;
 
 /**
  * Named Entity Recognition module based on Apache OpenNLP Machine Learning API.
@@ -347,7 +347,7 @@ public class StatisticalNameFinder implements NameFinder {
     if (features.equalsIgnoreCase("baseline")) {
       nameFinderTrainer = new BaselineNameFinderTrainer(beamsize);
     } else if (features.equalsIgnoreCase("opennlp")) {
-      nameFinderTrainer = new OpenNLPDefaultTrainer(beamsize);
+      nameFinderTrainer = new DefaultNameFinderTrainer(beamsize);
     }
     return nameFinderTrainer;
   }

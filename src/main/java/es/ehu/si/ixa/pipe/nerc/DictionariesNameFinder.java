@@ -20,6 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
+import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
+
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.util.Span;
 
@@ -35,7 +38,7 @@ import opennlp.tools.util.Span;
  * <li>post: This function checks for names in the Dictionary that have not been
  * detected by a {@link StatisticalNameFinder}; it also corrects the Name type
  * for those detected by a {@link StatisticalNameFinder} but also present in a
- * dictionary
+ * dictionary.
  * </ol>
  * 
  * @author ragerri 2014/03/14
