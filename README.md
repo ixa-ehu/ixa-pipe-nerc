@@ -19,9 +19,9 @@ the [installation instructions](#installation).
 
 1. [Overview of ixa-pipe-nerc](#overview)
   + [List of distributed models](#models)
-2. [USAGE of ixa-pipe-nerc](#using ixa-pipe-nerc)
-  + [NERC tagging](#NERC tagging with ixa-pipe-nerc)
-  + [Training your own models](#training new models)
+2. [Usage of ixa-pipe-nerc](#usage)
+  + [NERC tagging](#tagging)
+  + [Training your own models](#training)
   + [Evaluation](#evaluation)
 
 ## OVERVIEW
@@ -127,7 +127,7 @@ The default models provided in the package [nerc-default-resources.tgz](http://i
   + Dutch baseline CoNLL02 4 types model: **nl-nerc-perceptron-baseline-c0-b3-conll02-testa.bin**
   + Italian baseline Evalita09 4 types model: **nl-nerc-perceptron-baseline-c0-b3-evalita09.bin**
 
-## USING ixa-pipe-nerc
+## USAGE
 
 ixa-pipe-nerc provides 3 basic functionalities:
 
@@ -145,7 +145,7 @@ parameter:
 java -jar target/ixa-pipe-nerc-$version.jar (tag|train|eval) -help
 ````
 
-### NERC Tagging with ixa-pipe-nerc 
+### Tagging 
 
 If you are in hurry, just execute: 
 
@@ -165,7 +165,8 @@ You can get the necessary input for ixa-pipe-nerc by piping
 [ixa-pipe-pos](https://github.com/ixa-ehu/ixa-pipe-pos) as shown in the
 example. 
 
-There are several options to tag with ixa-pipe-nerc: 
+There are several options to tag with ixa-pipe-nerc which can be combined
+together:
 
 + **lang**: choose between en and es. If no language is chosen, the one specified
   in the NAF header will be used.
@@ -178,19 +179,25 @@ There are several options to tag with ixa-pipe-nerc:
   + **dict**: baseline features with additional dictionary-based features as
      implemented by Ratinov and Roth (2009). Design Challenges and Misconceptions in 
      Named Entity Recognition. In CoNLL. These models are more accurate but
-     much slower than the opennlp and baseline models.
+     much slower than the opennlp and baseline models. It is **required** to
+     provide --dictPath to use these features, for tagging, training and
+     evaluation.
 + **model**: provide the model to do the tagging. If no model is provided via
   this parameter, ixa-pipe-nerc will revert to the CoNLL baseline model distributed
   in the nerc-default-resources.tgz. 
 + **beamsize**: choose beam size for decoding. There is no definitive evidence
   that using larger or smaller beamsize actually improves accuracy. It is known
   to slow things down considerably if beamsize is set to 100, for example.
-+ **gazetteers**: two mutually exclusive options are available only for LOC, PER and ORG classes.
-  This option needs to be re-implemented to allow to add customized
-  dictionaries for whatever NE class, but this is a **pending issue**.
++ **dictionaries**: two mutually exclusive options are available.
   + **post**: post-process the probabilistic tagging by dictionary look up and
   correct/add those NE classes deemed to be incorrect by the dictionary.
-  + **tag**: tag only those entities that appear in the dictionaries.
+  + **tag**: tag only those entities that appear in the dictionaries. This
+    option requires the --dictPath option below.
++ **dictPath**: provide the directory path containing the dictionaries to be
+  used with the **dictionaries** option and with the -f dict features.
++ **lexer**: switches on the rule-based DFA for NERC tagging. Currently we only provide
+  one option **numeric**, which identifies "numeric entities" such as DATE,
+  TIME, MONEY and PERCENT for all the languages currently in ixa-pipe-nerc.
 
 **Example**: 
 
@@ -198,7 +205,7 @@ There are several options to tag with ixa-pipe-nerc:
 cat file.txt | ixa-pipe-tok | ixa-pipe-pos | java -jar $PATH/target/ixa-pipe-nerc-$version.jar tag
 ````
 
-### Training new models
+### Training
 
 The following options are available via the train subcommand:
 

@@ -36,7 +36,7 @@ Types=
 Beamsize=3
 
 # Formats opennlp or conll
-Corpus=conll
+Corpus=opennlp
 
 ## Cross Evaluation if empty no cross evaluation is performed;
 ## Cross Evaluation takes two values as arguments, namely, 50:100;
