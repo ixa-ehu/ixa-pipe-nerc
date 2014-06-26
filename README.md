@@ -2,7 +2,7 @@
 ixa-pipe-nerc
 =============
 
-ixa-pipe-nerc is a Named Entity Recognition and Classification tagger for English and Spanish. 
+ixa-pipe-nerc is multilingual Named Entity Recognition and Classification tagger. 
 ixa-pipe-nerc is part of IXA pipes, a multilingual NLP pipeline developed 
 by the IXA NLP Group [http://ixa2.si.ehu.es/ixa-pipes]. 
 
@@ -15,9 +15,18 @@ and install this repository instead of using the releases provided in
 [http://ixa2.si.ehu.es/ixa-pipes], please scroll down to the end of the document for
 the [installation instructions](#installation).
 
+## TABLE OF CONTENTS
+
+1. [Overview of ixa-pipe-nerc](#overview)
+  + [List of distributed models](#models)
+2. [USAGE of ixa-pipe-nerc](#using ixa-pipe-nerc)
+  + [NERC tagging](#NERC tagging with ixa-pipe-nerc)
+  + [Training your own models](#training new models)
+  + [Evaluation](#evaluation)
+
 ## OVERVIEW
 
-ixa-pipe-nerc provides NERC for English and Spanish. The named entity types are based on:
+ixa-pipe-nerc provides NERC English, Spanish, Dutch, German and Italian. The named entity types are based on:
 
 + **CONLL**: LOCATION, MISC, ORGANIZATION and PERSON. See [CoNLL 2002](http://www.clips.ua.ac.be/conll2002/ner/)
 and [CoNLL 2003](http://www.clips.ua.ac.be/conll2003/ner/) for more information. 
@@ -35,7 +44,7 @@ learning API provided by the [Apache OpenNLP project](http://opennlp.apache.org)
 
   + The [nerc-default-resources.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-default-resources.tgz) which contains the **required default 
   resources for ixa-pipe-nerc to compile and run**. This package is distributed in the
-  releases of IXA Pipeline. 
+  releases of the ixa pipes tools. 
   + The [nerc-resources.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-resources.tgz) package, which contains **every model and resource** available.
 
 ### Models
@@ -49,24 +58,24 @@ Several models per dataset and per language depending on the featureset used are
   well in Apache OpenNLP CLI. 
 + **baseline features**: it implements local, language independent features. These
   features generate reasonably accurate and very fast models.
-+ **dictlbj features**: baseline features with additional dictionary-based features as
++ **dictionary features**: baseline features with additional dictionary-based features as
   implemented by Ratinov and Roth (2009). Design Challenges and Misconceptions in 
   Named Entity Recognition. In CoNLL. These models are more accurate but
-  much slower than the opennlp and baseline models; **only for English**.
-
+  slower than the opennlp and baseline models; you need dictionaries formatted:
+  Named Entity Token\tabNamed Entity class\newline. It is possible to obtain these 
+  dictionaries from Ratinov and Roth(2009) but **only for English**.
 
 * **English Models**: we offer a variety of Perceptron based models (Collins 2002):
   
   + **CoNLL 2003 models** trained on train and dev sets and evaluated on test set.
     + CoNLL opennlp features: **en-nerc-perceptron-opennlp-c0-b3-testa.bin**: F1 83.80
     + CoNLL baseline features: **en-nerc-perceptron-baseline-c0-b3.testa.bin**: F1 84.53
-    + CoNLL dictlbj features: **en-nerc-perceptron-dictlbj-c0-b3.testa.bin**: F1 87.20
+    + CoNLL dict features: **en-nerc-perceptron-dict-c0-b3-conll03-testa.bin**: F1 87.20
  
  + **Ontonotes 4.0**: 
     + Trained on the **full corpus** with the **18 NE types**, suitable **for production use**.
       + Ontonotes 18 NE types opennlp features: **en-nerc-perceptron-opennlp-c0-b3-ontonotes-4.0.bin**
       + Ontonotes 18 NE types baseline features: **en-nerc-perceptron-baseline-c0-b3-ontonotes-4.0.bin**
-      + Ontonotes 18 NE types dictlbj features: **en-nerc-perceptron-dictlbj-c0-b3-ontonotes-4.0.bin**
     + **Using 5K sentences at random for testset** from the corpus and leaving the rest (90K
       aprox) for training.
       + Ontonotes CoNLL 4 NE types opennlp features: **en-nerc-perceptron-ontonotes-4.0-4-types-opennlp-c0-b3.bin**: F1 86.04
@@ -90,6 +99,20 @@ Several models per dataset and per language depending on the featureset used are
   + CoNLL **es-nerc-maxent-baseline-750-c0-b3-testa.bin**: F1 80.25
   + CoNLL **es-nerc-maxent-baseline-750-c4-b3-testa.bin**: F1 79.73
 
++ **Dutch Models**: We distribute the following CoNLL02 models:
+  + **nl-nerc-perceptron-baseline-c0-b3-conll02-testa.bin**: F1 77.57
+  + **nl-nerc-perceptron-opennlp-c0-b3-conll02-testa.bin**: F1 75.92
+
++ **German Models**: We distribute the following CoNLL02 models:
+  + **de-nerc-perceptron-baseline-c0-b3-conll03-testa.bin**: F1 69.02
+  + **de-nerc-perceptron-opennlp-c0-b3-conll03-testa.bin**: F1 61.48
+
++ **Italian Models**: Currently we distribute models trained with Evalita07 and Evalita09: 
+  + Evalita07 **it-nerc-perceptron-baseline-c0-b3-evalita07.bin**: F1 70.74
+  + Evalita07 **it-nerc-perceptron-opennlp-c0-b3-evalita07.bin**: F1 65.92
+  + Evalita09 **it-nerc-perceptron-baseline-c0-b3-evalita09.bin**: F1 74.38
+  + Evalita09 **it-nerc-perceptron-opennlp-c0-b3-evalita07.bin**: F1 72.89
+
 **Summarizing**, and even though the best way of knowing which model to use is
 to try them, for production use, we recommend using: 
   + English 18 NE types ontonotes baseline model: **en-nerc-perceptron-baseline-c0-b3-ontonotes-4.0.bin**
@@ -99,7 +122,10 @@ to try them, for production use, we recommend using:
 
 The default models provided in the package [nerc-default-resources.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-default-resources.tgz) are: 
   + English CoNLL 4 NE types multi corpora baseline model: **en-nerc-perceptron-conll03-ontonotes-4.0-4-types-baseline-c0-b3.bin**
-  + Spanish baseline c4 model: **es-nerc-maxent-baseline-750-c4-b3-testa.bin**.
+  + Spanish baseline c4 model: **es-nerc-maxent-baseline-750-c4-b3-conll02-testa.bin**
+  + German baseline CoNLL03 4 types model: **de-nerc-perceptron-baseline-c0-b3-conll03-testa.bin**
+  + Dutch baseline CoNLL02 4 types model: **nl-nerc-perceptron-baseline-c0-b3-conll02-testa.bin**
+  + Italian baseline Evalita09 4 types model: **nl-nerc-perceptron-baseline-c0-b3-evalita09.bin**
 
 ## USING ixa-pipe-nerc
 
@@ -149,7 +175,7 @@ There are several options to tag with ixa-pipe-nerc:
      OpenNLP API.
   + **baseline**: it implements local, language independent features. These
      features generate reasonably accurate and very fast models.
-  + **dictlbj**: baseline features with additional dictionary-based features as
+  + **dict**: baseline features with additional dictionary-based features as
      implemented by Ratinov and Roth (2009). Design Challenges and Misconceptions in 
      Named Entity Recognition. In CoNLL. These models are more accurate but
      much slower than the opennlp and baseline models.

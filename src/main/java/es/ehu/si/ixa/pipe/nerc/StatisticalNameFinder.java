@@ -328,7 +328,7 @@ public class StatisticalNameFinder implements NameFinder {
           "/es/es-nerc-maxent-baseline-750-c4-b3-conll02-testa.bin");
     }
     if (lang.equalsIgnoreCase("it")) {
-      trainedModelInputStream = getClass().getResourceAsStream("/it/it-nerc-perceptron-baseline-c0-b3-evalita07.bin");
+      trainedModelInputStream = getClass().getResourceAsStream("/it/it-nerc-perceptron-baseline-c0-b3-evalita09.bin");
     }
     if (lang.equalsIgnoreCase("nl")) {
       trainedModelInputStream = getClass().getResourceAsStream("/nl/nl-nerc-perceptron-baseline-c0-b3-conll02-testa.bin");

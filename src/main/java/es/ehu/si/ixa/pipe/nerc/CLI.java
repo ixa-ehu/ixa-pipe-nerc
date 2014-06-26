@@ -283,7 +283,10 @@ public class CLI {
     String netypes = parsedArguments.getString("netypes");
 
     if (parsedArguments.getString("model") != null) {
-      Dictionaries dictionaries = new Dictionaries(dictPath);
+      Dictionaries dictionaries = null;
+      if (dictPath != null) {
+        dictionaries = new Dictionaries(dictPath);
+      }
       Evaluate evaluator = new Evaluate(dictionaries, testFile, model, features,
           lang, beam, corpusFormat, netypes);
       if (parsedArguments.getString("evalReport") != null) {
