@@ -30,6 +30,7 @@ import java.util.List;
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.util.Span;
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
+import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
 
 /**
  * Annotation class of ixa-pipe-nerc.
@@ -111,7 +112,7 @@ public class Annotate {
    * @param beamsize
    *          the beamsize for decoding
    * @param dictOption
-   *          choose dictTag or postprocessing with dictionaries
+   *          choose dictTag or post-processing with dictionaries
    * @param dictPath
    *          the directory where the dictionaries are
    * @param ruleBasedOption
@@ -222,7 +223,6 @@ public class Annotate {
         tokenIds[i] = sentence.get(i).getId();
       }
       if (statistical) {
-        // TODO clearAdaptiveFeatures; evaluate
         allSpans = nameFinder.nercToSpans(tokens);
       }
       if (postProcess) {
@@ -235,7 +235,6 @@ public class Annotate {
       }
       if (lexerFind) {
         String sentenceText = StringUtils.getStringFromTokens(tokens);
-        // System.err.println("Sentence: " + sentenceText);
         StringReader stringReader = new StringReader(sentenceText);
         BufferedReader sentenceReader = new BufferedReader(stringReader);
         numericLexerFinder = new NumericNameFinder(sentenceReader, nameFactory);

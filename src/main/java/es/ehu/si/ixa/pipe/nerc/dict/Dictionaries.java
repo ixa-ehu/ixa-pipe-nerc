@@ -27,15 +27,15 @@ public class Dictionaries {
   /**
    * The list of dictionary names.
    */
-  private static List<String> dictNames = new ArrayList<String>();
+  private static List<String> dictNames;
   /**
    * The list of dictionaries as HashMap<String, String>.
    */
-  private static List<Dictionary> dictionaries = null;
+  private static List<Dictionary> dictionaries;
   /**
    * The list of lowercase dictionaries as HashMap<String, String>.
    */
-  private static List<Dictionary> dictionariesIgnoreCase = null;
+  private static List<Dictionary> dictionariesIgnoreCase;
 
   /**
    * Construct the dictionaries from the input directory path.
@@ -44,11 +44,14 @@ public class Dictionaries {
    *          the input directory
    */
   public Dictionaries(final String inputDir) {
-    try {
-      loadDictionaries(inputDir);
-    } catch (IOException e) {
-      e.getMessage();
+    if (dictNames == null && dictionaries == null && dictionariesIgnoreCase == null) {
+      try {
+        loadDictionaries(inputDir);
+      } catch (IOException e) {
+        e.getMessage();
+      }
     }
+    
   }
 
   /**
@@ -91,6 +94,7 @@ public class Dictionaries {
     if (inputPath.isDirectory()) {
       Collection<File> files = FileUtils.listFiles(inputPath, null, true);
       List<File> fileList = new ArrayList<File>(files);
+      dictNames = new ArrayList<String>(files.size());
       dictionaries = new ArrayList<Dictionary>(files.size());
       dictionariesIgnoreCase = new ArrayList<Dictionary>(files.size());
       for (int i = 0; i < fileList.size(); ++i) {

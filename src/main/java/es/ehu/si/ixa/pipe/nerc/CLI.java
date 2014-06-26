@@ -32,11 +32,11 @@ import es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.DefaultNameFinderTrainer;
 
 /**
- * Main class of ixa-pipe-nerc, the ixa pipes (ixa2.si.ehu.es/ixa-pipes) NER
+ * Main class of ixa-pipe-nerc, the ixa pipes (ixa2.si.ehu.es/ixa-pipes) NERC
  * tagger.
  * 
  * @author ragerri
- * @version 2014-04-18
+ * @version 2014-06-26
  * 
  */
 public class CLI {
@@ -176,7 +176,7 @@ public class CLI {
       lang = parsedArguments.getString("lang");
     }
     KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor(
-        "entities", "ixa-pipe-nerc-" + lang + " " + model, version);
+        "entities", "ixa-pipe-nerc-" + lang + "-" + model, version);
     newLp.setBeginTimestamp();
 
     if (gazetteerOption != null || 
@@ -352,7 +352,7 @@ public class CLI {
         .addArgument("--dictPath")
         .required(false)
         .help(
-            "Provide directory containing dictionaries for its use with dictlbj featureset\n");
+            "Provide directory containing dictionaries for its use with dict featureset\n");
     trainParser.addArgument("-p", "--params").required(true)
         .help("Load the parameters file\n");
     trainParser.addArgument("-i", "--input").required(true)

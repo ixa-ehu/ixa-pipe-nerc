@@ -49,7 +49,9 @@ public class DictNameFinderTrainer extends AbstractNameFinderTrainer {
       final String netypes) throws IOException {
     super(trainData, testData, lang, beamsize, corpusFormat, netypes);
 
-    dictionaries = aDictionaries;
+    if (dictionaries == null) {
+      dictionaries = aDictionaries;  
+    }
     features = createFeatureGenerator();
 
   }
@@ -63,7 +65,9 @@ public class DictNameFinderTrainer extends AbstractNameFinderTrainer {
   public DictNameFinderTrainer(final Dictionaries aDictionaries, final int beamsize) {
     super(beamsize);
 
-    dictionaries = aDictionaries;
+    if (dictionaries == null) {
+      dictionaries = aDictionaries;
+    }
     features = createFeatureGenerator();
 
   }
