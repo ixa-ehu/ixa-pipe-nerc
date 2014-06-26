@@ -20,110 +20,198 @@ import ixa.kaflib.KAFDocument;
 import ixa.kaflib.Term;
 import ixa.kaflib.WF;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.util.Span;
+import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
+import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
 
 /**
+ * Annotation class of ixa-pipe-nerc.
+ * 
  * @author ragerri
- *
+ * @version 2014/06/25
+ * 
  */
 public class Annotate {
 
   /**
-   * The NameFinder to do the annotation.
+   * The name factory.
+   */
+  NameFactory nameFactory;
+  /**
+   * The NameFinder to do the annotation. Usually the statistical.
    */
   private NameFinder nameFinder;
   /**
-   * The dictionary name finders to do the post processing.
+   * The dictionaries.
    */
-  private DictionaryNameFinder perDictFinder;
+  private Dictionaries dictionaries;
   /**
-   * The dictionary name finders to do the post processing.
+   * The dictionary name finder.
    */
-  private DictionaryNameFinder orgDictFinder;
+  private DictionariesNameFinder dictFinder;
   /**
-   * The dictionary name finders to do the post processing.
+   * The NameFinder Lexer for rule-based name finding.
    */
-  private DictionaryNameFinder locDictFinder;
+  private NumericNameFinder numericLexerFinder;
   /**
    * True if the name finder is statistical.
    */
-  private boolean statitiscal;
+  private boolean statistical;
   /**
-   * Activates post processing of statistical name finder with dictionary
-   * name finders.
+   * Activates post processing of statistical name finder with dictionary name
+   * finders.
    */
   private boolean postProcess;
   /**
    * Activates name finding using dictionaries only.
    */
   private boolean dictTag;
+  /**
+   * Activates name finding using {@code NameFinderLexer}s.
+   */
+  private boolean lexerFind;
 
   /**
    * Construct a probabilistic annotator.
-   *
-   * @param lang the language
-   * @param model the model
-   * @param features the features
-   * @param beamsize the beam size for decoding
+   * 
+   * @param lang
+   *          the language
+   * @param model
+   *          the model
+   * @param features
+   *          the features
+   * @param beamsize
+   *          the beam size for decoding
    */
   public Annotate(final String lang, final String model, final String features,
       final int beamsize) {
-    if (model.equalsIgnoreCase("baseline")) {
-      System.err.println("No NERC model chosen, reverting to baseline model!");
+    if (model.equalsIgnoreCase("default")) {
+      System.err.println("No NERC model chosen, reverting to default model!");
     }
-    NameFactory nameFactory = new NameFactory();
-    nameFinder = new StatisticalNameFinder(lang, nameFactory, model, features, beamsize);
-    statitiscal = true;
+    nameFactory = new NameFactory();
+    nameFinder = new StatisticalNameFinder(lang, nameFactory, model, features,
+        beamsize);
+    statistical = true;
   }
 
   /**
-   * Construct an annotator with options for post processing of probabilistic
-   * annotation and tagging with dictionaries only.
-   *
+   * @param lang
+   *          the language
+   * @param model
+   *          the model chosen
+   * @param features
+   *          the features
+   * @param beamsize
+   *          the beamsize for decoding
+   * @param dictOption
+   *          choose dictTag or post-processing with dictionaries
+   * @param dictPath
+   *          the directory where the dictionaries are
+   * @param ruleBasedOption
+   *          which lexer to use
+   */
+  public Annotate(final String lang, final String model, final String features,
+      final int beamsize, final String dictOption, final String dictPath,
+      final String ruleBasedOption) {
+
+    nameFactory = new NameFactory();
+    dictionaryOptions(lang, model, features, beamsize, dictOption, dictPath, ruleBasedOption);
+    nonDictOptions(lang, model, features, beamsize, dictPath, ruleBasedOption);
+  }
+  
+  
+  /**
+   * Generates the right options for dictionary-based NER tagging:
+   * Dictionary features by means of the {@link StatisticalNameFinder} 
+   * or using the {@link DictionaryNameFinder} or a combination of
+   * those with the {@link NumericNameFinder}.
+   * 
+   * @param lang
+   * @param model
+   * @param features
+   * @param beamsize
+   * @param dictOption
+   * @param dictPath
+   * @param ruleBasedOption
+   */
+  //TODO surely we can simplify this?
+  private void dictionaryOptions(final String lang, final String model, final String features,
+        final int beamsize, final String dictOption, final String dictPath, final String ruleBasedOption) {
+    if (dictPath != null) {
+      if (ruleBasedOption != null) {
+        lexerFind = true;
+      }
+      dictionaries = new Dictionaries(dictPath);
+      if (dictOption != null) {
+        dictFinder = new DictionariesNameFinder(dictionaries, nameFactory);
+        if (dictOption.equalsIgnoreCase("tag")) {
+          dictTag = true;
+          postProcess = false;
+          statistical = false;
+        }
+        else if (dictOption.equalsIgnoreCase("post")) {
+          if (features.equalsIgnoreCase("dict")) {
+            nameFinder = new StatisticalNameFinder(lang, nameFactory, model,
+                features, beamsize, dictionaries);
+          } else {
+            nameFinder = new StatisticalNameFinder(lang, nameFactory, model,
+                features, beamsize);
+          }
+          statistical = true;
+          postProcess = true;
+          dictTag = false;
+        }
+      } else {
+        statistical = true;
+        nameFinder = new StatisticalNameFinder(lang, nameFactory, model,
+            features, beamsize, dictionaries);
+        dictTag = false;
+        postProcess = false;
+      }
+    }
+  }
+  
+  /**
+   * Generates the right options when dictionary-related name finders are not used.
+   * 
    * @param lang the language
-   * @param dictOption whether dictionaries are used for tagging or post processing
    * @param model the model
    * @param features the features
-   * @param beamsize the beam size for decoding
+   * @param beamsize the beamsize for decoding
+   * @param dictPath the directory containing the dictionaries
+   * @param ruleBasedOption the lexer option
    */
-  public Annotate(final String lang, final String dictOption, final String model,
-      final String features, final int beamsize) {
-    if (model.equalsIgnoreCase("baseline") && !dictOption.equalsIgnoreCase("tag")) {
-      System.err.println("No NERC model chosen, reverting to baseline model!");
-   }
-    NameFactory nameFactory = new NameFactory();
-    nameFinder = new StatisticalNameFinder(lang, nameFactory, model, features, beamsize);
-    //TODO remove hard coding of these dictionaries
-    perDictFinder = createDictNameFinder("en/en-wiki-person.txt", "PERSON", nameFactory);
-    orgDictFinder = createDictNameFinder("en/en-wiki-organization.txt", "ORGANIZATION", nameFactory);
-    locDictFinder = createDictNameFinder("en/en-wiki-location.txt", "LOCATION", nameFactory);
-    if (dictOption.equalsIgnoreCase("post")) {
-      postProcess = true;
-      statitiscal = true;
-    }
-    if (dictOption.equalsIgnoreCase("tag")) {
-      dictTag = true;
-      statitiscal = false;
+  private void nonDictOptions (final String lang, final String model, final String features,
+      final int beamsize, final String dictPath, final String ruleBasedOption) {
+    
+    if (dictPath == null && ruleBasedOption != null) {
+      nameFinder = new StatisticalNameFinder(lang, nameFactory, model,
+          features, beamsize);
+      lexerFind = true;
+      statistical = true;
+      dictTag = false;
       postProcess = false;
     }
   }
 
   /**
-   * Classify Named Entities and write them to a {@link KAFDocument}
-   * using stastitical models, post-processing and/or dictionaries only.
-   *
-   * @param kaf the kaf document to be used for annotation
-   * @throws IOException throws exception if problems with the kaf document
+   * Classify Named Entities and write them to a {@link KAFDocument} using
+   * statistical models, post-processing and/or dictionaries only.
+   * 
+   * @param kaf
+   *          the kaf document to be used for annotation
+   * @throws IOException
+   *           throws exception if problems with the kaf document
    */
-  public final void annotateNEsToKAF(final KAFDocument kaf)
-      throws IOException {
+  public final void annotateNEsToKAF(final KAFDocument kaf) throws IOException {
 
     List<Span> allSpans = new ArrayList<Span>();
     List<List<WF>> sentences = kaf.getSentences();
@@ -134,33 +222,39 @@ public class Annotate {
         tokens[i] = sentence.get(i).getForm();
         tokenIds[i] = sentence.get(i).getId();
       }
-      if (statitiscal) {
-        //TODO clearAdaptiveFeatures; evaluate
+      if (statistical) {
         allSpans = nameFinder.nercToSpans(tokens);
       }
       if (postProcess) {
-        List<Span> perDictSpans = perDictFinder.nercToSpansExact(tokens);
-        List<Span> orgDictSpans = orgDictFinder.nercToSpansExact(tokens);
-        List<Span> locDictSpans = locDictFinder.nercToSpansExact(tokens);
-        perDictFinder.concatenateSpans(perDictSpans, orgDictSpans);
-        perDictFinder.concatenateSpans(perDictSpans, locDictSpans);
-        perDictFinder.postProcessDuplicatedSpans(allSpans, perDictSpans);
-        perDictFinder.concatenateSpans(allSpans, perDictSpans);
+        List<Span> dictSpans = dictFinder.nercToSpansExact(tokens);
+        SpanUtils.postProcessDuplicatedSpans(allSpans, dictSpans);
+        SpanUtils.concatenateSpans(allSpans, dictSpans);
       }
       if (dictTag) {
-        allSpans = perDictFinder.nercToSpansExact(tokens);
-        List<Span> orgDictSpans = orgDictFinder.nercToSpansExact(tokens);
-        List<Span> locDictSpans = locDictFinder.nercToSpansExact(tokens);
-        perDictFinder.concatenateSpans(allSpans, orgDictSpans);
-        perDictFinder.concatenateSpans(allSpans, locDictSpans);
+        allSpans = dictFinder.nercToSpansExact(tokens);
       }
-      Span[] allSpansArray = NameFinderME.dropOverlappingSpans(allSpans.toArray(new Span[allSpans.size()]));
-      List<Name> names = nameFinder.getNamesFromSpans(allSpansArray, tokens);
+      if (lexerFind) {
+        String sentenceText = StringUtils.getStringFromTokens(tokens);
+        StringReader stringReader = new StringReader(sentenceText);
+        BufferedReader sentenceReader = new BufferedReader(stringReader);
+        numericLexerFinder = new NumericNameFinder(sentenceReader, nameFactory);
+        List<Span> numericSpans = numericLexerFinder.nercToSpans(tokens);
+        SpanUtils.concatenateSpans(allSpans, numericSpans);
+      }
+      Span[] allSpansArray = NameFinderME.dropOverlappingSpans(allSpans
+          .toArray(new Span[allSpans.size()]));
+      List<Name> names = new ArrayList<Name>();
+      if (statistical) {
+        names = nameFinder.getNamesFromSpans(allSpansArray, tokens);
+      } else {
+        names = dictFinder.getNamesFromSpans(allSpansArray, tokens);
+      }
       for (Name name : names) {
         Integer startIndex = name.getSpan().getStart();
         Integer endIndex = name.getSpan().getEnd();
         List<Term> nameTerms = kaf.getTermsFromWFs(Arrays.asList(Arrays
             .copyOfRange(tokenIds, startIndex, endIndex)));
+
         List<List<Term>> references = new ArrayList<List<Term>>();
         references.add(nameTerms);
         kaf.createEntity(name.getType(), references);
@@ -169,20 +263,20 @@ public class Annotate {
   }
 
   /**
-   * Construct a {@link DictionaryNameFinder} using a {@link Dictionary},
-   * a NE type and a {@link NameFactory} to create {@link Name} objects.
-   *
-   * @param dictFile the dictionary to be used
-   * @param type the named entity class
-   * @param nameFactory the factory
-   * @return an instance of a {@link DictionaryNameFinder}
+   * Construct a {@link DictionaryNameFinder} for each of the dictionaries in
+   * the directory provided.
+   * 
+   * @param dictPath
+   *          the directory containing the dictionaries
+   * @param nameFactory
+   *          the factory to construct the names
+   * @return
    */
-  public final DictionaryNameFinder createDictNameFinder(final String dictFile, final String type,
-      final NameFactory nameFactory) {
-    InputStream dictStream = getClass().getResourceAsStream("/" + dictFile);
-    Dictionary dict = new Dictionary(dictStream);
-    DictionaryNameFinder dictNameFinder = new DictionaryNameFinder(dict, type, nameFactory);
+  public final DictionariesNameFinder createDictNameFinder(
+      final String dictPath, final NameFactory nameFactory) {
+    Dictionaries dict = new Dictionaries(dictPath);
+    DictionariesNameFinder dictNameFinder = new DictionariesNameFinder(dict,
+        nameFactory);
     return dictNameFinder;
   }
 }
-

@@ -148,7 +148,7 @@ public final class StringUtils {
    *          an array of tokens representing a tokenized sentence
    * @return sentence the sentence corresponding to the tokens
    */
-  public static String getSentenceFromTokens(final String[] tokens) {
+  public static String getStringFromTokens(final String[] tokens) {
     StringBuilder sb = new StringBuilder();
     for (String tok : tokens) {
       sb.append(tok).append(" ");

@@ -26,10 +26,11 @@ import java.util.List;
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.Span;
+import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
 import es.ehu.si.ixa.pipe.nerc.train.BaselineNameFinderTrainer;
-import es.ehu.si.ixa.pipe.nerc.train.DictLbjNameFinderTrainer;
+import es.ehu.si.ixa.pipe.nerc.train.DictNameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer;
-import es.ehu.si.ixa.pipe.nerc.train.OpenNLPDefaultTrainer;
+import es.ehu.si.ixa.pipe.nerc.train.DefaultNameFinderTrainer;
 
 /**
  * Named Entity Recognition module based on Apache OpenNLP Machine Learning API.
@@ -91,6 +92,40 @@ public class StatisticalNameFinder implements NameFinder {
   public StatisticalNameFinder(final String lang, final String model, final String features) {
     this(lang, model, features, CLI.DEFAULT_BEAM_SIZE);
   }
+  
+  /**
+   * Construct a StatisticalNameFinder without name factory but with dictionary features.
+   *
+   * @param lang
+   *          the language
+   * @param model
+   *          the name of the model to be used
+   * @param features
+   *          the features
+   * @param beamsize
+   *          the beam size decoding
+   * @param dictPath the directory containing the dictionaries
+   */
+  public StatisticalNameFinder(final String lang, final String model,
+      final String features, final int beamsize, final Dictionaries dictionaries) {
+
+    TokenNameFinderModel nerModel = loadModel(lang, model);
+    nameFinderTrainer = new DictNameFinderTrainer(dictionaries, beamsize);
+    nameFinder = new NameFinderME(nerModel,
+        nameFinderTrainer.createFeatureGenerator(), beamsize);
+  }
+
+  /**
+   * Construct a StatisticalNameFinder without name factory and with
+   * default beam size.
+   *
+   * @param lang the language
+   * @param model the model
+   * @param features the features
+   */
+  public StatisticalNameFinder(final String lang, final String model, final String features, final Dictionaries dictionaries) {
+    this(lang, model, features, CLI.DEFAULT_BEAM_SIZE, dictionaries);
+  }
 
   /**
    * Construct a StatisticalNameFinder specifying the language,
@@ -113,6 +148,7 @@ public class StatisticalNameFinder implements NameFinder {
         nameFinderTrainer.createFeatureGenerator(), beamsize);
   }
 
+
   /**
    * Construct a StatisticalNameFinder with name factory and
    * with default beam size.
@@ -127,6 +163,44 @@ public class StatisticalNameFinder implements NameFinder {
     this(lang, aNameFactory, model, features, CLI.DEFAULT_BEAM_SIZE);
   }
 
+  /**
+   * Construct a StatisticalNameFinder specifying the language,
+   * a name factory, the model, the features and the beam size for
+   * decoding.
+   *
+   * @param lang the language
+   * @param aNameFactory the name factory to construct Name objects
+   * @param model the model
+   * @param features the features
+   * @param beamsize the beam size for decoding
+   * @param dictPath the path to the dictionaries
+   */
+  public StatisticalNameFinder(final String lang, final NameFactory aNameFactory,
+      final String model, final String features, final int beamsize, final Dictionaries dictionaries) {
+
+    this.nameFactory = aNameFactory;
+    TokenNameFinderModel nerModel = loadModel(lang, model);
+    nameFinderTrainer = new DictNameFinderTrainer(dictionaries, beamsize);
+    nameFinder = new NameFinderME(nerModel,
+        nameFinderTrainer.createFeatureGenerator(), beamsize);
+  }
+  
+
+  /**
+   * Construct a StatisticalNameFinder with name factory and
+   * with default beam size.
+   *
+   * @param lang the language
+   * @param aNameFactory the name factory
+   * @param model the model
+   * @param features the features
+   */
+  public StatisticalNameFinder(final String lang, final NameFactory aNameFactory,
+      final String model, final String features, final Dictionaries dictionaries) {
+    this(lang, aNameFactory, model, features, CLI.DEFAULT_BEAM_SIZE, dictionaries);
+  }
+
+  
   /**
    * Method to produce a list of the {@link Name} objects classified by the
    * probabilistic model.
@@ -212,8 +286,8 @@ public class StatisticalNameFinder implements NameFinder {
     InputStream trainedModelInputStream = null;
     try {
       if (nercModel == null) {
-        if (model.equalsIgnoreCase("baseline")) {
-          trainedModelInputStream = getBaselineModelStream(lang, model);
+        if (model.equalsIgnoreCase("default")) {
+          trainedModelInputStream = getDefaultModelStream(lang, model);
         } else {
           trainedModelInputStream = new FileInputStream(model);
         }
@@ -234,22 +308,30 @@ public class StatisticalNameFinder implements NameFinder {
   }
 
   /**
-   * Method to back-off to a baseline model when no model is
+   * Method to back-off to a default model when no model is
    * chosen in the command line.
    *
    * @param lang the language
    * @param model the default value to load the baseline model
-   * @return the inputstream from a model
+   * @return the input stream from a model
    */
-  private InputStream getBaselineModelStream(final String lang, final String model) {
+  private InputStream getDefaultModelStream(final String lang, final String model) {
     InputStream trainedModelInputStream = null;
+    if (lang.equalsIgnoreCase("de")) {
+      trainedModelInputStream = getClass().getResourceAsStream("/de/de-nerc-perceptron-baseline-c0-b3-conll03-testa.bin");
+    }
     if (lang.equalsIgnoreCase("en")) {
-      trainedModelInputStream = getClass().getResourceAsStream(
-          "/en/en-nerc-perceptron-conll03-ontonotes-4.0-4-types-baseline-c0-b3.bin");
+      trainedModelInputStream = getClass().getResourceAsStream("/en/en-nerc-perceptron-baseline-c0-b3-conll03-ontonotes-4.0-4-types.bin");
     }
     if (lang.equalsIgnoreCase("es")) {
       trainedModelInputStream = getClass().getResourceAsStream(
-          "/es/es-nerc-maxent-baseline-750-c4-b3-testa.bin");
+          "/es/es-nerc-maxent-baseline-750-c4-b3-conll02-testa.bin");
+    }
+    if (lang.equalsIgnoreCase("it")) {
+      trainedModelInputStream = getClass().getResourceAsStream("/it/it-nerc-perceptron-baseline-c0-b3-evalita07.bin");
+    }
+    if (lang.equalsIgnoreCase("nl")) {
+      trainedModelInputStream = getClass().getResourceAsStream("/nl/nl-nerc-perceptron-baseline-c0-b3-conll02-testa.bin");
     }
     return trainedModelInputStream;
   }
@@ -264,10 +346,8 @@ public class StatisticalNameFinder implements NameFinder {
   public final NameFinderTrainer getNameFinderTrainer(final String features, final int beamsize) {
     if (features.equalsIgnoreCase("baseline")) {
       nameFinderTrainer = new BaselineNameFinderTrainer(beamsize);
-    } else if (features.equalsIgnoreCase("dictlbj")) {
-      nameFinderTrainer = new DictLbjNameFinderTrainer(beamsize);
     } else if (features.equalsIgnoreCase("opennlp")) {
-      nameFinderTrainer = new OpenNLPDefaultTrainer(beamsize);
+      nameFinderTrainer = new DefaultNameFinderTrainer(beamsize);
     }
     return nameFinderTrainer;
   }

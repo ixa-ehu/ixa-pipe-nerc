@@ -17,40 +17,23 @@
 package es.ehu.si.ixa.pipe.nerc;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+
+import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
+
 
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.util.Span;
 
+
 /**
- * Named Entity Recognition module based on {@link Dictionary} objects This
- * class provides the following functionalities:
- *
- * <ol>
- * <li>string matching against of a string (typically tokens) against a
- * Dictionary containing names. This function is also used to implement
- * Dictionary based features in the training package.
- * <li>tag: Provided a Dictionary it tags only the names it matches against it
- * <li>post: This function checks for names in the Dictionary that have not been
- * detected by a {@link StatisticalNameFinder}; it also corrects the Name type
- * for those detected by a {@link StatisticalNameFinder} but also present in a
- * dictionary
- * </ol>
- *
- * @author ragerri 2014/03/14
+ * It detects named entities by dictionary look-up.
+ * @author ragerri
  *
  */
-
 public class DictionaryNameFinder implements NameFinder {
 
-  /**
-   * Assign this type if not found in a Dictionary.
-   */
-  private static final String DEFAULT_TYPE = "MISC";
-  /**
-   * The Named Entity class of the Name.
-   */
-  private final String type;
   /**
    * The name factory to create Name objects.
    */
@@ -58,78 +41,26 @@ public class DictionaryNameFinder implements NameFinder {
   /**
    * The dictionary to find the names.
    */
-  private Dictionary dict;
+  private Dictionary dictionary;
   /**
    * Debugging switch.
    */
   private final boolean debug = false;
 
-  /**
-   * Construct a DictionaryNameFinder using one dictionary and one named entity
-   * class.
-   *
-   * @param aDict
-   *          the dictionary
-   * @param aType
-   *          the named entity class
-   */
-  public DictionaryNameFinder(final Dictionary aDict, final String aType) {
-    this.dict = aDict;
-    if (aType == null) {
-      throw new IllegalArgumentException("type cannot be null!");
-    }
-    this.type = aType;
+ 
+  public DictionaryNameFinder(final Dictionary aDictionary) {
+    this.dictionary = aDictionary;
   }
 
-  /**
-   * Construct a DictionaryNameFinder using one dictionary and the default named
-   * entity class.
-   *
-   * @param aDict
-   *          the dictionary
-   */
-  public DictionaryNameFinder(final Dictionary aDict) {
-    this(aDict, DEFAULT_TYPE);
-  }
-
-  /**
-   * Construct a DictionaryNameFinder with a dictionary, a type and a name
-   * factory.
-   *
-   * @param aDict
-   *          the dictionary
-   * @param aType
-   *          the named entity class
-   * @param aNameFactory
-   *          the factory
-   */
-  public DictionaryNameFinder(final Dictionary aDict, final String aType,
+  public DictionaryNameFinder(final Dictionary aDictionary,
       final NameFactory aNameFactory) {
-    this.dict = aDict;
+    this.dictionary = aDictionary;
     this.nameFactory = aNameFactory;
-    if (aType == null) {
-      throw new IllegalArgumentException("type cannot be null!");
-    }
-    this.type = aType;
   }
-
-  /**
-   * Construct a DictionaryNameFinder with a dictionary, the default named
-   * entity class and a name factory.
-   *
-   * @param aDict
-   *          the dictionary
-   * @param aNameFactory
-   *          the factory
-   */
-  public DictionaryNameFinder(final Dictionary aDict,
-      final NameFactory aNameFactory) {
-    this(aDict, DEFAULT_TYPE, aNameFactory);
-  }
-
+ 
   /**
    * {@link Dictionary} based Named Entity Detection and Classification.
-   *
+   * 
    * @param tokens
    *          the tokenized sentence
    * @return a list of detected {@link Name} objects
@@ -144,54 +75,90 @@ public class DictionaryNameFinder implements NameFinder {
   }
 
   /**
-   * Detects Named Entities in a {@link Dictionary} by NE type ignoring case.
-   *
+   * Detects Named Entities against a {@link Dictionary} ignoring case.
+   * 
    * @param tokens
    *          the tokenized sentence
    * @return spans of the Named Entities
    */
   public final List<Span> nercToSpans(final String[] tokens) {
-    List<Span> neSpans = new ArrayList<Span>();
-    for (String neDict : dict.getDict()) {
-      List<Integer> neIds = StringUtils.exactTokenFinderIgnoreCase(neDict,
-          tokens);
-      if (!neIds.isEmpty()) {
-        Span neSpan = new Span(neIds.get(0), neIds.get(1), type);
-        if (debug) {
-          System.err.println(neSpans.toString());
+    List<Span> namesFound = new LinkedList<Span>();
+
+    for (int offsetFrom = 0; offsetFrom < tokens.length; offsetFrom++) {
+      Span nameFound = null;
+      String tokensSearching[] = new String[] {};
+
+      for (int offsetTo = offsetFrom; offsetTo < tokens.length; offsetTo++) {
+        int lengthSearching = offsetTo - offsetFrom + 1;
+
+        if (lengthSearching > dictionary.getMaxTokenCount()) {
+          break;
+        } else {
+          tokensSearching = new String[lengthSearching];
+          System.arraycopy(tokens, offsetFrom, tokensSearching, 0,
+              lengthSearching);
+
+          String entryForSearch = StringUtils.getStringFromTokens(tokensSearching).toLowerCase();
+          
+          if (dictionary.getDict().containsKey(entryForSearch)) {
+            nameFound = new Span(offsetFrom, offsetTo + 1, dictionary.getDict().get(entryForSearch));
+          }
         }
-        neSpans.add(neSpan);
+      }
+
+      if (nameFound != null) {
+        namesFound.add(nameFound);
+        // skip over the found tokens for the next search
+        offsetFrom += (nameFound.length() - 1);
       }
     }
-    return neSpans;
+    return namesFound;
   }
-
+  
   /**
-   * Detects Named Entities in a {@link Dictionary} by NE type This method is
-   * case sensitive.
-   *
+   * Detects Named Entities in a {@link Dictionary} taking case into account.
+   * 
    * @param tokens
    *          the tokenized sentence
-   * @return spans of the Named Entities all
+   * @return spans of the Named Entities
    */
   public final List<Span> nercToSpansExact(final String[] tokens) {
-    List<Span> neSpans = new ArrayList<Span>();
-    for (String neDict : dict.getDict()) {
-      List<Integer> neIds = StringUtils.exactTokenFinder(neDict, tokens);
-      if (!neIds.isEmpty()) {
-        Span neSpan = new Span(neIds.get(0), neIds.get(1), type);
-        if (debug) {
-          System.err.println(neSpans.toString());
+    List<Span> namesFound = new LinkedList<Span>();
+
+    for (int offsetFrom = 0; offsetFrom < tokens.length; offsetFrom++) {
+      Span nameFound = null;
+      String tokensSearching[] = new String[] {};
+
+      for (int offsetTo = offsetFrom; offsetTo < tokens.length; offsetTo++) {
+        int lengthSearching = offsetTo - offsetFrom + 1;
+
+        if (lengthSearching > dictionary.getMaxTokenCount()) {
+          break;
+        } else {
+          tokensSearching = new String[lengthSearching];
+          System.arraycopy(tokens, offsetFrom, tokensSearching, 0,
+              lengthSearching);
+
+          String entryForSearch = StringUtils.getStringFromTokens(tokensSearching);
+          
+          if (dictionary.getDict().containsKey(entryForSearch)) {
+            nameFound = new Span(offsetFrom, offsetTo + 1, dictionary.getDict().get(entryForSearch));
+          }
         }
-        neSpans.add(neSpan);
+      }
+
+      if (nameFound != null) {
+        namesFound.add(nameFound);
+        // skip over the found tokens for the next search
+        offsetFrom += (nameFound.length() - 1);
       }
     }
-    return neSpans;
+    return namesFound;
   }
 
   /**
    * Creates a list of {@link Name} objects from spans and tokens.
-   *
+   * 
    * @param neSpans
    *          the spans of the entities in the sentence
    * @param tokens
@@ -208,45 +175,6 @@ public class DictionaryNameFinder implements NameFinder {
       names.add(name);
     }
     return names;
-  }
-
-  /**
-   * Concatenates two span lists adding the spans of the second parameter to the
-   * list in first parameter.
-   *
-   * @param allSpans
-   *          the spans to which the other spans are added
-   * @param neSpans
-   *          the spans to be added to allSpans
-   */
-  public final void concatenateSpans(final List<Span> allSpans,
-      final List<Span> neSpans) {
-    for (Span span : neSpans) {
-      allSpans.add(span);
-    }
-  }
-
-  /**
-   * Removes spans from the preList if the span is contained in the postList.
-   *
-   * @param preList
-   *          the list of spans to be post-processed
-   * @param postList
-   *          the list of spans to do the post-processing
-   */
-  public final void postProcessDuplicatedSpans(final List<Span> preList,
-      final List<Span> postList) {
-    List<Span> duplicatedSpans = new ArrayList<Span>();
-    for (Span span1 : preList) {
-      for (Span span2 : postList) {
-        if (span1.contains(span2)) {
-          duplicatedSpans.add(span1);
-        } else if (span2.contains(span1)) {
-          duplicatedSpans.add(span1);
-        }
-      }
-    }
-    preList.removeAll(duplicatedSpans);
   }
 
   /**

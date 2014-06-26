@@ -3,13 +3,10 @@ package es.ehu.si.ixa.pipe.nerc.train;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.NameSample;
@@ -230,18 +227,22 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
   }
   
   public static ObjectStream<NameSample> getNameStream(String trainData, String lang, String corpusFormat) throws IOException {
-	  ObjectStream<NameSample> samples;
+	  ObjectStream<NameSample> samples = null;
 	  if (corpusFormat.equalsIgnoreCase("conll")) {
 		  ObjectStream<String> nameStream = InputOutputUtils.readInputData(trainData);
 	      samples = new Conll03NameStream(lang, nameStream);
 	  }
-	  else if (corpusFormat.equalsIgnoreCase("conll") && lang.equalsIgnoreCase("es") || lang.equalsIgnoreCase("nl")) {
+	  else if (corpusFormat.equalsIgnoreCase("conll") && (lang.equalsIgnoreCase("es") || lang.equalsIgnoreCase("nl"))) {
 	    ObjectStream<String> nameStream = InputOutputUtils.readInputData(trainData);
 		samples = new Conll02NameStream(lang, nameStream);
 	  }
-	  else {
+	  else if (corpusFormat.equalsIgnoreCase("opennlp")){
 	    ObjectStream<String> nameStream = InputOutputUtils.readInputData(trainData);
 		samples = new NameSampleDataStream(nameStream);	
+	  }
+	  else {
+	    System.err.println("Test set corpus format not valid!!");
+	    System.exit(1);
 	  }
 	  return samples;
   }
