@@ -318,18 +318,17 @@ public class StatisticalNameFinder implements NameFinder {
   private InputStream getDefaultModelStream(final String lang, final String model) {
     InputStream trainedModelInputStream = null;
     if (lang.equalsIgnoreCase("de")) {
-      trainedModelInputStream = getClass().getResourceAsStream("/de/de-nerc-perceptron-baseline-c0-b3-conll03.bin");
+      trainedModelInputStream = getClass().getResourceAsStream("/de/de-nerc-perceptron-baseline-c0-b3-conll03-testa.bin");
     }
     if (lang.equalsIgnoreCase("en")) {
-      trainedModelInputStream = getClass().getResourceAsStream(
-          "/en/en-nerc-perceptron-conll03-ontonotes-4.0-4-types-baseline-c0-b3.bin");
+      trainedModelInputStream = getClass().getResourceAsStream("/en/en-nerc-perceptron-baseline-c0-b3-conll03-ontonotes-4.0-4-types.bin");
     }
     if (lang.equalsIgnoreCase("es")) {
       trainedModelInputStream = getClass().getResourceAsStream(
-          "/es/es-nerc-maxent-baseline-750-c4-b3-testa.bin");
+          "/es/es-nerc-maxent-baseline-750-c4-b3-conll02-testa.bin");
     }
     if (lang.equalsIgnoreCase("it")) {
-      trainedModelInputStream = getClass().getResourceAsStream("/it/it-nerc-perceptron-baseline-c0-b3-evalita.bin");
+      trainedModelInputStream = getClass().getResourceAsStream("/it/it-nerc-perceptron-baseline-c0-b3-evalita07.bin");
     }
     if (lang.equalsIgnoreCase("nl")) {
       trainedModelInputStream = getClass().getResourceAsStream("/nl/nl-nerc-perceptron-baseline-c0-b3-conll02-testa.bin");
