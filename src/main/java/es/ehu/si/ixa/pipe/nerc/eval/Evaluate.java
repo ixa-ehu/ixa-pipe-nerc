@@ -1,6 +1,7 @@
 package es.ehu.si.ixa.pipe.nerc.eval;
 
 import es.ehu.si.ixa.pipe.nerc.StatisticalNameFinder;
+import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
 import es.ehu.si.ixa.pipe.nerc.train.AbstractNameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.DictNameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer;
@@ -58,7 +59,7 @@ public class Evaluate {
    * @param corpusFormat the format of the testData corpus
    * @throws IOException if input data not available
    */
-  public Evaluate(final String dictPath, final String testData, final String model, final String features, final String lang,
+  public Evaluate(final Dictionaries dictionaries, final String testData, final String model, final String features, final String lang,
       final int beamsize, final String corpusFormat, String netypes) throws IOException {
 
     testSamples = AbstractNameFinderTrainer.getNameStream(testData, lang, corpusFormat);
@@ -84,8 +85,8 @@ public class Evaluate {
       }
     }
    
-    if (features.equalsIgnoreCase("dictlbj")) {
-      nameFinderTrainer = new DictNameFinderTrainer(dictPath, beamsize);
+    if (features.equalsIgnoreCase("dict")) {
+      nameFinderTrainer = new DictNameFinderTrainer(dictionaries, beamsize);
     }
     else {
       StatisticalNameFinder statFinder = new StatisticalNameFinder(lang, model, features);

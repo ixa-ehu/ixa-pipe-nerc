@@ -22,6 +22,7 @@ import opennlp.tools.util.TrainingParameters;
 import org.apache.commons.io.FilenameUtils;
 import org.jdom2.JDOMException;
 
+import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
 import es.ehu.si.ixa.pipe.nerc.eval.CorpusEvaluate;
 import es.ehu.si.ixa.pipe.nerc.eval.Evaluate;
 import es.ehu.si.ixa.pipe.nerc.train.BaselineNameFinderTrainer;
@@ -31,7 +32,7 @@ import es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.DefaultNameFinderTrainer;
 
 /**
- * Main class of ixa-pipe-nerc, the ixa pipes (ixa2.si.ehu.es/ixa-pipes) ner
+ * Main class of ixa-pipe-nerc, the ixa pipes (ixa2.si.ehu.es/ixa-pipes) NER
  * tagger.
  * 
  * @author ragerri
@@ -152,12 +153,12 @@ public class CLI {
 
     int beamsize = parsedArguments.getInt("beamsize");
     String features = parsedArguments.getString("features");
-    String gazetteerOption = parsedArguments.getString("gazetteers");
+    String gazetteerOption = parsedArguments.getString("dictionaries");
     String dictPath = parsedArguments.getString("dictPath");
     String ruleBasedOption = parsedArguments.getString("lexer");
     String model;
     if (parsedArguments.get("model") == null) {
-      model = "baseline";
+      model = "default";
     } else {
       model = parsedArguments.getString("model");
     }
@@ -175,14 +176,15 @@ public class CLI {
       lang = parsedArguments.getString("lang");
     }
     KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor(
-        "entities", "ixa-pipe-nerc-" + lang, version);
+        "entities", "ixa-pipe-nerc-" + lang + " " + model, version);
     newLp.setBeginTimestamp();
 
-    if (parsedArguments.get("gazetteers") != null
-        || parsedArguments.get("lexer") != null
-        || parsedArguments.get("dictPath") != null) {
-      Annotate annotator = new Annotate(lang, gazetteerOption, dictPath,
-          ruleBasedOption, model, features, beamsize);
+    if (gazetteerOption != null || 
+        ruleBasedOption != null || 
+        dictPath != null || 
+        features.equalsIgnoreCase("dict")) {
+      Annotate annotator = new Annotate(lang, model, features, beamsize, gazetteerOption, dictPath,
+          ruleBasedOption);
       annotator.annotateNEsToKAF(kaf);
     } else {
       Annotate annotator = new Annotate(lang, model, features, beamsize);
@@ -234,14 +236,14 @@ public class CLI {
         "baseline")) {
       nercTrainer = new BaselineNameFinderTrainer(trainFile, testFile, lang,
           beamsize, corpusFormat, netypes);
-    } else if (parsedArguments.getString("features")
-        .equalsIgnoreCase("dictlbj")) {
+    } else if (parsedArguments.getString("features").equalsIgnoreCase("dict")) {
       if (parsedArguments.get("dictPath") != null) {
-        nercTrainer = new DictNameFinderTrainer(dictPath, trainFile, testFile, lang,
-            beamsize, corpusFormat, netypes);
-      }
-      else {
-        System.err.println("You need to provide the directory containing the dictionaries!\n");
+        Dictionaries dictionaries = new Dictionaries(dictPath);
+        nercTrainer = new DictNameFinderTrainer(dictionaries, trainFile, testFile,
+            lang, beamsize, corpusFormat, netypes);
+      } else {
+        System.err
+            .println("You need to provide the directory containing the dictionaries!\n");
         System.exit(1);
       }
     }
@@ -281,8 +283,9 @@ public class CLI {
     String netypes = parsedArguments.getString("netypes");
 
     if (parsedArguments.getString("model") != null) {
-      Evaluate evaluator = new Evaluate(dictPath, testFile, model, features, lang, beam,
-          corpusFormat, netypes);
+      Dictionaries dictionaries = new Dictionaries(dictPath);
+      Evaluate evaluator = new Evaluate(dictionaries, testFile, model, features,
+          lang, beam, corpusFormat, netypes);
       if (parsedArguments.getString("evalReport") != null) {
         if (parsedArguments.getString("evalReport").equalsIgnoreCase("brief")) {
           evaluator.evaluate();
@@ -296,14 +299,13 @@ public class CLI {
       } else {
         evaluator.detailEvaluate();
       }
-    }
-    else if (parsedArguments.getString("prediction") != null) {
+    } else if (parsedArguments.getString("prediction") != null) {
       CorpusEvaluate corpusEvaluator = new CorpusEvaluate(testFile, predFile,
           lang, corpusFormat, netypes);
       corpusEvaluator.evaluate();
-    }
-    else {
-      System.err.println("Provide either a model or a predictionFile to perform evaluation!");
+    } else {
+      System.err
+          .println("Provide either a model or a predictionFile to perform evaluation!");
     }
   }
 
@@ -311,11 +313,11 @@ public class CLI {
    * Create the available parameters for NER tagging.
    */
   private void loadAnnotateParameters() {
-    annotateParser.addArgument("-l", "--lang").choices("de", "en", "es", "it", "nl")
-        .required(false)
+    annotateParser.addArgument("-l", "--lang")
+        .choices("de", "en", "es", "it", "nl").required(false)
         .help("Choose a language to perform annotation with ixa-pipe-nerc\n");
     annotateParser.addArgument("-f", "--features")
-        .choices("opennlp", "baseline", "dictlbj").required(false)
+        .choices("opennlp", "baseline", "dict").required(false)
         .setDefault("baseline")
         .help("Choose features for NERC; it defaults to baseline\n");
     annotateParser.addArgument("-m", "--model").required(false)
@@ -327,16 +329,16 @@ public class CLI {
         .help(
             "Choose beam size for decoding: 1 is faster and amounts to greedy search\n");
     annotateParser
-        .addArgument("-g", "--gazetteers")
+        .addArgument("-d", "--dictionaries")
         .choices("tag", "post")
         .required(false)
         .help(
             "Use gazetteers directly for tagging or "
                 + "for post-processing the probabilistic NERC output\n");
     annotateParser.addArgument("--dictPath").required(false)
-        .help("Path to the gazetteers for annotation\n");
+        .help("Path to the dictionaries if -d or -f dict options (or both) are chosen\n");
     annotateParser.addArgument("--lexer").choices("numeric").required(false)
-        .help("Use lexer rules for NER tagging\n");
+        .help("Use lexer rules for NERC tagging\n");
   }
 
   /**
@@ -344,9 +346,13 @@ public class CLI {
    */
   private void loadTrainingParameters() {
     trainParser.addArgument("-f", "--features")
-        .choices("opennlp", "baseline", "dictlbj").required(true)
+        .choices("opennlp", "baseline", "dict").required(true)
         .help("Choose features to train NERC model\n");
-    trainParser.addArgument("--dictPath").required(false).help("Provide directory containing dictionaries for its use with dictlbj featureset\n");
+    trainParser
+        .addArgument("--dictPath")
+        .required(false)
+        .help(
+            "Provide directory containing dictionaries for its use with dictlbj featureset\n");
     trainParser.addArgument("-p", "--params").required(true)
         .help("Load the parameters file\n");
     trainParser.addArgument("-i", "--input").required(true)
@@ -366,16 +372,23 @@ public class CLI {
     evalParser.addArgument("-m", "--model").required(false)
         .help("Choose model\n");
     evalParser.addArgument("-f", "--features")
-        .choices("opennlp", "baseline", "dictlbj").required(true)
+        .choices("opennlp", "baseline", "dict").required(true)
         .help("Choose features for evaluation\n");
-    evalParser.addArgument("--dictPath").required(false)
-    .help("Path to the gazetteers for evaluation if dictlbj features are used\n");
+    evalParser
+        .addArgument("--dictPath")
+        .required(false)
+        .help(
+            "Path to the gazetteers for evaluation if dict features are used\n");
     evalParser.addArgument("-l", "--language").required(true)
         .choices("de", "en", "es", "it", "nl")
         .help("Choose language to load model for evaluation\n");
     evalParser.addArgument("-t", "--testSet").required(true)
         .help("Input testset for evaluation\n");
-    evalParser.addArgument("--prediction").required(false);
+    evalParser
+        .addArgument("--prediction")
+        .required(false)
+        .help(
+            "Use this parameter to evaluate one prediction corpus against a reference corpus\n");
     evalParser.addArgument("--evalReport").required(false)
         .choices("brief", "detailed", "error")
         .help("Choose type of evaluation report; defaults to detailed\n");

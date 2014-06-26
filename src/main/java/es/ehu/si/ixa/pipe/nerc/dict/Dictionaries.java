@@ -94,7 +94,7 @@ public class Dictionaries {
       dictionaries = new ArrayList<Dictionary>(files.size());
       dictionariesIgnoreCase = new ArrayList<Dictionary>(files.size());
       for (int i = 0; i < fileList.size(); ++i) {
-        System.err.println("\tloading gazzetteer:...."
+        System.err.println("\tloading dictionary:...."
             + fileList.get(i).getCanonicalPath());
         dictNames.add(fileList.get(i).getName());
         dictionaries.add(new Dictionary());
@@ -116,7 +116,7 @@ public class Dictionaries {
           }
         }
       }
-      System.err.println("found " + dictionaries.size() + " gazetteers");
+      System.err.println("found " + dictionaries.size() + " dictionaries");
     }
 
   }

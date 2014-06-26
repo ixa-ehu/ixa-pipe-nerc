@@ -26,6 +26,7 @@ import java.util.List;
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.Span;
+import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
 import es.ehu.si.ixa.pipe.nerc.train.BaselineNameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.DictNameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer;
@@ -106,10 +107,10 @@ public class StatisticalNameFinder implements NameFinder {
    * @param dictPath the directory containing the dictionaries
    */
   public StatisticalNameFinder(final String lang, final String model,
-      final String features, final int beamsize, final String dictPath) {
+      final String features, final int beamsize, final Dictionaries dictionaries) {
 
     TokenNameFinderModel nerModel = loadModel(lang, model);
-    nameFinderTrainer = new DictNameFinderTrainer(dictPath, beamsize);
+    nameFinderTrainer = new DictNameFinderTrainer(dictionaries, beamsize);
     nameFinder = new NameFinderME(nerModel,
         nameFinderTrainer.createFeatureGenerator(), beamsize);
   }
@@ -122,8 +123,8 @@ public class StatisticalNameFinder implements NameFinder {
    * @param model the model
    * @param features the features
    */
-  public StatisticalNameFinder(final String lang, final String model, final String features, final String dictPath) {
-    this(lang, model, features, CLI.DEFAULT_BEAM_SIZE, dictPath);
+  public StatisticalNameFinder(final String lang, final String model, final String features, final Dictionaries dictionaries) {
+    this(lang, model, features, CLI.DEFAULT_BEAM_SIZE, dictionaries);
   }
 
   /**
@@ -175,11 +176,11 @@ public class StatisticalNameFinder implements NameFinder {
    * @param dictPath the path to the dictionaries
    */
   public StatisticalNameFinder(final String lang, final NameFactory aNameFactory,
-      final String model, final String features, final int beamsize, String dictPath) {
+      final String model, final String features, final int beamsize, final Dictionaries dictionaries) {
 
     this.nameFactory = aNameFactory;
     TokenNameFinderModel nerModel = loadModel(lang, model);
-    nameFinderTrainer = new DictNameFinderTrainer(dictPath, beamsize);
+    nameFinderTrainer = new DictNameFinderTrainer(dictionaries, beamsize);
     nameFinder = new NameFinderME(nerModel,
         nameFinderTrainer.createFeatureGenerator(), beamsize);
   }
@@ -195,8 +196,8 @@ public class StatisticalNameFinder implements NameFinder {
    * @param features the features
    */
   public StatisticalNameFinder(final String lang, final NameFactory aNameFactory,
-      final String model, final String features, final String dictPath) {
-    this(lang, aNameFactory, model, features, CLI.DEFAULT_BEAM_SIZE, dictPath);
+      final String model, final String features, final Dictionaries dictionaries) {
+    this(lang, aNameFactory, model, features, CLI.DEFAULT_BEAM_SIZE, dictionaries);
   }
 
   
@@ -285,8 +286,8 @@ public class StatisticalNameFinder implements NameFinder {
     InputStream trainedModelInputStream = null;
     try {
       if (nercModel == null) {
-        if (model.equalsIgnoreCase("baseline")) {
-          trainedModelInputStream = getBaselineModelStream(lang, model);
+        if (model.equalsIgnoreCase("default")) {
+          trainedModelInputStream = getDefaultModelStream(lang, model);
         } else {
           trainedModelInputStream = new FileInputStream(model);
         }
@@ -307,14 +308,14 @@ public class StatisticalNameFinder implements NameFinder {
   }
 
   /**
-   * Method to back-off to a baseline model when no model is
+   * Method to back-off to a default model when no model is
    * chosen in the command line.
    *
    * @param lang the language
    * @param model the default value to load the baseline model
-   * @return the inputstream from a model
+   * @return the input stream from a model
    */
-  private InputStream getBaselineModelStream(final String lang, final String model) {
+  private InputStream getDefaultModelStream(final String lang, final String model) {
     InputStream trainedModelInputStream = null;
     if (lang.equalsIgnoreCase("de")) {
       trainedModelInputStream = getClass().getResourceAsStream("/de/de-nerc-perceptron-baseline-c0-b3-conll03.bin");

@@ -22,15 +22,15 @@ public class DictNameFinderTrainer extends AbstractNameFinderTrainer {
   /**
    * The {@link Dictionaries} contained in the given directory.
    */
-  private Dictionaries dictionaries;
+  private static Dictionaries dictionaries;
   /**
    * A {@link Dictionary} object.
    */
-  private Dictionary dictionary;
+  private static Dictionary dictionary;
   /**
    * The prefix to be used in the {@link DictionaryFeatureGenerator}.
    */
-  private String prefix;
+  private static String prefix;
 
   /**
    * Construct a DictionaryNameFinderTrainer.
@@ -44,12 +44,12 @@ public class DictNameFinderTrainer extends AbstractNameFinderTrainer {
    * @param netypes filter by named entity classes to train specialized models
    * @throws IOException throws an exception
    */
-  public DictNameFinderTrainer(final String dictPath, final String trainData,
+  public DictNameFinderTrainer(final Dictionaries aDictionaries, final String trainData,
       final String testData, final String lang, final int beamsize, final String corpusFormat,
       final String netypes) throws IOException {
     super(trainData, testData, lang, beamsize, corpusFormat, netypes);
 
-    dictionaries = new Dictionaries(dictPath);
+    dictionaries = aDictionaries;
     features = createFeatureGenerator();
 
   }
@@ -60,10 +60,10 @@ public class DictNameFinderTrainer extends AbstractNameFinderTrainer {
    * @param dictPath the path to the dictionaries
    * @param beamsize the beamsize for decoding; it defaults to 3
    */
-  public DictNameFinderTrainer(final String dictPath, final int beamsize) {
+  public DictNameFinderTrainer(final Dictionaries aDictionaries, final int beamsize) {
     super(beamsize);
 
-    dictionaries = new Dictionaries(dictPath);
+    dictionaries = aDictionaries;
     features = createFeatureGenerator();
 
   }
@@ -87,7 +87,7 @@ public class DictNameFinderTrainer extends AbstractNameFinderTrainer {
    *
    * @param featureList the feature list containing the dictionary features
    */
-  private void addDictionariesToFeatureList(
+  private static void addDictionariesToFeatureList(
       List<AdaptiveFeatureGenerator> featureList) {
     for (int i = 0; i < dictionaries.getIgnoreCaseDictionaries().size(); i++) {
       prefix = dictionaries.getDictNames().get(i);

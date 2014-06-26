@@ -122,7 +122,7 @@ public class DictionaryNameFinder implements NameFinder {
    *          the tokenized sentence
    * @return spans of the Named Entities
    */
-  public final List<Span> nercToSpansCased(final String[] tokens) {
+  public final List<Span> nercToSpansExact(final String[] tokens) {
     List<Span> namesFound = new LinkedList<Span>();
 
     for (int offsetFrom = 0; offsetFrom < tokens.length; offsetFrom++) {
