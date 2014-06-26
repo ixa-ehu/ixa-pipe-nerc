@@ -70,7 +70,7 @@ Several models per dataset and per language depending on the featureset used are
   + **CoNLL 2003 models** trained on train and dev sets and evaluated on test set.
     + CoNLL opennlp features: **en-nerc-perceptron-opennlp-c0-b3-testa.bin**: F1 83.80
     + CoNLL baseline features: **en-nerc-perceptron-baseline-c0-b3.testa.bin**: F1 84.53
-    + CoNLL dict features: **en-nerc-perceptron-dict-c0-b3-conll03-testa.bin**: F1 87.20
+    + CoNLL dict features: **en-nerc-perceptron-dict-c0-b3-conll03-testa.bin**: F1 87.11
  
  + **Ontonotes 4.0**: 
     + Trained on the **full corpus** with the **18 NE types**, suitable **for production use**.
