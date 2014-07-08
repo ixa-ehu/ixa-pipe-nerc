@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.TokenNameFinderModel;
@@ -43,10 +44,11 @@ import es.ehu.si.ixa.pipe.nerc.train.DefaultNameFinderTrainer;
 public class StatisticalNameFinder implements NameFinder {
 
   /**
-   * The model to be instantiated. We ensure that only one instance of nercModel
-   * is used for every instantiation of this class.
+   * The models to use for every language. The keys of the hash are the
+   * language codes, the values the models.
    */
-  private static TokenNameFinderModel nercModel;
+  private static ConcurrentHashMap<String, TokenNameFinderModel> nercModels =
+      new ConcurrentHashMap<String, TokenNameFinderModel>();
   /**
    * The name finder.
    */
@@ -285,13 +287,13 @@ public class StatisticalNameFinder implements NameFinder {
   public final TokenNameFinderModel loadModel(final String lang, final String model) {
     InputStream trainedModelInputStream = null;
     try {
-      if (nercModel == null) {
+      if (nercModels.containsKey(lang)) {
         if (model.equalsIgnoreCase("default")) {
           trainedModelInputStream = getDefaultModelStream(lang, model);
         } else {
           trainedModelInputStream = new FileInputStream(model);
         }
-        nercModel = new TokenNameFinderModel(trainedModelInputStream);
+        nercModels.put(lang, new TokenNameFinderModel(trainedModelInputStream));
       }
     } catch (IOException e) {
       e.printStackTrace();
@@ -304,7 +306,7 @@ public class StatisticalNameFinder implements NameFinder {
         }
       }
     }
-    return nercModel;
+    return nercModels.get(lang);
   }
 
   /**

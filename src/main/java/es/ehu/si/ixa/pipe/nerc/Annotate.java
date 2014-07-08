@@ -30,7 +30,6 @@ import java.util.List;
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.util.Span;
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
-import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
 
 /**
  * Annotation class of ixa-pipe-nerc.
@@ -44,7 +43,7 @@ public class Annotate {
   /**
    * The name factory.
    */
-  NameFactory nameFactory;
+  private NameFactory nameFactory;
   /**
    * The NameFinder to do the annotation. Usually the statistical.
    */

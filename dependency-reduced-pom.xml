@@ -5,7 +5,7 @@
   <artifactId>ixa-pipe-nerc</artifactId>
   <name>ixa-pipe-nerc</name>
   <version>1.1.0</version>
-  <description>NERC tagger of IXA pipeline, a multilingual NLP pipeline. All models trained by the IXA NLP Group of the University of the Basque Country (ixa.si.ehu.es).</description>
+  <description>NERC tagger of ixa pipes tools, a multilingual NLP pipeline. All models trained by the IXA NLP Group of the University of the Basque Country (ixa.si.ehu.es).</description>
   <url>http://ixa2.si.ehu.es/ixa-pipes</url>
   <prerequisites>
     <maven>3.0</maven>
