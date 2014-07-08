@@ -287,7 +287,7 @@ public class StatisticalNameFinder implements NameFinder {
   public final TokenNameFinderModel loadModel(final String lang, final String model) {
     InputStream trainedModelInputStream = null;
     try {
-      if (nercModels.containsKey(lang)) {
+      if (!nercModels.containsKey(lang)) {
         if (model.equalsIgnoreCase("default")) {
           trainedModelInputStream = getDefaultModelStream(lang, model);
         } else {
