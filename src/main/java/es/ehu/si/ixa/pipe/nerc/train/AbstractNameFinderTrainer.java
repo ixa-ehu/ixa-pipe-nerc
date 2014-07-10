@@ -30,7 +30,7 @@ import org.apache.commons.io.FileUtils;
  */
 public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
 
-  protected String lang;
+  private String lang;
   /**
    * String holding the training data.
    */
@@ -51,6 +51,7 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
    * beamsize value needs to be established in any class extending this one.
    */
   protected int beamSize;
+  private String corpusFormat;
   /**
    * features needs to be implemented by any class extending this one.
    */
@@ -67,9 +68,10 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
    * @param corpusFormat
    * @throws IOException
    */
-  public AbstractNameFinderTrainer(String trainData, String testData, String lang, int beamsize, String corpusFormat, String netypes) throws IOException {
+  public AbstractNameFinderTrainer(String trainData, String testData, String aLang, int beamsize, String aCorpusFormat, String netypes) throws IOException {
 
-    this.lang = lang;
+    this.lang = aLang;
+    this.corpusFormat = aCorpusFormat;
     this.trainData = trainData;
     this.testData = testData;
     trainSamples = getNameStream(trainData, lang, corpusFormat);
@@ -124,7 +126,7 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
     // get best parameters from cross evaluation
     List<Integer> bestParams = null;
     try {
-      bestParams = crossEval(trainData, devData, params, evalRange);
+      bestParams = crossEval(devData, params, evalRange);
     } catch (IOException e) {
       System.err.println("IO error while loading training and test sets!");
       e.printStackTrace();
@@ -142,7 +144,7 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
     return trainedModel;
   }
 
-  protected List<Integer> crossEval(String trainData, String devData,
+  protected List<Integer> crossEval(String devData,
       TrainingParameters params, String[] evalRange) throws IOException {
 
     System.err.println("Cross Evaluation:");
@@ -168,10 +170,8 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
       int iterRange = Integer.valueOf(evalRange[1]);
       for (int i = start + 10; i < iterList.size() + 10; i += iterRange) {
         // reading data for training and test
-        ObjectStream<String> trainStream = InputOutputUtils.readInputData(trainData);
-        ObjectStream<String> devStream = InputOutputUtils.readInputData(devData);
-        ObjectStream<NameSample> trainSamples = new Conll03NameStream(lang, trainStream);
-        ObjectStream<NameSample> devSamples = new Conll03NameStream(lang, devStream);
+        ObjectStream<NameSample> trainSamples = getNameStream(trainData, lang, corpusFormat);
+        ObjectStream<NameSample> devSamples = getNameStream(devData, lang, corpusFormat);
 
         // dynamic creation of parameters
         params.put(TrainingParameters.ITERATIONS_PARAM, Integer.toString(i));
@@ -226,25 +226,25 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
     return nerEvaluator;
   }
   
-  public static ObjectStream<NameSample> getNameStream(String inputData, String lang, String corpusFormat) throws IOException {
+  public static ObjectStream<NameSample> getNameStream(String inputData, String aLang, String aCorpusFormat) throws IOException {
 	  ObjectStream<NameSample> samples = null;
-	  if (corpusFormat.equalsIgnoreCase("conll")) {
+	  if (aCorpusFormat.equalsIgnoreCase("conll")) {
 		  ObjectStream<String> nameStream = InputOutputUtils.readInputData(inputData);
-	      samples = new Conll03NameStream(lang, nameStream);
+	      samples = new Conll03NameStream(aLang, nameStream);
 	  }
-	  else if (corpusFormat.equalsIgnoreCase("conll") && (lang.equalsIgnoreCase("es") || lang.equalsIgnoreCase("nl"))) {
+	  else if (aCorpusFormat.equalsIgnoreCase("conll") && (aLang.equalsIgnoreCase("es") || aLang.equalsIgnoreCase("nl"))) {
 	    ObjectStream<String> nameStream = InputOutputUtils.readInputData(inputData);
-		samples = new Conll02NameStream(lang, nameStream);
+		samples = new Conll02NameStream(aLang, nameStream);
 	  }
-	  else if (corpusFormat.equalsIgnoreCase("germEvalOuter2014")) {
+	  else if (aCorpusFormat.equalsIgnoreCase("germEvalOuter2014")) {
 	    ObjectStream<String> nameStream = InputOutputUtils.readInputData(inputData);
 	    samples = new GermEval2014OuterNameStream(nameStream);
 	  }
-	  else if (corpusFormat.equalsIgnoreCase("germEvalInner2014")) {
+	  else if (aCorpusFormat.equalsIgnoreCase("germEvalInner2014")) {
         ObjectStream<String> nameStream = InputOutputUtils.readInputData(inputData);
         samples = new GermEval2014InnerNameStream(nameStream);
       }
-	  else if (corpusFormat.equalsIgnoreCase("opennlp")){
+	  else if (aCorpusFormat.equalsIgnoreCase("opennlp")){
 	    ObjectStream<String> nameStream = InputOutputUtils.readInputData(inputData);
 		samples = new NameSampleDataStream(nameStream);	
 	  }
