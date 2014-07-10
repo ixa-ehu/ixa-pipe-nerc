@@ -396,7 +396,7 @@ public class CLI {
         .choices("brief", "detailed", "error")
         .help("Choose type of evaluation report; defaults to detailed\n");
     evalParser.addArgument("-c", "--corpus").setDefault("opennlp")
-        .choices("conll", "opennlp").help("choose format input of corpus\n");
+        .choices("conll", "opennlp", "germEvalOuter2014", "germEvalInner2014").help("choose format input of corpus\n");
     evalParser
         .addArgument("-n", "--netypes")
         .required(false)

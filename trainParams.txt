@@ -35,8 +35,8 @@ Types=
 # Beamsize 1 amounts to greedy search
 Beamsize=3
 
-# Formats opennlp or conll
-Corpus=opennlp
+# Formats: conll, germEvalOuter2014, germEvalInner2014, opennlp
+Corpus=germEvalOuter2014
 
 ## Cross Evaluation if empty no cross evaluation is performed;
 ## Cross Evaluation takes two values as arguments, namely, 50:100;

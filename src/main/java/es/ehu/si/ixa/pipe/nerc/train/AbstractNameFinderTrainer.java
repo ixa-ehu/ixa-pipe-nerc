@@ -226,18 +226,26 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
     return nerEvaluator;
   }
   
-  public static ObjectStream<NameSample> getNameStream(String trainData, String lang, String corpusFormat) throws IOException {
+  public static ObjectStream<NameSample> getNameStream(String inputData, String lang, String corpusFormat) throws IOException {
 	  ObjectStream<NameSample> samples = null;
 	  if (corpusFormat.equalsIgnoreCase("conll")) {
-		  ObjectStream<String> nameStream = InputOutputUtils.readInputData(trainData);
+		  ObjectStream<String> nameStream = InputOutputUtils.readInputData(inputData);
 	      samples = new Conll03NameStream(lang, nameStream);
 	  }
 	  else if (corpusFormat.equalsIgnoreCase("conll") && (lang.equalsIgnoreCase("es") || lang.equalsIgnoreCase("nl"))) {
-	    ObjectStream<String> nameStream = InputOutputUtils.readInputData(trainData);
+	    ObjectStream<String> nameStream = InputOutputUtils.readInputData(inputData);
 		samples = new Conll02NameStream(lang, nameStream);
 	  }
+	  else if (corpusFormat.equalsIgnoreCase("germEvalOuter2014")) {
+	    ObjectStream<String> nameStream = InputOutputUtils.readInputData(inputData);
+	    samples = new GermEval2014OuterNameStream(nameStream);
+	  }
+	  else if (corpusFormat.equalsIgnoreCase("germEvalInner2014")) {
+        ObjectStream<String> nameStream = InputOutputUtils.readInputData(inputData);
+        samples = new GermEval2014InnerNameStream(nameStream);
+      }
 	  else if (corpusFormat.equalsIgnoreCase("opennlp")){
-	    ObjectStream<String> nameStream = InputOutputUtils.readInputData(trainData);
+	    ObjectStream<String> nameStream = InputOutputUtils.readInputData(inputData);
 		samples = new NameSampleDataStream(nameStream);	
 	  }
 	  else {
