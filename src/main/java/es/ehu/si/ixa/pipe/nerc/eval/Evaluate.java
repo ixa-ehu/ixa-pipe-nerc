@@ -46,9 +46,7 @@ public class Evaluate {
    * An instance of the probabilistic {@link NameFinderME}.
    */
   private NameFinderME nameFinder;
-  private static Dictionaries dictionaries;
-  private static int beamsize;
-
+ 
   /**
    * Construct an evaluator.
    *
@@ -60,10 +58,9 @@ public class Evaluate {
    * @param corpusFormat the format of the testData corpus
    * @throws IOException if input data not available
    */
-  public Evaluate(final Dictionaries aDictionaries, final String testData, final String model, final String features, final String lang,
-      final int aBeamsize, final String corpusFormat, String netypes) throws IOException {
-    Evaluate.dictionaries = aDictionaries;
-    Evaluate.beamsize = aBeamsize;
+  public Evaluate(final Dictionaries dictionaries, final String testData, final String model, final String features, final String lang,
+      final int beamsize, final String corpusFormat, String netypes) throws IOException {
+    
     testSamples = AbstractNameFinderTrainer.getNameStream(testData, lang, corpusFormat);
     if (netypes != null) {
       String[] neTypes = netypes.split(",");
@@ -88,7 +85,7 @@ public class Evaluate {
     }
    
     if (features.equalsIgnoreCase("dict")) {
-      nameFinderTrainer = chooseDictTrainer(lang, aDictionaries, aBeamsize);
+      nameFinderTrainer = chooseDictTrainer(lang, dictionaries, beamsize);
     }
     else {
       StatisticalNameFinder statFinder = new StatisticalNameFinder(lang, model, features);
@@ -139,22 +136,22 @@ public class Evaluate {
    * @return the name finder trainer
    * @throws IOException throws
    */
-  public static NameFinderTrainer chooseDictTrainer(final String lang, Dictionaries aDictionaries, int aBeamsize) throws IOException {
+  public static NameFinderTrainer chooseDictTrainer(final String lang, Dictionaries dictionaries, int beamsize) throws IOException {
     NameFinderTrainer nercTrainer = null;
         if (lang.equalsIgnoreCase("de")) {
-          nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.de.DictNameFinderTrainer(aDictionaries, aBeamsize);
+          nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.de.DictNameFinderTrainer(dictionaries, beamsize);
         }
         else if (lang.equalsIgnoreCase("en")) {
-          nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.en.DictNameFinderTrainer(aDictionaries, aBeamsize);
+          nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.en.DictNameFinderTrainer(dictionaries, beamsize);
         }
         else if (lang.equalsIgnoreCase("es")) {
-          nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.es.DictNameFinderTrainer(aDictionaries, aBeamsize);
+          nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.es.DictNameFinderTrainer(dictionaries, beamsize);
         }
         else if (lang.equalsIgnoreCase("it")) {
-          nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.it.DictNameFinderTrainer(aDictionaries, aBeamsize);
+          nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.it.DictNameFinderTrainer(dictionaries, beamsize);
         }
         else if (lang.equalsIgnoreCase("nl")) {
-          nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.nl.DictNameFinderTrainer(aDictionaries, aBeamsize);
+          nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.nl.DictNameFinderTrainer(dictionaries, beamsize);
         }
         else {
         System.err

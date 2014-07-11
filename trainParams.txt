@@ -24,7 +24,7 @@ Threads=4
 
 # Languages supported: de, en, es, it, nl
 
-Language=en
+Language=nl
 
 # Named Entity types; if empty all ne types in the training corpus.
 # Otherwise, separate with comma, eg., location,organization,person,misc
@@ -35,7 +35,7 @@ Types=
 # Beamsize 1 amounts to greedy search
 Beamsize=3
 
-# Formats: conll, germEvalOuter2014, germEvalInner2014, opennlp
+# Formats: conll02, conll03, germEvalOuter2014, germEvalInner2014, opennlp
 Corpus=opennlp
 
 ## Cross Evaluation if empty no cross evaluation is performed;
@@ -48,5 +48,4 @@ Corpus=opennlp
 
 #CrossEval=1:10
 CrossEval=
-
 

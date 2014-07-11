@@ -93,38 +93,17 @@ public class CLI {
    * Default beam size for decoding.
    */
   public static final int DEFAULT_BEAM_SIZE = 3;
-
-  private String lang;
-  private String features;
-  private String trainSet;
-  private String testSet;
-  private String devSet;
-  private String dictPath;
-  private int beamsize;
-  private String model;
-  private String corpusFormat;
-  private String neTypes;
+  
   /**
    * Construct a CLI object with the three sub-parsers to manage the command
    * line parameters.
    */
   public CLI() {
-    this.lang = parsedArguments.getString("lang");
-    this.features = parsedArguments.getString("features");
-    this.trainSet = parsedArguments.getString("trainSet");
-    this.testSet = parsedArguments.getString("testSet");
-    this.devSet = parsedArguments.getString("devSet");
-    this.dictPath = parsedArguments.getString("dictPath");
-    this.beamsize = parsedArguments.getInt("beamsize");
-    this.model = parsedArguments.getString("model");
-    this.corpusFormat = parsedArguments.getString("corpusFormat");
-    this.neTypes = parsedArguments.getString("neTypes");
-    //subparsers
-    this.annotateParser = subParsers.addParser("tag").help("Tagging CLI");
+    annotateParser = subParsers.addParser("tag").help("Tagging CLI");
     loadAnnotateParameters();
-    this.trainParser = subParsers.addParser("train").help("Training CLI");
+    trainParser = subParsers.addParser("train").help("Training CLI");
     loadTrainingParameters();
-    this.evalParser = subParsers.addParser("eval").help("Evaluation CLI");
+    evalParser = subParsers.addParser("eval").help("Evaluation CLI");
     loadEvalParameters();
   }
 
@@ -185,13 +164,16 @@ public class CLI {
   public final void annotate(final InputStream inputStream,
       final OutputStream outputStream) throws IOException {
 
+    String features = parsedArguments.getString("features");
+    int beamsize = parsedArguments.getInt("beamsize");
     String gazetteerOption = parsedArguments.getString("dictionaries");
     String ruleBasedOption = parsedArguments.getString("lexer");
-    String aModel;
-    if (model == null) {
-      aModel = "default";
+    String dictPath = parsedArguments.getString("dictPath");
+    String model;
+    if (parsedArguments.getString("model") == null) {
+      model = "default";
     } else {
-      aModel = this.model;
+      model = parsedArguments.getString("model");
     }
     BufferedReader breader = new BufferedReader(new InputStreamReader(
         inputStream, "UTF-8"));
@@ -200,25 +182,25 @@ public class CLI {
     // read KAF document from inputstream
     KAFDocument kaf = KAFDocument.createFromStream(breader);
     // language parameter
-    String aLang;
+    String lang;
     if (parsedArguments.get("lang") == null) {
-      aLang = kaf.getLang();
+      lang = kaf.getLang();
     } else {
-      aLang = parsedArguments.getString("lang");
+      lang = parsedArguments.getString("lang");
     }
     KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor(
-        "entities", "ixa-pipe-nerc-" + aLang + "-" + aModel, version);
+        "entities", "ixa-pipe-nerc-" + lang + "-" + model, version);
     newLp.setBeginTimestamp();
 
     if (gazetteerOption != null || 
         ruleBasedOption != null || 
         dictPath != null || 
         features.equalsIgnoreCase("dict")) {
-      Annotate annotator = new Annotate(aLang, aModel, features, beamsize, gazetteerOption, dictPath,
+      Annotate annotator = new Annotate(lang, model, features, beamsize, gazetteerOption, dictPath,
           ruleBasedOption);
       annotator.annotateNEsToKAF(kaf);
     } else {
-      Annotate annotator = new Annotate(aLang, aModel, features, beamsize);
+      Annotate annotator = new Annotate(lang, model, features, beamsize);
       annotator.annotateNEsToKAF(kaf);
     }
     newLp.setEndTimestamp();
@@ -235,16 +217,20 @@ public class CLI {
    */
   public final void train() throws IOException {
 
-   
+    String trainSet = parsedArguments.getString("trainSet");
+    String devSet = parsedArguments.getString("devSet");
+    String testSet = parsedArguments.getString("testSet");
+    String features = parsedArguments.getString("features");
+    String dictPath = parsedArguments.getString("dictPath");
     String outModel = null;
     // load training parameters file
     String paramFile = parsedArguments.getString("params");
     TrainingParameters params = InputOutputUtils
         .loadTrainingParameters(paramFile);
-    this.lang = params.getSettings().get("Language");
-    this.neTypes = params.getSettings().get("Types");
-    this.corpusFormat = params.getSettings().get("Corpus");
-    this.beamsize = Integer.valueOf(params.getSettings().get("Beamsize"));
+    String lang = params.getSettings().get("Language");
+    String neTypes = params.getSettings().get("Types");
+    String corpusFormat = params.getSettings().get("Corpus");
+    int beamsize = Integer.valueOf(params.getSettings().get("Beamsize"));
     String evalParam = params.getSettings().get("CrossEval");
     String[] evalRange = evalParam.split("[ :-]");
 
@@ -256,7 +242,7 @@ public class CLI {
           + ".bin";
     }
 
-   NameFinderTrainer nercTrainer = chooseTrainer();
+   NameFinderTrainer nercTrainer = chooseTrainer(trainSet, testSet, lang, beamsize, corpusFormat, neTypes, dictPath, features);
     TokenNameFinderModel trainedModel = null;
     if (evalRange.length == 2) {
       if (parsedArguments.get("devSet") == null) {
@@ -281,8 +267,16 @@ public class CLI {
    */
   public final void eval() throws IOException {
 
+    String dictPath = parsedArguments.getString("dictPath");
+    String model = parsedArguments.getString("model");
+    String testSet = parsedArguments.getString("testSet");
     String predFile = parsedArguments.getString("prediction");
-
+    String features = parsedArguments.getString("features");
+    String lang = parsedArguments.getString("lang");
+    int beamsize = parsedArguments.getInt("beamsize");
+    String corpusFormat = parsedArguments.getString("corpusFormat");
+    String neTypes = parsedArguments.getString("neTypes");
+    
     if (parsedArguments.getString("model") != null) {
       Dictionaries dictionaries = null;
       if (dictPath != null) {
@@ -396,8 +390,8 @@ public class CLI {
     evalParser.addArgument("--evalReport").required(false)
         .choices("brief", "detailed", "error")
         .help("Choose type of evaluation report; defaults to detailed\n");
-    evalParser.addArgument("-c", "--corpus").setDefault("opennlp")
-        .choices("conll", "opennlp", "germEvalOuter2014", "germEvalInner2014").help("choose format input of corpus\n");
+    evalParser.addArgument("-c", "--corpusFormat").setDefault("opennlp")
+        .choices("conll02", "conll03", "opennlp", "germEvalOuter2014", "germEvalInner2014").help("choose format input of corpus\n");
     evalParser
         .addArgument("-n", "--neTypes")
         .required(false)
@@ -416,13 +410,12 @@ public class CLI {
    * @return the name finder trainer
    * @throws IOException throws
    */
-  public NameFinderTrainer chooseTrainer() throws IOException {
+  private NameFinderTrainer chooseTrainer(String trainSet, String testSet, String lang, int beamsize, String corpusFormat, String neTypes, String dictPath, String features) throws IOException {
     NameFinderTrainer nercTrainer = null;
     if (parsedArguments.getString("features").equalsIgnoreCase("opennlp")) {
       nercTrainer = new DefaultNameFinderTrainer(trainSet, testSet, lang,
           beamsize, corpusFormat, neTypes);
-    } else if (features.equalsIgnoreCase(
-        "baseline")) {
+    } else if (features.equalsIgnoreCase("baseline")) {
       if (lang.equalsIgnoreCase("de")) {
         nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.de.BaselineNameFinderTrainer(trainSet, testSet, lang, beamsize, corpusFormat, neTypes);
       }

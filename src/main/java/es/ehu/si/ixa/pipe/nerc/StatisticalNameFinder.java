@@ -363,7 +363,7 @@ public class StatisticalNameFinder implements NameFinder {
         nameFinderTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.it.BaselineNameFinderTrainer(beamsize);
       }
       else if (lang.equalsIgnoreCase("nl")) {
-        nameFinderTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.de.BaselineNameFinderTrainer(beamsize);
+        nameFinderTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.nl.BaselineNameFinderTrainer(beamsize);
       }
     } else if (features.equalsIgnoreCase("opennlp")) {
       nameFinderTrainer = new DefaultNameFinderTrainer(beamsize);

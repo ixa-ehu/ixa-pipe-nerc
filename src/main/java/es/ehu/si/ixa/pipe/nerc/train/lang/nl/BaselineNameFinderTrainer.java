@@ -60,6 +60,7 @@ public class BaselineNameFinderTrainer extends AbstractNameFinderTrainer {
       final String lang, final int beamsize, final String corpusFormat, final String netypes)
       throws IOException {
     super(trainData, testData, lang, beamsize, corpusFormat, netypes);
+    
     setFeatures(createFeatureGenerator());
   }
 

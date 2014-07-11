@@ -52,31 +52,31 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
   /**
    * The language.
    */
-  private String lang;
+  protected String lang;
   /**
    * String holding the training data.
    */
-  private String trainData;
+  protected String trainData;
   /**
    * String holding the testData.
    */
-  private String testData;
+  protected String testData;
   /**
    * ObjectStream of the training data.
    */
-  private ObjectStream<NameSample> trainSamples;
+  protected ObjectStream<NameSample> trainSamples;
   /**
    * ObjectStream of the test data.
    */
-  private ObjectStream<NameSample> testSamples;
+  protected ObjectStream<NameSample> testSamples;
   /**
    * beamsize value needs to be established in any class extending this one.
    */
-  private int beamSize;
+  protected int beamSize;
   /**
-   * The corpus format: conll, germEvalOuter2014, germEvalInner2014 and opennlp.
+   * The corpus format: conll02, conll03, germEvalOuter2014, germEvalInner2014 and opennlp.
    */
-  private String corpusFormat;
+  protected String corpusFormat;
   /**
    * features needs to be implemented by any class extending this one.
    */
@@ -103,7 +103,6 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
   public AbstractNameFinderTrainer(final String aTrainData,
       final String aTestData, final String aLang, final int beamsize,
       final String aCorpusFormat, final String netypes) throws IOException {
-
     this.lang = aLang;
     this.corpusFormat = aCorpusFormat;
     this.trainData = aTrainData;
@@ -309,8 +308,7 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
       final String aLang, final String aCorpusFormat) throws IOException {
     ObjectStream<NameSample> samples = null;
     if (aCorpusFormat.equalsIgnoreCase("conll03")) {
-      ObjectStream<String> nameStream = InputOutputUtils
-          .readInputData(inputData);
+      ObjectStream<String> nameStream = InputOutputUtils.readInputData(inputData);
       samples = new Conll03NameStream(aLang, nameStream);
     } else if (aCorpusFormat.equalsIgnoreCase("conll02")) {
       ObjectStream<String> nameStream = InputOutputUtils
@@ -325,8 +323,7 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
           .readInputData(inputData);
       samples = new GermEval2014InnerNameStream(nameStream);
     } else if (aCorpusFormat.equalsIgnoreCase("opennlp")) {
-      ObjectStream<String> nameStream = InputOutputUtils
-          .readInputData(inputData);
+      ObjectStream<String> nameStream = InputOutputUtils.readInputData(inputData);
       samples = new NameSampleDataStream(nameStream);
     } else {
       System.err.println("Test set corpus format not valid!!");
@@ -353,7 +350,6 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
   public final void setFeatures(final AdaptiveFeatureGenerator aFeatures) {
     this.features = aFeatures;
   }
-  
   /**
    * Get the language.
    * @return the language

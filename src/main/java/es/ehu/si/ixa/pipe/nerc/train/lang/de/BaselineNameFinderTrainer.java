@@ -24,6 +24,7 @@ import java.util.List;
 import opennlp.tools.util.featuregen.AdaptiveFeatureGenerator;
 import opennlp.tools.util.featuregen.BigramNameFeatureGenerator;
 import opennlp.tools.util.featuregen.CachedFeatureGenerator;
+import opennlp.tools.util.featuregen.CharacterNgramFeatureGenerator;
 import opennlp.tools.util.featuregen.OutcomePriorFeatureGenerator;
 import opennlp.tools.util.featuregen.PreviousMapFeatureGenerator;
 import opennlp.tools.util.featuregen.SentenceFeatureGenerator;
@@ -105,6 +106,7 @@ public class BaselineNameFinderTrainer extends AbstractNameFinderTrainer {
   public static void addTokenFeatures(final List<AdaptiveFeatureGenerator> featureList) {
     featureList.add(new Prefix34FeatureGenerator());
     featureList.add(new SuffixFeatureGenerator());
+    featureList.add(new CharacterNgramFeatureGenerator());
   }
 
 }
