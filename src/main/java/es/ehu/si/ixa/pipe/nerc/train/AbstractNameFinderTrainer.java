@@ -1,3 +1,19 @@
+/*
+ *  Copyright 2014 Rodrigo Agerri
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+ */
+
 package es.ehu.si.ixa.pipe.nerc.train;
 
 import java.io.File;
@@ -20,60 +36,78 @@ import opennlp.tools.util.featuregen.AdaptiveFeatureGenerator;
 
 import org.apache.commons.io.FileUtils;
 
+import es.ehu.si.ixa.pipe.nerc.formats.Conll02NameStream;
+import es.ehu.si.ixa.pipe.nerc.formats.Conll03NameStream;
+import es.ehu.si.ixa.pipe.nerc.formats.GermEval2014InnerNameStream;
+import es.ehu.si.ixa.pipe.nerc.formats.GermEval2014OuterNameStream;
+
 /**
- * Abstract class for common training functionalities. Every other trainer
- * class needs to extend this class.
- *
+ * Abstract class for common training functionalities. Every other trainer class
+ * needs to extend this class.
  * @author ragerri
  * @version 2014-04-17
- *
  */
 public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
 
+  /**
+   * The language.
+   */
   private String lang;
   /**
    * String holding the training data.
    */
-  protected String trainData;
+  private String trainData;
   /**
    * String holding the testData.
    */
-  protected String testData;
+  private String testData;
   /**
    * ObjectStream of the training data.
    */
-  protected ObjectStream<NameSample> trainSamples;
+  private ObjectStream<NameSample> trainSamples;
   /**
    * ObjectStream of the test data.
    */
-  protected ObjectStream<NameSample> testSamples;
+  private ObjectStream<NameSample> testSamples;
   /**
    * beamsize value needs to be established in any class extending this one.
    */
-  protected int beamSize;
+  private int beamSize;
+  /**
+   * The corpus format: conll, germEvalOuter2014, germEvalInner2014 and opennlp.
+   */
   private String corpusFormat;
   /**
    * features needs to be implemented by any class extending this one.
    */
-  protected AdaptiveFeatureGenerator features;
+  private AdaptiveFeatureGenerator features;
 
   /**
-   * Constructs a trainer with training and test data, and with options
-   * for language, beamsize for decoding, and corpus format (conll or opennlp).
-   * 
-   * @param trainData
-   * @param testData
-   * @param lang
+   * Constructs a trainer with training and test data, and with options for
+   * language, beamsize for decoding, and corpus format (conll or opennlp).
+   * @param aTrainData
+   *          the training data
+   * @param aTestData
+   *          the test data
+   * @param aLang
+   *          the language
    * @param beamsize
-   * @param corpusFormat
+   *          the beamsize
+   * @param aCorpusFormat
+   *          the corpus format
+   * @param netypes
+   *          the NE classes for which the training should be done
    * @throws IOException
+   *           io exception
    */
-  public AbstractNameFinderTrainer(String trainData, String testData, String aLang, int beamsize, String aCorpusFormat, String netypes) throws IOException {
+  public AbstractNameFinderTrainer(final String aTrainData,
+      final String aTestData, final String aLang, final int beamsize,
+      final String aCorpusFormat, final String netypes) throws IOException {
 
     this.lang = aLang;
     this.corpusFormat = aCorpusFormat;
-    this.trainData = trainData;
-    this.testData = testData;
+    this.trainData = aTrainData;
+    this.testData = aTestData;
     trainSamples = getNameStream(trainData, lang, corpusFormat);
     testSamples = getNameStream(testData, lang, corpusFormat);
     this.beamSize = beamsize;
@@ -85,28 +119,32 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
   }
 
   /**
-   * Constructs a trainer with only beamsize as option.
-   * This is used for tagging time with the appropriate features.
+   * Constructs a trainer with only beamsize as option. This is used for tagging
+   * time with the appropriate features.
    * @param beamsize
+   *          the beamsize for decoding
    */
   public AbstractNameFinderTrainer(final int beamsize) {
     this.beamSize = beamsize;
   }
 
-  /* (non-Javadoc)
-   * @see es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer#train(opennlp.tools.util.TrainingParameters)
+  /*
+   * (non-Javadoc)
+   * @see
+   * es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer#train(opennlp.tools.util
+   * .TrainingParameters)
    */
-  public TokenNameFinderModel train(TrainingParameters params) {
-    if (features == null) {
+  public final TokenNameFinderModel train(final TrainingParameters params) {
+    if (getFeatures() == null) {
       throw new IllegalStateException(
-      "Classes derived from AbstractNameFinderTrainer must create and fill the AdaptiveFeatureGenerator features!");
+          "Classes derived from AbstractNameFinderTrainer must create and fill the AdaptiveFeatureGenerator features!");
     }
     Map<String, Object> resources = null;
     TokenNameFinderModel trainedModel = null;
     TokenNameFinderEvaluator nerEvaluator = null;
     try {
-      trainedModel = NameFinderME.train(lang, null,
-          trainSamples, params, features, resources);
+      trainedModel = NameFinderME.train(lang, null, trainSamples, params,
+          getFeatures(), resources);
       nerEvaluator = evaluate(trainedModel, testSamples);
     } catch (IOException e) {
       System.err.println("IO error while loading traing and test sets!");
@@ -117,11 +155,15 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
     return trainedModel;
   }
 
-  /* (non-Javadoc)
-   * @see es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer#trainCrossEval(java.lang.String, java.lang.String, opennlp.tools.util.TrainingParameters, java.lang.String[])
+  /*
+   * (non-Javadoc)
+   * @see
+   * es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer#trainCrossEval(java.lang
+   * .String, java.lang.String, opennlp.tools.util.TrainingParameters,
+   * java.lang.String[])
    */
-  public TokenNameFinderModel trainCrossEval(String trainData,
-      final String devData, final TrainingParameters params, final String[] evalRange) {
+  public TokenNameFinderModel trainCrossEval(final String devData,
+      final TrainingParameters params, final String[] evalRange) {
 
     // get best parameters from cross evaluation
     List<Integer> bestParams = null;
@@ -144,8 +186,22 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
     return trainedModel;
   }
 
-  protected List<Integer> crossEval(String devData,
-      TrainingParameters params, String[] evalRange) throws IOException {
+  /**
+   * Cross evaluation method by iterations and cutoff. This only really makes
+   * sense for GIS optimization {@code GISTrainer}.
+   * @param devData
+   *          the development data to do the optimization
+   * @param params
+   *          the parameters
+   * @param evalRange
+   *          the range at which perform the evaluation
+   * @return the best parameters, iteration and cutoff
+   * @throws IOException
+   *           the io exception
+   */
+  private List<Integer> crossEval(final String devData,
+      final TrainingParameters params, final String[] evalRange)
+      throws IOException {
 
     System.err.println("Cross Evaluation:");
     // lists to store best parameters
@@ -165,22 +221,25 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
     List<Integer> iterList = new ArrayList<Integer>(Collections.nCopies(
         iterParam, 0));
 
-    for (int c = 0; c < cutoffList.size() + 1; c++) {
+    for (int cuttOff = 0; cuttOff < cutoffList.size() + 1; cuttOff++) {
       int start = Integer.valueOf(evalRange[0]);
       int iterRange = Integer.valueOf(evalRange[1]);
-      for (int i = start + 10; i < iterList.size() + 10; i += iterRange) {
+      for (int iteration = start + start; iteration < iterList.size() + start; iteration += iterRange) {
         // reading data for training and test
-        ObjectStream<NameSample> trainSamples = getNameStream(trainData, lang, corpusFormat);
-        ObjectStream<NameSample> devSamples = getNameStream(devData, lang, corpusFormat);
+        ObjectStream<NameSample> aTrainSamples = getNameStream(trainData, lang,
+            corpusFormat);
+        ObjectStream<NameSample> devSamples = getNameStream(devData, lang,
+            corpusFormat);
 
         // dynamic creation of parameters
-        params.put(TrainingParameters.ITERATIONS_PARAM, Integer.toString(i));
-        params.put(TrainingParameters.CUTOFF_PARAM, Integer.toString(c));
-        System.out.println("Trying with " + i + " iterations...");
+        params.put(TrainingParameters.ITERATIONS_PARAM,
+            Integer.toString(iteration));
+        params.put(TrainingParameters.CUTOFF_PARAM, Integer.toString(cuttOff));
+        System.err.println("Trying with " + iteration + " iterations...");
 
         // training model
         TokenNameFinderModel trainedModel = NameFinderME.train(lang, null,
-            trainSamples, params, features, resources);
+            aTrainSamples, params, getFeatures(), resources);
         // evaluate model
         TokenNameFinderEvaluator nerEvaluator = this.evaluate(trainedModel,
             devSamples);
@@ -188,36 +247,44 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
         double precision = nerEvaluator.getFMeasure().getPrecisionScore();
         double recall = nerEvaluator.getFMeasure().getRecallScore();
         StringBuilder sb = new StringBuilder();
-        sb.append("Iterations: ").append(i).append(" cutoff: ").append(c)
-            .append(" ").append("PRF: ").append(precision).append(" ")
-            .append(recall).append(" ").append(result).append("\n");
+        sb.append("Iterations: ").append(iteration).append(" cutoff: ")
+            .append(cuttOff).append(" ").append("PRF: ").append(precision)
+            .append(" ").append(recall).append(" ").append(result).append("\n");
         FileUtils.write(new File("ner-results.txt"), sb.toString(), true);
         List<Integer> bestParams = new ArrayList<Integer>();
-        bestParams.add(i);
-        bestParams.add(c);
+        bestParams.add(iteration);
+        bestParams.add(cuttOff);
         results.put(bestParams, result);
         System.out.println();
-        System.out.println("Iterations: " + i + " cutoff: " + c);
+        System.out.println("Iterations: " + iteration + " cutoff: " + cuttOff);
         System.out.println(nerEvaluator.getFMeasure());
       }
     }
     // print F1 results by iteration
-    System.out.println();
+    System.err.println();
     InputOutputUtils.printIterationResults(results);
     InputOutputUtils.getBestIterations(results, allParams);
     finalParams = allParams.get(0);
-    System.out.println("Final Params " + finalParams.get(0) + " "
+    System.err.println("Final Params " + finalParams.get(0) + " "
         + finalParams.get(1));
     return finalParams;
   }
 
-  public TokenNameFinderEvaluator evaluate(TokenNameFinderModel trainedModel,
-      ObjectStream<NameSample> testSamples) {
-    NameFinderME nerTagger = new NameFinderME(trainedModel, features, beamSize);
+  /*
+   * (non-Javadoc)
+   * @see
+   * es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer#evaluate(opennlp.tools.
+   * namefind.TokenNameFinderModel, opennlp.tools.util.ObjectStream)
+   */
+  public final TokenNameFinderEvaluator evaluate(
+      final TokenNameFinderModel trainedModel,
+      final ObjectStream<NameSample> aTestSamples) {
+    NameFinderME nerTagger = new NameFinderME(trainedModel, getFeatures(),
+        beamSize);
     TokenNameFinderEvaluator nerEvaluator = new TokenNameFinderEvaluator(
         nerTagger);
     try {
-      nerEvaluator.evaluate(testSamples);
+      nerEvaluator.evaluate(aTestSamples);
     } catch (IOException e) {
       System.err.println("IO error while loading test set for evaluation!");
       e.printStackTrace();
@@ -225,35 +292,66 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
     }
     return nerEvaluator;
   }
-  
-  public static ObjectStream<NameSample> getNameStream(String inputData, String aLang, String aCorpusFormat) throws IOException {
-	  ObjectStream<NameSample> samples = null;
-	  if (aCorpusFormat.equalsIgnoreCase("conll")) {
-		  ObjectStream<String> nameStream = InputOutputUtils.readInputData(inputData);
-	      samples = new Conll03NameStream(aLang, nameStream);
-	  }
-	  else if (aCorpusFormat.equalsIgnoreCase("conll") && (aLang.equalsIgnoreCase("es") || aLang.equalsIgnoreCase("nl"))) {
-	    ObjectStream<String> nameStream = InputOutputUtils.readInputData(inputData);
-		samples = new Conll02NameStream(aLang, nameStream);
-	  }
-	  else if (aCorpusFormat.equalsIgnoreCase("germEvalOuter2014")) {
-	    ObjectStream<String> nameStream = InputOutputUtils.readInputData(inputData);
-	    samples = new GermEval2014OuterNameStream(nameStream);
-	  }
-	  else if (aCorpusFormat.equalsIgnoreCase("germEvalInner2014")) {
-        ObjectStream<String> nameStream = InputOutputUtils.readInputData(inputData);
-        samples = new GermEval2014InnerNameStream(nameStream);
-      }
-	  else if (aCorpusFormat.equalsIgnoreCase("opennlp")){
-	    ObjectStream<String> nameStream = InputOutputUtils.readInputData(inputData);
-		samples = new NameSampleDataStream(nameStream);	
-	  }
-	  else {
-	    System.err.println("Test set corpus format not valid!!");
-	    System.exit(1);
-	  }
-	  return samples;
+
+  /**
+   * Getting the stream with the right corpus format.
+   * @param inputData
+   *          the input data
+   * @param aLang
+   *          the language
+   * @param aCorpusFormat
+   *          the corpus format
+   * @return the stream from the several corpus formats
+   * @throws IOException
+   *           the io exception
+   */
+  public static ObjectStream<NameSample> getNameStream(final String inputData,
+      final String aLang, final String aCorpusFormat) throws IOException {
+    ObjectStream<NameSample> samples = null;
+    if (aCorpusFormat.equalsIgnoreCase("conll03")) {
+      ObjectStream<String> nameStream = InputOutputUtils
+          .readInputData(inputData);
+      samples = new Conll03NameStream(aLang, nameStream);
+    } else if (aCorpusFormat.equalsIgnoreCase("conll02")) {
+      ObjectStream<String> nameStream = InputOutputUtils
+          .readInputData(inputData);
+      samples = new Conll02NameStream(aLang, nameStream);
+    } else if (aCorpusFormat.equalsIgnoreCase("germEvalOuter2014")) {
+      ObjectStream<String> nameStream = InputOutputUtils
+          .readInputData(inputData);
+      samples = new GermEval2014OuterNameStream(nameStream);
+    } else if (aCorpusFormat.equalsIgnoreCase("germEvalInner2014")) {
+      ObjectStream<String> nameStream = InputOutputUtils
+          .readInputData(inputData);
+      samples = new GermEval2014InnerNameStream(nameStream);
+    } else if (aCorpusFormat.equalsIgnoreCase("opennlp")) {
+      ObjectStream<String> nameStream = InputOutputUtils
+          .readInputData(inputData);
+      samples = new NameSampleDataStream(nameStream);
+    } else {
+      System.err.println("Test set corpus format not valid!!");
+      System.exit(1);
+    }
+    return samples;
   }
 
+  /**
+   * Get the features which are implemented in each of the trainers extending
+   * this class.
+   * @return the features
+   */
+  public final AdaptiveFeatureGenerator getFeatures() {
+    return features;
+  }
+
+  /**
+   * Set the features. This method is used in every trainer extending this
+   * class.
+   * @param aFeatures
+   *          the implemented features
+   */
+  public final void setFeatures(final AdaptiveFeatureGenerator aFeatures) {
+    this.features = aFeatures;
+  }
 
 }

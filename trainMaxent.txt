@@ -16,13 +16,13 @@
 # Sample machine learning properties file
 
 Algorithm=MAXENT
-Iterations=20
+Iterations=750
 Cutoff=0
-Threads=4
+Threads=6
 
 #### Custom parameters added by ixa-pipe-nerc ####
 # Languages supported: de, en, es, it, nl 
-Language=es
+Language=de
 
 # Named Entity types; if empty all ne types in the training corpus.
 # Otherwise, separate with comma, eg., location,organization,person,misc

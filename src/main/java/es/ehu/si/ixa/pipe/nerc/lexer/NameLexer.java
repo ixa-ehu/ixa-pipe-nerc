@@ -28,20 +28,17 @@ import java.util.List;
  * patterns in running text and creates @link Name objects. The default API of {@link
  * NumericLexer} provides a <code>yylex()</code> method that behaves roughly like a
  * <code>next()</code> Iterator function.
- * 
  * Thus, NameLexer implementations will probably implement and/or override the
  * <code>next()</code> function. For example @link NumericNameLexer provides
  * an implementation of
- * <code>next()<code> that uses internally the <code>yylex()</code> function of @link
- * NumericLexer to obtain the Name objects. Other implementations are 
+ * <code>next()</code> that uses internally the <code>yylex()</code> function of @link
+ * NumericLexer to obtain the Name objects. Other implementations are
  * also expected to implement the <code>next()</code> function.
- * 
  * The same reason (JFlex API) dictates that implementations of this interface
  * are expected to have a constructor takes a Reader as argument.
- * 
  * A NameLexer extends the Iterator interface, but it also provides a lookahead
  * operation <code>lookAhead()</code>.
- * 
+ * @param <T> the type
  * @author ragerri
  * @version 2014-05-14
  */
@@ -49,41 +46,37 @@ public interface NameLexer<T> extends Iterator<T> {
 
   /**
    * Returns the next token from this NameLexer.
-   * 
    * @return the next token
-   * @throws java.util.NoSuchElementException
    *           if the are not any tokens.
    */
-  public T next();
+  T next();
 
   /**
    * Returns <code>true</code> if and only if this NameLexer has more elements.
+   * @return true or false
    */
-  public boolean hasNext();
+  boolean hasNext();
 
   /**
    * Removes from last element returned by the iterator. This method can be
    * called only once per call to next.
    */
-  public void remove();
+  void remove();
 
   /**
    * Returns the next token, without removing it, from the NameLexer, so that
    * the same token will be again returned on the next call to next() or
    * lookAhead(). This is useful for conditional decisions on sentence
    * boundaries, for example.
-   * 
    * @return the next token
-   * @throws java.util.NoSuchElementException
    *           if the token stream has no more tokens.
    */
-  public T lookAhead();
+  T lookAhead();
 
   /**
-   * Returns all tokens of this NameLexer as a List
-   * 
+   * Returns all tokens of this NameLexer as a List.
    * @return A list of all the tokens
    */
-  public List<T> nameLex();
+  List<T> nameLex();
 
 }
