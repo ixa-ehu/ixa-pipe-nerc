@@ -14,7 +14,7 @@
    limitations under the License.
  */
 
-package es.ehu.si.ixa.pipe.nerc.train;
+package es.ehu.si.ixa.pipe.nerc.train.lang.en;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,55 +27,67 @@ import opennlp.tools.util.featuregen.CachedFeatureGenerator;
 import opennlp.tools.util.featuregen.OutcomePriorFeatureGenerator;
 import opennlp.tools.util.featuregen.PreviousMapFeatureGenerator;
 import opennlp.tools.util.featuregen.SentenceFeatureGenerator;
+import opennlp.tools.util.featuregen.SuffixFeatureGenerator;
 import opennlp.tools.util.featuregen.TokenFeatureGenerator;
 import opennlp.tools.util.featuregen.WindowFeatureGenerator;
+import es.ehu.si.ixa.pipe.nerc.features.Prefix34FeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.TokenClassFeatureGenerator;
+import es.ehu.si.ixa.pipe.nerc.train.AbstractNameFinderTrainer;
+import es.ehu.si.ixa.pipe.nerc.train.DefaultNameFinderTrainer;
 
 /**
- * Training NER based on Apache OpenNLP Machine Learning API. These are the
- * default Apache OpenNLP 1.5.3 features. This featureset is kept here for
- * upstream compatibility. See {@code DefaultNameContextGenerator}.
- * @author ragerri
+ * Training NER based on Apache OpenNLP Machine Learning API for English.
+ * This class implements baseline shape features on top of the {@link DefaultNameFinderTrainer}
+ * features for English CoNLL 2003.
+ *
+ * @author ragerri 2014/06/25
  * @version 2014-07-11
  */
-public class DefaultNameFinderTrainer extends AbstractNameFinderTrainer {
+public class BaselineNameFinderTrainer extends AbstractNameFinderTrainer {
+
   /**
-   * Construct default opennlp name finder trainer.
+   * Construct a Baseline trainer.
    * @param trainData the training data
    * @param testData the test data
    * @param lang the language
-   * @param beamsize the beamsize
+   * @param beamsize the beamsize for decoding
    * @param corpusFormat the corpus format
    * @param netypes the NE classes
-   * @throws IOException throw if input data problems
+   * @throws IOException the data exception
    */
-  public DefaultNameFinderTrainer(final String trainData, final String testData, final String lang, final int beamsize, final String corpusFormat, final String netypes) throws IOException {
+  public BaselineNameFinderTrainer(final String trainData, final String testData,
+      final String lang, final int beamsize, final String corpusFormat, final String netypes)
+      throws IOException {
     super(trainData, testData, lang, beamsize, corpusFormat, netypes);
     setFeatures(createFeatureGenerator());
   }
+
   /**
-   * Construct trainer with beamsize features only.
+   * Construct a baseline trainer with only beamsize specified.
    * @param beamsize the beamsize
    */
-  public DefaultNameFinderTrainer(final int beamsize) {
+  public BaselineNameFinderTrainer(final int beamsize) {
     super(beamsize);
     setFeatures(createFeatureGenerator());
   }
+
   /* (non-Javadoc)
    * @see es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer#createFeatureGenerator()
    */
   public final AdaptiveFeatureGenerator createFeatureGenerator() {
-    List<AdaptiveFeatureGenerator> featureList = createFeatureList();
+    List<AdaptiveFeatureGenerator> featureList = createWindowFeatureList();
+    addTokenFeatures(featureList);
     AdaptiveFeatureGenerator[] featuresArray = featureList
         .toArray(new AdaptiveFeatureGenerator[featureList.size()]);
     return new CachedFeatureGenerator(featuresArray);
   }
+  
   /**
    * Create a list of {@link AdaptiveFeatureGenerator} features.
    *
    * @return the list of features
    */
-  public static List<AdaptiveFeatureGenerator> createFeatureList() {
+  public static List<AdaptiveFeatureGenerator> createWindowFeatureList() {
     List<AdaptiveFeatureGenerator> featuresList = new ArrayList<AdaptiveFeatureGenerator>(Arrays.asList(
         new WindowFeatureGenerator(new TokenFeatureGenerator(), 2, 2),
         new WindowFeatureGenerator(new TokenClassFeatureGenerator(true), 2, 2),
@@ -84,4 +96,15 @@ public class DefaultNameFinderTrainer extends AbstractNameFinderTrainer {
             false)));
     return featuresList;
   }
+
+  /**
+   * Adds the Baseline features to the feature list.
+   * @param featureList
+   *          the feature list containing the baseline features
+   */
+  public static void addTokenFeatures(final List<AdaptiveFeatureGenerator> featureList) {
+    featureList.add(new Prefix34FeatureGenerator());
+    featureList.add(new SuffixFeatureGenerator());
+  }
+
 }

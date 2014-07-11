@@ -28,10 +28,9 @@ import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.Span;
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
-import es.ehu.si.ixa.pipe.nerc.train.BaselineNameFinderTrainer;
-import es.ehu.si.ixa.pipe.nerc.train.DictNameFinderTrainer;
-import es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer;
+import es.ehu.si.ixa.pipe.nerc.eval.Evaluate;
 import es.ehu.si.ixa.pipe.nerc.train.DefaultNameFinderTrainer;
+import es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer;
 
 /**
  * Named Entity Recognition module based on Apache OpenNLP Machine Learning API.
@@ -78,7 +77,7 @@ public class StatisticalNameFinder implements NameFinder {
       final String features, final int beamsize) {
 
     TokenNameFinderModel nerModel = loadModel(lang, model);
-    nameFinderTrainer = getNameFinderTrainer(features, beamsize);
+    nameFinderTrainer = getNameFinderTrainer(lang, features, beamsize);
     nameFinder = new NameFinderME(nerModel,
         nameFinderTrainer.createFeatureGenerator(), beamsize);
   }
@@ -107,12 +106,13 @@ public class StatisticalNameFinder implements NameFinder {
    * @param beamsize
    *          the beam size decoding
    * @param dictPath the directory containing the dictionaries
+   * @throws IOException 
    */
   public StatisticalNameFinder(final String lang, final String model,
-      final String features, final int beamsize, final Dictionaries dictionaries) {
+      final String features, final int beamsize, final Dictionaries dictionaries) throws IOException {
 
     TokenNameFinderModel nerModel = loadModel(lang, model);
-    nameFinderTrainer = new DictNameFinderTrainer(dictionaries, beamsize);
+    nameFinderTrainer = Evaluate.chooseDictTrainer(lang, dictionaries, beamsize);
     nameFinder = new NameFinderME(nerModel,
         nameFinderTrainer.createFeatureGenerator(), beamsize);
   }
@@ -124,8 +124,9 @@ public class StatisticalNameFinder implements NameFinder {
    * @param lang the language
    * @param model the model
    * @param features the features
+   * @throws IOException 
    */
-  public StatisticalNameFinder(final String lang, final String model, final String features, final Dictionaries dictionaries) {
+  public StatisticalNameFinder(final String lang, final String model, final String features, final Dictionaries dictionaries) throws IOException {
     this(lang, model, features, CLI.DEFAULT_BEAM_SIZE, dictionaries);
   }
 
@@ -145,7 +146,7 @@ public class StatisticalNameFinder implements NameFinder {
 
     this.nameFactory = aNameFactory;
     TokenNameFinderModel nerModel = loadModel(lang, model);
-    nameFinderTrainer = getNameFinderTrainer(features, beamsize);
+    nameFinderTrainer = getNameFinderTrainer(lang, features, beamsize);
     nameFinder = new NameFinderME(nerModel,
         nameFinderTrainer.createFeatureGenerator(), beamsize);
   }
@@ -176,13 +177,14 @@ public class StatisticalNameFinder implements NameFinder {
    * @param features the features
    * @param beamsize the beam size for decoding
    * @param dictPath the path to the dictionaries
+   * @throws IOException 
    */
   public StatisticalNameFinder(final String lang, final NameFactory aNameFactory,
-      final String model, final String features, final int beamsize, final Dictionaries dictionaries) {
+      final String model, final String features, final int beamsize, final Dictionaries dictionaries) throws IOException {
 
     this.nameFactory = aNameFactory;
     TokenNameFinderModel nerModel = loadModel(lang, model);
-    nameFinderTrainer = new DictNameFinderTrainer(dictionaries, beamsize);
+    nameFinderTrainer = Evaluate.chooseDictTrainer(lang, dictionaries, beamsize);
     nameFinder = new NameFinderME(nerModel,
         nameFinderTrainer.createFeatureGenerator(), beamsize);
   }
@@ -196,9 +198,10 @@ public class StatisticalNameFinder implements NameFinder {
    * @param aNameFactory the name factory
    * @param model the model
    * @param features the features
+   * @throws IOException 
    */
   public StatisticalNameFinder(final String lang, final NameFactory aNameFactory,
-      final String model, final String features, final Dictionaries dictionaries) {
+      final String model, final String features, final Dictionaries dictionaries) throws IOException {
     this(lang, aNameFactory, model, features, CLI.DEFAULT_BEAM_SIZE, dictionaries);
   }
 
@@ -345,9 +348,23 @@ public class StatisticalNameFinder implements NameFinder {
    * @param beamsize the beam size
    * @return an instance of a NameFinderTrainer
    */
-  public final NameFinderTrainer getNameFinderTrainer(final String features, final int beamsize) {
+  public final NameFinderTrainer getNameFinderTrainer(final String lang, final String features, final int beamsize) {
     if (features.equalsIgnoreCase("baseline")) {
-      nameFinderTrainer = new BaselineNameFinderTrainer(beamsize);
+      if (lang.equalsIgnoreCase("de")) {
+        nameFinderTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.de.BaselineNameFinderTrainer(beamsize);
+      }
+      else if (lang.equalsIgnoreCase("en")) {
+        nameFinderTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.en.BaselineNameFinderTrainer(beamsize);
+      }
+      else if (lang.equalsIgnoreCase("es")) {
+        nameFinderTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.es.BaselineNameFinderTrainer(beamsize);
+      }
+      else if (lang.equalsIgnoreCase("it")) {
+        nameFinderTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.it.BaselineNameFinderTrainer(beamsize);
+      }
+      else if (lang.equalsIgnoreCase("nl")) {
+        nameFinderTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.de.BaselineNameFinderTrainer(beamsize);
+      }
     } else if (features.equalsIgnoreCase("opennlp")) {
       nameFinderTrainer = new DefaultNameFinderTrainer(beamsize);
     }

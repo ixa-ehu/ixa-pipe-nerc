@@ -14,7 +14,7 @@
    limitations under the License.
  */
 
-package es.ehu.si.ixa.pipe.nerc.train;
+package es.ehu.si.ixa.pipe.nerc.train.lang.nl;
 
 import java.io.IOException;
 import java.util.List;
@@ -24,6 +24,8 @@ import opennlp.tools.util.featuregen.CachedFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
 import es.ehu.si.ixa.pipe.nerc.features.DictionaryFeatureGenerator;
+import es.ehu.si.ixa.pipe.nerc.train.AbstractNameFinderTrainer;
+import es.ehu.si.ixa.pipe.nerc.train.DefaultNameFinderTrainer;
 
 /**
  * Training NER based on Apache OpenNLP Machine Learning API. This class
@@ -49,16 +51,15 @@ public class DictNameFinderTrainer extends AbstractNameFinderTrainer {
   private static String prefix;
 
   /**
-   * Construct a DictionaryNameFinderTrainer.
-   *
-   * @param dictPath the path to the dictionaries to be used as features
+   * Construct a dictionary name finder trainer.
+   * @param aDictionaries the dictionaries
    * @param trainData the training data
-   * @param testData the test data for evaluation after training
+   * @param testData the test data
    * @param lang the language
-   * @param beamsize the beamsize for decoding it defaults to 3
-   * @param corpusFormat the format is either opennlp or conll format
-   * @param netypes filter by named entity classes to train specialized models
-   * @throws IOException throws an exception
+   * @param beamsize the beamsize for decoding
+   * @param corpusFormat the corpus format
+   * @param netypes the NE classes for filtering
+   * @throws IOException throw if input error
    */
   public DictNameFinderTrainer(final Dictionaries aDictionaries, final String trainData,
       final String testData, final String lang, final int beamsize, final String corpusFormat,
@@ -66,7 +67,7 @@ public class DictNameFinderTrainer extends AbstractNameFinderTrainer {
     super(trainData, testData, lang, beamsize, corpusFormat, netypes);
 
     if (dictionaries == null) {
-      dictionaries = aDictionaries;  
+      dictionaries = aDictionaries;
     }
     setFeatures(createFeatureGenerator());
 
@@ -75,7 +76,7 @@ public class DictNameFinderTrainer extends AbstractNameFinderTrainer {
   /**
    * Construct a DictionaryNameFinderTrainer for evaluation only.
    *
-   * @param dictPath the path to the dictionaries
+   * @param aDictionaries the dictionaries
    * @param beamsize the beamsize for decoding; it defaults to 3
    */
   public DictNameFinderTrainer(final Dictionaries aDictionaries, final int beamsize) {
@@ -94,21 +95,22 @@ public class DictNameFinderTrainer extends AbstractNameFinderTrainer {
    * @see es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer#createFeatureGenerator()
    */
   public final AdaptiveFeatureGenerator createFeatureGenerator() {
-    List<AdaptiveFeatureGenerator> featureList = DefaultNameFinderTrainer.createFeatureList();
-    BaselineNameFinderTrainer.addToFeatureList(featureList);
+    List<AdaptiveFeatureGenerator> featureList = BaselineNameFinderTrainer.createWindowFeatureList();
+    
+    BaselineNameFinderTrainer.addTokenFeatures(featureList);
     addDictionariesToFeatureList(featureList);
     AdaptiveFeatureGenerator[] featuresArray = featureList
         .toArray(new AdaptiveFeatureGenerator[featureList.size()]);
     return new CachedFeatureGenerator(featuresArray);
   }
-
+ 
   /**
    * Adds the dictionary features to the feature list.
    *
    * @param featureList the feature list containing the dictionary features
    */
   private static void addDictionariesToFeatureList(
-      List<AdaptiveFeatureGenerator> featureList) {
+      final List<AdaptiveFeatureGenerator> featureList) {
     for (int i = 0; i < dictionaries.getIgnoreCaseDictionaries().size(); i++) {
       prefix = dictionaries.getDictNames().get(i);
       dictionary = dictionaries.getIgnoreCaseDictionaries().get(i);

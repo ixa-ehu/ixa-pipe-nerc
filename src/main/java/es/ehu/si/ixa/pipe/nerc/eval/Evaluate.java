@@ -3,7 +3,6 @@ package es.ehu.si.ixa.pipe.nerc.eval;
 import es.ehu.si.ixa.pipe.nerc.StatisticalNameFinder;
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
 import es.ehu.si.ixa.pipe.nerc.train.AbstractNameFinderTrainer;
-import es.ehu.si.ixa.pipe.nerc.train.DictNameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer;
 
 import java.io.FileInputStream;
@@ -47,6 +46,8 @@ public class Evaluate {
    * An instance of the probabilistic {@link NameFinderME}.
    */
   private NameFinderME nameFinder;
+  private static Dictionaries dictionaries;
+  private static int beamsize;
 
   /**
    * Construct an evaluator.
@@ -59,9 +60,10 @@ public class Evaluate {
    * @param corpusFormat the format of the testData corpus
    * @throws IOException if input data not available
    */
-  public Evaluate(final Dictionaries dictionaries, final String testData, final String model, final String features, final String lang,
-      final int beamsize, final String corpusFormat, String netypes) throws IOException {
-
+  public Evaluate(final Dictionaries aDictionaries, final String testData, final String model, final String features, final String lang,
+      final int aBeamsize, final String corpusFormat, String netypes) throws IOException {
+    Evaluate.dictionaries = aDictionaries;
+    Evaluate.beamsize = aBeamsize;
     testSamples = AbstractNameFinderTrainer.getNameStream(testData, lang, corpusFormat);
     if (netypes != null) {
       String[] neTypes = netypes.split(",");
@@ -86,11 +88,11 @@ public class Evaluate {
     }
    
     if (features.equalsIgnoreCase("dict")) {
-      nameFinderTrainer = new DictNameFinderTrainer(dictionaries, beamsize);
+      nameFinderTrainer = chooseDictTrainer(lang, aDictionaries, aBeamsize);
     }
     else {
       StatisticalNameFinder statFinder = new StatisticalNameFinder(lang, model, features);
-      nameFinderTrainer = statFinder.getNameFinderTrainer(features, beamsize);
+      nameFinderTrainer = statFinder.getNameFinderTrainer(lang, features, beamsize);
     }
     nameFinder = new NameFinderME(nercModel, nameFinderTrainer.createFeatureGenerator(), beamsize);
   }
@@ -131,5 +133,36 @@ public class Evaluate {
     evaluator.evaluate(testSamples);
     System.out.println(evaluator.getFMeasure());
   }
+  
+  /**
+   * Choose the NameFinder training according to feature type and language.
+   * @return the name finder trainer
+   * @throws IOException throws
+   */
+  public static NameFinderTrainer chooseDictTrainer(final String lang, Dictionaries aDictionaries, int aBeamsize) throws IOException {
+    NameFinderTrainer nercTrainer = null;
+        if (lang.equalsIgnoreCase("de")) {
+          nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.de.DictNameFinderTrainer(aDictionaries, aBeamsize);
+        }
+        else if (lang.equalsIgnoreCase("en")) {
+          nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.en.DictNameFinderTrainer(aDictionaries, aBeamsize);
+        }
+        else if (lang.equalsIgnoreCase("es")) {
+          nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.es.DictNameFinderTrainer(aDictionaries, aBeamsize);
+        }
+        else if (lang.equalsIgnoreCase("it")) {
+          nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.it.DictNameFinderTrainer(aDictionaries, aBeamsize);
+        }
+        else if (lang.equalsIgnoreCase("nl")) {
+          nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.nl.DictNameFinderTrainer(aDictionaries, aBeamsize);
+        }
+        else {
+        System.err
+            .println("You need to provide the directory containing the dictionaries!\n");
+        System.exit(1);
+      }
+    return nercTrainer;
+  }
+
 
 }

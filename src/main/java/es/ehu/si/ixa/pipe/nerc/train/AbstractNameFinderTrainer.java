@@ -353,5 +353,24 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
   public final void setFeatures(final AdaptiveFeatureGenerator aFeatures) {
     this.features = aFeatures;
   }
+  
+  /**
+   * Get the language.
+   * @return the language
+   */
+  public final String getLanguage() {
+    return lang;
+  }
+
+  /**
+   * Set the language.
+   * class.
+   * @param aLang
+   *          the language
+   */
+  public final void setLanguage(final String aLang) {
+    this.lang = aLang;
+  }
+
 
 }

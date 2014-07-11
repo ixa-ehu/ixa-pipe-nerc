@@ -35,7 +35,7 @@ Types=
 Beamsize=3
 
 # Formats: conll, germEvalOuter2014, germEvalInner2014, opennlp
-Corpus=germEvalOuter2014
+Corpus=opennlp
 
 ## Cross Evaluation if empty no cross evaluation is performed;
 ## Cross Evaluation takes two values as arguments, namely, 50:100;

@@ -14,20 +14,31 @@
    limitations under the License.
  */
 
-package es.ehu.si.ixa.pipe.nerc.train;
+package es.ehu.si.ixa.pipe.nerc.train.lang.de;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import opennlp.tools.util.featuregen.AdaptiveFeatureGenerator;
+import opennlp.tools.util.featuregen.BigramNameFeatureGenerator;
 import opennlp.tools.util.featuregen.CachedFeatureGenerator;
+import opennlp.tools.util.featuregen.OutcomePriorFeatureGenerator;
+import opennlp.tools.util.featuregen.PreviousMapFeatureGenerator;
+import opennlp.tools.util.featuregen.SentenceFeatureGenerator;
 import opennlp.tools.util.featuregen.SuffixFeatureGenerator;
+import opennlp.tools.util.featuregen.TokenFeatureGenerator;
+import opennlp.tools.util.featuregen.WindowFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.Prefix34FeatureGenerator;
+import es.ehu.si.ixa.pipe.nerc.features.TokenClassFeatureGenerator;
+import es.ehu.si.ixa.pipe.nerc.train.AbstractNameFinderTrainer;
+import es.ehu.si.ixa.pipe.nerc.train.DefaultNameFinderTrainer;
 
 /**
- * Training NER based on Apache OpenNLP Machine Learning API.
+ * Training NER based on Apache OpenNLP Machine Learning API for English.
  * This class implements baseline shape features on top of the {@link DefaultNameFinderTrainer}
- * features.
+ * features for English CoNLL 2003.
  *
  * @author ragerri 2014/06/25
  * @version 2014-07-11
@@ -64,12 +75,26 @@ public class BaselineNameFinderTrainer extends AbstractNameFinderTrainer {
    * @see es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer#createFeatureGenerator()
    */
   public final AdaptiveFeatureGenerator createFeatureGenerator() {
-    List<AdaptiveFeatureGenerator> featureList = DefaultNameFinderTrainer
-        .createFeatureList();
-    addToFeatureList(featureList);
+    List<AdaptiveFeatureGenerator> featureList = createWindowFeatureList();
+    addTokenFeatures(featureList);
     AdaptiveFeatureGenerator[] featuresArray = featureList
         .toArray(new AdaptiveFeatureGenerator[featureList.size()]);
     return new CachedFeatureGenerator(featuresArray);
+  }
+  
+  /**
+   * Create a list of {@link AdaptiveFeatureGenerator} features.
+   *
+   * @return the list of features
+   */
+  public static List<AdaptiveFeatureGenerator> createWindowFeatureList() {
+    List<AdaptiveFeatureGenerator> featuresList = new ArrayList<AdaptiveFeatureGenerator>(Arrays.asList(
+        new WindowFeatureGenerator(new TokenFeatureGenerator(), 2, 2),
+        new WindowFeatureGenerator(new TokenClassFeatureGenerator(true), 2, 2),
+        new OutcomePriorFeatureGenerator(), new PreviousMapFeatureGenerator(),
+        new BigramNameFeatureGenerator(), new SentenceFeatureGenerator(true,
+            false)));
+    return featuresList;
   }
 
   /**
@@ -77,10 +102,9 @@ public class BaselineNameFinderTrainer extends AbstractNameFinderTrainer {
    * @param featureList
    *          the feature list containing the baseline features
    */
-  public static void addToFeatureList(final List<AdaptiveFeatureGenerator> featureList) {
+  public static void addTokenFeatures(final List<AdaptiveFeatureGenerator> featureList) {
     featureList.add(new Prefix34FeatureGenerator());
     featureList.add(new SuffixFeatureGenerator());
-
   }
 
 }

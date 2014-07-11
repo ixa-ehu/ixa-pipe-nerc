@@ -40,11 +40,9 @@ import org.jdom2.JDOMException;
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
 import es.ehu.si.ixa.pipe.nerc.eval.CorpusEvaluate;
 import es.ehu.si.ixa.pipe.nerc.eval.Evaluate;
-import es.ehu.si.ixa.pipe.nerc.train.BaselineNameFinderTrainer;
-import es.ehu.si.ixa.pipe.nerc.train.DictNameFinderTrainer;
+import es.ehu.si.ixa.pipe.nerc.train.DefaultNameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
 import es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer;
-import es.ehu.si.ixa.pipe.nerc.train.DefaultNameFinderTrainer;
 
 /**
  * Main class of ixa-pipe-nerc, the ixa pipes (ixa2.si.ehu.es/ixa-pipes) NERC
@@ -96,16 +94,37 @@ public class CLI {
    */
   public static final int DEFAULT_BEAM_SIZE = 3;
 
+  private String lang;
+  private String features;
+  private String trainSet;
+  private String testSet;
+  private String devSet;
+  private String dictPath;
+  private int beamsize;
+  private String model;
+  private String corpusFormat;
+  private String neTypes;
   /**
    * Construct a CLI object with the three sub-parsers to manage the command
    * line parameters.
    */
   public CLI() {
-    annotateParser = subParsers.addParser("tag").help("Tagging CLI");
+    this.lang = parsedArguments.getString("lang");
+    this.features = parsedArguments.getString("features");
+    this.trainSet = parsedArguments.getString("trainSet");
+    this.testSet = parsedArguments.getString("testSet");
+    this.devSet = parsedArguments.getString("devSet");
+    this.dictPath = parsedArguments.getString("dictPath");
+    this.beamsize = parsedArguments.getInt("beamsize");
+    this.model = parsedArguments.getString("model");
+    this.corpusFormat = parsedArguments.getString("corpusFormat");
+    this.neTypes = parsedArguments.getString("neTypes");
+    //subparsers
+    this.annotateParser = subParsers.addParser("tag").help("Tagging CLI");
     loadAnnotateParameters();
-    trainParser = subParsers.addParser("train").help("Training CLI");
+    this.trainParser = subParsers.addParser("train").help("Training CLI");
     loadTrainingParameters();
-    evalParser = subParsers.addParser("eval").help("Evaluation CLI");
+    this.evalParser = subParsers.addParser("eval").help("Evaluation CLI");
     loadEvalParameters();
   }
 
@@ -166,16 +185,13 @@ public class CLI {
   public final void annotate(final InputStream inputStream,
       final OutputStream outputStream) throws IOException {
 
-    int beamsize = parsedArguments.getInt("beamsize");
-    String features = parsedArguments.getString("features");
     String gazetteerOption = parsedArguments.getString("dictionaries");
-    String dictPath = parsedArguments.getString("dictPath");
     String ruleBasedOption = parsedArguments.getString("lexer");
-    String model;
-    if (parsedArguments.get("model") == null) {
-      model = "default";
+    String aModel;
+    if (model == null) {
+      aModel = "default";
     } else {
-      model = parsedArguments.getString("model");
+      aModel = this.model;
     }
     BufferedReader breader = new BufferedReader(new InputStreamReader(
         inputStream, "UTF-8"));
@@ -184,25 +200,25 @@ public class CLI {
     // read KAF document from inputstream
     KAFDocument kaf = KAFDocument.createFromStream(breader);
     // language parameter
-    String lang;
+    String aLang;
     if (parsedArguments.get("lang") == null) {
-      lang = kaf.getLang();
+      aLang = kaf.getLang();
     } else {
-      lang = parsedArguments.getString("lang");
+      aLang = parsedArguments.getString("lang");
     }
     KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor(
-        "entities", "ixa-pipe-nerc-" + lang + "-" + model, version);
+        "entities", "ixa-pipe-nerc-" + aLang + "-" + aModel, version);
     newLp.setBeginTimestamp();
 
     if (gazetteerOption != null || 
         ruleBasedOption != null || 
         dictPath != null || 
         features.equalsIgnoreCase("dict")) {
-      Annotate annotator = new Annotate(lang, model, features, beamsize, gazetteerOption, dictPath,
+      Annotate annotator = new Annotate(aLang, aModel, features, beamsize, gazetteerOption, dictPath,
           ruleBasedOption);
       annotator.annotateNEsToKAF(kaf);
     } else {
-      Annotate annotator = new Annotate(lang, model, features, beamsize);
+      Annotate annotator = new Annotate(aLang, aModel, features, beamsize);
       annotator.annotateNEsToKAF(kaf);
     }
     newLp.setEndTimestamp();
@@ -219,56 +235,34 @@ public class CLI {
    */
   public final void train() throws IOException {
 
-    NameFinderTrainer nercTrainer = null;
-    String trainFile = parsedArguments.getString("input");
-    String testFile = parsedArguments.getString("testSet");
-    String devFile = parsedArguments.getString("devSet");
-    String dictPath = parsedArguments.getString("dictPath");
+   
     String outModel = null;
     // load training parameters file
     String paramFile = parsedArguments.getString("params");
     TrainingParameters params = InputOutputUtils
         .loadTrainingParameters(paramFile);
-    String lang = params.getSettings().get("Language");
-    String netypes = params.getSettings().get("Types");
-    String corpusFormat = params.getSettings().get("Corpus");
-    Integer beamsize = Integer.valueOf(params.getSettings().get("Beamsize"));
+    this.lang = params.getSettings().get("Language");
+    this.neTypes = params.getSettings().get("Types");
+    this.corpusFormat = params.getSettings().get("Corpus");
+    this.beamsize = Integer.valueOf(params.getSettings().get("Beamsize"));
     String evalParam = params.getSettings().get("CrossEval");
     String[] evalRange = evalParam.split("[ :-]");
 
     if (parsedArguments.get("output") != null) {
       outModel = parsedArguments.getString("output");
     } else {
-      outModel = FilenameUtils.removeExtension(trainFile) + "-"
+      outModel = FilenameUtils.removeExtension(trainSet) + "-"
           + parsedArguments.getString("features").toString() + "-model"
           + ".bin";
     }
 
-    if (parsedArguments.getString("features").equalsIgnoreCase("opennlp")) {
-      nercTrainer = new DefaultNameFinderTrainer(trainFile, testFile, lang,
-          beamsize, corpusFormat, netypes);
-    } else if (parsedArguments.getString("features").equalsIgnoreCase(
-        "baseline")) {
-      nercTrainer = new BaselineNameFinderTrainer(trainFile, testFile, lang,
-          beamsize, corpusFormat, netypes);
-    } else if (parsedArguments.getString("features").equalsIgnoreCase("dict")) {
-      if (parsedArguments.get("dictPath") != null) {
-        Dictionaries dictionaries = new Dictionaries(dictPath);
-        nercTrainer = new DictNameFinderTrainer(dictionaries, trainFile, testFile,
-            lang, beamsize, corpusFormat, netypes);
-      } else {
-        System.err
-            .println("You need to provide the directory containing the dictionaries!\n");
-        System.exit(1);
-      }
-    }
-
+   NameFinderTrainer nercTrainer = chooseTrainer();
     TokenNameFinderModel trainedModel = null;
     if (evalRange.length == 2) {
       if (parsedArguments.get("devSet") == null) {
         InputOutputUtils.devSetException();
       } else {
-        trainedModel = nercTrainer.trainCrossEval(devFile, params,
+        trainedModel = nercTrainer.trainCrossEval(devSet, params,
             evalRange);
       }
     } else {
@@ -287,23 +281,15 @@ public class CLI {
    */
   public final void eval() throws IOException {
 
-    String testFile = parsedArguments.getString("testSet");
     String predFile = parsedArguments.getString("prediction");
-    String features = parsedArguments.getString("features");
-    String dictPath = parsedArguments.getString("dictPath");
-    String model = parsedArguments.getString("model");
-    String lang = parsedArguments.getString("language");
-    int beam = parsedArguments.getInt("beamsize");
-    String corpusFormat = parsedArguments.getString("corpus");
-    String netypes = parsedArguments.getString("netypes");
 
     if (parsedArguments.getString("model") != null) {
       Dictionaries dictionaries = null;
       if (dictPath != null) {
         dictionaries = new Dictionaries(dictPath);
       }
-      Evaluate evaluator = new Evaluate(dictionaries, testFile, model, features,
-          lang, beam, corpusFormat, netypes);
+      Evaluate evaluator = new Evaluate(dictionaries, testSet, model, features,
+          lang, beamsize, corpusFormat, neTypes);
       if (parsedArguments.getString("evalReport") != null) {
         if (parsedArguments.getString("evalReport").equalsIgnoreCase("brief")) {
           evaluator.evaluate();
@@ -318,8 +304,8 @@ public class CLI {
         evaluator.detailEvaluate();
       }
     } else if (parsedArguments.getString("prediction") != null) {
-      CorpusEvaluate corpusEvaluator = new CorpusEvaluate(testFile, predFile,
-          lang, corpusFormat, netypes);
+      CorpusEvaluate corpusEvaluator = new CorpusEvaluate(testSet, predFile,
+          lang, corpusFormat, neTypes);
       corpusEvaluator.evaluate();
     } else {
       System.err
@@ -373,7 +359,7 @@ public class CLI {
             "Provide directory containing dictionaries for its use with dict featureset\n");
     trainParser.addArgument("-p", "--params").required(true)
         .help("Load the parameters file\n");
-    trainParser.addArgument("-i", "--input").required(true)
+    trainParser.addArgument("-i", "--trainSet").required(true)
         .help("Input training set\n");
     trainParser.addArgument("-t", "--testSet").required(true)
         .help("Input testset for evaluation\n");
@@ -397,7 +383,7 @@ public class CLI {
         .required(false)
         .help(
             "Path to the gazetteers for evaluation if dict features are used\n");
-    evalParser.addArgument("-l", "--language").required(true)
+    evalParser.addArgument("-l", "--lang").required(true)
         .choices("de", "en", "es", "it", "nl")
         .help("Choose language to load model for evaluation\n");
     evalParser.addArgument("-t", "--testSet").required(true)
@@ -413,7 +399,7 @@ public class CLI {
     evalParser.addArgument("-c", "--corpus").setDefault("opennlp")
         .choices("conll", "opennlp", "germEvalOuter2014", "germEvalInner2014").help("choose format input of corpus\n");
     evalParser
-        .addArgument("-n", "--netypes")
+        .addArgument("-n", "--neTypes")
         .required(false)
         .help(
             "Choose ne types to do the evaluation; it defaults to all represented in the testset\n");
@@ -423,6 +409,67 @@ public class CLI {
         .type(Integer.class)
         .help(
             "Choose beam size for evaluation: 1 is faster and amounts to greedy search\n");
+  }
+  
+  /**
+   * Choose the NameFinder training according to feature type and language.
+   * @return the name finder trainer
+   * @throws IOException throws
+   */
+  public NameFinderTrainer chooseTrainer() throws IOException {
+    NameFinderTrainer nercTrainer = null;
+    if (parsedArguments.getString("features").equalsIgnoreCase("opennlp")) {
+      nercTrainer = new DefaultNameFinderTrainer(trainSet, testSet, lang,
+          beamsize, corpusFormat, neTypes);
+    } else if (features.equalsIgnoreCase(
+        "baseline")) {
+      if (lang.equalsIgnoreCase("de")) {
+        nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.de.BaselineNameFinderTrainer(trainSet, testSet, lang, beamsize, corpusFormat, neTypes);
+      }
+      else if (lang.equalsIgnoreCase("en")) {
+        nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.en.BaselineNameFinderTrainer(trainSet, testSet, lang, beamsize, corpusFormat, neTypes);
+      }
+      else if (lang.equalsIgnoreCase("es")) {
+        nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.es.BaselineNameFinderTrainer(trainSet, testSet, lang, beamsize, corpusFormat, neTypes);
+      }
+      else if (lang.equalsIgnoreCase("it")) {
+        nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.it.BaselineNameFinderTrainer(trainSet, testSet, lang, beamsize, corpusFormat, neTypes);
+      }
+      else if(lang.equalsIgnoreCase("nl")) {
+        nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.nl.BaselineNameFinderTrainer(trainSet, testSet, lang, beamsize, corpusFormat, neTypes);
+      }
+    
+    } else if (features.equalsIgnoreCase("dict")) {
+      if (dictPath != null) {
+        Dictionaries dictionaries = new Dictionaries(dictPath);
+        if (lang.equalsIgnoreCase("de")) {
+          nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.de.DictNameFinderTrainer(dictionaries, trainSet, testSet,
+              lang, beamsize, corpusFormat, neTypes);
+        }
+        else if (lang.equalsIgnoreCase("en")) {
+          nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.en.DictNameFinderTrainer(dictionaries, trainSet, testSet,
+              lang, beamsize, corpusFormat, neTypes);
+        }
+        else if (lang.equalsIgnoreCase("es")) {
+          nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.es.DictNameFinderTrainer(dictionaries, trainSet, testSet,
+              lang, beamsize, corpusFormat, neTypes);
+        }
+        else if (lang.equalsIgnoreCase("it")) {
+          nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.it.DictNameFinderTrainer(dictionaries, trainSet, testSet,
+              lang, beamsize, corpusFormat, neTypes);
+        }
+        else if (lang.equalsIgnoreCase("nl")) {
+          nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.nl.DictNameFinderTrainer(dictionaries, trainSet, testSet,
+              lang, beamsize, corpusFormat, neTypes);
+        }
+        
+      } else {
+        System.err
+            .println("You need to provide the directory containing the dictionaries!\n");
+        System.exit(1);
+      }
+    }
+    return nercTrainer;
   }
 
 }

@@ -116,10 +116,11 @@ public class Annotate {
    *          the directory where the dictionaries are
    * @param ruleBasedOption
    *          which lexer to use
+   * @throws IOException 
    */
   public Annotate(final String lang, final String model, final String features,
       final int beamsize, final String dictOption, final String dictPath,
-      final String ruleBasedOption) {
+      final String ruleBasedOption) throws IOException {
 
     nameFactory = new NameFactory();
     dictionaryOptions(lang, model, features, beamsize, dictOption, dictPath, ruleBasedOption);
@@ -140,10 +141,11 @@ public class Annotate {
    * @param dictOption
    * @param dictPath
    * @param ruleBasedOption
+   * @throws IOException 
    */
   //TODO surely we can simplify this?
   private void dictionaryOptions(final String lang, final String model, final String features,
-        final int beamsize, final String dictOption, final String dictPath, final String ruleBasedOption) {
+        final int beamsize, final String dictOption, final String dictPath, final String ruleBasedOption) throws IOException {
     if (dictPath != null) {
       if (ruleBasedOption != null) {
         lexerFind = true;
