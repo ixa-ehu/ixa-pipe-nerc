@@ -78,6 +78,7 @@ public class BaselineNameFinderTrainer extends AbstractNameFinderTrainer {
   public final AdaptiveFeatureGenerator createFeatureGenerator() {
     List<AdaptiveFeatureGenerator> featureList = createWindowFeatureList();
     addTokenFeatures(featureList);
+    addCharNgramFeatures(featureList);
     AdaptiveFeatureGenerator[] featuresArray = featureList
         .toArray(new AdaptiveFeatureGenerator[featureList.size()]);
     return new CachedFeatureGenerator(featuresArray);
@@ -106,6 +107,17 @@ public class BaselineNameFinderTrainer extends AbstractNameFinderTrainer {
   public static void addTokenFeatures(final List<AdaptiveFeatureGenerator> featureList) {
     featureList.add(new Prefix34FeatureGenerator());
     featureList.add(new SuffixFeatureGenerator());
+  }
+  
+  //TODO
+  //1. put window feature values in trainParams; read, perhaps put into properties, unify trainParams and Properties
+  //2. For each feature loop over the values: for (i=1 i< 2; ++i) for (j=1 j<2 ++j) List<Integer> windowOptions i_i,j_i etc.
+  //3. for windowOptions.size(), new WindowFeatureGenerator(windowOptions.get(0), windowOptions.get(1)
+  //4. same for charNgrams
+  //5. same for prefix suffix
+  //6. combine in createFeatureGenerator but create list of those iterating over every list of each type feature
+  //7. pass the list to the train method instead of of only one AdaptiveFeatureGenerator
+  public static void addCharNgramFeatures(final List<AdaptiveFeatureGenerator> featureList) {
     featureList.add(new CharacterNgramFeatureGenerator(2, 5));
   }
 
