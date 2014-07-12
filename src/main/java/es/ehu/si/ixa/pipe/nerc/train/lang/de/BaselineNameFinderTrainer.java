@@ -106,7 +106,7 @@ public class BaselineNameFinderTrainer extends AbstractNameFinderTrainer {
   public static void addTokenFeatures(final List<AdaptiveFeatureGenerator> featureList) {
     featureList.add(new Prefix34FeatureGenerator());
     featureList.add(new SuffixFeatureGenerator());
-    featureList.add(new CharacterNgramFeatureGenerator());
+    featureList.add(new CharacterNgramFeatureGenerator(2, 5));
   }
 
 }
