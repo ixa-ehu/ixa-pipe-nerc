@@ -349,23 +349,36 @@ public class CLI {
    * Create the main parameters available for training NERC models.
    */
   private void loadTrainingParameters() {
-    trainParser.addArgument("-f", "--features")
-        .choices("opennlp", "baseline", "dict").required(true)
+    trainParser
+        .addArgument("-f", "--features")
+        .choices("opennlp", "baseline", "dict")
+        .required(true)
         .help("Choose features to train NERC model\n");
     trainParser
         .addArgument("--dictPath")
+        .setDefault(DEFAULT_DICT_PATH)
         .required(false)
         .help(
             "Provide directory containing dictionaries for its use with dict featureset\n");
-    trainParser.addArgument("-p", "--params").required(true)
+    trainParser
+        .addArgument("-p", "--params")
+        .required(true)
         .help("Load the parameters file\n");
-    trainParser.addArgument("-i", "--trainSet").required(true)
+    trainParser
+        .addArgument("-i", "--trainSet")
+        .required(true)
         .help("Input training set\n");
-    trainParser.addArgument("-t", "--testSet").required(true)
+    trainParser
+        .addArgument("-t", "--testSet")
+        .required(true)
         .help("Input testset for evaluation\n");
-    trainParser.addArgument("-d", "--devSet").required(false)
+    trainParser
+        .addArgument("-d", "--devSet")
+        .required(false)
         .help("Input development set for cross-evaluation\n");
-    trainParser.addArgument("-o", "--output").required(false)
+    trainParser
+        .addArgument("-o", "--output")
+        .required(false)
         .help("Choose output file to save the annotation\n");
   }
 
