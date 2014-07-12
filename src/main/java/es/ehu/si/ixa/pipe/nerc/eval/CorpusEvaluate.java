@@ -3,12 +3,14 @@ package es.ehu.si.ixa.pipe.nerc.eval;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import opennlp.tools.namefind.NameSample;
 import opennlp.tools.namefind.NameSampleTypeFilter;
 import opennlp.tools.namefind.TokenNameFinderEvaluator;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.eval.FMeasure;
+import es.ehu.si.ixa.pipe.nerc.CLI;
 import es.ehu.si.ixa.pipe.nerc.train.AbstractNameFinderTrainer;
 
 /**
@@ -42,15 +44,18 @@ public class CorpusEvaluate {
    * @param corpusFormat the format of the testData corpus
    * @throws IOException if input data not available
    */
-  public CorpusEvaluate(final String referenceData, final String predictionData, final String lang,
-      final String corpusFormat, String netypes) throws IOException {
+  public CorpusEvaluate(final String predictionData, final Properties properties) throws IOException {
 
+    String referenceData = properties.getProperty("testSet");
+    String lang = properties.getProperty("lang");
+    String corpusFormat = properties.getProperty("corpusFormat");
+    String neTypes = properties.getProperty("neTypes");
     referenceSamples = AbstractNameFinderTrainer.getNameStream(referenceData, lang, corpusFormat);
     predictionSamples = AbstractNameFinderTrainer.getNameStream(predictionData, lang, corpusFormat);
-    if (netypes != null) {
-      String[] neTypes = netypes.split(",");
-      referenceSamples = new NameSampleTypeFilter(neTypes, referenceSamples);
-      predictionSamples = new NameSampleTypeFilter(neTypes, predictionSamples);
+    if (neTypes != CLI.DEFAULT_NE_TYPES) {
+      String[] neTypesArray = neTypes.split(",");
+      referenceSamples = new NameSampleTypeFilter(neTypesArray, referenceSamples);
+      predictionSamples = new NameSampleTypeFilter(neTypesArray, predictionSamples);
     }
   }
   

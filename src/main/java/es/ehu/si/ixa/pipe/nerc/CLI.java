@@ -94,6 +94,13 @@ public class CLI {
    * Default beam size for decoding.
    */
   public static final int DEFAULT_BEAM_SIZE = 3;
+  public static final String DEFAULT_EVALUATE_MODEL = "off";
+  public static final String DEFAULT_NE_TYPES = "off";
+  public static final String DEFAULT_FEATURES = "baseline";
+  public static final String DEFAULT_LEXER = "off";
+  public static final String DEFAULT_DICT_OPTION = "off";
+  public static final String DEFAULT_DICT_PATH = "off";
+  
   
   /**
    * Construct a CLI object with the three sub-parsers to manage the command
@@ -167,15 +174,10 @@ public class CLI {
 
     String features = parsedArguments.getString("features");
     int beamsize = parsedArguments.getInt("beamsize");
-    String gazetteerOption = parsedArguments.getString("dictionaries");
-    String ruleBasedOption = parsedArguments.getString("lexer");
+    String dictionariesOption = parsedArguments.getString("dictionaries");
+    String lexer = parsedArguments.getString("lexer");
     String dictPath = parsedArguments.getString("dictPath");
-    String model;
-    if (parsedArguments.getString("model") == null) {
-      model = "default";
-    } else {
-      model = parsedArguments.getString("model");
-    }
+    String model = parsedArguments.getString("model");
     BufferedReader breader = new BufferedReader(new InputStreamReader(
         inputStream, "UTF-8"));
     BufferedWriter bwriter = new BufferedWriter(new OutputStreamWriter(
@@ -192,7 +194,7 @@ public class CLI {
     KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor(
         "entities", "ixa-pipe-nerc-" + lang + "-" + model, version);
     newLp.setBeginTimestamp();
-    Properties properties = setAnnotateProperties(lang, model, features, beamsize, gazetteerOption, dictPath, ruleBasedOption);
+    Properties properties = setAnnotateProperties(lang, model, features, beamsize, dictionariesOption, dictPath, lexer);
       Annotate annotator = new Annotate(properties, beamsize);
       annotator.annotateNEsToKAF(kaf);
     newLp.setEndTimestamp();
@@ -268,13 +270,13 @@ public class CLI {
     int beamsize = parsedArguments.getInt("beamsize");
     String corpusFormat = parsedArguments.getString("corpusFormat");
     String neTypes = parsedArguments.getString("neTypes");
-    
-    if (parsedArguments.getString("model") != null) {
+    Properties properties = null;
+    if (parsedArguments.getString("model") != "nomodel") {
       Dictionaries dictionaries = null;
       if (dictPath != null) {
         dictionaries = new Dictionaries(dictPath);
       }
-      Properties properties = setEvaluateProperties(testSet, model, features,
+      properties = setEvaluateProperties(testSet, model, features,
           lang, beamsize, corpusFormat, neTypes);
       Evaluate evaluator = new Evaluate(properties, dictionaries);
       if (parsedArguments.getString("evalReport") != null) {
@@ -291,8 +293,8 @@ public class CLI {
         evaluator.detailEvaluate();
       }
     } else if (parsedArguments.getString("prediction") != null) {
-      CorpusEvaluate corpusEvaluator = new CorpusEvaluate(testSet, predFile,
-          lang, corpusFormat, neTypes);
+      CorpusEvaluate corpusEvaluator = new CorpusEvaluate(predFile,
+         properties);
       corpusEvaluator.evaluate();
     } else {
       System.err
@@ -305,13 +307,17 @@ public class CLI {
    */
   private void loadAnnotateParameters() {
     annotateParser.addArgument("-l", "--lang")
-        .choices("de", "en", "es", "it", "nl").required(false)
+        .choices("de", "en", "es", "it", "nl")
+        .required(false)
         .help("Choose a language to perform annotation with ixa-pipe-nerc\n");
     annotateParser.addArgument("-f", "--features")
-        .choices("opennlp", "baseline", "dict").required(false)
-        .setDefault("baseline")
+        .choices("opennlp", "baseline", "dict")
+        .required(false)
+        .setDefault(DEFAULT_FEATURES)
         .help("Choose features for NERC; it defaults to baseline\n");
-    annotateParser.addArgument("-m", "--model").required(false)
+    annotateParser.addArgument("-m", "--model")
+        .required(false)
+        .setDefault(DEFAULT_EVALUATE_MODEL)
         .help("Choose model to perform NERC annotation\n");
     annotateParser
         .addArgument("--beamsize")
@@ -322,13 +328,20 @@ public class CLI {
     annotateParser
         .addArgument("-d", "--dictionaries")
         .choices("tag", "post")
+        .setDefault(DEFAULT_DICT_OPTION)
         .required(false)
         .help(
             "Use gazetteers directly for tagging or "
                 + "for post-processing the probabilistic NERC output\n");
-    annotateParser.addArgument("--dictPath").required(false)
+    annotateParser.addArgument("--dictPath")
+        .setDefault(DEFAULT_DICT_PATH)
+        .required(false)
         .help("Path to the dictionaries if -d or -f dict options (or both) are chosen\n");
-    annotateParser.addArgument("--lexer").choices("numeric").required(false)
+    annotateParser
+        .addArgument("--lexer")
+        .choices("numeric")
+        .setDefault("DEFAULT_LEXER")
+        .required(false)
         .help("Use lexer rules for NERC tagging\n");
   }
 
@@ -360,35 +373,43 @@ public class CLI {
    * Create the parameters available for evaluation.
    */
   private void loadEvalParameters() {
-    evalParser.addArgument("-m", "--model").required(false)
-        .help("Choose model\n");
+    evalParser.addArgument("-m", "--model")
+        .required(false)
+        .setDefault(DEFAULT_EVALUATE_MODEL)
+        .help("Choose model or prediction file\n");
     evalParser.addArgument("-f", "--features")
-        .choices("opennlp", "baseline", "dict").required(true)
+        .choices("opennlp", "baseline", "dict")
+        .required(true)
         .help("Choose features for evaluation\n");
     evalParser
         .addArgument("--dictPath")
         .required(false)
         .help(
             "Path to the gazetteers for evaluation if dict features are used\n");
-    evalParser.addArgument("-l", "--lang").required(true)
+    evalParser.addArgument("-l", "--lang")
+        .required(true)
         .choices("de", "en", "es", "it", "nl")
         .help("Choose language to load model for evaluation\n");
-    evalParser.addArgument("-t", "--testSet").required(true)
+    evalParser.addArgument("-t", "--testSet")
+        .required(true)
         .help("Input testset for evaluation\n");
     evalParser
         .addArgument("--prediction")
         .required(false)
         .help(
             "Use this parameter to evaluate one prediction corpus against a reference corpus\n");
-    evalParser.addArgument("--evalReport").required(false)
+    evalParser.addArgument("--evalReport")
+        .required(false)
         .choices("brief", "detailed", "error")
         .help("Choose type of evaluation report; defaults to detailed\n");
-    evalParser.addArgument("-c", "--corpusFormat").setDefault("opennlp")
-        .choices("conll02", "conll03", "opennlp", "germEvalOuter2014", "germEvalInner2014").help("choose format input of corpus\n");
+    evalParser.addArgument("-c", "--corpusFormat")
+         .setDefault("opennlp")
+        .choices("conll02", "conll03", "opennlp", "germEvalOuter2014", "germEvalInner2014")
+        .help("choose format input of corpus\n");
     evalParser
         .addArgument("-n", "--neTypes")
         .required(false)
-        .setDefault("all")
+        .setDefault(DEFAULT_NE_TYPES)
         .help(
             "Choose ne types to do the evaluation; it defaults to all represented in the testset\n");
     evalParser

@@ -1,5 +1,6 @@
 package es.ehu.si.ixa.pipe.nerc.eval;
 
+import es.ehu.si.ixa.pipe.nerc.CLI;
 import es.ehu.si.ixa.pipe.nerc.StatisticalNameFinder;
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
 import es.ehu.si.ixa.pipe.nerc.train.AbstractNameFinderTrainer;
@@ -70,7 +71,7 @@ public class Evaluate {
     Integer beamsize = Integer.parseInt(properties.getProperty("beamsize"));
     
     testSamples = AbstractNameFinderTrainer.getNameStream(testSet, lang, corpusFormat);
-    if (neTypes != "all") {
+    if (neTypes != CLI.DEFAULT_NE_TYPES) {
       String[] neTypesArray = neTypes.split(",");
       testSamples = new NameSampleTypeFilter(neTypesArray, testSamples);
     }

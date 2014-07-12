@@ -279,7 +279,7 @@ public class StatisticalNameFinder implements NameFinder {
     InputStream trainedModelInputStream = null;
     try {
       if (!nercModels.containsKey(lang)) {
-        if (model.equalsIgnoreCase("default")) {
+        if (model.equalsIgnoreCase(CLI.DEFAULT_EVALUATE_MODEL)) {
           trainedModelInputStream = getDefaultModelStream(lang, model);
         } else {
           trainedModelInputStream = new FileInputStream(model);
