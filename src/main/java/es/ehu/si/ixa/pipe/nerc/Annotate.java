@@ -26,6 +26,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.util.Span;
@@ -79,52 +80,19 @@ public class Annotate {
   private boolean lexerFind;
 
   /**
-   * Construct a probabilistic annotator.
-   * 
-   * @param lang
-   *          the language
-   * @param model
-   *          the model
-   * @param features
-   *          the features
-   * @param beamsize
-   *          the beam size for decoding
+   * @param properties the properties
+   * @param beamsize the beamsize for decoding
+   * @throws IOException the io thrown 
    */
-  public Annotate(final String lang, final String model, final String features,
-      final int beamsize) {
-    if (model.equalsIgnoreCase("default")) {
-      System.err.println("No NERC model chosen, reverting to default model!");
+  public Annotate(final Properties properties, int beamsize) throws IOException {
+
+    if (properties.getProperty("model").equalsIgnoreCase("default")) {
+      System.err.println("Backing off to default model!");
     }
     nameFactory = new NameFactory();
-    nameFinder = new StatisticalNameFinder(lang, nameFactory, model, features,
-        beamsize);
-    statistical = true;
-  }
-
-  /**
-   * @param lang
-   *          the language
-   * @param model
-   *          the model chosen
-   * @param features
-   *          the features
-   * @param beamsize
-   *          the beamsize for decoding
-   * @param dictOption
-   *          choose dictTag or post-processing with dictionaries
-   * @param dictPath
-   *          the directory where the dictionaries are
-   * @param ruleBasedOption
-   *          which lexer to use
-   * @throws IOException 
-   */
-  public Annotate(final String lang, final String model, final String features,
-      final int beamsize, final String dictOption, final String dictPath,
-      final String ruleBasedOption) throws IOException {
-
-    nameFactory = new NameFactory();
-    dictionaryOptions(lang, model, features, beamsize, dictOption, dictPath, ruleBasedOption);
-    nonDictOptions(lang, model, features, beamsize, dictPath, ruleBasedOption);
+    dictionaryOptions(properties);
+    nonDictOptions(properties);
+    statisticalOptions(properties);
   }
   
   
@@ -144,27 +112,29 @@ public class Annotate {
    * @throws IOException 
    */
   //TODO surely we can simplify this?
-  private void dictionaryOptions(final String lang, final String model, final String features,
-        final int beamsize, final String dictOption, final String dictPath, final String ruleBasedOption) throws IOException {
-    if (dictPath != null) {
-      if (ruleBasedOption != null) {
+  private void dictionaryOptions(Properties properties) throws IOException {
+    String dictPath = properties.getProperty("dictPath");
+    String ruleBasedOption = properties.getProperty("ruleBasedOption");
+    String features = properties.getProperty("features");
+    Integer beamsize = Integer.parseInt(properties.getProperty("beamsize"));
+    
+    if (properties.get("dictPath") != null) {
+      if (properties.get("ruleBasedOption") != null) {
         lexerFind = true;
       }
-      dictionaries = new Dictionaries(dictPath);
-      if (dictOption != null) {
+      if (properties.getProperty("dictOption") != null) {
+        dictionaries = new Dictionaries(properties.getProperty("dictPath"));
         dictFinder = new DictionariesNameFinder(dictionaries, nameFactory);
-        if (dictOption.equalsIgnoreCase("tag")) {
+        if (properties.getProperty("dictOption").equalsIgnoreCase("tag")) {
           dictTag = true;
           postProcess = false;
           statistical = false;
         }
-        else if (dictOption.equalsIgnoreCase("post")) {
-          if (features.equalsIgnoreCase("dict")) {
-            nameFinder = new StatisticalNameFinder(lang, nameFactory, model,
-                features, beamsize, dictionaries);
+        else if (properties.getProperty("dictOption").equalsIgnoreCase("post")) {
+          if (properties.getProperty("features").equalsIgnoreCase("dict")) {
+            nameFinder = new StatisticalNameFinder(properties, dictionaries);
           } else {
-            nameFinder = new StatisticalNameFinder(lang, nameFactory, model,
-                features, beamsize);
+            nameFinder = new StatisticalNameFinder(properties);
           }
           statistical = true;
           postProcess = true;
@@ -172,8 +142,7 @@ public class Annotate {
         }
       } else {
         statistical = true;
-        nameFinder = new StatisticalNameFinder(lang, nameFactory, model,
-            features, beamsize, dictionaries);
+        nameFinder = new StatisticalNameFinder(properties, dictionaries);
         dictTag = false;
         postProcess = false;
       }
@@ -190,13 +159,38 @@ public class Annotate {
    * @param dictPath the directory containing the dictionaries
    * @param ruleBasedOption the lexer option
    */
-  private void nonDictOptions (final String lang, final String model, final String features,
-      final int beamsize, final String dictPath, final String ruleBasedOption) {
+  private void nonDictOptions (Properties properties) {
+    String dictPath = properties.getProperty("dictPath");
+    String ruleBasedOption = properties.getProperty("ruleBasedOption");
+    Integer beamsize = Integer.parseInt(properties.getProperty("beamsize"));
     
     if (dictPath == null && ruleBasedOption != null) {
-      nameFinder = new StatisticalNameFinder(lang, nameFactory, model,
-          features, beamsize);
+      nameFinder = new StatisticalNameFinder(properties, beamsize, nameFactory);
       lexerFind = true;
+      statistical = true;
+      dictTag = false;
+      postProcess = false;
+    }
+  }
+  
+  /**
+   * Generates the right options when dictionary-related name finders are not used.
+   * 
+   * @param lang the language
+   * @param model the model
+   * @param features the features
+   * @param beamsize the beamsize for decoding
+   * @param dictPath the directory containing the dictionaries
+   * @param ruleBasedOption the lexer option
+   */
+  private void statisticalOptions (Properties properties) {
+    String dictPath = properties.getProperty("dictPath");
+    String ruleBasedOption = properties.getProperty("ruleBasedOption");
+    Integer beamsize = Integer.parseInt(properties.getProperty("beamsize"));
+    
+    if (dictPath == null && ruleBasedOption == null) {
+      nameFinder = new StatisticalNameFinder(properties, beamsize, nameFactory);
+      lexerFind = false;
       statistical = true;
       dictTag = false;
       postProcess = false;

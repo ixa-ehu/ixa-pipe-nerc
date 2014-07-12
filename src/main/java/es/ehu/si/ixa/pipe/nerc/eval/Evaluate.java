@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 
 import opennlp.tools.cmdline.namefind.NameEvaluationErrorListener;
 import opennlp.tools.cmdline.namefind.TokenNameFinderDetailedFMeasureListener;
@@ -58,13 +59,20 @@ public class Evaluate {
    * @param corpusFormat the format of the testData corpus
    * @throws IOException if input data not available
    */
-  public Evaluate(final Dictionaries dictionaries, final String testData, final String model, final String features, final String lang,
-      final int beamsize, final String corpusFormat, String netypes) throws IOException {
+  public Evaluate(final Properties properties, final Dictionaries dictionaries) throws IOException {
     
-    testSamples = AbstractNameFinderTrainer.getNameStream(testData, lang, corpusFormat);
-    if (netypes != null) {
-      String[] neTypes = netypes.split(",");
-      testSamples = new NameSampleTypeFilter(neTypes, testSamples);
+    String testSet = properties.getProperty("testSet");
+    String lang = properties.getProperty("lang");
+    String corpusFormat = properties.getProperty("corpusFormat");
+    String neTypes = properties.getProperty("neTypes");
+    String model = properties.getProperty("model");
+    String features = properties.getProperty("features");
+    Integer beamsize = Integer.parseInt(properties.getProperty("beamsize"));
+    
+    testSamples = AbstractNameFinderTrainer.getNameStream(testSet, lang, corpusFormat);
+    if (neTypes != "all") {
+      String[] neTypesArray = neTypes.split(",");
+      testSamples = new NameSampleTypeFilter(neTypesArray, testSamples);
     }
     InputStream trainedModelInputStream = null;
     try {
@@ -88,7 +96,7 @@ public class Evaluate {
       nameFinderTrainer = chooseDictTrainer(lang, dictionaries, beamsize);
     }
     else {
-      StatisticalNameFinder statFinder = new StatisticalNameFinder(lang, model, features);
+      StatisticalNameFinder statFinder = new StatisticalNameFinder(properties, beamsize);
       nameFinderTrainer = statFinder.getNameFinderTrainer(lang, features, beamsize);
     }
     nameFinder = new NameFinderME(nercModel, nameFinderTrainer.createFeatureGenerator(), beamsize);

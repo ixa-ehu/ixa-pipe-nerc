@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.util.Properties;
 
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
@@ -191,18 +192,9 @@ public class CLI {
     KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor(
         "entities", "ixa-pipe-nerc-" + lang + "-" + model, version);
     newLp.setBeginTimestamp();
-
-    if (gazetteerOption != null || 
-        ruleBasedOption != null || 
-        dictPath != null || 
-        features.equalsIgnoreCase("dict")) {
-      Annotate annotator = new Annotate(lang, model, features, beamsize, gazetteerOption, dictPath,
-          ruleBasedOption);
+    Properties properties = setAnnotateProperties(lang, model, features, beamsize, gazetteerOption, dictPath, ruleBasedOption);
+      Annotate annotator = new Annotate(properties, beamsize);
       annotator.annotateNEsToKAF(kaf);
-    } else {
-      Annotate annotator = new Annotate(lang, model, features, beamsize);
-      annotator.annotateNEsToKAF(kaf);
-    }
     newLp.setEndTimestamp();
     bwriter.write(kaf.toString());
     bwriter.close();
@@ -282,8 +274,9 @@ public class CLI {
       if (dictPath != null) {
         dictionaries = new Dictionaries(dictPath);
       }
-      Evaluate evaluator = new Evaluate(dictionaries, testSet, model, features,
+      Properties properties = setEvaluateProperties(testSet, model, features,
           lang, beamsize, corpusFormat, neTypes);
+      Evaluate evaluator = new Evaluate(properties, dictionaries);
       if (parsedArguments.getString("evalReport") != null) {
         if (parsedArguments.getString("evalReport").equalsIgnoreCase("brief")) {
           evaluator.evaluate();
@@ -395,6 +388,7 @@ public class CLI {
     evalParser
         .addArgument("-n", "--neTypes")
         .required(false)
+        .setDefault("all")
         .help(
             "Choose ne types to do the evaluation; it defaults to all represented in the testset\n");
     evalParser
@@ -463,6 +457,31 @@ public class CLI {
       }
     }
     return nercTrainer;
+  }
+  
+  private Properties setAnnotateProperties(String lang, String model, String features, int beamsize, String gazetteerOption, String dictPath, String ruleBasedOption) {
+    Properties annotateProperties = new Properties();
+    annotateProperties.setProperty("lang", lang);
+    annotateProperties.setProperty("model", model);
+    annotateProperties.setProperty("features", features);
+    annotateProperties.setProperty("beamsize", Integer.toString(beamsize));
+    annotateProperties.setProperty("gazetteerOption", gazetteerOption);
+    annotateProperties.setProperty("dictPath", dictPath);
+    annotateProperties.setProperty("ruleBasedOption", ruleBasedOption);
+    return annotateProperties;
+    
+  }
+  
+  private Properties setEvaluateProperties(String testSet, String model, String features, String lang, int beamsize, String corpusFormat, String neTypes) {
+    Properties evaluateProperties = new Properties();
+    evaluateProperties.setProperty("testSet", testSet);
+    evaluateProperties.setProperty("model", model);
+    evaluateProperties.setProperty("features", features);
+    evaluateProperties.setProperty("lang", lang);
+    evaluateProperties.setProperty("beamsize", Integer.toString(beamsize));
+    evaluateProperties.setProperty("corpusFormat", corpusFormat);
+    evaluateProperties.setProperty("neTypes", neTypes);
+    return evaluateProperties;
   }
 
 }

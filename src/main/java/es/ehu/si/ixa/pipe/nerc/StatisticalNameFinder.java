@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 import opennlp.tools.namefind.NameFinderME;
@@ -62,19 +63,14 @@ public class StatisticalNameFinder implements NameFinder {
   private NameFinderTrainer nameFinderTrainer;
 
   /**
-   * Construct a StatisticalNameFinder without name factory.
-   *
-   * @param lang
-   *          the language
-   * @param model
-   *          the name of the model to be used
-   * @param features
-   *          the features
-   * @param beamsize
-   *          the beam size decoding
+   * Construct a probabilistic name finder specifying lang, model and beamsize.
+   * @param properties the properties to be loaded
+   * @param beamsize the beamsize for decoding
    */
-  public StatisticalNameFinder(final String lang, final String model,
-      final String features, final int beamsize) {
+  public StatisticalNameFinder(final Properties properties, final int beamsize) {
+    String lang = properties.getProperty("lang");
+    String model = properties.getProperty("model");
+    String features = properties.getProperty("features");
 
     TokenNameFinderModel nerModel = loadModel(lang, model);
     nameFinderTrainer = getNameFinderTrainer(lang, features, beamsize);
@@ -85,13 +81,10 @@ public class StatisticalNameFinder implements NameFinder {
   /**
    * Construct a StatisticalNameFinder without name factory and with
    * default beam size.
-   *
-   * @param lang the language
-   * @param model the model
-   * @param features the features
+   * @param properties the properties
    */
-  public StatisticalNameFinder(final String lang, final String model, final String features) {
-    this(lang, model, features, CLI.DEFAULT_BEAM_SIZE);
+  public StatisticalNameFinder(final Properties properties) {
+    this(properties, CLI.DEFAULT_BEAM_SIZE);
   }
   
   /**
@@ -108,9 +101,10 @@ public class StatisticalNameFinder implements NameFinder {
    * @param dictPath the directory containing the dictionaries
    * @throws IOException 
    */
-  public StatisticalNameFinder(final String lang, final String model,
-      final String features, final int beamsize, final Dictionaries dictionaries) throws IOException {
+  public StatisticalNameFinder(final Properties properties, final int beamsize, final Dictionaries dictionaries) throws IOException {
 
+    String lang = properties.getProperty("lang");
+    String model = properties.getProperty("model");
     TokenNameFinderModel nerModel = loadModel(lang, model);
     nameFinderTrainer = Evaluate.chooseDictTrainer(lang, dictionaries, beamsize);
     nameFinder = new NameFinderME(nerModel,
@@ -118,16 +112,13 @@ public class StatisticalNameFinder implements NameFinder {
   }
 
   /**
-   * Construct a StatisticalNameFinder without name factory and with
-   * default beam size.
-   *
-   * @param lang the language
-   * @param model the model
-   * @param features the features
-   * @throws IOException 
+   * Construct a name finder with default beamsize and dictionary features.
+   * @param properties the properties
+   * @param dictionaries the dictionaries
+   * @throws IOException throw io exception
    */
-  public StatisticalNameFinder(final String lang, final String model, final String features, final Dictionaries dictionaries) throws IOException {
-    this(lang, model, features, CLI.DEFAULT_BEAM_SIZE, dictionaries);
+  public StatisticalNameFinder(final Properties properties, final Dictionaries dictionaries) throws IOException {
+    this(properties, CLI.DEFAULT_BEAM_SIZE, dictionaries);
   }
 
   /**
@@ -135,15 +126,15 @@ public class StatisticalNameFinder implements NameFinder {
    * a name factory, the model, the features and the beam size for
    * decoding.
    *
-   * @param lang the language
-   * @param aNameFactory the name factory to construct Name objects
-   * @param model the model
-   * @param features the features
+   * @param properties the properties
    * @param beamsize the beam size for decoding
+   * @param aNameFactory the name factory to construct Name objects
    */
-  public StatisticalNameFinder(final String lang, final NameFactory aNameFactory,
-      final String model, final String features, final int beamsize) {
+  public StatisticalNameFinder(final Properties properties, final int beamsize, final NameFactory aNameFactory) {
 
+    String lang = properties.getProperty("lang");
+    String model = properties.getProperty("model");
+    String features = properties.getProperty("features");
     this.nameFactory = aNameFactory;
     TokenNameFinderModel nerModel = loadModel(lang, model);
     nameFinderTrainer = getNameFinderTrainer(lang, features, beamsize);
@@ -156,14 +147,11 @@ public class StatisticalNameFinder implements NameFinder {
    * Construct a StatisticalNameFinder with name factory and
    * with default beam size.
    *
-   * @param lang the language
+   * @param properties the properties
    * @param aNameFactory the name factory
-   * @param model the model
-   * @param features the features
    */
-  public StatisticalNameFinder(final String lang, final NameFactory aNameFactory,
-      final String model, final String features) {
-    this(lang, aNameFactory, model, features, CLI.DEFAULT_BEAM_SIZE);
+  public StatisticalNameFinder(final Properties properties, final NameFactory aNameFactory) {
+    this(properties, CLI.DEFAULT_BEAM_SIZE, aNameFactory);
   }
 
   /**
