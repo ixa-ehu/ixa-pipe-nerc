@@ -52,7 +52,7 @@ public class CorpusEvaluate {
     String neTypes = properties.getProperty("neTypes");
     referenceSamples = AbstractNameFinderTrainer.getNameStream(referenceData, lang, corpusFormat);
     predictionSamples = AbstractNameFinderTrainer.getNameStream(predictionData, lang, corpusFormat);
-    if (neTypes != CLI.DEFAULT_NE_TYPES) {
+    if (!neTypes.equals(CLI.DEFAULT_NE_TYPES)) {
       String[] neTypesArray = neTypes.split(",");
       referenceSamples = new NameSampleTypeFilter(neTypesArray, referenceSamples);
       predictionSamples = new NameSampleTypeFilter(neTypesArray, predictionSamples);

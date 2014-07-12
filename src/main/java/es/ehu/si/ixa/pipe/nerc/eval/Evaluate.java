@@ -71,7 +71,7 @@ public class Evaluate {
     Integer beamsize = Integer.parseInt(properties.getProperty("beamsize"));
     
     testSamples = AbstractNameFinderTrainer.getNameStream(testSet, lang, corpusFormat);
-    if (neTypes != CLI.DEFAULT_NE_TYPES) {
+    if (!neTypes.equals(CLI.DEFAULT_NE_TYPES)) {
       String[] neTypesArray = neTypes.split(",");
       testSamples = new NameSampleTypeFilter(neTypesArray, testSamples);
     }

@@ -271,9 +271,9 @@ public class CLI {
     String corpusFormat = parsedArguments.getString("corpusFormat");
     String neTypes = parsedArguments.getString("neTypes");
     Properties properties = null;
-    if (parsedArguments.getString("model") != "nomodel") {
+    if (!parsedArguments.getString("model").equals(DEFAULT_EVALUATE_MODEL)) {
       Dictionaries dictionaries = null;
-      if (dictPath != null) {
+      if (!dictPath.equals(DEFAULT_DICT_PATH)) {
         dictionaries = new Dictionaries(dictPath);
       }
       properties = setEvaluateProperties(testSet, model, features,
@@ -340,7 +340,7 @@ public class CLI {
     annotateParser
         .addArgument("--lexer")
         .choices("numeric")
-        .setDefault("DEFAULT_LEXER")
+        .setDefault(DEFAULT_LEXER)
         .required(false)
         .help("Use lexer rules for NERC tagging\n");
   }
@@ -480,13 +480,13 @@ public class CLI {
     return nercTrainer;
   }
   
-  private Properties setAnnotateProperties(String lang, String model, String features, int beamsize, String gazetteerOption, String dictPath, String ruleBasedOption) {
+  private Properties setAnnotateProperties(String lang, String model, String features, int beamsize, String dictOption, String dictPath, String ruleBasedOption) {
     Properties annotateProperties = new Properties();
     annotateProperties.setProperty("lang", lang);
     annotateProperties.setProperty("model", model);
     annotateProperties.setProperty("features", features);
     annotateProperties.setProperty("beamsize", Integer.toString(beamsize));
-    annotateProperties.setProperty("gazetteerOption", gazetteerOption);
+    annotateProperties.setProperty("dictOption", dictOption);
     annotateProperties.setProperty("dictPath", dictPath);
     annotateProperties.setProperty("ruleBasedOption", ruleBasedOption);
     return annotateProperties;

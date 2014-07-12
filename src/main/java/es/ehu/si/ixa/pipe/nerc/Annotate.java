@@ -115,26 +115,27 @@ public class Annotate {
   private void dictionaryOptions(Properties properties) throws IOException {
     String dictPath = properties.getProperty("dictPath");
     String ruleBasedOption = properties.getProperty("ruleBasedOption");
+    String dictOption = properties.getProperty("dictOption");
     String features = properties.getProperty("features");
     Integer beamsize = Integer.parseInt(properties.getProperty("beamsize"));
     
-    if (properties.get("dictPath") != null) {
-      if (properties.get("ruleBasedOption") != null) {
+    if (!dictPath.equals(CLI.DEFAULT_DICT_PATH)) {
+      if (!ruleBasedOption.equals(CLI.DEFAULT_LEXER)) {
         lexerFind = true;
       }
-      if (properties.getProperty("dictOption") != null) {
-        dictionaries = new Dictionaries(properties.getProperty("dictPath"));
+      dictionaries = new Dictionaries(dictPath);
+      if (!dictOption.equals(CLI.DEFAULT_DICT_OPTION)) {
         dictFinder = new DictionariesNameFinder(dictionaries, nameFactory);
-        if (properties.getProperty("dictOption").equalsIgnoreCase("tag")) {
+        if (dictOption.equalsIgnoreCase("tag")) {
           dictTag = true;
           postProcess = false;
           statistical = false;
         }
-        else if (properties.getProperty("dictOption").equalsIgnoreCase("post")) {
-          if (properties.getProperty("features").equalsIgnoreCase("dict")) {
-            nameFinder = new StatisticalNameFinder(properties, dictionaries);
+        else if (dictOption.equalsIgnoreCase("post")) {
+          if (features.equalsIgnoreCase("dict")) {
+            nameFinder = new StatisticalNameFinder(properties, beamsize, dictionaries, nameFactory);
           } else {
-            nameFinder = new StatisticalNameFinder(properties);
+            nameFinder = new StatisticalNameFinder(properties, beamsize, nameFactory);
           }
           statistical = true;
           postProcess = true;
@@ -142,7 +143,7 @@ public class Annotate {
         }
       } else {
         statistical = true;
-        nameFinder = new StatisticalNameFinder(properties, dictionaries);
+        nameFinder = new StatisticalNameFinder(properties, beamsize, dictionaries, nameFactory);
         dictTag = false;
         postProcess = false;
       }
@@ -164,7 +165,7 @@ public class Annotate {
     String ruleBasedOption = properties.getProperty("ruleBasedOption");
     Integer beamsize = Integer.parseInt(properties.getProperty("beamsize"));
     
-    if (dictPath == null && ruleBasedOption != null) {
+    if (dictPath.equals(CLI.DEFAULT_DICT_PATH) && !ruleBasedOption.equals(CLI.DEFAULT_LEXER)) {
       nameFinder = new StatisticalNameFinder(properties, beamsize, nameFactory);
       lexerFind = true;
       statistical = true;
@@ -185,10 +186,11 @@ public class Annotate {
    */
   private void statisticalOptions (Properties properties) {
     String dictPath = properties.getProperty("dictPath");
+    String dictOption = properties.getProperty("dictOption");
     String ruleBasedOption = properties.getProperty("ruleBasedOption");
     Integer beamsize = Integer.parseInt(properties.getProperty("beamsize"));
     
-    if (dictPath == null && ruleBasedOption == null) {
+    if (dictPath.equals(CLI.DEFAULT_DICT_PATH) && dictOption.equals(CLI.DEFAULT_DICT_OPTION) && ruleBasedOption.equals(CLI.DEFAULT_DICT_PATH)) {
       nameFinder = new StatisticalNameFinder(properties, beamsize, nameFactory);
       lexerFind = false;
       statistical = true;

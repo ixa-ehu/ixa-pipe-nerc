@@ -167,9 +167,10 @@ public class StatisticalNameFinder implements NameFinder {
    * @param dictPath the path to the dictionaries
    * @throws IOException 
    */
-  public StatisticalNameFinder(final String lang, final NameFactory aNameFactory,
-      final String model, final String features, final int beamsize, final Dictionaries dictionaries) throws IOException {
+  public StatisticalNameFinder(final Properties properties, final int beamsize, final Dictionaries dictionaries, final NameFactory aNameFactory) throws IOException {
 
+    String lang = properties.getProperty("lang");
+    String model = properties.getProperty("model");
     this.nameFactory = aNameFactory;
     TokenNameFinderModel nerModel = loadModel(lang, model);
     nameFinderTrainer = Evaluate.chooseDictTrainer(lang, dictionaries, beamsize);
@@ -188,9 +189,8 @@ public class StatisticalNameFinder implements NameFinder {
    * @param features the features
    * @throws IOException 
    */
-  public StatisticalNameFinder(final String lang, final NameFactory aNameFactory,
-      final String model, final String features, final Dictionaries dictionaries) throws IOException {
-    this(lang, aNameFactory, model, features, CLI.DEFAULT_BEAM_SIZE, dictionaries);
+  public StatisticalNameFinder(final Properties properties, Dictionaries dictionaries, final NameFactory aNameFactory) throws IOException {
+    this(properties, CLI.DEFAULT_BEAM_SIZE, dictionaries, aNameFactory);
   }
 
   
