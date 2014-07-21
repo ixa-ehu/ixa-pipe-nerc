@@ -4,6 +4,8 @@ import es.ehu.si.ixa.pipe.nerc.CLI;
 import es.ehu.si.ixa.pipe.nerc.StatisticalNameFinder;
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
 import es.ehu.si.ixa.pipe.nerc.train.AbstractNameFinderTrainer;
+import es.ehu.si.ixa.pipe.nerc.train.CorpusSample;
+import es.ehu.si.ixa.pipe.nerc.train.CorpusSampleTypeFilter;
 import es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer;
 
 import java.io.FileInputStream;
@@ -16,8 +18,6 @@ import java.util.Properties;
 import opennlp.tools.cmdline.namefind.NameEvaluationErrorListener;
 import opennlp.tools.cmdline.namefind.TokenNameFinderDetailedFMeasureListener;
 import opennlp.tools.namefind.NameFinderME;
-import opennlp.tools.namefind.NameSample;
-import opennlp.tools.namefind.NameSampleTypeFilter;
 import opennlp.tools.namefind.TokenNameFinderEvaluationMonitor;
 import opennlp.tools.namefind.TokenNameFinderEvaluator;
 import opennlp.tools.namefind.TokenNameFinderModel;
@@ -35,7 +35,7 @@ public class Evaluate {
   /**
    * The reference corpus to evaluate against.
    */
-  private ObjectStream<NameSample> testSamples;
+  private ObjectStream<CorpusSample> testSamples;
   /**
    * Static instance of {@link TokenNameFinderModel}.
    */
@@ -73,7 +73,7 @@ public class Evaluate {
     testSamples = AbstractNameFinderTrainer.getNameStream(testSet, lang, corpusFormat);
     if (!neTypes.equals(CLI.DEFAULT_NE_TYPES)) {
       String[] neTypesArray = neTypes.split(",");
-      testSamples = new NameSampleTypeFilter(neTypesArray, testSamples);
+      testSamples = new CorpusSampleTypeFilter(neTypesArray, testSamples);
     }
     InputStream trainedModelInputStream = null;
     try {
@@ -119,7 +119,7 @@ public class Evaluate {
    * @throws IOException if test corpus not loaded
    */
   public final void detailEvaluate() throws IOException {
-    List<EvaluationMonitor<NameSample>> listeners = new LinkedList<EvaluationMonitor<NameSample>>();
+    List<EvaluationMonitor<CorpusSample>> listeners = new LinkedList<EvaluationMonitor<CorpusSample>>();
     TokenNameFinderDetailedFMeasureListener detailedFListener = new TokenNameFinderDetailedFMeasureListener();
     listeners.add(detailedFListener);
     TokenNameFinderEvaluator evaluator = new TokenNameFinderEvaluator(nameFinder,
@@ -132,7 +132,7 @@ public class Evaluate {
    * @throws IOException if test corpus not loaded
    */
   public final void evalError() throws IOException {
-    List<EvaluationMonitor<NameSample>> listeners = new LinkedList<EvaluationMonitor<NameSample>>();
+    List<EvaluationMonitor<CorpusSample>> listeners = new LinkedList<EvaluationMonitor<CorpusSample>>();
     listeners.add(new NameEvaluationErrorListener());
     TokenNameFinderEvaluator evaluator = new TokenNameFinderEvaluator(nameFinder,
         listeners.toArray(new TokenNameFinderEvaluationMonitor[listeners.size()]));

@@ -23,7 +23,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import opennlp.tools.namefind.NameSample;
+import es.ehu.si.ixa.pipe.nerc.train.CorpusSample;
+
 import opennlp.tools.util.InvalidFormatException;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
@@ -45,7 +46,7 @@ import opennlp.tools.util.StringUtil;
  * <b>Note:</b> Do not use this class, internal use only!
  */
 
-public class GermEval2014OuterNameStream implements ObjectStream<NameSample> {
+public class GermEval2014OuterNameStream implements ObjectStream<CorpusSample> {
 
   public static final String DOCSTART = "#";
   private final ObjectStream<String> lineStream;
@@ -61,10 +62,8 @@ public class GermEval2014OuterNameStream implements ObjectStream<NameSample> {
 
   /**
    * Construct a Name Stream from a language and an input stream.
-   * 
    * @param in
    *          an input stream to read data
-   * @throws IOException
    *           the input stream exception
    */
   public GermEval2014OuterNameStream(InputStream in) {
@@ -78,7 +77,7 @@ public class GermEval2014OuterNameStream implements ObjectStream<NameSample> {
     }
   }
 
-  public NameSample read() throws IOException {
+  public CorpusSample read() throws IOException {
 
     List<String> tokens = new ArrayList<String>();
     List<String> neTypes = new ArrayList<String>();
@@ -92,9 +91,9 @@ public class GermEval2014OuterNameStream implements ObjectStream<NameSample> {
         continue;
       }
       String fields[] = line.split("\t");
-      if (fields.length == 4) {
-        tokens.add(fields[1]);
-        neTypes.add(fields[2]);
+      if (fields.length == 6) {
+        tokens.add(fields[2]);
+        neTypes.add(fields[4]);
       } else {
         throw new IOException(
             "Expected four fields per line in training data, got "
@@ -133,7 +132,7 @@ public class GermEval2014OuterNameStream implements ObjectStream<NameSample> {
       if (beginIndex != -1)
         names.add(extract(beginIndex, endIndex, neTypes.get(beginIndex)));
 
-      return new NameSample(tokens.toArray(new String[tokens.size()]),
+      return new CorpusSample(tokens.toArray(new String[tokens.size()]),
           names.toArray(new Span[names.size()]), isClearAdaptiveData);
     } else if (line != null) {
       // Just filter out empty events, if two lines in a row are empty

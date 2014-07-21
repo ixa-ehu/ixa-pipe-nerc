@@ -21,15 +21,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import opennlp.tools.util.featuregen.AdaptiveFeatureGenerator;
-import opennlp.tools.util.featuregen.BigramNameFeatureGenerator;
-import opennlp.tools.util.featuregen.CachedFeatureGenerator;
-import opennlp.tools.util.featuregen.OutcomePriorFeatureGenerator;
-import opennlp.tools.util.featuregen.PreviousMapFeatureGenerator;
-import opennlp.tools.util.featuregen.SentenceFeatureGenerator;
-import opennlp.tools.util.featuregen.TokenFeatureGenerator;
-import opennlp.tools.util.featuregen.WindowFeatureGenerator;
+import es.ehu.si.ixa.pipe.nerc.features.AdaptiveFeatureGenerator;
+import es.ehu.si.ixa.pipe.nerc.features.BigramFeatureGenerator;
+import es.ehu.si.ixa.pipe.nerc.features.CachedFeatureGenerator;
+import es.ehu.si.ixa.pipe.nerc.features.OutcomePriorFeatureGenerator;
+import es.ehu.si.ixa.pipe.nerc.features.PreviousMapFeatureGenerator;
+import es.ehu.si.ixa.pipe.nerc.features.SentenceFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.TokenClassFeatureGenerator;
+import es.ehu.si.ixa.pipe.nerc.features.TokenFeatureGenerator;
+import es.ehu.si.ixa.pipe.nerc.features.WindowFeatureGenerator;
 
 /**
  * Training NER based on Apache OpenNLP Machine Learning API. These are the
@@ -80,7 +80,7 @@ public class DefaultNameFinderTrainer extends AbstractNameFinderTrainer {
         new WindowFeatureGenerator(new TokenFeatureGenerator(), 2, 2),
         new WindowFeatureGenerator(new TokenClassFeatureGenerator(true), 2, 2),
         new OutcomePriorFeatureGenerator(), new PreviousMapFeatureGenerator(),
-        new BigramNameFeatureGenerator(), new SentenceFeatureGenerator(true,
+        new BigramFeatureGenerator(), new SentenceFeatureGenerator(true,
             false)));
     return featuresList;
   }

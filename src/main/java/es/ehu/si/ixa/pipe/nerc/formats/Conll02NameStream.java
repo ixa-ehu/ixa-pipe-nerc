@@ -23,7 +23,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import opennlp.tools.namefind.NameSample;
+import es.ehu.si.ixa.pipe.nerc.train.CorpusSample;
+
 import opennlp.tools.util.InvalidFormatException;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
@@ -45,7 +46,7 @@ import opennlp.tools.util.StringUtil;
  * <p>
  * <b>Note:</b> Do not use this class, internal use only!
  */
-public class Conll02NameStream implements ObjectStream<NameSample>{
+public class Conll02NameStream implements ObjectStream<CorpusSample>{
   
   public static final String DOCSTART = "-DOCSTART-";
 	
@@ -82,7 +83,7 @@ public class Conll02NameStream implements ObjectStream<NameSample>{
   }
 
   
-  public NameSample read() throws IOException {
+  public CorpusSample read() throws IOException {
 
     List<String> sentence = new ArrayList<String>();
     List<String> tags = new ArrayList<String>();
@@ -156,7 +157,7 @@ public class Conll02NameStream implements ObjectStream<NameSample>{
       if (beginIndex != -1)
         names.add(extract(beginIndex, endIndex, tags.get(beginIndex)));
       
-      return new NameSample(sentence.toArray(new String[sentence.size()]), names.toArray(new Span[names.size()]), isClearAdaptiveData);
+      return new CorpusSample(sentence.toArray(new String[sentence.size()]), names.toArray(new Span[names.size()]), isClearAdaptiveData);
     }
     else if (line != null) {
       // Just filter out empty events, if two lines in a row are empty

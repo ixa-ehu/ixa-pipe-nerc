@@ -21,7 +21,6 @@ import es.ehu.si.ixa.pipe.nerc.NameFinder;
 import java.util.List;
 
 import opennlp.tools.util.Span;
-import opennlp.tools.util.featuregen.FeatureGeneratorAdapter;
 
 /**
  * Generates features if the tokens are recognized by the provided

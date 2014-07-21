@@ -32,10 +32,6 @@ package es.ehu.si.ixa.pipe.nerc.features;/*
 
 import java.util.List;
 
-
-import opennlp.tools.util.featuregen.FeatureGeneratorAdapter;
-
-
 public class TokenClassFeatureGenerator extends FeatureGeneratorAdapter {
 
   private static final String TOKEN_CLASS_PREFIX = "wc";
