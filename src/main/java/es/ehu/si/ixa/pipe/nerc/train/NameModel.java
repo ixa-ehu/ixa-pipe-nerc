@@ -1,6 +1,5 @@
 package es.ehu.si.ixa.pipe.nerc.train;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,8 +9,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import es.ehu.si.ixa.pipe.nerc.features.AdaptiveFeatureGenerator;
 
 import opennlp.model.AbstractModel;
 import opennlp.model.MaxentModel;

@@ -10,6 +10,9 @@ import es.ehu.si.ixa.pipe.nerc.features.FeatureGeneratorUtil;
 import es.ehu.si.ixa.pipe.nerc.features.NameContextGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.OutcomePriorFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.PreviousMapFeatureGenerator;
+import es.ehu.si.ixa.pipe.nerc.features.WindowFeatureGenerator;
+import es.ehu.si.ixa.pipe.nerc.features.TokenFeatureGenerator;
+import es.ehu.si.ixa.pipe.nerc.features.TokenClassFeatureGenerator;
 
 
 /**

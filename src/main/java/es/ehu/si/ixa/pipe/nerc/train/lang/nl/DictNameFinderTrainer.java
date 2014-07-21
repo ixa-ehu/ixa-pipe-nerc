@@ -19,10 +19,10 @@ package es.ehu.si.ixa.pipe.nerc.train.lang.nl;
 import java.io.IOException;
 import java.util.List;
 
-import opennlp.tools.util.featuregen.AdaptiveFeatureGenerator;
-import opennlp.tools.util.featuregen.CachedFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
+import es.ehu.si.ixa.pipe.nerc.features.AdaptiveFeatureGenerator;
+import es.ehu.si.ixa.pipe.nerc.features.CachedFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.DictionaryFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.train.AbstractNameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.DefaultNameFinderTrainer;

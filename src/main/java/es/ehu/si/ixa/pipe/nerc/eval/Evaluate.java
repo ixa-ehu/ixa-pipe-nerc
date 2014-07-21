@@ -6,7 +6,9 @@ import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
 import es.ehu.si.ixa.pipe.nerc.train.AbstractNameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.CorpusSample;
 import es.ehu.si.ixa.pipe.nerc.train.CorpusSampleTypeFilter;
+import es.ehu.si.ixa.pipe.nerc.train.NameClassifier;
 import es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer;
+import es.ehu.si.ixa.pipe.nerc.train.NameModel;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -15,12 +17,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
-import opennlp.tools.cmdline.namefind.NameEvaluationErrorListener;
-import opennlp.tools.cmdline.namefind.TokenNameFinderDetailedFMeasureListener;
-import opennlp.tools.namefind.NameFinderME;
-import opennlp.tools.namefind.TokenNameFinderEvaluationMonitor;
-import opennlp.tools.namefind.TokenNameFinderEvaluator;
-import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.eval.EvaluationMonitor;
 
@@ -39,7 +35,7 @@ public class Evaluate {
   /**
    * Static instance of {@link TokenNameFinderModel}.
    */
-  private static TokenNameFinderModel nercModel;
+  private static NameModel nercModel;
   /**
    * The name finder trainer to use for appropriate features.
    */
@@ -47,7 +43,7 @@ public class Evaluate {
   /**
    * An instance of the probabilistic {@link NameFinderME}.
    */
-  private NameFinderME nameFinder;
+  private NameClassifier nameFinder;
  
   /**
    * Construct an evaluator.
@@ -79,7 +75,7 @@ public class Evaluate {
     try {
       if (nercModel == null) {
         trainedModelInputStream = new FileInputStream(model);
-        nercModel = new TokenNameFinderModel(trainedModelInputStream);
+        nercModel = new NameModel(trainedModelInputStream);
       }
     } catch (IOException e) {
       e.printStackTrace();
@@ -100,7 +96,7 @@ public class Evaluate {
       StatisticalNameFinder statFinder = new StatisticalNameFinder(properties, beamsize);
       nameFinderTrainer = statFinder.getNameFinderTrainer(lang, features, beamsize);
     }
-    nameFinder = new NameFinderME(nercModel, nameFinderTrainer.createFeatureGenerator(), beamsize);
+    nameFinder = new NameClassifier(nercModel, nameFinderTrainer.createFeatureGenerator(), beamsize);
   }
 
   /**
@@ -108,7 +104,7 @@ public class Evaluate {
    * @throws IOException if test corpus not loaded
    */
   public final void evaluate() throws IOException {
-    TokenNameFinderEvaluator evaluator = new TokenNameFinderEvaluator(nameFinder);
+    NameFinderEvaluator evaluator = new NameFinderEvaluator(nameFinder);
     evaluator.evaluate(testSamples);
     System.out.println(evaluator.getFMeasure());
   }
@@ -120,10 +116,10 @@ public class Evaluate {
    */
   public final void detailEvaluate() throws IOException {
     List<EvaluationMonitor<CorpusSample>> listeners = new LinkedList<EvaluationMonitor<CorpusSample>>();
-    TokenNameFinderDetailedFMeasureListener detailedFListener = new TokenNameFinderDetailedFMeasureListener();
+    NameFinderDetailedFMeasureListener detailedFListener = new NameFinderDetailedFMeasureListener();
     listeners.add(detailedFListener);
-    TokenNameFinderEvaluator evaluator = new TokenNameFinderEvaluator(nameFinder,
-        listeners.toArray(new TokenNameFinderEvaluationMonitor[listeners.size()]));
+    NameFinderEvaluator evaluator = new NameFinderEvaluator(nameFinder,
+        listeners.toArray(new NameFinderEvaluationMonitor[listeners.size()]));
     evaluator.evaluate(testSamples);
     System.out.println(detailedFListener.toString());
   }
@@ -134,8 +130,8 @@ public class Evaluate {
   public final void evalError() throws IOException {
     List<EvaluationMonitor<CorpusSample>> listeners = new LinkedList<EvaluationMonitor<CorpusSample>>();
     listeners.add(new NameEvaluationErrorListener());
-    TokenNameFinderEvaluator evaluator = new TokenNameFinderEvaluator(nameFinder,
-        listeners.toArray(new TokenNameFinderEvaluationMonitor[listeners.size()]));
+    NameFinderEvaluator evaluator = new NameFinderEvaluator(nameFinder,
+        listeners.toArray(new NameFinderEvaluationMonitor[listeners.size()]));
     evaluator.evaluate(testSamples);
     System.out.println(evaluator.getFMeasure());
   }

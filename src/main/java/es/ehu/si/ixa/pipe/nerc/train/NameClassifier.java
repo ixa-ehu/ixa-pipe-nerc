@@ -74,10 +74,7 @@ public class NameClassifier {
     }
     else {
       // If model has a generator use that one, otherwise create default
-      AdaptiveFeatureGenerator featureGenerator = model.createFeatureGenerators();
-
-      if (featureGenerator == null)
-        featureGenerator = createFeatureGenerator();
+      AdaptiveFeatureGenerator featureGenerator = createFeatureGenerator();
 
       contextGenerator = new DefaultNameContextGenerator(featureGenerator);
     }

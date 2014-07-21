@@ -30,6 +30,7 @@ import opennlp.tools.util.TrainingParameters;
 
 import org.apache.commons.io.FileUtils;
 
+import es.ehu.si.ixa.pipe.nerc.eval.NameFinderEvaluator;
 import es.ehu.si.ixa.pipe.nerc.features.AdaptiveFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.formats.Conll02NameStream;
 import es.ehu.si.ixa.pipe.nerc.formats.Conll03NameStream;

@@ -32,7 +32,6 @@ import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 import net.sourceforge.argparse4j.inf.Subparsers;
-import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.TrainingParameters;
 
 import org.apache.commons.io.FilenameUtils;
@@ -44,6 +43,7 @@ import es.ehu.si.ixa.pipe.nerc.eval.Evaluate;
 import es.ehu.si.ixa.pipe.nerc.train.DefaultNameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
 import es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer;
+import es.ehu.si.ixa.pipe.nerc.train.NameModel;
 
 /**
  * Main class of ixa-pipe-nerc, the ixa pipes (ixa2.si.ehu.es/ixa-pipes) NERC
@@ -237,7 +237,7 @@ public class CLI {
     }
 
    NameFinderTrainer nercTrainer = chooseTrainer(trainSet, testSet, lang, beamsize, corpusFormat, neTypes, dictPath, features);
-    TokenNameFinderModel trainedModel = null;
+    NameModel trainedModel = null;
     if (evalRange.length == 2) {
       if (parsedArguments.get("devSet") == null) {
         InputOutputUtils.devSetException();
@@ -397,6 +397,7 @@ public class CLI {
     evalParser
         .addArgument("--dictPath")
         .required(false)
+        .setDefault(DEFAULT_DICT_PATH)
         .help(
             "Path to the gazetteers for evaluation if dict features are used\n");
     evalParser.addArgument("-l", "--lang")

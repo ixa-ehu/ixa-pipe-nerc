@@ -54,16 +54,5 @@ public interface NameFinderTrainer {
   NameModel trainCrossEval(String devData,
       TrainingParameters params, String[] evalRange);
 
-  /**
-   * Evaluate the model on a test set.
-   * @param trainedModel
-   *          the trained model
-   * @param testSamples
-   *          the test set
-   * @return the results in terms of precision and recall
-   */
-  NameFinderEvaluator evaluate(NameModel trainedModel,
-      ObjectStream<CorpusSample> testSamples);
-
 }
 
