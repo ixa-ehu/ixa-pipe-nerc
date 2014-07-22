@@ -2,7 +2,7 @@ package es.ehu.si.ixa.pipe.nerc.eval;
 
 import java.io.OutputStream;
 
-import es.ehu.si.ixa.pipe.nerc.train.CorpusSample;
+import es.ehu.si.ixa.pipe.nerc.formats.CorpusSample;
 
 import opennlp.tools.cmdline.EvaluationErrorPrinter;
 

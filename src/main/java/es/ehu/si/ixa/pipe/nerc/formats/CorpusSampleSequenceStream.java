@@ -1,4 +1,4 @@
-package es.ehu.si.ixa.pipe.nerc.train;
+package es.ehu.si.ixa.pipe.nerc.formats;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -8,6 +8,10 @@ import java.util.List;
 
 import es.ehu.si.ixa.pipe.nerc.features.AdaptiveFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.NameContextGenerator;
+import es.ehu.si.ixa.pipe.nerc.train.DefaultNameContextGenerator;
+import es.ehu.si.ixa.pipe.nerc.train.NameClassifier;
+import es.ehu.si.ixa.pipe.nerc.train.NameFinderEventStream;
+import es.ehu.si.ixa.pipe.nerc.train.NameModel;
 
 import opennlp.model.AbstractModel;
 import opennlp.model.Event;

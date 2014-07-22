@@ -21,6 +21,8 @@ import es.ehu.si.ixa.pipe.nerc.features.SentenceFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.TokenClassFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.TokenFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.WindowFeatureGenerator;
+import es.ehu.si.ixa.pipe.nerc.formats.CorpusSample;
+import es.ehu.si.ixa.pipe.nerc.formats.CorpusSampleSequenceStream;
 
 import opennlp.model.AbstractModel;
 import opennlp.model.EventStream;

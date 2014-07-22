@@ -9,9 +9,9 @@ import opennlp.tools.namefind.TokenNameFinderEvaluator;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.eval.FMeasure;
 import es.ehu.si.ixa.pipe.nerc.CLI;
+import es.ehu.si.ixa.pipe.nerc.formats.CorpusSample;
+import es.ehu.si.ixa.pipe.nerc.formats.CorpusSampleTypeFilter;
 import es.ehu.si.ixa.pipe.nerc.train.AbstractNameFinderTrainer;
-import es.ehu.si.ixa.pipe.nerc.train.CorpusSample;
-import es.ehu.si.ixa.pipe.nerc.train.CorpusSampleTypeFilter;
 
 /**
  * Evaluation class mostly using {@link TokenNameFinderEvaluator}.

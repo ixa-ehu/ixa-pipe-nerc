@@ -1,6 +1,7 @@
-package es.ehu.si.ixa.pipe.nerc.train;
+package es.ehu.si.ixa.pipe.nerc.formats;
 
 import java.io.IOException;
+
 
 
 import opennlp.tools.util.FilterObjectStream;

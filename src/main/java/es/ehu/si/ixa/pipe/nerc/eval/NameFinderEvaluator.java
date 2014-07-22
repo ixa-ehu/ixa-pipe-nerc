@@ -3,7 +3,7 @@ package es.ehu.si.ixa.pipe.nerc.eval;
 import opennlp.tools.util.Span;
 import opennlp.tools.util.eval.Evaluator;
 import opennlp.tools.util.eval.FMeasure;
-import es.ehu.si.ixa.pipe.nerc.train.CorpusSample;
+import es.ehu.si.ixa.pipe.nerc.formats.CorpusSample;
 import es.ehu.si.ixa.pipe.nerc.train.NameClassifier;
 
 public class NameFinderEvaluator extends Evaluator<CorpusSample> {

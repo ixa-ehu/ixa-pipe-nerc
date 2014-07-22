@@ -11,6 +11,7 @@ import opennlp.tools.util.Span;
 import es.ehu.si.ixa.pipe.nerc.features.AdditionalContextFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.NameContextGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.WindowFeatureGenerator;
+import es.ehu.si.ixa.pipe.nerc.formats.CorpusSample;
 
 public class NameFinderEventStream extends opennlp.tools.util.AbstractEventStream<CorpusSample> {
 

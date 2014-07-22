@@ -23,7 +23,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import es.ehu.si.ixa.pipe.nerc.train.CorpusSample;
 
 import opennlp.tools.util.InvalidFormatException;
 import opennlp.tools.util.ObjectStream;
@@ -91,9 +90,9 @@ public class GermEval2014OuterNameStream implements ObjectStream<CorpusSample> {
         continue;
       }
       String fields[] = line.split("\t");
-      if (fields.length == 6) {
-        tokens.add(fields[2]);
-        neTypes.add(fields[4]);
+      if (fields.length == 4) {
+        tokens.add(fields[1]);
+        neTypes.add(fields[2]);
       } else {
         throw new IOException(
             "Expected four fields per line in training data, got "

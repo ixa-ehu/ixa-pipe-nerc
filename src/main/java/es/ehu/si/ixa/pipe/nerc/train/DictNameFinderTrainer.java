@@ -96,6 +96,7 @@ public class DictNameFinderTrainer extends AbstractNameFinderTrainer {
   public final AdaptiveFeatureGenerator createFeatureGenerator() {
     List<AdaptiveFeatureGenerator> featureList = BaselineNameFinderTrainer.createWindowFeatureList();
     BaselineNameFinderTrainer.addTokenFeatures(featureList);
+    BaselineNameFinderTrainer.addCharNgramFeatures(featureList);
     addDictionariesToFeatureList(featureList);
     AdaptiveFeatureGenerator[] featuresArray = featureList
         .toArray(new AdaptiveFeatureGenerator[featureList.size()]);

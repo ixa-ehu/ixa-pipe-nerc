@@ -34,6 +34,9 @@ import es.ehu.si.ixa.pipe.nerc.eval.NameFinderEvaluator;
 import es.ehu.si.ixa.pipe.nerc.features.AdaptiveFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.formats.Conll02NameStream;
 import es.ehu.si.ixa.pipe.nerc.formats.Conll03NameStream;
+import es.ehu.si.ixa.pipe.nerc.formats.CorpusSample;
+import es.ehu.si.ixa.pipe.nerc.formats.CorpusSampleDataStream;
+import es.ehu.si.ixa.pipe.nerc.formats.CorpusSampleTypeFilter;
 import es.ehu.si.ixa.pipe.nerc.formats.GermEval2014InnerNameStream;
 import es.ehu.si.ixa.pipe.nerc.formats.GermEval2014OuterNameStream;
 

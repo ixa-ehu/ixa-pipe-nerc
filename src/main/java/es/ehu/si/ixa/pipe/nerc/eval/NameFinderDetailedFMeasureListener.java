@@ -1,6 +1,6 @@
 package es.ehu.si.ixa.pipe.nerc.eval;
 
-import es.ehu.si.ixa.pipe.nerc.train.CorpusSample;
+import es.ehu.si.ixa.pipe.nerc.formats.CorpusSample;
 import opennlp.tools.cmdline.DetailedFMeasureListener;
 import opennlp.tools.util.Span;
 
