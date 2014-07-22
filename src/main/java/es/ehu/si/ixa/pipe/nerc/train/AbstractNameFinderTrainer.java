@@ -140,7 +140,9 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
     try {
       trainedModel = NameClassifier.train(lang, null, trainSamples, params,
           getFeatures(), resources);
-      nerEvaluator = evaluate(trainedModel, testSamples);
+      NameClassifier nerTagger = new NameClassifier(trainedModel, getFeatures(), beamSize);
+      nerEvaluator = new NameFinderEvaluator(nerTagger);
+      nerEvaluator.evaluate(testSamples);
     } catch (IOException e) {
       System.err.println("IO error while loading traing and test sets!");
       e.printStackTrace();
@@ -236,8 +238,9 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
         NameModel trainedModel = NameClassifier.train(lang, null,
             aTrainSamples, params, getFeatures(), resources);
         // evaluate model
-        NameFinderEvaluator nerEvaluator = this.evaluate(trainedModel,
-            devSamples);
+        NameClassifier nerClassifier = new NameClassifier(trainedModel, getFeatures(), beamSize);
+        NameFinderEvaluator nerEvaluator = new NameFinderEvaluator(nerClassifier);
+        nerEvaluator.evaluate(devSamples);
         double result = nerEvaluator.getFMeasure().getFMeasure();
         double precision = nerEvaluator.getFMeasure().getPrecisionScore();
         double recall = nerEvaluator.getFMeasure().getRecallScore();
@@ -263,29 +266,6 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
     System.err.println("Final Params " + finalParams.get(0) + " "
         + finalParams.get(1));
     return finalParams;
-  }
-
-  /*
-   * (non-Javadoc)
-   * @see
-   * es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer#evaluate(opennlp.tools.
-   * namefind.TokenNameFinderModel, opennlp.tools.util.ObjectStream)
-   */
-  public final NameFinderEvaluator evaluate(
-      final NameModel trainedModel,
-      final ObjectStream<CorpusSample> aTestSamples) {
-    NameClassifier nerTagger = new NameClassifier(trainedModel, getFeatures(),
-        beamSize);
-    NameFinderEvaluator nerEvaluator = new NameFinderEvaluator(
-        nerTagger);
-    try {
-      nerEvaluator.evaluate(aTestSamples);
-    } catch (IOException e) {
-      System.err.println("IO error while loading test set for evaluation!");
-      e.printStackTrace();
-      System.exit(1);
-    }
-    return nerEvaluator;
   }
 
   /**
