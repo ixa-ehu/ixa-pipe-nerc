@@ -28,7 +28,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import opennlp.tools.util.Span;
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
 import es.ehu.si.ixa.pipe.nerc.eval.Evaluate;
+import es.ehu.si.ixa.pipe.nerc.train.BaselineNameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.DefaultNameFinderTrainer;
+import es.ehu.si.ixa.pipe.nerc.train.DictNameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.NameClassifier;
 import es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.NameModel;
@@ -106,7 +108,7 @@ public class StatisticalNameFinder implements NameFinder {
     String lang = properties.getProperty("lang");
     String model = properties.getProperty("model");
     NameModel nerModel = loadModel(lang, model);
-    nameFinderTrainer = Evaluate.chooseDictTrainer(lang, dictionaries, beamsize);
+    nameFinderTrainer = new DictNameFinderTrainer(dictionaries, beamsize);
     nameFinder = new NameClassifier(nerModel,
         nameFinderTrainer.createFeatureGenerator(), beamsize);
   }
@@ -173,7 +175,7 @@ public class StatisticalNameFinder implements NameFinder {
     String model = properties.getProperty("model");
     this.nameFactory = aNameFactory;
     NameModel nerModel = loadModel(lang, model);
-    nameFinderTrainer = Evaluate.chooseDictTrainer(lang, dictionaries, beamsize);
+    nameFinderTrainer = new DictNameFinderTrainer(dictionaries, beamsize);
     nameFinder = new NameClassifier(nerModel,
         nameFinderTrainer.createFeatureGenerator(), beamsize);
   }
@@ -338,22 +340,9 @@ public class StatisticalNameFinder implements NameFinder {
    */
   public final NameFinderTrainer getNameFinderTrainer(final String lang, final String features, final int beamsize) {
     if (features.equalsIgnoreCase("baseline")) {
-      if (lang.equalsIgnoreCase("de")) {
-        nameFinderTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.de.BaselineNameFinderTrainer(beamsize);
-      }
-      else if (lang.equalsIgnoreCase("en")) {
-        nameFinderTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.en.BaselineNameFinderTrainer(beamsize);
-      }
-      else if (lang.equalsIgnoreCase("es")) {
-        nameFinderTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.es.BaselineNameFinderTrainer(beamsize);
-      }
-      else if (lang.equalsIgnoreCase("it")) {
-        nameFinderTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.it.BaselineNameFinderTrainer(beamsize);
-      }
-      else if (lang.equalsIgnoreCase("nl")) {
-        nameFinderTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.nl.BaselineNameFinderTrainer(beamsize);
-      }
-    } else if (features.equalsIgnoreCase("opennlp")) {
+      nameFinderTrainer = new BaselineNameFinderTrainer(beamsize);
+    }
+    else if (features.equalsIgnoreCase("opennlp")) {
       nameFinderTrainer = new DefaultNameFinderTrainer(beamsize);
     }
     return nameFinderTrainer;

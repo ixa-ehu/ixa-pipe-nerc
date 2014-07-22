@@ -6,6 +6,7 @@ import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
 import es.ehu.si.ixa.pipe.nerc.train.AbstractNameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.CorpusSample;
 import es.ehu.si.ixa.pipe.nerc.train.CorpusSampleTypeFilter;
+import es.ehu.si.ixa.pipe.nerc.train.DictNameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.NameClassifier;
 import es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.NameModel;
@@ -90,7 +91,7 @@ public class Evaluate {
     }
    
     if (features.equalsIgnoreCase("dict")) {
-      nameFinderTrainer = chooseDictTrainer(lang, dictionaries, beamsize);
+      nameFinderTrainer = new DictNameFinderTrainer(dictionaries, beamsize);
     }
     else {
       StatisticalNameFinder statFinder = new StatisticalNameFinder(properties, beamsize);
@@ -135,36 +136,5 @@ public class Evaluate {
     evaluator.evaluate(testSamples);
     System.out.println(evaluator.getFMeasure());
   }
-  
-  /**
-   * Choose the NameFinder training according to feature type and language.
-   * @return the name finder trainer
-   * @throws IOException throws
-   */
-  public static NameFinderTrainer chooseDictTrainer(final String lang, Dictionaries dictionaries, int beamsize) throws IOException {
-    NameFinderTrainer nercTrainer = null;
-        if (lang.equalsIgnoreCase("de")) {
-          nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.de.DictNameFinderTrainer(dictionaries, beamsize);
-        }
-        else if (lang.equalsIgnoreCase("en")) {
-          nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.en.DictNameFinderTrainer(dictionaries, beamsize);
-        }
-        else if (lang.equalsIgnoreCase("es")) {
-          nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.es.DictNameFinderTrainer(dictionaries, beamsize);
-        }
-        else if (lang.equalsIgnoreCase("it")) {
-          nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.it.DictNameFinderTrainer(dictionaries, beamsize);
-        }
-        else if (lang.equalsIgnoreCase("nl")) {
-          nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.nl.DictNameFinderTrainer(dictionaries, beamsize);
-        }
-        else {
-        System.err
-            .println("You need to provide the directory containing the dictionaries!\n");
-        System.exit(1);
-      }
-    return nercTrainer;
-  }
-
 
 }

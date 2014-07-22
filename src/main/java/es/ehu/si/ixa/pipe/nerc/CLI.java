@@ -40,7 +40,9 @@ import org.jdom2.JDOMException;
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
 import es.ehu.si.ixa.pipe.nerc.eval.CorpusEvaluate;
 import es.ehu.si.ixa.pipe.nerc.eval.Evaluate;
+import es.ehu.si.ixa.pipe.nerc.train.BaselineNameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.DefaultNameFinderTrainer;
+import es.ehu.si.ixa.pipe.nerc.train.DictNameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
 import es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.NameModel;
@@ -445,46 +447,13 @@ public class CLI {
       nercTrainer = new DefaultNameFinderTrainer(trainSet, testSet, lang,
           beamsize, corpusFormat, neTypes);
     } else if (features.equalsIgnoreCase("baseline")) {
-      if (lang.equalsIgnoreCase("de")) {
-        nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.de.BaselineNameFinderTrainer(trainSet, testSet, lang, beamsize, corpusFormat, neTypes);
-      }
-      else if (lang.equalsIgnoreCase("en")) {
-        nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.en.BaselineNameFinderTrainer(trainSet, testSet, lang, beamsize, corpusFormat, neTypes);
-      }
-      else if (lang.equalsIgnoreCase("es")) {
-        nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.es.BaselineNameFinderTrainer(trainSet, testSet, lang, beamsize, corpusFormat, neTypes);
-      }
-      else if (lang.equalsIgnoreCase("it")) {
-        nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.it.BaselineNameFinderTrainer(trainSet, testSet, lang, beamsize, corpusFormat, neTypes);
-      }
-      else if(lang.equalsIgnoreCase("nl")) {
-        nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.nl.BaselineNameFinderTrainer(trainSet, testSet, lang, beamsize, corpusFormat, neTypes);
-      }
+      nercTrainer = new BaselineNameFinderTrainer(trainSet, testSet, lang, beamsize, corpusFormat, neTypes);
     
     } else if (features.equalsIgnoreCase("dict")) {
       if (dictPath != null) {
         Dictionaries dictionaries = new Dictionaries(dictPath);
-        if (lang.equalsIgnoreCase("de")) {
-          nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.de.DictNameFinderTrainer(dictionaries, trainSet, testSet,
-              lang, beamsize, corpusFormat, neTypes);
-        }
-        else if (lang.equalsIgnoreCase("en")) {
-          nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.en.DictNameFinderTrainer(dictionaries, trainSet, testSet,
-              lang, beamsize, corpusFormat, neTypes);
-        }
-        else if (lang.equalsIgnoreCase("es")) {
-          nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.es.DictNameFinderTrainer(dictionaries, trainSet, testSet,
-              lang, beamsize, corpusFormat, neTypes);
-        }
-        else if (lang.equalsIgnoreCase("it")) {
-          nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.it.DictNameFinderTrainer(dictionaries, trainSet, testSet,
-              lang, beamsize, corpusFormat, neTypes);
-        }
-        else if (lang.equalsIgnoreCase("nl")) {
-          nercTrainer = new es.ehu.si.ixa.pipe.nerc.train.lang.nl.DictNameFinderTrainer(dictionaries, trainSet, testSet,
-              lang, beamsize, corpusFormat, neTypes);
-        }
-        
+        nercTrainer = new DictNameFinderTrainer(dictionaries, trainSet, testSet,
+            lang, beamsize, corpusFormat, neTypes);
       } else {
         System.err
             .println("You need to provide the directory containing the dictionaries!\n");

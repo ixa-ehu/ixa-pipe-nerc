@@ -14,7 +14,7 @@
    limitations under the License.
  */
 
-package es.ehu.si.ixa.pipe.nerc.train.lang.nl;
+package es.ehu.si.ixa.pipe.nerc.train;
 
 import java.io.IOException;
 import java.util.List;
@@ -25,7 +25,6 @@ import es.ehu.si.ixa.pipe.nerc.features.AdaptiveFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.CachedFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.DictionaryFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.train.AbstractNameFinderTrainer;
-import es.ehu.si.ixa.pipe.nerc.train.DefaultNameFinderTrainer;
 
 /**
  * Training NER based on Apache OpenNLP Machine Learning API. This class
@@ -96,14 +95,13 @@ public class DictNameFinderTrainer extends AbstractNameFinderTrainer {
    */
   public final AdaptiveFeatureGenerator createFeatureGenerator() {
     List<AdaptiveFeatureGenerator> featureList = BaselineNameFinderTrainer.createWindowFeatureList();
-    
     BaselineNameFinderTrainer.addTokenFeatures(featureList);
     addDictionariesToFeatureList(featureList);
     AdaptiveFeatureGenerator[] featuresArray = featureList
         .toArray(new AdaptiveFeatureGenerator[featureList.size()]);
     return new CachedFeatureGenerator(featuresArray);
   }
- 
+
   /**
    * Adds the dictionary features to the feature list.
    *
@@ -117,5 +115,5 @@ public class DictNameFinderTrainer extends AbstractNameFinderTrainer {
       featureList.add(new DictionaryFeatureGenerator(prefix, dictionary));
     }
   }
-
+  
 }

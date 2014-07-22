@@ -14,7 +14,7 @@
    limitations under the License.
  */
 
-package es.ehu.si.ixa.pipe.nerc.train.lang.de;
+package es.ehu.si.ixa.pipe.nerc.train;
 
 import java.io.IOException;
 import java.util.ArrayList;

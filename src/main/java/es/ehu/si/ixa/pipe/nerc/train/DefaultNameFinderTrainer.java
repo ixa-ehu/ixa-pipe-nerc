@@ -91,7 +91,7 @@ public class DefaultNameFinderTrainer extends AbstractNameFinderTrainer {
    */
   public static List<AdaptiveFeatureGenerator> createFeatureList() {
     List<AdaptiveFeatureGenerator> featuresList = new ArrayList<AdaptiveFeatureGenerator>(Arrays.asList(
-        new WindowFeatureGenerator(new TokenFeatureGenerator(), 5, 5)));
+        new WindowFeatureGenerator(new TokenFeatureGenerator(), 2, 2)));
     return featuresList;
   }
 }
