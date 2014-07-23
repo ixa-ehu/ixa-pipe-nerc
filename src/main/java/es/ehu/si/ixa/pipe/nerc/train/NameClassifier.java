@@ -144,10 +144,8 @@ public class NameClassifier {
         if (start != -1) {
           spans.add(new Span(start, end, extractNameType(c.get(li - 1))));
         }
-
         start = li;
         end = li + 1;
-
       }
       else if (chunkTag.endsWith(NameClassifier.CONTINUE)) {
         end = li + 1;
@@ -160,11 +158,9 @@ public class NameClassifier {
         }
       }
     }
-
     if (start != -1) {
       spans.add(new Span(start, end, extractNameType(c.get(c.size() - 1))));
     }
-
     return spans.toArray(new Span[spans.size()]);
   }
 

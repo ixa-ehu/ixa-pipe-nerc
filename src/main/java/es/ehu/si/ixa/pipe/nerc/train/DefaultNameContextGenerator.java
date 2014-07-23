@@ -43,7 +43,6 @@ public class DefaultNameContextGenerator implements NameContextGenerator {
     }
     else {
       // use defaults
-
       this.featureGenerators = new AdaptiveFeatureGenerator[]{
           windowFeatures,
           new PreviousMapFeatureGenerator()};
@@ -52,11 +51,8 @@ public class DefaultNameContextGenerator implements NameContextGenerator {
 
   public void addFeatureGenerator(AdaptiveFeatureGenerator generator) {
       AdaptiveFeatureGenerator generators[] = featureGenerators;
-
       featureGenerators = new AdaptiveFeatureGenerator[featureGenerators.length + 1];
-
       System.arraycopy(generators, 0, featureGenerators, 0, generators.length);
-
       featureGenerators[featureGenerators.length - 1] = generator;
   }
 
