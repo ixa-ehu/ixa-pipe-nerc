@@ -35,6 +35,16 @@ Types=
 # Beamsize 1 amounts to greedy search
 Beamsize=3
 
+# Window: left and right window length from the current token; if empty will
+# take the default Window=2
+#Window=2
+Window=
+
+# CharNgram: min and maximum length for character ngrams; if empty will default
+# to CharNgram=2:5, namely minimun 2 and maximum 5.
+#CharNgram=2:5
+CharNgram=
+
 # Formats: conll02, conll03, germEvalOuter2014, germEvalInner2014, opennlp
 Corpus=germEvalOuter2014
 

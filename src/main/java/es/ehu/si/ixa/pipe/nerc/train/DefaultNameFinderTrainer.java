@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import opennlp.tools.util.TrainingParameters;
+
 import es.ehu.si.ixa.pipe.nerc.features.AdaptiveFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.BigramFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.CachedFeatureGenerator;
@@ -49,8 +51,8 @@ public class DefaultNameFinderTrainer extends AbstractNameFinderTrainer {
    * @param netypes the NE classes
    * @throws IOException throw if input data problems
    */
-  public DefaultNameFinderTrainer(final String trainData, final String testData, final String lang, final int beamsize, final String corpusFormat, final String netypes) throws IOException {
-    super(trainData, testData, lang, beamsize, corpusFormat, netypes);
+  public DefaultNameFinderTrainer(final String trainData, final String testData, final TrainingParameters params) throws IOException {
+    super(trainData, testData, params);
     setFeatures(createFeatureGenerator());
   }
   /**

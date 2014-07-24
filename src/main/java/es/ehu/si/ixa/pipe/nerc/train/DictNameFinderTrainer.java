@@ -19,6 +19,8 @@ package es.ehu.si.ixa.pipe.nerc.train;
 import java.io.IOException;
 import java.util.List;
 
+import opennlp.tools.util.TrainingParameters;
+
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
 import es.ehu.si.ixa.pipe.nerc.features.AdaptiveFeatureGenerator;
@@ -61,9 +63,8 @@ public class DictNameFinderTrainer extends AbstractNameFinderTrainer {
    * @throws IOException throw if input error
    */
   public DictNameFinderTrainer(final Dictionaries aDictionaries, final String trainData,
-      final String testData, final String lang, final int beamsize, final String corpusFormat,
-      final String netypes) throws IOException {
-    super(trainData, testData, lang, beamsize, corpusFormat, netypes);
+      final String testData, final TrainingParameters params) throws IOException {
+    super(trainData, testData, params);
 
     if (dictionaries == null) {
       dictionaries = aDictionaries;

@@ -223,12 +223,6 @@ public class CLI {
     String paramFile = parsedArguments.getString("params");
     TrainingParameters params = InputOutputUtils
         .loadTrainingParameters(paramFile);
-    String lang = params.getSettings().get("Language");
-    String neTypes = params.getSettings().get("Types");
-    String corpusFormat = params.getSettings().get("Corpus");
-    int beamsize = Integer.valueOf(params.getSettings().get("Beamsize"));
-    String evalParam = params.getSettings().get("CrossEval");
-    String[] evalRange = evalParam.split("[ :-]");
 
     if (parsedArguments.get("output") != null) {
       outModel = parsedArguments.getString("output");
@@ -238,12 +232,15 @@ public class CLI {
           + ".bin";
     }
 
-   NameFinderTrainer nercTrainer = chooseTrainer(trainSet, testSet, lang, beamsize, corpusFormat, neTypes, dictPath, features);
-    NameModel trainedModel = null;
+   NameFinderTrainer nercTrainer = chooseTrainer(trainSet, testSet, dictPath, features, params);
+   String evalParam = params.getSettings().get("CrossEval");
+   String[] evalRange = evalParam.split("[ :-]");
+   NameModel trainedModel = null;
     if (evalRange.length == 2) {
       if (parsedArguments.get("devSet") == null) {
         InputOutputUtils.devSetException();
       } else {
+        
         trainedModel = nercTrainer.trainCrossEval(devSet, params,
             evalRange);
       }
@@ -441,19 +438,17 @@ public class CLI {
    * @return the name finder trainer
    * @throws IOException throws
    */
-  private NameFinderTrainer chooseTrainer(String trainSet, String testSet, String lang, int beamsize, String corpusFormat, String neTypes, String dictPath, String features) throws IOException {
+  private NameFinderTrainer chooseTrainer(String trainSet, String testSet, String dictPath, String features, TrainingParameters params) throws IOException {
     NameFinderTrainer nercTrainer = null;
     if (parsedArguments.getString("features").equalsIgnoreCase("opennlp")) {
-      nercTrainer = new DefaultNameFinderTrainer(trainSet, testSet, lang,
-          beamsize, corpusFormat, neTypes);
+      nercTrainer = new DefaultNameFinderTrainer(trainSet, testSet, params);
     } else if (features.equalsIgnoreCase("baseline")) {
-      nercTrainer = new BaselineNameFinderTrainer(trainSet, testSet, lang, beamsize, corpusFormat, neTypes);
+      nercTrainer = new BaselineNameFinderTrainer(trainSet, testSet, params);
     
     } else if (features.equalsIgnoreCase("dict")) {
       if (dictPath != null) {
         Dictionaries dictionaries = new Dictionaries(dictPath);
-        nercTrainer = new DictNameFinderTrainer(dictionaries, trainSet, testSet,
-            lang, beamsize, corpusFormat, neTypes);
+        nercTrainer = new DictNameFinderTrainer(dictionaries, trainSet, testSet, params);
       } else {
         System.err
             .println("You need to provide the directory containing the dictionaries!\n");

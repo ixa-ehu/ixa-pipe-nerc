@@ -48,6 +48,9 @@ import es.ehu.si.ixa.pipe.nerc.formats.GermEval2014OuterNameStream;
  */
 public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
 
+  public final static int DEFAULT_WINDOW_SIZE = 2;
+  public final static int MIN_CHAR_NGRAM_LENGTH = 2;
+  public final static int DEFAULT_CHAR_NGRAM_LENGTH = 6;
   /**
    * The language.
    */
@@ -100,15 +103,15 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
    *           io exception
    */
   public AbstractNameFinderTrainer(final String aTrainData,
-      final String aTestData, final String aLang, final int beamsize,
-      final String aCorpusFormat, final String netypes) throws IOException {
-    this.lang = aLang;
-    this.corpusFormat = aCorpusFormat;
+      final String aTestData, final TrainingParameters params) throws IOException {
+    this.lang = params.getSettings().get("Language");
+    this.corpusFormat = params.getSettings().get("Corpus");
     this.trainData = aTrainData;
     this.testData = aTestData;
     trainSamples = getNameStream(trainData, lang, corpusFormat);
     testSamples = getNameStream(testData, lang, corpusFormat);
-    this.beamSize = beamsize;
+    this.beamSize = Integer.parseInt(params.getSettings().get("Beamsize"));
+    String netypes = params.getSettings().get("Types");
     if (netypes.length() != 0) {
       String[] neTypes = netypes.split(",");
       trainSamples = new CorpusSampleTypeFilter(neTypes, trainSamples);

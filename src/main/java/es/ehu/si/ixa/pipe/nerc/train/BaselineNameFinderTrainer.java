@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import opennlp.tools.util.TrainingParameters;
+
 import es.ehu.si.ixa.pipe.nerc.features.AdaptiveFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.BigramFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.CachedFeatureGenerator;
@@ -56,11 +58,20 @@ public class BaselineNameFinderTrainer extends AbstractNameFinderTrainer {
    * @param netypes the NE classes
    * @throws IOException the data exception
    */
-  public BaselineNameFinderTrainer(final String trainData, final String testData,
-      final String lang, final int beamsize, final String corpusFormat, final String netypes)
+  public BaselineNameFinderTrainer(final String trainData, final String testData, final TrainingParameters params)
       throws IOException {
-    super(trainData, testData, lang, beamsize, corpusFormat, netypes);
-    setFeatures(createFeatureGenerator());
+    super(trainData, testData, params);
+    String windowParam = params.getSettings().get("Window");
+    String[] windowArray = windowParam.split("[ :-]");
+    if (windowArray.length == 2) {
+      int leftWindow = Integer.parseInt(windowArray[0]);
+      int rightWindow = Integer.parseInt(windowArray[1]);
+      setFeatures(createFeatureGenerator(leftWindow, rightWindow));
+    }
+    else {
+      setFeatures(createDefaultFeatureGenerator());
+    }
+    
   }
 
   /**
@@ -71,14 +82,26 @@ public class BaselineNameFinderTrainer extends AbstractNameFinderTrainer {
     super(beamsize);
     setFeatures(createFeatureGenerator());
   }
+  
+  /* (non-Javadoc)
+   * @see es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer#createFeatureGenerator()
+   */
+  public final AdaptiveFeatureGenerator createFeatureGenerator(int leftWindow, int rightWindow) {
+    List<AdaptiveFeatureGenerator> featureList = createWindowFeatureList(leftWindow, rightWindow);
+    addTokenFeatures(featureList);
+    addCharNgramFeatures(featureList, MIN_CHAR_NGRAM_LENGTH, DEFAULT_CHAR_NGRAM_LENGTH);
+    AdaptiveFeatureGenerator[] featuresArray = featureList
+        .toArray(new AdaptiveFeatureGenerator[featureList.size()]);
+    return new CachedFeatureGenerator(featuresArray);
+  }
 
   /* (non-Javadoc)
    * @see es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer#createFeatureGenerator()
    */
-  public final AdaptiveFeatureGenerator createFeatureGenerator() {
-    List<AdaptiveFeatureGenerator> featureList = createWindowFeatureList();
+  public final AdaptiveFeatureGenerator createDefaultFeatureGenerator() {
+    List<AdaptiveFeatureGenerator> featureList = createWindowFeatureList(DEFAULT_WINDOW_SIZE, DEFAULT_WINDOW_SIZE);
     addTokenFeatures(featureList);
-    addCharNgramFeatures(featureList);
+    addCharNgramFeatures(featureList, MIN_CHAR_NGRAM_LENGTH, DEFAULT_CHAR_NGRAM_LENGTH);
     AdaptiveFeatureGenerator[] featuresArray = featureList
         .toArray(new AdaptiveFeatureGenerator[featureList.size()]);
     return new CachedFeatureGenerator(featuresArray);
@@ -89,10 +112,10 @@ public class BaselineNameFinderTrainer extends AbstractNameFinderTrainer {
    *
    * @return the list of features
    */
-  public static List<AdaptiveFeatureGenerator> createWindowFeatureList() {
+  public static List<AdaptiveFeatureGenerator> createWindowFeatureList(int leftWindow, int rightWindow) {
     List<AdaptiveFeatureGenerator> featuresList = new ArrayList<AdaptiveFeatureGenerator>(Arrays.asList(
-        new WindowFeatureGenerator(new TokenFeatureGenerator(), 2, 2),
-        new WindowFeatureGenerator(new TokenClassFeatureGenerator(true), 2, 2),
+        new WindowFeatureGenerator(new TokenFeatureGenerator(), leftWindow, rightWindow),
+        new WindowFeatureGenerator(new TokenClassFeatureGenerator(true), leftWindow, rightWindow),
         new OutcomePriorFeatureGenerator(), new PreviousMapFeatureGenerator(),
         new BigramFeatureGenerator(), new SentenceFeatureGenerator(true,
             false)));
@@ -117,8 +140,8 @@ public class BaselineNameFinderTrainer extends AbstractNameFinderTrainer {
   //5. same for prefix suffix
   //6. combine in createFeatureGenerator but create list of those iterating over every list of each type feature
   //7. pass the list to the train method instead of of only one AdaptiveFeatureGenerator
-  public static void addCharNgramFeatures(final List<AdaptiveFeatureGenerator> featureList) {
-    featureList.add(new CharacterNgramFeatureGenerator(2, 5));
+  public static void addCharNgramFeatures(final List<AdaptiveFeatureGenerator> featureList, int minLength, int maxLength) {
+    featureList.add(new CharacterNgramFeatureGenerator(minLength, maxLength));
   }
 
 }
