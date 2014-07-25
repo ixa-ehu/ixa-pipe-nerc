@@ -351,6 +351,8 @@ public class CLI {
    * Create the parameters available for evaluation.
    */
   private void loadEvalParameters() {
+    evalParser.addArgument("-p", "--params").required(true)
+    .help("Load the parameters file\n");
     evalParser.addArgument("-m", "--model").required(false)
         .setDefault(DEFAULT_EVALUATE_MODEL)
         .help("Choose model or prediction file\n");
