@@ -46,7 +46,7 @@ import es.ehu.si.ixa.pipe.nerc.formats.GermEval2014OuterNameStream;
  * @author ragerri
  * @version 2014-04-17
  */
-public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
+public abstract class AbstractTrainer implements Trainer {
 
   public final static int DEFAULT_WINDOW_SIZE = 2;
   public final static int MIN_CHAR_NGRAM_LENGTH = 2;
@@ -102,7 +102,7 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
    * @throws IOException
    *           io exception
    */
-  public AbstractNameFinderTrainer(final String aTrainData,
+  public AbstractTrainer(final String aTrainData,
       final String aTestData, final TrainingParameters params) throws IOException {
     this.lang = params.getSettings().get("Language");
     this.corpusFormat = params.getSettings().get("Corpus");
@@ -125,8 +125,8 @@ public abstract class AbstractNameFinderTrainer implements NameFinderTrainer {
    * @param beamsize
    *          the beamsize for decoding
    */
-  public AbstractNameFinderTrainer(final int beamsize) {
-    this.beamSize = beamsize;
+  public AbstractTrainer(final TrainingParameters params) {
+    this.beamSize = Integer.parseInt(params.getSettings().get("Beamsize"));
   }
 
   /*

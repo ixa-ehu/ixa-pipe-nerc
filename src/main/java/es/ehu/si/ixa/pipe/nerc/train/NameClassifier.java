@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 
 import es.ehu.si.ixa.pipe.nerc.features.AdaptiveFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.AdditionalContextFeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.features.BigramFeatureGenerator;
+import es.ehu.si.ixa.pipe.nerc.features.BigramClassFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.CachedFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.NameContextGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.OutcomePriorFeatureGenerator;
@@ -106,7 +106,7 @@ public class NameClassifier {
             new WindowFeatureGenerator(new TokenClassFeatureGenerator(true), 2, 2),
             new OutcomePriorFeatureGenerator(),
             new PreviousMapFeatureGenerator(),
-            new BigramFeatureGenerator(),
+            new BigramClassFeatureGenerator(),
             new SentenceFeatureGenerator(true, false)
             });
    }

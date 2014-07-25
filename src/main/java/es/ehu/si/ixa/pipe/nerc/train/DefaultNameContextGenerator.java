@@ -4,9 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import es.ehu.si.ixa.pipe.nerc.features.AdaptiveFeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.features.BigramFeatureGenerator;
+import es.ehu.si.ixa.pipe.nerc.features.BigramClassFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.CachedFeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.features.FeatureGeneratorUtil;
 import es.ehu.si.ixa.pipe.nerc.features.NameContextGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.OutcomePriorFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.PreviousMapFeatureGenerator;
@@ -30,7 +29,7 @@ public class DefaultNameContextGenerator implements NameContextGenerator {
       new WindowFeatureGenerator(new TokenClassFeatureGenerator(true), 2, 2),
       new OutcomePriorFeatureGenerator(),
       new PreviousMapFeatureGenerator(),
-      new BigramFeatureGenerator()
+      new BigramClassFeatureGenerator()
       });
 
   /**
@@ -103,7 +102,7 @@ public class DefaultNameContextGenerator implements NameContextGenerator {
     }
     features.add("po=" + po);
     features.add("pow=" + po + "," + tokens[index]);
-    features.add("powf=" + po + "," + FeatureGeneratorUtil.tokenFeature(tokens[index]));
+    features.add("powf=" + po + "," + TokenClassFeatureGenerator.tokenShapeFeature(tokens[index]));
     features.add("ppo=" + ppo);
 
     return features.toArray(new String[features.size()]);

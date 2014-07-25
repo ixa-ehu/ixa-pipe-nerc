@@ -30,6 +30,10 @@ public class WindowFeatureGenerator implements AdaptiveFeatureGenerator {
    * @param nextWindowSize Size of the window to the right of the current token.
    */
   public WindowFeatureGenerator(AdaptiveFeatureGenerator generator, int prevWindowSize,  int nextWindowSize) {
+    if (prevWindowSize < 1 || nextWindowSize < 1) {
+      throw new IllegalArgumentException("window parameter must be at least 1. " +
+          "minLength=" + prevWindowSize + ", maxLength= " + nextWindowSize);
+    }
     this.generator = generator;
     this.prevWindowSize = prevWindowSize;
     this.nextWindowSize = nextWindowSize;

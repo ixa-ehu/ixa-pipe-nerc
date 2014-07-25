@@ -37,15 +37,12 @@ import opennlp.tools.util.TrainingParameters;
 import org.apache.commons.io.FilenameUtils;
 import org.jdom2.JDOMException;
 
-import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
 import es.ehu.si.ixa.pipe.nerc.eval.CorpusEvaluate;
 import es.ehu.si.ixa.pipe.nerc.eval.Evaluate;
-import es.ehu.si.ixa.pipe.nerc.train.BaselineNameFinderTrainer;
-import es.ehu.si.ixa.pipe.nerc.train.DefaultNameFinderTrainer;
-import es.ehu.si.ixa.pipe.nerc.train.DictNameFinderTrainer;
+import es.ehu.si.ixa.pipe.nerc.train.FixedTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
-import es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.NameModel;
+import es.ehu.si.ixa.pipe.nerc.train.Trainer;
 
 /**
  * Main class of ixa-pipe-nerc, the ixa pipes (ixa2.si.ehu.es/ixa-pipes) NERC
@@ -102,8 +99,7 @@ public class CLI {
   public static final String DEFAULT_LEXER = "off";
   public static final String DEFAULT_DICT_OPTION = "off";
   public static final String DEFAULT_DICT_PATH = "off";
-  
-  
+
   /**
    * Construct a CLI object with the three sub-parsers to manage the command
    * line parameters.
@@ -174,12 +170,14 @@ public class CLI {
   public final void annotate(final InputStream inputStream,
       final OutputStream outputStream) throws IOException {
 
-    String features = parsedArguments.getString("features");
-    int beamsize = parsedArguments.getInt("beamsize");
+    String model = parsedArguments.getString("model");
     String dictionariesOption = parsedArguments.getString("dictionaries");
     String lexer = parsedArguments.getString("lexer");
     String dictPath = parsedArguments.getString("dictPath");
-    String model = parsedArguments.getString("model");
+    // load training parameters file
+    String paramFile = parsedArguments.getString("params");
+    TrainingParameters params = InputOutputUtils
+        .loadTrainingParameters(paramFile);
     BufferedReader breader = new BufferedReader(new InputStreamReader(
         inputStream, "UTF-8"));
     BufferedWriter bwriter = new BufferedWriter(new OutputStreamWriter(
@@ -191,14 +189,15 @@ public class CLI {
     if (parsedArguments.get("lang") == null) {
       lang = kaf.getLang();
     } else {
-      lang = parsedArguments.getString("lang");
+      lang = params.getSettings().get("Language");
     }
     KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor(
         "entities", "ixa-pipe-nerc-" + lang + "-" + model, version);
     newLp.setBeginTimestamp();
-    Properties properties = setAnnotateProperties(lang, model, features, beamsize, dictionariesOption, dictPath, lexer);
-      Annotate annotator = new Annotate(properties, beamsize);
-      annotator.annotateNEsToKAF(kaf);
+    Properties properties = setAnnotateProperties(model, dictionariesOption,
+        dictPath, lexer);
+    Annotate annotator = new Annotate(properties, params);
+    annotator.annotateNEsToKAF(kaf);
     newLp.setEndTimestamp();
     bwriter.write(kaf.toString());
     bwriter.close();
@@ -216,7 +215,7 @@ public class CLI {
     String trainSet = parsedArguments.getString("trainSet");
     String devSet = parsedArguments.getString("devSet");
     String testSet = parsedArguments.getString("testSet");
-    String features = parsedArguments.getString("features");
+    String trainMethod = parsedArguments.getString("trainMethod");
     String dictPath = parsedArguments.getString("dictPath");
     String outModel = null;
     // load training parameters file
@@ -228,21 +227,19 @@ public class CLI {
       outModel = parsedArguments.getString("output");
     } else {
       outModel = FilenameUtils.removeExtension(trainSet) + "-"
-          + parsedArguments.getString("features").toString() + "-model"
+          + trainMethod + "-model"
           + ".bin";
     }
-
-   NameFinderTrainer nercTrainer = chooseTrainer(trainSet, testSet, dictPath, features, params);
-   String evalParam = params.getSettings().get("CrossEval");
-   String[] evalRange = evalParam.split("[ :-]");
-   NameModel trainedModel = null;
+    Properties props = setTrainProperties(dictPath, trainMethod);
+    Trainer nercTrainer = chooseTrainer(trainSet, testSet, props, params);
+    String evalParam = params.getSettings().get("CrossEval");
+    String[] evalRange = evalParam.split("[ :-]");
+    NameModel trainedModel = null;
     if (evalRange.length == 2) {
       if (parsedArguments.get("devSet") == null) {
         InputOutputUtils.devSetException();
       } else {
-        
-        trainedModel = nercTrainer.trainCrossEval(devSet, params,
-            evalRange);
+        trainedModel = nercTrainer.trainCrossEval(devSet, params, evalRange);
       }
     } else {
       trainedModel = nercTrainer.train(params);
@@ -264,20 +261,14 @@ public class CLI {
     String model = parsedArguments.getString("model");
     String testSet = parsedArguments.getString("testSet");
     String predFile = parsedArguments.getString("prediction");
-    String features = parsedArguments.getString("features");
-    String lang = parsedArguments.getString("lang");
-    int beamsize = parsedArguments.getInt("beamsize");
-    String corpusFormat = parsedArguments.getString("corpusFormat");
-    String neTypes = parsedArguments.getString("neTypes");
+    // load training parameters file
+    String paramFile = parsedArguments.getString("params");
+    TrainingParameters params = InputOutputUtils
+        .loadTrainingParameters(paramFile);
     Properties properties = null;
     if (!parsedArguments.getString("model").equals(DEFAULT_EVALUATE_MODEL)) {
-      Dictionaries dictionaries = null;
-      if (!dictPath.equals(DEFAULT_DICT_PATH)) {
-        dictionaries = new Dictionaries(dictPath);
-      }
-      properties = setEvaluateProperties(testSet, model, features,
-          lang, beamsize, corpusFormat, neTypes);
-      Evaluate evaluator = new Evaluate(properties, dictionaries);
+      properties = setEvaluateProperties(testSet, model, dictPath);
+      Evaluate evaluator = new Evaluate(properties, params);
       if (parsedArguments.getString("evalReport") != null) {
         if (parsedArguments.getString("evalReport").equalsIgnoreCase("brief")) {
           evaluator.evaluate();
@@ -292,8 +283,7 @@ public class CLI {
         evaluator.detailEvaluate();
       }
     } else if (parsedArguments.getString("prediction") != null) {
-      CorpusEvaluate corpusEvaluator = new CorpusEvaluate(predFile,
-         properties);
+      CorpusEvaluate corpusEvaluator = new CorpusEvaluate(predFile, properties);
       corpusEvaluator.evaluate();
     } else {
       System.err
@@ -305,25 +295,11 @@ public class CLI {
    * Create the available parameters for NER tagging.
    */
   private void loadAnnotateParameters() {
-    annotateParser.addArgument("-l", "--lang")
-        .choices("de", "en", "es", "it", "nl")
-        .required(false)
-        .help("Choose a language to perform annotation with ixa-pipe-nerc\n");
-    annotateParser.addArgument("-f", "--features")
-        .choices("opennlp", "baseline", "dict")
-        .required(false)
-        .setDefault(DEFAULT_FEATURES)
-        .help("Choose features for NERC; it defaults to baseline\n");
-    annotateParser.addArgument("-m", "--model")
-        .required(false)
+    annotateParser.addArgument("-p", "--params").required(true)
+        .help("Load the parameters file\n");
+    annotateParser.addArgument("-m", "--model").required(false)
         .setDefault(DEFAULT_EVALUATE_MODEL)
         .help("Choose model to perform NERC annotation\n");
-    annotateParser
-        .addArgument("--beamsize")
-        .setDefault(DEFAULT_BEAM_SIZE)
-        .type(Integer.class)
-        .help(
-            "Choose beam size for decoding: 1 is faster and amounts to greedy search\n");
     annotateParser
         .addArgument("-d", "--dictionaries")
         .choices("tag", "post")
@@ -332,15 +308,14 @@ public class CLI {
         .help(
             "Use gazetteers directly for tagging or "
                 + "for post-processing the probabilistic NERC output\n");
-    annotateParser.addArgument("--dictPath")
+    annotateParser
+        .addArgument("--dictPath")
         .setDefault(DEFAULT_DICT_PATH)
         .required(false)
-        .help("Path to the dictionaries if -d or -f dict options (or both) are chosen\n");
-    annotateParser
-        .addArgument("--lexer")
-        .choices("numeric")
-        .setDefault(DEFAULT_LEXER)
-        .required(false)
+        .help(
+            "Path to the dictionaries if -d or -f dict options (or both) are chosen\n");
+    annotateParser.addArgument("--lexer").choices("numeric")
+        .setDefault(DEFAULT_LEXER).required(false)
         .help("Use lexer rules for NERC tagging\n");
   }
 
@@ -349,35 +324,26 @@ public class CLI {
    */
   private void loadTrainingParameters() {
     trainParser
-        .addArgument("-f", "--features")
-        .choices("opennlp", "baseline", "dict")
+        .addArgument("-m", "--trainMethod")
+        .choices("fixed", "optimized")
         .required(true)
-        .help("Choose features to train NERC model\n");
+        .help(
+            "Uses features as specified in trainParams.txt file or will try to optimize the variables values\n");
     trainParser
         .addArgument("--dictPath")
         .setDefault(DEFAULT_DICT_PATH)
         .required(false)
         .help(
             "Provide directory containing dictionaries for its use with dict featureset\n");
-    trainParser
-        .addArgument("-p", "--params")
-        .required(true)
+    trainParser.addArgument("-p", "--params").required(true)
         .help("Load the parameters file\n");
-    trainParser
-        .addArgument("-i", "--trainSet")
-        .required(true)
+    trainParser.addArgument("-i", "--trainSet").required(true)
         .help("Input training set\n");
-    trainParser
-        .addArgument("-t", "--testSet")
-        .required(true)
+    trainParser.addArgument("-t", "--testSet").required(true)
         .help("Input testset for evaluation\n");
-    trainParser
-        .addArgument("-d", "--devSet")
-        .required(false)
+    trainParser.addArgument("-d", "--devSet").required(false)
         .help("Input development set for cross-evaluation\n");
-    trainParser
-        .addArgument("-o", "--output")
-        .required(false)
+    trainParser.addArgument("-o", "--output").required(false)
         .help("Choose output file to save the annotation\n");
   }
 
@@ -385,101 +351,70 @@ public class CLI {
    * Create the parameters available for evaluation.
    */
   private void loadEvalParameters() {
-    evalParser.addArgument("-m", "--model")
-        .required(false)
+    evalParser.addArgument("-m", "--model").required(false)
         .setDefault(DEFAULT_EVALUATE_MODEL)
         .help("Choose model or prediction file\n");
-    evalParser.addArgument("-f", "--features")
-        .choices("opennlp", "baseline", "dict")
-        .required(true)
-        .help("Choose features for evaluation\n");
     evalParser
         .addArgument("--dictPath")
         .required(false)
         .setDefault(DEFAULT_DICT_PATH)
         .help(
             "Path to the gazetteers for evaluation if dict features are used\n");
-    evalParser.addArgument("-l", "--lang")
-        .required(true)
-        .choices("de", "en", "es", "it", "nl")
-        .help("Choose language to load model for evaluation\n");
-    evalParser.addArgument("-t", "--testSet")
-        .required(true)
+    evalParser.addArgument("-t", "--testSet").required(true)
         .help("Input testset for evaluation\n");
     evalParser
         .addArgument("--prediction")
         .required(false)
         .help(
             "Use this parameter to evaluate one prediction corpus against a reference corpus\n");
-    evalParser.addArgument("--evalReport")
-        .required(false)
-        .choices("brief", "detailed", "error")
-        .help("Choose type of evaluation report; defaults to detailed\n");
-    evalParser.addArgument("-c", "--corpusFormat")
-         .setDefault("opennlp")
-        .choices("conll02", "conll03", "opennlp", "germEvalOuter2014", "germEvalInner2014")
-        .help("choose format input of corpus\n");
-    evalParser
-        .addArgument("-n", "--neTypes")
-        .required(false)
-        .setDefault(DEFAULT_NE_TYPES)
-        .help(
-            "Choose ne types to do the evaluation; it defaults to all represented in the testset\n");
-    evalParser
-        .addArgument("--beamsize")
-        .setDefault(DEFAULT_BEAM_SIZE)
-        .type(Integer.class)
-        .help(
-            "Choose beam size for evaluation: 1 is faster and amounts to greedy search\n");
+    evalParser.addArgument("--evalReport").required(false)
+        .choices("brief", "detailed", "error");
   }
-  
+
   /**
-   * Choose the NameFinder training according to feature type and language.
+   * Choose the NameFinder training according to training method.
+   * 
    * @return the name finder trainer
-   * @throws IOException throws
+   * @throws IOException
+   *           throws
    */
-  private NameFinderTrainer chooseTrainer(String trainSet, String testSet, String dictPath, String features, TrainingParameters params) throws IOException {
-    NameFinderTrainer nercTrainer = null;
-    if (parsedArguments.getString("features").equalsIgnoreCase("opennlp")) {
-      nercTrainer = new DefaultNameFinderTrainer(trainSet, testSet, params);
-    } else if (features.equalsIgnoreCase("baseline")) {
-      nercTrainer = new BaselineNameFinderTrainer(trainSet, testSet, params);
-    
-    } else if (features.equalsIgnoreCase("dict")) {
-      if (dictPath != null) {
-        Dictionaries dictionaries = new Dictionaries(dictPath);
-        nercTrainer = new DictNameFinderTrainer(dictionaries, trainSet, testSet, params);
-      } else {
-        System.err
-            .println("You need to provide the directory containing the dictionaries!\n");
-        System.exit(1);
-      }
+  private Trainer chooseTrainer(String trainSet, String testSet,
+      Properties props, TrainingParameters params) throws IOException {
+    Trainer nercTrainer = null;
+    if (props.getProperty("trainMethod").equalsIgnoreCase("fixed")) {
+      nercTrainer = new FixedTrainer(props, trainSet, testSet, params);
+    } else if (props.getProperty("trainMethod").equalsIgnoreCase("optimized")) {
+      nercTrainer = new FixedTrainer(props, trainSet, testSet, params);
+    } else {
+      System.err
+          .println("You need to provide the directory containing the dictionaries!\n");
+      System.exit(1);
     }
     return nercTrainer;
   }
-  
-  private Properties setAnnotateProperties(String lang, String model, String features, int beamsize, String dictOption, String dictPath, String ruleBasedOption) {
+
+  private Properties setAnnotateProperties(String model, String dictOption,
+      String dictPath, String ruleBasedOption) {
     Properties annotateProperties = new Properties();
-    annotateProperties.setProperty("lang", lang);
     annotateProperties.setProperty("model", model);
-    annotateProperties.setProperty("features", features);
-    annotateProperties.setProperty("beamsize", Integer.toString(beamsize));
     annotateProperties.setProperty("dictOption", dictOption);
     annotateProperties.setProperty("dictPath", dictPath);
     annotateProperties.setProperty("ruleBasedOption", ruleBasedOption);
     return annotateProperties;
-    
   }
-  
-  private Properties setEvaluateProperties(String testSet, String model, String features, String lang, int beamsize, String corpusFormat, String neTypes) {
+
+  private Properties setTrainProperties(String dictPath, String trainMethod) {
+    Properties trainProperties = new Properties();
+    trainProperties.setProperty("dictPath", dictPath);
+    trainProperties.setProperty("trainMethod", trainMethod);
+    return trainProperties;
+  }
+
+  private Properties setEvaluateProperties(String testSet, String model, String dictPath) {
     Properties evaluateProperties = new Properties();
     evaluateProperties.setProperty("testSet", testSet);
     evaluateProperties.setProperty("model", model);
-    evaluateProperties.setProperty("features", features);
-    evaluateProperties.setProperty("lang", lang);
-    evaluateProperties.setProperty("beamsize", Integer.toString(beamsize));
-    evaluateProperties.setProperty("corpusFormat", corpusFormat);
-    evaluateProperties.setProperty("neTypes", neTypes);
+    evaluateProperties.setProperty("dictPath", dictPath);
     return evaluateProperties;
   }
 

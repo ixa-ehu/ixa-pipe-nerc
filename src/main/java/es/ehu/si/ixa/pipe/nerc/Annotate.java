@@ -28,9 +28,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.util.Span;
+import opennlp.tools.util.TrainingParameters;
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
+import es.ehu.si.ixa.pipe.nerc.train.NameClassifier;
 
 /**
  * Annotation class of ixa-pipe-nerc.
@@ -80,27 +81,29 @@ public class Annotate {
   private boolean lexerFind;
 
   /**
-   * @param properties the properties
-   * @param beamsize the beamsize for decoding
-   * @throws IOException the io thrown 
+   * @param properties
+   *          the properties
+   * @param beamsize
+   *          the beamsize for decoding
+   * @throws IOException
+   *           the io thrown
    */
-  public Annotate(final Properties properties, int beamsize) throws IOException {
+  public Annotate(final Properties properties, TrainingParameters params)
+      throws IOException {
 
     if (properties.getProperty("model").equalsIgnoreCase("default")) {
       System.err.println("Backing off to default model!");
     }
     nameFactory = new NameFactory();
-    dictionaryOptions(properties);
-    nonDictOptions(properties);
-    statisticalOptions(properties);
+    dictionaryOptions(properties, params);
+    nonDictOptions(properties, params);
   }
-  
-  
+
   /**
-   * Generates the right options for dictionary-based NER tagging:
-   * Dictionary features by means of the {@link StatisticalNameFinder} 
-   * or using the {@link DictionaryNameFinder} or a combination of
-   * those with the {@link NumericNameFinder}.
+   * Generates the right options for dictionary-based NER tagging: Dictionary
+   * features by means of the {@link StatisticalNameFinder} or using the
+   * {@link DictionaryNameFinder} or a combination of those with the
+   * {@link NumericNameFinder}.
    * 
    * @param lang
    * @param model
@@ -109,16 +112,15 @@ public class Annotate {
    * @param dictOption
    * @param dictPath
    * @param ruleBasedOption
-   * @throws IOException 
+   * @throws IOException
    */
-  //TODO surely we can simplify this?
-  private void dictionaryOptions(Properties properties) throws IOException {
+  // TODO surely we can simplify this?
+  private void dictionaryOptions(Properties properties,
+      TrainingParameters params) throws IOException {
     String dictPath = properties.getProperty("dictPath");
     String ruleBasedOption = properties.getProperty("ruleBasedOption");
     String dictOption = properties.getProperty("dictOption");
-    String features = properties.getProperty("features");
-    Integer beamsize = Integer.parseInt(properties.getProperty("beamsize"));
-    
+
     if (!dictPath.equals(CLI.DEFAULT_DICT_PATH)) {
       if (!ruleBasedOption.equals(CLI.DEFAULT_LEXER)) {
         lexerFind = true;
@@ -130,68 +132,52 @@ public class Annotate {
           dictTag = true;
           postProcess = false;
           statistical = false;
-        }
-        else if (dictOption.equalsIgnoreCase("post")) {
-          if (features.equalsIgnoreCase("dict")) {
-            nameFinder = new StatisticalNameFinder(properties, beamsize, dictionaries, nameFactory);
-          } else {
-            nameFinder = new StatisticalNameFinder(properties, beamsize, nameFactory);
-          }
+        } else if (dictOption.equalsIgnoreCase("post")) {
+          nameFinder = new StatisticalNameFinder(properties, params, nameFactory);
           statistical = true;
           postProcess = true;
           dictTag = false;
         }
       } else {
         statistical = true;
-        nameFinder = new StatisticalNameFinder(properties, beamsize, dictionaries, nameFactory);
+        nameFinder = new StatisticalNameFinder(properties, params, nameFactory);
         dictTag = false;
         postProcess = false;
       }
     }
   }
-  
+
   /**
-   * Generates the right options when dictionary-related name finders are not used.
+   * Generates the right options when dictionary-related name finders are not
+   * used.
    * 
-   * @param lang the language
-   * @param model the model
-   * @param features the features
-   * @param beamsize the beamsize for decoding
-   * @param dictPath the directory containing the dictionaries
-   * @param ruleBasedOption the lexer option
+   * @param lang
+   *          the language
+   * @param model
+   *          the model
+   * @param features
+   *          the features
+   * @param beamsize
+   *          the beamsize for decoding
+   * @param dictPath
+   *          the directory containing the dictionaries
+   * @param ruleBasedOption
+   *          the lexer option
    */
-  private void nonDictOptions (Properties properties) {
+  private void nonDictOptions(Properties properties, TrainingParameters params) {
     String dictPath = properties.getProperty("dictPath");
     String ruleBasedOption = properties.getProperty("ruleBasedOption");
-    Integer beamsize = Integer.parseInt(properties.getProperty("beamsize"));
-    
-    if (dictPath.equals(CLI.DEFAULT_DICT_PATH) && !ruleBasedOption.equals(CLI.DEFAULT_LEXER)) {
-      nameFinder = new StatisticalNameFinder(properties, beamsize, nameFactory);
+
+    if (dictPath.equals(CLI.DEFAULT_DICT_PATH)
+        && !ruleBasedOption.equals(CLI.DEFAULT_LEXER)) {
+      nameFinder = new StatisticalNameFinder(properties, params, nameFactory);
       lexerFind = true;
       statistical = true;
       dictTag = false;
       postProcess = false;
     }
-  }
-  
-  /**
-   * Generates the right options when dictionary-related name finders are not used.
-   * 
-   * @param lang the language
-   * @param model the model
-   * @param features the features
-   * @param beamsize the beamsize for decoding
-   * @param dictPath the directory containing the dictionaries
-   * @param ruleBasedOption the lexer option
-   */
-  private void statisticalOptions (Properties properties) {
-    String dictPath = properties.getProperty("dictPath");
-    String dictOption = properties.getProperty("dictOption");
-    String ruleBasedOption = properties.getProperty("ruleBasedOption");
-    Integer beamsize = Integer.parseInt(properties.getProperty("beamsize"));
-    
-    if (dictPath.equals(CLI.DEFAULT_DICT_PATH) && dictOption.equals(CLI.DEFAULT_DICT_OPTION) && ruleBasedOption.equals(CLI.DEFAULT_DICT_PATH)) {
-      nameFinder = new StatisticalNameFinder(properties, beamsize, nameFactory);
+    else {
+      nameFinder = new StatisticalNameFinder(properties, params, nameFactory);
       lexerFind = false;
       statistical = true;
       dictTag = false;
@@ -238,7 +224,7 @@ public class Annotate {
         List<Span> numericSpans = numericLexerFinder.nercToSpans(tokens);
         SpanUtils.concatenateSpans(allSpans, numericSpans);
       }
-      Span[] allSpansArray = NameFinderME.dropOverlappingSpans(allSpans
+      Span[] allSpansArray = NameClassifier.dropOverlappingSpans(allSpans
           .toArray(new Span[allSpans.size()]));
       List<Name> names = new ArrayList<Name>();
       if (statistical) {

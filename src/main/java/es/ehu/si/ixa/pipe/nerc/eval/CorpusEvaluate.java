@@ -11,7 +11,7 @@ import opennlp.tools.util.eval.FMeasure;
 import es.ehu.si.ixa.pipe.nerc.CLI;
 import es.ehu.si.ixa.pipe.nerc.formats.CorpusSample;
 import es.ehu.si.ixa.pipe.nerc.formats.CorpusSampleTypeFilter;
-import es.ehu.si.ixa.pipe.nerc.train.AbstractNameFinderTrainer;
+import es.ehu.si.ixa.pipe.nerc.train.AbstractTrainer;
 
 /**
  * Evaluation class mostly using {@link TokenNameFinderEvaluator}.
@@ -50,8 +50,8 @@ public class CorpusEvaluate {
     String lang = properties.getProperty("lang");
     String corpusFormat = properties.getProperty("corpusFormat");
     String neTypes = properties.getProperty("neTypes");
-    referenceSamples = AbstractNameFinderTrainer.getNameStream(referenceData, lang, corpusFormat);
-    predictionSamples = AbstractNameFinderTrainer.getNameStream(predictionData, lang, corpusFormat);
+    referenceSamples = AbstractTrainer.getNameStream(referenceData, lang, corpusFormat);
+    predictionSamples = AbstractTrainer.getNameStream(predictionData, lang, corpusFormat);
     if (!neTypes.equals(CLI.DEFAULT_NE_TYPES)) {
       String[] neTypesArray = neTypes.split(",");
       referenceSamples = new CorpusSampleTypeFilter(neTypesArray, referenceSamples);

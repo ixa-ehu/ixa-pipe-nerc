@@ -26,13 +26,10 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 import opennlp.tools.util.Span;
-import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
-import es.ehu.si.ixa.pipe.nerc.eval.Evaluate;
-import es.ehu.si.ixa.pipe.nerc.train.BaselineNameFinderTrainer;
-import es.ehu.si.ixa.pipe.nerc.train.DefaultNameFinderTrainer;
-import es.ehu.si.ixa.pipe.nerc.train.DictNameFinderTrainer;
+import opennlp.tools.util.TrainingParameters;
+import es.ehu.si.ixa.pipe.nerc.train.FixedTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.NameClassifier;
-import es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer;
+import es.ehu.si.ixa.pipe.nerc.train.Trainer;
 import es.ehu.si.ixa.pipe.nerc.train.NameModel;
 
 /**
@@ -62,65 +59,21 @@ public class StatisticalNameFinder implements NameFinder {
   /**
    * The trainer called to obtain the appropriate features.
    */
-  private NameFinderTrainer nameFinderTrainer;
+  private Trainer nameFinderTrainer;
 
   /**
    * Construct a probabilistic name finder specifying lang, model and beamsize.
    * @param properties the properties to be loaded
    * @param beamsize the beamsize for decoding
    */
-  public StatisticalNameFinder(final Properties properties, final int beamsize) {
-    String lang = properties.getProperty("lang");
-    String model = properties.getProperty("model");
-    String features = properties.getProperty("features");
-
+  public StatisticalNameFinder(final Properties props, final TrainingParameters params) {
+    String lang = params.getSettings().get("Language");
+    String model = props.getProperty("model");
+    Integer beamsize = Integer.parseInt(params.getSettings().get("Beamsize"));
     NameModel nerModel = loadModel(lang, model);
-    nameFinderTrainer = getNameFinderTrainer(lang, features, beamsize);
+    nameFinderTrainer = getTrainer(props, params);
     nameFinder = new NameClassifier(nerModel,
-        nameFinderTrainer.createFeatureGenerator(), beamsize);
-  }
-
-  /**
-   * Construct a StatisticalNameFinder without name factory and with
-   * default beam size.
-   * @param properties the properties
-   */
-  public StatisticalNameFinder(final Properties properties) {
-    this(properties, CLI.DEFAULT_BEAM_SIZE);
-  }
-  
-  /**
-   * Construct a StatisticalNameFinder without name factory but with dictionary features.
-   *
-   * @param lang
-   *          the language
-   * @param model
-   *          the name of the model to be used
-   * @param features
-   *          the features
-   * @param beamsize
-   *          the beam size decoding
-   * @param dictPath the directory containing the dictionaries
-   * @throws IOException 
-   */
-  public StatisticalNameFinder(final Properties properties, final int beamsize, final Dictionaries dictionaries) throws IOException {
-
-    String lang = properties.getProperty("lang");
-    String model = properties.getProperty("model");
-    NameModel nerModel = loadModel(lang, model);
-    nameFinderTrainer = new DictNameFinderTrainer(dictionaries, beamsize);
-    nameFinder = new NameClassifier(nerModel,
-        nameFinderTrainer.createFeatureGenerator(), beamsize);
-  }
-
-  /**
-   * Construct a name finder with default beamsize and dictionary features.
-   * @param properties the properties
-   * @param dictionaries the dictionaries
-   * @throws IOException throw io exception
-   */
-  public StatisticalNameFinder(final Properties properties, final Dictionaries dictionaries) throws IOException {
-    this(properties, CLI.DEFAULT_BEAM_SIZE, dictionaries);
+        nameFinderTrainer.createFeatureGenerator(params), beamsize);
   }
 
   /**
@@ -132,67 +85,16 @@ public class StatisticalNameFinder implements NameFinder {
    * @param beamsize the beam size for decoding
    * @param aNameFactory the name factory to construct Name objects
    */
-  public StatisticalNameFinder(final Properties properties, final int beamsize, final NameFactory aNameFactory) {
+  public StatisticalNameFinder(final Properties props, final TrainingParameters params, final NameFactory aNameFactory) {
 
-    String lang = properties.getProperty("lang");
-    String model = properties.getProperty("model");
-    String features = properties.getProperty("features");
+    String lang = params.getSettings().get("Language");
+    Integer beamsize = Integer.parseInt(params.getSettings().get("Beamsize"));
+    String model = props.getProperty("model");
     this.nameFactory = aNameFactory;
     NameModel nerModel = loadModel(lang, model);
-    nameFinderTrainer = getNameFinderTrainer(lang, features, beamsize);
+    nameFinderTrainer = getTrainer(props, params);
     nameFinder = new NameClassifier(nerModel,
-        nameFinderTrainer.createFeatureGenerator(), beamsize);
-  }
-
-
-  /**
-   * Construct a StatisticalNameFinder with name factory and
-   * with default beam size.
-   *
-   * @param properties the properties
-   * @param aNameFactory the name factory
-   */
-  public StatisticalNameFinder(final Properties properties, final NameFactory aNameFactory) {
-    this(properties, CLI.DEFAULT_BEAM_SIZE, aNameFactory);
-  }
-
-  /**
-   * Construct a StatisticalNameFinder specifying the language,
-   * a name factory, the model, the features and the beam size for
-   * decoding.
-   *
-   * @param lang the language
-   * @param aNameFactory the name factory to construct Name objects
-   * @param model the model
-   * @param features the features
-   * @param beamsize the beam size for decoding
-   * @param dictPath the path to the dictionaries
-   * @throws IOException 
-   */
-  public StatisticalNameFinder(final Properties properties, final int beamsize, final Dictionaries dictionaries, final NameFactory aNameFactory) throws IOException {
-
-    String lang = properties.getProperty("lang");
-    String model = properties.getProperty("model");
-    this.nameFactory = aNameFactory;
-    NameModel nerModel = loadModel(lang, model);
-    nameFinderTrainer = new DictNameFinderTrainer(dictionaries, beamsize);
-    nameFinder = new NameClassifier(nerModel,
-        nameFinderTrainer.createFeatureGenerator(), beamsize);
-  }
-  
-
-  /**
-   * Construct a StatisticalNameFinder with name factory and
-   * with default beam size.
-   *
-   * @param lang the language
-   * @param aNameFactory the name factory
-   * @param model the model
-   * @param features the features
-   * @throws IOException 
-   */
-  public StatisticalNameFinder(final Properties properties, Dictionaries dictionaries, final NameFactory aNameFactory) throws IOException {
-    this(properties, CLI.DEFAULT_BEAM_SIZE, dictionaries, aNameFactory);
+        nameFinderTrainer.createFeatureGenerator(params), beamsize);
   }
 
   
@@ -330,20 +232,14 @@ public class StatisticalNameFinder implements NameFinder {
     }
     return trainedModelInputStream;
   }
-
-  /**
-   * Instantiates a NameFinderTrainer with specific features and beam size.
-   *
-   * @param features the features
-   * @param beamsize the beam size
-   * @return an instance of a NameFinderTrainer
-   */
-  public final NameFinderTrainer getNameFinderTrainer(final String lang, final String features, final int beamsize) {
-    if (features.equalsIgnoreCase("baseline")) {
-      nameFinderTrainer = new BaselineNameFinderTrainer(beamsize);
+  
+  private Trainer getTrainer(Properties props, TrainingParameters params) {
+    String dictPath = props.getProperty("dictPath");
+    if (!dictPath.equals(CLI.DEFAULT_DICT_PATH)) {
+      nameFinderTrainer = new FixedTrainer(props, params);
     }
-    else if (features.equalsIgnoreCase("opennlp")) {
-      nameFinderTrainer = new DefaultNameFinderTrainer(beamsize);
+    else {
+      nameFinderTrainer = new FixedTrainer(params);
     }
     return nameFinderTrainer;
   }

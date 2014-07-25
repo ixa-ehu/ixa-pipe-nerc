@@ -26,7 +26,7 @@ import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
 import es.ehu.si.ixa.pipe.nerc.features.AdaptiveFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.CachedFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.DictionaryFeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.train.AbstractNameFinderTrainer;
+import es.ehu.si.ixa.pipe.nerc.train.AbstractTrainer;
 
 /**
  * Training NER based on Apache OpenNLP Machine Learning API. This class
@@ -36,7 +36,7 @@ import es.ehu.si.ixa.pipe.nerc.train.AbstractNameFinderTrainer;
  *
  */
 
-public class DictNameFinderTrainer extends AbstractNameFinderTrainer {
+public class DictNameFinderTrainer extends AbstractTrainer {
 
   /**
    * The {@link Dictionaries} contained in the given directory.
@@ -69,7 +69,7 @@ public class DictNameFinderTrainer extends AbstractNameFinderTrainer {
     if (dictionaries == null) {
       dictionaries = aDictionaries;
     }
-    setFeatures(createFeatureGenerator());
+    setFeatures(createFeatureGenerator(params));
 
   }
 
@@ -79,13 +79,13 @@ public class DictNameFinderTrainer extends AbstractNameFinderTrainer {
    * @param aDictionaries the dictionaries
    * @param beamsize the beamsize for decoding; it defaults to 3
    */
-  public DictNameFinderTrainer(final Dictionaries aDictionaries, final int beamsize) {
-    super(beamsize);
+  public DictNameFinderTrainer(final Dictionaries aDictionaries, final TrainingParameters params) {
+    super(params);
 
     if (dictionaries == null) {
       dictionaries = aDictionaries;
     }
-    setFeatures(createFeatureGenerator());
+    setFeatures(createFeatureGenerator(params));
 
   }
 
@@ -94,10 +94,9 @@ public class DictNameFinderTrainer extends AbstractNameFinderTrainer {
    *  (non-Javadoc)
    * @see es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer#createFeatureGenerator()
    */
-  public final AdaptiveFeatureGenerator createFeatureGenerator() {
-    List<AdaptiveFeatureGenerator> featureList = BaselineNameFinderTrainer.createWindowFeatureList();
-    BaselineNameFinderTrainer.addTokenFeatures(featureList);
-    BaselineNameFinderTrainer.addCharNgramFeatures(featureList);
+  public final AdaptiveFeatureGenerator createFeatureGenerator(TrainingParameters params) {
+    
+    List<AdaptiveFeatureGenerator> featureList = FixedTrainer.createFeatureList(params);
     addDictionariesToFeatureList(featureList);
     AdaptiveFeatureGenerator[] featuresArray = featureList
         .toArray(new AdaptiveFeatureGenerator[featureList.size()]);

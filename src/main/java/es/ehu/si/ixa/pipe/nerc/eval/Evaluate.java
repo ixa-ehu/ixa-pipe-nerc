@@ -1,16 +1,5 @@
 package es.ehu.si.ixa.pipe.nerc.eval;
 
-import es.ehu.si.ixa.pipe.nerc.CLI;
-import es.ehu.si.ixa.pipe.nerc.StatisticalNameFinder;
-import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
-import es.ehu.si.ixa.pipe.nerc.formats.CorpusSample;
-import es.ehu.si.ixa.pipe.nerc.formats.CorpusSampleTypeFilter;
-import es.ehu.si.ixa.pipe.nerc.train.AbstractNameFinderTrainer;
-import es.ehu.si.ixa.pipe.nerc.train.DictNameFinderTrainer;
-import es.ehu.si.ixa.pipe.nerc.train.NameClassifier;
-import es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer;
-import es.ehu.si.ixa.pipe.nerc.train.NameModel;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,7 +8,15 @@ import java.util.List;
 import java.util.Properties;
 
 import opennlp.tools.util.ObjectStream;
+import opennlp.tools.util.TrainingParameters;
 import opennlp.tools.util.eval.EvaluationMonitor;
+import es.ehu.si.ixa.pipe.nerc.formats.CorpusSample;
+import es.ehu.si.ixa.pipe.nerc.formats.CorpusSampleTypeFilter;
+import es.ehu.si.ixa.pipe.nerc.train.AbstractTrainer;
+import es.ehu.si.ixa.pipe.nerc.train.FixedTrainer;
+import es.ehu.si.ixa.pipe.nerc.train.NameClassifier;
+import es.ehu.si.ixa.pipe.nerc.train.Trainer;
+import es.ehu.si.ixa.pipe.nerc.train.NameModel;
 
 /**
  * Evaluation class mostly using {@link TokenNameFinderEvaluator}.
@@ -40,7 +37,7 @@ public class Evaluate {
   /**
    * The name finder trainer to use for appropriate features.
    */
-  private NameFinderTrainer nameFinderTrainer;
+  private Trainer nameFinderTrainer;
   /**
    * An instance of the probabilistic {@link NameFinderME}.
    */
@@ -57,18 +54,17 @@ public class Evaluate {
    * @param corpusFormat the format of the testData corpus
    * @throws IOException if input data not available
    */
-  public Evaluate(final Properties properties, final Dictionaries dictionaries) throws IOException {
+  public Evaluate(final Properties properties, final TrainingParameters params) throws IOException {
     
     String testSet = properties.getProperty("testSet");
-    String lang = properties.getProperty("lang");
-    String corpusFormat = properties.getProperty("corpusFormat");
-    String neTypes = properties.getProperty("neTypes");
     String model = properties.getProperty("model");
-    String features = properties.getProperty("features");
-    Integer beamsize = Integer.parseInt(properties.getProperty("beamsize"));
+    String lang = params.getSettings().get("Language");
+    String corpusFormat = params.getSettings().get("Corpus");
+    String neTypes = params.getSettings().get("Types");
+    Integer beamsize = Integer.parseInt(params.getSettings().get("Beamsize"));
     
-    testSamples = AbstractNameFinderTrainer.getNameStream(testSet, lang, corpusFormat);
-    if (!neTypes.equals(CLI.DEFAULT_NE_TYPES)) {
+    testSamples = AbstractTrainer.getNameStream(testSet, lang, corpusFormat);
+    if (neTypes.length() != 0) {
       String[] neTypesArray = neTypes.split(",");
       testSamples = new CorpusSampleTypeFilter(neTypesArray, testSamples);
     }
@@ -89,15 +85,8 @@ public class Evaluate {
         }
       }
     }
-   
-    if (features.equalsIgnoreCase("dict")) {
-      nameFinderTrainer = new DictNameFinderTrainer(dictionaries, beamsize);
-    }
-    else {
-      StatisticalNameFinder statFinder = new StatisticalNameFinder(properties, beamsize);
-      nameFinderTrainer = statFinder.getNameFinderTrainer(lang, features, beamsize);
-    }
-    nameFinder = new NameClassifier(nercModel, nameFinderTrainer.createFeatureGenerator(), beamsize);
+    nameFinderTrainer = new FixedTrainer(properties, params);
+    nameFinder = new NameClassifier(nercModel, nameFinderTrainer.createFeatureGenerator(params), beamsize);
   }
 
   /**

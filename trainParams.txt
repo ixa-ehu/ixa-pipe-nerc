@@ -20,35 +20,75 @@ Iterations=500
 Cutoff=0
 Threads=4
 
+##################################################
 #### Custom parameters added by ixa-pipe-nerc ####
+##################################################
 
 # Languages supported: de, en, es, it, nl
-
 Language=de
+
+# Formats: conll02, conll03, germEvalOuter2014, germEvalInner2014, opennlp
+Corpus=germEvalOuter2014
 
 # Named Entity types; if empty all ne types in the training corpus.
 # Otherwise, separate with comma, eg., location,organization,person,misc
-
 Types=
 #Types=location,organization,person,misc
 
 # Beamsize 1 amounts to greedy search
 Beamsize=3
 
-# Window: left and right window length from the current token; if empty will
-# take the default Window=2
-#Window=2
-Window=
+##############
+## FEATURES ##
+##############
 
-# CharNgram: min and maximum length for character ngrams; if empty will default
-# to CharNgram=2:5, namely minimun 2 and maximum 5.
-#CharNgram=2:5
-CharNgram=
+# Window: left and right window range from the current token. TokenFeatures
+# and TokenClassFeatures depend on the window range specified here.
+Window=2:2
 
-# Formats: conll02, conll03, germEvalOuter2014, germEvalInner2014, opennlp
-Corpus=germEvalOuter2014
+# TokenFeatures: include current token (both in original and lowercase form)
+TokenFeatures=yes
 
-## Cross Evaluation if empty no cross evaluation is performed;
+# TokenClassFeatures: include token shape features (capitalization, digits,
+# etc. see FastTokenClassFeatureGenerator class in ixa.pipe.nerc.train.features
+# for details
+TokenClassFeatures=yes
+
+# OutcomePriorFeatures: maps the underlying previous outcomes
+OutcomePriorFeatures=yes
+
+# PreviousMapFeatures: takes into account previous decisions and adds them as
+# features
+PreviousMapFeatures=yes
+
+# SentenceFeatures: add first and last words of sentence as features.
+SentenceFeatures=yes
+
+# PrefixFeatures: takes first 4 characters of current token as feature.
+PrefixFeatures=yes
+
+# SuffixFeatures: takes last 4 characters of current token as feature.
+SuffixFeatures=yes
+
+# BigramClassFeatures: adds bigram features based on tokens and their class
+# features.
+BigramClassFeatures=yes
+
+# TrigramClassFeatures: add trigram features based on tokens and their class
+# features.
+TrigramClassFeatures=no
+
+# CharNgramFeatures: min and maximum length for character ngrams of curren
+# token.
+CharNgramFeatures=2:5
+
+# DictionaryFeatures: add features if token found in some gazetteers.
+DictionaryFeatures=no
+
+## END FEATURES ##
+
+## Cross Evaluation: only for learning MaxEnt models using GISTrainer.
+## If empty no cross evaluation is performed;
 ## Cross Evaluation takes two values as arguments, namely, 50:100;
 ## These values represent: 
 ##    + The iteration to start the cross evaluation 
