@@ -95,8 +95,7 @@ public class Annotate {
       System.err.println("Backing off to default model!");
     }
     nameFactory = new NameFactory();
-    dictionaryOptions(properties, params);
-    nonDictOptions(properties, params);
+    annotateOptions(properties, params);
   }
 
   /**
@@ -115,12 +114,12 @@ public class Annotate {
    * @throws IOException
    */
   // TODO surely we can simplify this?
-  private void dictionaryOptions(Properties properties,
+  private void annotateOptions(Properties properties,
       TrainingParameters params) throws IOException {
     String dictPath = properties.getProperty("dictPath");
     String ruleBasedOption = properties.getProperty("ruleBasedOption");
     String dictOption = properties.getProperty("dictOption");
-
+    nameFinder = new StatisticalNameFinder(properties, params, nameFactory);
     if (!dictPath.equals(CLI.DEFAULT_DICT_PATH)) {
       if (!ruleBasedOption.equals(CLI.DEFAULT_LEXER)) {
         lexerFind = true;
@@ -133,51 +132,23 @@ public class Annotate {
           postProcess = false;
           statistical = false;
         } else if (dictOption.equalsIgnoreCase("post")) {
-          nameFinder = new StatisticalNameFinder(properties, params, nameFactory);
           statistical = true;
           postProcess = true;
           dictTag = false;
         }
       } else {
         statistical = true;
-        nameFinder = new StatisticalNameFinder(properties, params, nameFactory);
         dictTag = false;
         postProcess = false;
       }
     }
-  }
-
-  /**
-   * Generates the right options when dictionary-related name finders are not
-   * used.
-   * 
-   * @param lang
-   *          the language
-   * @param model
-   *          the model
-   * @param features
-   *          the features
-   * @param beamsize
-   *          the beamsize for decoding
-   * @param dictPath
-   *          the directory containing the dictionaries
-   * @param ruleBasedOption
-   *          the lexer option
-   */
-  private void nonDictOptions(Properties properties, TrainingParameters params) {
-    String dictPath = properties.getProperty("dictPath");
-    String ruleBasedOption = properties.getProperty("ruleBasedOption");
-
-    if (dictPath.equals(CLI.DEFAULT_DICT_PATH)
-        && !ruleBasedOption.equals(CLI.DEFAULT_LEXER)) {
-      nameFinder = new StatisticalNameFinder(properties, params, nameFactory);
+    else if (!ruleBasedOption.equals(CLI.DEFAULT_LEXER)) {
       lexerFind = true;
       statistical = true;
       dictTag = false;
       postProcess = false;
     }
     else {
-      nameFinder = new StatisticalNameFinder(properties, params, nameFactory);
       lexerFind = false;
       statistical = true;
       dictTag = false;

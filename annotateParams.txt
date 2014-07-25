@@ -1,0 +1,74 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License. You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+##################################################
+#### Annotation features for ixa-pipe-nerc    ####
+##################################################
+
+# Languages supported: de, en, es, it, nl
+Language=en
+
+# Beamsize 1 amounts to greedy search
+Beamsize=3
+
+##############
+## FEATURES ##
+##############
+
+# Window: left and right window range from the current token. TokenFeatures
+# and TokenClassFeatures depend on the window range specified here.
+Window=2:2
+
+# TokenFeatures: include current token (both in original and lowercase form)
+TokenFeatures=yes
+
+# TokenClassFeatures: include token shape features (capitalization, digits,
+# etc. see FastTokenClassFeatureGenerator class in ixa.pipe.nerc.train.features
+# for details
+TokenClassFeatures=yes
+
+# OutcomePriorFeatures: maps the underlying previous outcomes
+OutcomePriorFeatures=yes
+
+# PreviousMapFeatures: takes into account previous decisions and adds them as
+# features
+PreviousMapFeatures=yes
+
+# SentenceFeatures: add first and last words of sentence as features.
+SentenceFeatures=yes
+
+# PrefixFeatures: takes first 4 characters of current token as feature.
+PrefixFeatures=yes
+
+# SuffixFeatures: takes last 4 characters of current token as feature.
+SuffixFeatures=yes
+
+# BigramClassFeatures: adds bigram features based on tokens and their class
+# features.
+BigramClassFeatures=yes
+
+# TrigramClassFeatures: add trigram features based on tokens and their class
+# features.
+TrigramClassFeatures=no
+
+# CharNgramFeatures: min and maximum length for character ngrams of current
+# token. If value is yes, specify the desired range in CharNgramFeaturesRange.
+CharNgramFeatures=yes
+CharNgramFeaturesRange=2:5
+
+# DictionaryFeatures: add features if token found in some gazetteers.
+DictionaryFeatures=no
+
+## END FEATURES ##
