@@ -189,12 +189,12 @@ public class CLI {
     if (parsedArguments.get("lang") == null) {
       lang = kaf.getLang();
     } else {
-      lang = params.getSettings().get("Language");
+      lang = parsedArguments.get("lang");
     }
     KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor(
         "entities", "ixa-pipe-nerc-" + lang + "-" + model, version);
     newLp.setBeginTimestamp();
-    Properties properties = setAnnotateProperties(model, dictionariesOption,
+    Properties properties = setAnnotateProperties(lang, model, dictionariesOption,
         dictPath, lexer);
     Annotate annotator = new Annotate(properties, params);
     annotator.annotateNEsToKAF(kaf);
@@ -297,6 +297,7 @@ public class CLI {
   private void loadAnnotateParameters() {
     annotateParser.addArgument("-p", "--params").required(true)
         .help("Load the parameters file\n");
+    annotateParser.addArgument("-l", "--lang").required(false).choices("de","en","es","it","nl").help("choose language for annotation\n");
     annotateParser.addArgument("-m", "--model").required(false)
         .setDefault(DEFAULT_EVALUATE_MODEL)
         .help("Choose model to perform NERC annotation\n");
@@ -395,9 +396,10 @@ public class CLI {
     return nercTrainer;
   }
 
-  private Properties setAnnotateProperties(String model, String dictOption,
+  private Properties setAnnotateProperties(String lang, String model, String dictOption,
       String dictPath, String ruleBasedOption) {
     Properties annotateProperties = new Properties();
+    annotateProperties.setProperty("lang", lang);
     annotateProperties.setProperty("model", model);
     annotateProperties.setProperty("dictOption", dictOption);
     annotateProperties.setProperty("dictPath", dictPath);

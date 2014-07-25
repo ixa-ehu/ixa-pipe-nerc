@@ -79,6 +79,6 @@ CharNgramFeatures=yes
 CharNgramFeaturesRange=2:5
 
 # DictionaryFeatures: add features if token found in some gazetteers.
-DictionaryFeatures=no
+DictionaryFeatures=yes
 
 ## END FEATURES ##

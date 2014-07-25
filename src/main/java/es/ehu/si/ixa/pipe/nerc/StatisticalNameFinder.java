@@ -67,7 +67,7 @@ public class StatisticalNameFinder implements NameFinder {
    * @param beamsize the beamsize for decoding
    */
   public StatisticalNameFinder(final Properties props, final TrainingParameters params) {
-    String lang = params.getSettings().get("Language");
+    String lang = props.getProperty("lang");
     String model = props.getProperty("model");
     Integer beamsize = Integer.parseInt(params.getSettings().get("Beamsize"));
     NameModel nerModel = loadModel(lang, model);
@@ -87,9 +87,9 @@ public class StatisticalNameFinder implements NameFinder {
    */
   public StatisticalNameFinder(final Properties props, final TrainingParameters params, final NameFactory aNameFactory) {
 
-    String lang = params.getSettings().get("Language");
     Integer beamsize = Integer.parseInt(params.getSettings().get("Beamsize"));
     String model = props.getProperty("model");
+    String lang = props.getProperty("lang");
     this.nameFactory = aNameFactory;
     NameModel nerModel = loadModel(lang, model);
     nameFinderTrainer = getTrainer(props, params);
