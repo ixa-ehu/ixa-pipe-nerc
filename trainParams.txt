@@ -78,12 +78,13 @@ BigramClassFeatures=yes
 # features.
 TrigramClassFeatures=no
 
-# CharNgramFeatures: min and maximum length for character ngrams of curren
-# token.
-CharNgramFeatures=2:5
+# CharNgramFeatures: min and maximum length for character ngrams of current
+# token. If value is yes, specify the desired range in CharNgramFeaturesRange.
+CharNgramFeatures=yes
+CharNgramFeaturesRange=2:5
 
 # DictionaryFeatures: add features if token found in some gazetteers.
-DictionaryFeatures=no
+DictionaryFeatures=yes
 
 ## END FEATURES ##
 

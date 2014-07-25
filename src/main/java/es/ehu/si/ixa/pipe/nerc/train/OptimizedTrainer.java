@@ -80,27 +80,71 @@ public class OptimizedTrainer {
   public List<Set<AdaptiveFeatureGenerator>> createFeatureLists(TrainingParameters params) {
     
     List<Set<AdaptiveFeatureGenerator>> featureLists = new ArrayList<Set<AdaptiveFeatureGenerator>>();
-    int leftWindow = getWindowRange(params).get(0);
-    int rightWindow = getWindowRange(params).get(1);
-    int minLength = getNgramRange(params).get(0);
-    int maxLength = getNgramRange(params).get(1);
+    int leftWindow = FixedTrainer.getWindowRange(params).get(0);
+    int rightWindow = FixedTrainer.getWindowRange(params).get(1);
+    int minLength = FixedTrainer.getNgramRange(params).get(0);
+    int maxLength = FixedTrainer.getNgramRange(params).get(1);
     
-    addWindowTokenFeatureList(leftWindow, rightWindow, featureLists);
-    addWindowTokenClassFeatureList(leftWindow, rightWindow, featureLists);
-    addOutcomePriorFeatureList(featureLists);
-    addPreviousMapFeatureList(featureLists);
-    addSentenceFeatureList(featureLists);
-    addPrefixFeatures(featureLists);
-    addSuffixFeatures(featureLists);
-    addBigramClassFeatureList(featureLists);
-    addTrigramClassFeatureList(featureLists);
-    addCharNgramFeatures(minLength, maxLength, featureLists);
-    addDictionaryFeatures(featureLists);
+    
+    if (params.getSettings().get("TokenFeatures").equalsIgnoreCase("yes")) {
+      addWindowTokenFeaturesList(leftWindow, rightWindow, featureLists);
+      System.err.println("-> Token features added!");
+    } 
+    if (params.getSettings().get("TokenClassFeatures")
+        .equalsIgnoreCase("yes")) {
+      addWindowTokenClassFeaturesList(leftWindow, rightWindow, featureLists);
+      System.err.println("-> Token Class features added!");
+    } 
+    if (params.getSettings().get("OutcomePriorFeatures")
+        .equalsIgnoreCase("yes")) {
+      addOutcomePriorFeaturesList(featureLists);
+      System.err.println("-> Outcome prior features added!");
+    } 
+    if (params.getSettings().get("PreviousMapFeatures")
+        .equalsIgnoreCase("yes")) {
+      addPreviousMapFeaturesList(featureLists);
+      System.err.println("-> Previous map features added!");
+    } 
+    if (params.getSettings().get("SentenceFeatures")
+        .equalsIgnoreCase("yes")) {
+      addSentenceFeaturesList(featureLists);
+      System.err.println("-> Sentence features added!");
+    }
+    if (params.getSettings().get("PrefixFeatures")
+        .equalsIgnoreCase("yes")) {
+      addPrefixFeaturesList(featureLists);
+      System.err.println("-> Prefix features added!");
+    } 
+    if (params.getSettings().get("SuffixFeatures")
+        .equalsIgnoreCase("yes")) {
+      addSuffixFeaturesList(featureLists);
+      System.err.println("-> Suffix features added!");
+    } 
+    if (params.getSettings().get("BigramClassFeatures")
+        .equalsIgnoreCase("yes")) {
+      addBigramClassFeaturesList(featureLists);
+      System.err.println("-> Bigram class features added!");
+    } 
+    if (params.getSettings().get("TrigramClassFeatures")
+        .equalsIgnoreCase("yes")) {
+      addTrigramClassFeaturesList(featureLists);
+      System.err.println("-> Trigram class features added!");
+    } 
+    if (params.getSettings().get("CharNgramFeatures")
+        .equalsIgnoreCase("yes")) {
+      addCharNgramFeaturesList(minLength, maxLength, featureLists);
+      System.err.println("-> CharNgram features added!");
+    } 
+    if (params.getSettings().get("DictionaryFeatures")
+        .equalsIgnoreCase("yes")) {
+      addDictionaryFeaturesList(featureLists);
+      System.err.println("-> Dictionary features added!");
+    }
     
     return featureLists;
   }
   
-  public static void addWindowTokenFeatureList(int leftWindow, int rightWindow, List<Set<AdaptiveFeatureGenerator>> featureLists) {
+  public static void addWindowTokenFeaturesList(int leftWindow, int rightWindow, List<Set<AdaptiveFeatureGenerator>> featureLists) {
     Set<AdaptiveFeatureGenerator> featureSet = new HashSet<AdaptiveFeatureGenerator>();
     List<IntPair> windowParams = getListFromRange(leftWindow, rightWindow);
     for (IntPair elem: windowParams) {
@@ -109,7 +153,7 @@ public class OptimizedTrainer {
     featureLists.add(featureSet);
   }
   
-  public static void addWindowTokenClassFeatureList(int leftWindow, int rightWindow, List<Set<AdaptiveFeatureGenerator>> featureLists) {
+  public static void addWindowTokenClassFeaturesList(int leftWindow, int rightWindow, List<Set<AdaptiveFeatureGenerator>> featureLists) {
     Set<AdaptiveFeatureGenerator> featureList = new HashSet<AdaptiveFeatureGenerator>();
     List<IntPair> windowParams = getListFromRange(leftWindow, rightWindow);
     for (IntPair elem: windowParams) {
@@ -118,49 +162,49 @@ public class OptimizedTrainer {
     featureLists.add(featureList);
   }
   
-  public static void addOutcomePriorFeatureList(List<Set<AdaptiveFeatureGenerator>> featureLists) {
+  public static void addOutcomePriorFeaturesList(List<Set<AdaptiveFeatureGenerator>> featureLists) {
     Set<AdaptiveFeatureGenerator> featureList = new HashSet<AdaptiveFeatureGenerator>(Arrays.asList(
         new OutcomePriorFeatureGenerator()));
     featureLists.add(featureList);
   }
   
-  public static void addPreviousMapFeatureList(List<Set<AdaptiveFeatureGenerator>> featureLists) {
+  public static void addPreviousMapFeaturesList(List<Set<AdaptiveFeatureGenerator>> featureLists) {
     Set<AdaptiveFeatureGenerator> featureList = new HashSet<AdaptiveFeatureGenerator>(Arrays.asList(
         new PreviousMapFeatureGenerator()));
     featureLists.add(featureList);
   }
   
-  public static void addSentenceFeatureList(List<Set<AdaptiveFeatureGenerator>> featureLists) {
+  public static void addSentenceFeaturesList(List<Set<AdaptiveFeatureGenerator>> featureLists) {
     Set<AdaptiveFeatureGenerator> featureList = new HashSet<AdaptiveFeatureGenerator>(Arrays.asList(
         new SentenceFeatureGenerator(true,
             false)));
     featureLists.add(featureList);
   }
 
-  public static void addPrefixFeatures(List<Set<AdaptiveFeatureGenerator>> featureLists) {
+  public static void addPrefixFeaturesList(List<Set<AdaptiveFeatureGenerator>> featureLists) {
     Set<AdaptiveFeatureGenerator> featureList = new HashSet<AdaptiveFeatureGenerator>();
     featureList.add(new Prefix34FeatureGenerator());
     featureLists.add(featureList);
   }
-  public static void addSuffixFeatures(List<Set<AdaptiveFeatureGenerator>> featureLists) {
+  public static void addSuffixFeaturesList(List<Set<AdaptiveFeatureGenerator>> featureLists) {
     Set<AdaptiveFeatureGenerator> featureList = new HashSet<AdaptiveFeatureGenerator>();
     featureList.add(new SuffixFeatureGenerator());
     featureLists.add(featureList);
   }
   
-  public static void addBigramClassFeatureList(List<Set<AdaptiveFeatureGenerator>> featureLists) {
+  public static void addBigramClassFeaturesList(List<Set<AdaptiveFeatureGenerator>> featureLists) {
     Set<AdaptiveFeatureGenerator> featureList = new HashSet<AdaptiveFeatureGenerator>(Arrays.asList(
         new BigramClassFeatureGenerator()));
     featureLists.add(featureList);
   }
   
-  public static void addTrigramClassFeatureList(List<Set<AdaptiveFeatureGenerator>> featureLists) {
+  public static void addTrigramClassFeaturesList(List<Set<AdaptiveFeatureGenerator>> featureLists) {
     Set<AdaptiveFeatureGenerator> featureList = new HashSet<AdaptiveFeatureGenerator>(Arrays.asList(
         new TrigramClassFeatureGenerator()));
     featureLists.add(featureList);
   }
   
-  public static void addCharNgramFeatures(int minLength, int maxLength, List<Set<AdaptiveFeatureGenerator>> featureLists) {
+  public static void addCharNgramFeaturesList(int minLength, int maxLength, List<Set<AdaptiveFeatureGenerator>> featureLists) {
     Set<AdaptiveFeatureGenerator> featureList = new HashSet<AdaptiveFeatureGenerator>();
     List<IntPair> rangeList = getListFromRange(minLength, maxLength);
     for (IntPair pair : rangeList) {
@@ -174,7 +218,7 @@ public class OptimizedTrainer {
    *
    * @param featureList the feature list containing the dictionary features
    */
-  private static void addDictionaryFeatures(final List<Set<AdaptiveFeatureGenerator>> featureLists) {
+  private static void addDictionaryFeaturesList(final List<Set<AdaptiveFeatureGenerator>> featureLists) {
     Set<AdaptiveFeatureGenerator> featureList = new HashSet<AdaptiveFeatureGenerator>();
     for (int i = 0; i < dictionaries.getIgnoreCaseDictionaries().size(); i++) {
       prefix = dictionaries.getDictNames().get(i);
@@ -201,30 +245,6 @@ public class OptimizedTrainer {
     List<IntPair> rangeList = new ArrayList<IntPair>(rangeSet);
     Collections.sort(rangeList);
     return rangeList;
-  }
-  
-  public static List<Integer> getWindowRange(TrainingParameters params) {
-    List<Integer> windowRange = new ArrayList<Integer>();
-    String windowParam = params.getSettings().get("Window");
-    String[] windowArray = windowParam.split("[ :-]");
-    if (windowArray.length == 2) {
-      windowRange.add(Integer.parseInt(windowArray[0]));
-      windowRange.add(Integer.parseInt(windowArray[1]));
-      
-    }
-    return windowRange;
-  }
-  
-  public static List<Integer> getNgramRange(TrainingParameters params) {
-    List<Integer> ngramRange = new ArrayList<Integer>();
-    String charngramParam = params.getSettings().get("CharNgram");
-    String[] charngramArray = charngramParam.split("[ :-]");
-    if (charngramArray.length == 2) {
-      ngramRange.add(Integer.parseInt(charngramArray[0]));
-      ngramRange.add(Integer.parseInt(charngramArray[1]));
-      
-    }
-    return ngramRange;
   }
   
 

@@ -18,14 +18,10 @@ package es.ehu.si.ixa.pipe.nerc.train;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
 import opennlp.tools.util.TrainingParameters;
-import es.ehu.si.ixa.pipe.nerc.IntPair;
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
 import es.ehu.si.ixa.pipe.nerc.features.AdaptiveFeatureGenerator;
@@ -97,7 +93,7 @@ public class FixedTrainer extends AbstractTrainer {
 
   /**
    * Construct a baseline trainer with external resources such as dictionaries
-   * specified.
+   * specified. Only for annotation.
    * 
    * @param beamsize
    *          the beamsize
@@ -113,6 +109,7 @@ public class FixedTrainer extends AbstractTrainer {
 
   /**
    * Construct a baseline trainer with only beamsize specified.
+   * Only for annotation.
    * 
    * @param beamsize
    *          the beamsize
@@ -146,57 +143,57 @@ public class FixedTrainer extends AbstractTrainer {
     
     if (params.getSettings().get("TokenFeatures").equalsIgnoreCase("yes")) {
       addWindowTokenFeatures(leftWindow, rightWindow, featureList);
-      System.err.println("adding token features");
+      System.err.println("-> Token features added!");
     } 
     if (params.getSettings().get("TokenClassFeatures")
         .equalsIgnoreCase("yes")) {
       addWindowTokenClassFeatures(leftWindow, rightWindow, featureList);
-      System.err.println("adding token class features");
+      System.err.println("-> Token Class features added!");
     } 
     if (params.getSettings().get("OutcomePriorFeatures")
         .equalsIgnoreCase("yes")) {
       addOutcomePriorFeatures(featureList);
-      System.err.println("adding outcome prior features");
+      System.err.println("-> Outcome prior features added!");
     } 
     if (params.getSettings().get("PreviousMapFeatures")
         .equalsIgnoreCase("yes")) {
       addPreviousMapFeatures(featureList);
-      System.err.println("adding previous map features");
+      System.err.println("-> Previous map features added!");
     } 
     if (params.getSettings().get("SentenceFeatures")
         .equalsIgnoreCase("yes")) {
       addSentenceFeatures(featureList);
-      System.err.println("adding sentence features");
+      System.err.println("-> Sentence features added!");
     }
     if (params.getSettings().get("PrefixFeatures")
         .equalsIgnoreCase("yes")) {
       addPrefixFeatures(featureList);
-      System.err.println("adding prefix features");
+      System.err.println("-> Prefix features added!");
     } 
     if (params.getSettings().get("SuffixFeatures")
         .equalsIgnoreCase("yes")) {
       addSuffixFeatures(featureList);
-      System.err.println("adding suffix features");
+      System.err.println("-> Suffix features added!");
     } 
     if (params.getSettings().get("BigramClassFeatures")
         .equalsIgnoreCase("yes")) {
       addBigramClassFeatures(featureList);
-      System.err.println("adding bigram class features");
+      System.err.println("-> Bigram class features added!");
     } 
     if (params.getSettings().get("TrigramClassFeatures")
         .equalsIgnoreCase("yes")) {
       addTrigramClassFeatures(featureList);
-      System.err.println("adding trigram class features");
+      System.err.println("-> Trigram class features added!");
     } 
     if (params.getSettings().get("CharNgramFeatures")
         .equalsIgnoreCase("yes")) {
       addCharNgramFeatures(minLength, maxLength, featureList);
-      System.err.println("adding charngram features");
+      System.err.println("-> CharNgram features added!");
     } 
     if (params.getSettings().get("DictionaryFeatures")
         .equalsIgnoreCase("yes")) {
       addDictionaryFeatures(featureList);
-      System.err.println("adding dictionary features");
+      System.err.println("-> Dictionary features added!");
     }
     return featureList;
   }
@@ -268,25 +265,6 @@ public class FixedTrainer extends AbstractTrainer {
     }
   }
 
-  public static List<IntPair> getListFromRange(int minLength, int maxLenght) {
-    List<Integer> rangeList1 = new ArrayList<Integer>();
-    List<Integer> rangeList2 = new ArrayList<Integer>();
-    Set<IntPair> rangeSet = new HashSet<IntPair>();
-    for (int i = minLength; i < maxLenght + 1; ++i) {
-      rangeList1.add(i);
-      rangeList2.add(i);
-    }
-    for (Integer elem : rangeList1) {
-      for (Integer item : rangeList2) {
-        IntPair pair = new IntPair(elem, item);
-        rangeSet.add(pair);
-      }
-    }
-    List<IntPair> rangeList = new ArrayList<IntPair>(rangeSet);
-    Collections.sort(rangeList);
-    return rangeList;
-  }
-
   public static List<Integer> getWindowRange(TrainingParameters params) {
     List<Integer> windowRange = new ArrayList<Integer>();
     String windowParam = params.getSettings().get("Window");
@@ -301,7 +279,7 @@ public class FixedTrainer extends AbstractTrainer {
 
   public static List<Integer> getNgramRange(TrainingParameters params) {
     List<Integer> ngramRange = new ArrayList<Integer>();
-    String charngramParam = params.getSettings().get("CharNgramFeatures");
+    String charngramParam = params.getSettings().get("CharNgramFeaturesRange");
     String[] charngramArray = charngramParam.split("[ :-]");
     if (charngramArray.length == 2) {
       ngramRange.add(Integer.parseInt(charngramArray[0]));
