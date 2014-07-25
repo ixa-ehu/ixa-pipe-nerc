@@ -143,39 +143,60 @@ public class FixedTrainer extends AbstractTrainer {
     int rightWindow = getWindowRange(params).get(1);
     int minLength = getNgramRange(params).get(0);
     int maxLength = getNgramRange(params).get(1);
-
+    
     if (params.getSettings().get("TokenFeatures").equalsIgnoreCase("yes")) {
       addWindowTokenFeatures(leftWindow, rightWindow, featureList);
-    } else if (params.getSettings().get("TokenClassFeatures")
+      System.err.println("adding token features");
+    } 
+    if (params.getSettings().get("TokenClassFeatures")
         .equalsIgnoreCase("yes")) {
       addWindowTokenClassFeatures(leftWindow, rightWindow, featureList);
-    } else if (params.getSettings().get("OutcomePriorFeatures")
+      System.err.println("adding token class features");
+    } 
+    if (params.getSettings().get("OutcomePriorFeatures")
         .equalsIgnoreCase("yes")) {
       addOutcomePriorFeatures(featureList);
-    } else if (params.getSettings().get("PreviousMapFeatures")
+      System.err.println("adding outcome prior features");
+    } 
+    if (params.getSettings().get("PreviousMapFeatures")
         .equalsIgnoreCase("yes")) {
       addPreviousMapFeatures(featureList);
-    } else if (params.getSettings().get("SentenceFeatures")
+      System.err.println("adding previous map features");
+    } 
+    if (params.getSettings().get("SentenceFeatures")
         .equalsIgnoreCase("yes")) {
       addSentenceFeatures(featureList);
-    } else if (params.getSettings().get("PrefixFeatures")
+      System.err.println("adding sentence features");
+    }
+    if (params.getSettings().get("PrefixFeatures")
         .equalsIgnoreCase("yes")) {
       addPrefixFeatures(featureList);
-    } else if (params.getSettings().get("SuffixFeatures")
+      System.err.println("adding prefix features");
+    } 
+    if (params.getSettings().get("SuffixFeatures")
         .equalsIgnoreCase("yes")) {
       addSuffixFeatures(featureList);
-    } else if (params.getSettings().get("BigramClassFeatures")
+      System.err.println("adding suffix features");
+    } 
+    if (params.getSettings().get("BigramClassFeatures")
         .equalsIgnoreCase("yes")) {
       addBigramClassFeatures(featureList);
-    } else if (params.getSettings().get("TrigramClassFeatures")
+      System.err.println("adding bigram class features");
+    } 
+    if (params.getSettings().get("TrigramClassFeatures")
         .equalsIgnoreCase("yes")) {
       addTrigramClassFeatures(featureList);
-    } else if (params.getSettings().get("CharNgramFeatures")
+      System.err.println("adding trigram class features");
+    } 
+    if (params.getSettings().get("CharNgramFeatures")
         .equalsIgnoreCase("yes")) {
       addCharNgramFeatures(minLength, maxLength, featureList);
-    } else if (params.getSettings().get("DictionaryFeatures")
+      System.err.println("adding charngram features");
+    } 
+    if (params.getSettings().get("DictionaryFeatures")
         .equalsIgnoreCase("yes")) {
       addDictionaryFeatures(featureList);
+      System.err.println("adding dictionary features");
     }
     return featureList;
   }
@@ -280,7 +301,7 @@ public class FixedTrainer extends AbstractTrainer {
 
   public static List<Integer> getNgramRange(TrainingParameters params) {
     List<Integer> ngramRange = new ArrayList<Integer>();
-    String charngramParam = params.getSettings().get("CharNgram");
+    String charngramParam = params.getSettings().get("CharNgramFeatures");
     String[] charngramArray = charngramParam.split("[ :-]");
     if (charngramArray.length == 2) {
       ngramRange.add(Integer.parseInt(charngramArray[0]));
