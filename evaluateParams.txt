@@ -71,7 +71,7 @@ BigramClassFeatures=yes
 
 # TrigramClassFeatures: add trigram features based on tokens and their class
 # features.
-TrigramClassFeatures=no
+TrigramClassFeatures=yes
 
 # CharNgramFeatures: min and maximum length for character ngrams of current
 # token. If value is yes, specify the desired range in CharNgramFeaturesRange.
