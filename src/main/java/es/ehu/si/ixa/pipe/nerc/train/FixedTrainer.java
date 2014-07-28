@@ -296,7 +296,6 @@ public class FixedTrainer extends AbstractTrainer {
     if (windowArray.length == 2) {
       windowRange.add(Integer.parseInt(windowArray[0]));
       windowRange.add(Integer.parseInt(windowArray[1]));
-
     }
     return windowRange;
   }
