@@ -147,12 +147,12 @@ public class FixedTrainer extends AbstractTrainer {
     
     if (params.getSettings().get("TokenFeatures").equalsIgnoreCase("yes")) {
       addWindowTokenFeatures(leftWindow, rightWindow, featureList);
-      System.err.println("-> Token features added!");
+      System.err.println("-> Token features with added!: Window range " + leftWindow + ":" + rightWindow);
     } 
     if (params.getSettings().get("TokenClassFeatures")
         .equalsIgnoreCase("yes")) {
       addWindowTokenClassFeatures(leftWindow, rightWindow, featureList);
-      System.err.println("-> Token Class features added!");
+      System.err.println("-> Token Class features added!: Window range " + leftWindow + ":" + rightWindow);
     } 
     if (params.getSettings().get("OutcomePriorFeatures")
         .equalsIgnoreCase("yes")) {
@@ -202,7 +202,7 @@ public class FixedTrainer extends AbstractTrainer {
     if (params.getSettings().get("CharNgramFeatures")
         .equalsIgnoreCase("yes")) {
       addCharNgramFeatures(minLength, maxLength, featureList);
-      System.err.println("-> CharNgram features added!");
+      System.err.println("-> CharNgram features added!: Range " + minLength + ":" + maxLength);
     } 
     if (params.getSettings().get("DictionaryFeatures")
         .equalsIgnoreCase("yes")) {

@@ -86,7 +86,8 @@ public class TokenClassFeatureGenerator extends FeatureGeneratorAdapter {
       feat = "2d";
     } else if (pattern.digits() == 4) {
       feat = "4d";
-    } else if (pattern.containsDigit()) {
+    }
+    else if (pattern.containsDigit()) {
       if (pattern.containsLetters()) {
         feat = "an";
       } else if (pattern.containsHyphen()) {

@@ -80,7 +80,7 @@ TrigramClassFeatures=yes
 
 # FourgramClassFeatures: add fourgram features based on tokens and their
 # class features.
-FourgramClassFeatures=yes
+FourgramClassFeatures=no
 
 # FivegramClassFeatures: add fivegram features based on tokens and their class
 # features.
