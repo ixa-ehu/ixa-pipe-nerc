@@ -215,7 +215,6 @@ public class CLI {
     String trainSet = parsedArguments.getString("trainSet");
     String devSet = parsedArguments.getString("devSet");
     String testSet = parsedArguments.getString("testSet");
-    String trainMethod = parsedArguments.getString("trainMethod");
     String dictPath = parsedArguments.getString("dictPath");
     String outModel = null;
     // load training parameters file
@@ -226,11 +225,10 @@ public class CLI {
     if (parsedArguments.get("output") != null) {
       outModel = parsedArguments.getString("output");
     } else {
-      outModel = FilenameUtils.removeExtension(trainSet) + "-"
-          + trainMethod + "-model"
+      outModel = FilenameUtils.removeExtension(trainSet) + "-" + "-model"
           + ".bin";
     }
-    Properties props = setTrainProperties(dictPath, trainMethod);
+    Properties props = setTrainProperties(dictPath);
     Trainer nercTrainer = new FixedTrainer(props, trainSet, testSet, params);
     String evalParam = params.getSettings().get("CrossEval");
     String[] evalRange = evalParam.split("[ :-]");
@@ -379,10 +377,9 @@ public class CLI {
     return annotateProperties;
   }
 
-  private Properties setTrainProperties(String dictPath, String trainMethod) {
+  private Properties setTrainProperties(String dictPath) {
     Properties trainProperties = new Properties();
     trainProperties.setProperty("dictPath", dictPath);
-    trainProperties.setProperty("trainMethod", trainMethod);
     return trainProperties;
   }
 
