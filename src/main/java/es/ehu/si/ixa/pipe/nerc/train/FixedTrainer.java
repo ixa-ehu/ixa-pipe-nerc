@@ -29,6 +29,8 @@ import es.ehu.si.ixa.pipe.nerc.features.BigramClassFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.CachedFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.CharacterNgramFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.DictionaryFeatureGenerator;
+import es.ehu.si.ixa.pipe.nerc.features.FivegramClassFeatureGenerator;
+import es.ehu.si.ixa.pipe.nerc.features.FourgramClassFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.OutcomePriorFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.Prefix34FeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.PreviousMapFeatureGenerator;
@@ -41,7 +43,7 @@ import es.ehu.si.ixa.pipe.nerc.features.WindowFeatureGenerator;
 
 /**
  * Training NER based on Apache OpenNLP Machine Learning API for English. This
- * class creates a featureset based on the features activated in the
+ * class creates a feature set based on the features activated in the
  * trainParams.txt properties file:
  * <ol>
  * <li>Window: specify left and right window lengths.
@@ -54,12 +56,14 @@ import es.ehu.si.ixa.pipe.nerc.features.WindowFeatureGenerator;
  * <li>SuffixFeatures: last 4 characters in current token.
  * <li>BigramClassFeatures: bigrams of tokens and token class.
  * <li>TrigramClassFeatures: trigrams of token and token class.
+ * <li>FourgramClassFeatures: fourgrams of token and token class.
+ * <li>FivegramClassFeatures: fivegrams of token and token class.
  * <li>CharNgramFeatures: character ngram features of current token.
  * <li>DictionaryFeatures: check if current token appears in some gazetteer.
  * <ol>
  * 
  * @author ragerri
- * @version 2014-07-25
+ * @version 2014-07-28
  */
 public class FixedTrainer extends AbstractTrainer {
 
@@ -184,6 +188,16 @@ public class FixedTrainer extends AbstractTrainer {
         .equalsIgnoreCase("yes")) {
       addTrigramClassFeatures(featureList);
       System.err.println("-> Trigram class features added!");
+    }
+    if (params.getSettings().get("FourgramClassFeatures")
+        .equalsIgnoreCase("yes")) {
+      addFourgramClassFeatures(featureList);
+      System.err.println("-> 4-gram class features added!");
+    }
+    if (params.getSettings().get("FivegramClassFeatures")
+        .equalsIgnoreCase("yes")) {
+      addFivegramClassFeatures(featureList);
+      System.err.println("-> 5-gram class features added!");
     } 
     if (params.getSettings().get("CharNgramFeatures")
         .equalsIgnoreCase("yes")) {
@@ -243,6 +257,16 @@ public class FixedTrainer extends AbstractTrainer {
   public static void addTrigramClassFeatures(
       List<AdaptiveFeatureGenerator> featureList) {
     featureList.add(new TrigramClassFeatureGenerator());
+  }
+  
+  public static void addFourgramClassFeatures(
+      List<AdaptiveFeatureGenerator> featureList) {
+    featureList.add(new FourgramClassFeatureGenerator());
+  }
+  
+  public static void addFivegramClassFeatures(
+      List<AdaptiveFeatureGenerator> featureList) {
+    featureList.add(new FivegramClassFeatureGenerator());
   }
 
   public static void addCharNgramFeatures(int minLength, int maxLength,

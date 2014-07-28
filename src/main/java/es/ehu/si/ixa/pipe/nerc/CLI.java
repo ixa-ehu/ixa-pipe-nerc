@@ -231,7 +231,7 @@ public class CLI {
           + ".bin";
     }
     Properties props = setTrainProperties(dictPath, trainMethod);
-    Trainer nercTrainer = chooseTrainer(trainSet, testSet, props, params);
+    Trainer nercTrainer = new FixedTrainer(props, trainSet, testSet, params);
     String evalParam = params.getSettings().get("CrossEval");
     String[] evalRange = evalParam.split("[ :-]");
     NameModel trainedModel = null;
@@ -325,17 +325,11 @@ public class CLI {
    */
   private void loadTrainingParameters() {
     trainParser
-        .addArgument("-m", "--trainMethod")
-        .choices("fixed", "optimized")
-        .required(true)
-        .help(
-            "Uses features as specified in trainParams.txt file or will try to optimize the variables values\n");
-    trainParser
         .addArgument("--dictPath")
         .setDefault(DEFAULT_DICT_PATH)
         .required(false)
         .help(
-            "Provide directory containing dictionaries for its use with dict featureset\n");
+            "Provide directory containing dictionaries if dictionary features in params file is activated\n");
     trainParser.addArgument("-p", "--params").required(true)
         .help("Load the parameters file\n");
     trainParser.addArgument("-i", "--trainSet").required(true)
@@ -372,28 +366,6 @@ public class CLI {
             "Use this parameter to evaluate one prediction corpus against a reference corpus\n");
     evalParser.addArgument("--evalReport").required(false)
         .choices("brief", "detailed", "error");
-  }
-
-  /**
-   * Choose the NameFinder training according to training method.
-   * 
-   * @return the name finder trainer
-   * @throws IOException
-   *           throws
-   */
-  private Trainer chooseTrainer(String trainSet, String testSet,
-      Properties props, TrainingParameters params) throws IOException {
-    Trainer nercTrainer = null;
-    if (props.getProperty("trainMethod").equalsIgnoreCase("fixed")) {
-      nercTrainer = new FixedTrainer(props, trainSet, testSet, params);
-    } else if (props.getProperty("trainMethod").equalsIgnoreCase("optimized")) {
-      nercTrainer = new FixedTrainer(props, trainSet, testSet, params);
-    } else {
-      System.err
-          .println("You need to provide the directory containing the dictionaries!\n");
-      System.exit(1);
-    }
-    return nercTrainer;
   }
 
   private Properties setAnnotateProperties(String lang, String model, String dictOption,

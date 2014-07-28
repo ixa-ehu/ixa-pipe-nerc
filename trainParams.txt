@@ -78,6 +78,14 @@ BigramClassFeatures=yes
 # features.
 TrigramClassFeatures=yes
 
+# FourgramClassFeatures: add fourgram features based on tokens and their
+# class features.
+FourgramClassFeatures=no
+
+# FivegramClassFeatures: add fivegram features based on tokens and their class
+# features.
+FivegramClassFeatures=no
+
 # CharNgramFeatures: min and maximum length for character ngrams of current
 # token. If value is yes, specify the desired range in CharNgramFeaturesRange.
 CharNgramFeatures=yes
