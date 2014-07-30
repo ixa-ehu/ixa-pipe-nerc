@@ -116,9 +116,10 @@ public class Annotate {
   // TODO surely we can simplify this?
   private void annotateOptions(Properties properties,
       TrainingParameters params) throws IOException {
-    String dictPath = properties.getProperty("dictPath");
+    
     String ruleBasedOption = properties.getProperty("ruleBasedOption");
-    String dictOption = properties.getProperty("dictOption");
+    String dictPath = params.getSettings().get("DictionaryPath");
+    String dictOption = params.getSettings().get("DirectDictionaryTagging");
     nameFinder = new StatisticalNameFinder(properties, params, nameFactory);
     if (!dictPath.equals(CLI.DEFAULT_DICT_PATH)) {
       if (!ruleBasedOption.equals(CLI.DEFAULT_LEXER)) {

@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Properties;
 
 import opennlp.tools.util.TrainingParameters;
+import es.ehu.si.ixa.pipe.nerc.dict.BrownCluster;
+import es.ehu.si.ixa.pipe.nerc.dict.ClarkCluster;
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
 import es.ehu.si.ixa.pipe.nerc.features.AdaptiveFeatureGenerator;
@@ -29,6 +31,7 @@ import es.ehu.si.ixa.pipe.nerc.features.BigramClassFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.CachedFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.CharacterNgramFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.DictionaryFeatureGenerator;
+import es.ehu.si.ixa.pipe.nerc.features.DistSimFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.FivegramClassFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.FourgramClassFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.OutcomePriorFeatureGenerator;
@@ -60,6 +63,7 @@ import es.ehu.si.ixa.pipe.nerc.features.WindowFeatureGenerator;
  * <li>FivegramClassFeatures: fivegrams of token and token class.
  * <li>CharNgramFeatures: character ngram features of current token.
  * <li>DictionaryFeatures: check if current token appears in some gazetteer.
+ * <li>DistSimFeatures: use the clustering class of a token as a feature.
  * <ol>
  * 
  * @author ragerri
@@ -79,35 +83,32 @@ public class FixedTrainer extends AbstractTrainer {
    * The prefix to be used in the {@link DictionaryFeatureGenerator}.
    */
   private static String prefix;
+  /**
+   * The clustering lexicon.
+   */
+  private static ClarkCluster distSimCluster;
+  /**
+   * The clustering dictionary;
+   */
+  private static Dictionary distSimLexicon;
+  /**
+   * The brown cluster.
+   */
+  private static BrownCluster brownCluster;
+  /**
+   * The clustering dictionary;
+   */
+  private static boolean brownFeatures = false;
 
   /**
    * Construct a trainer based on features specified in the trainParams.txt
    * properties file.
    */
-  public FixedTrainer(final Properties props, final String trainData,
+  public FixedTrainer(final String trainData,
       final String testData, final TrainingParameters params)
       throws IOException {
     super(trainData, testData, params);
-    String dictPath = props.getProperty("dictPath");
-    if (dictionaries == null) {
-      dictionaries = new Dictionaries(dictPath);
-    }
-    setFeatures(createFeatureGenerator(params));
-  }
-
-  /**
-   * Construct a baseline trainer with external resources such as dictionaries
-   * specified. Only for annotation.
-   * 
-   * @param beamsize
-   *          the beamsize
-   */
-  public FixedTrainer(Properties props, TrainingParameters params) {
-    super(params);
-    String dictPath = props.getProperty("dictPath");
-    if (dictionaries == null) {
-      dictionaries = new Dictionaries(dictPath);
-    }
+    
     setFeatures(createFeatureGenerator(params));
   }
 
@@ -137,7 +138,7 @@ public class FixedTrainer extends AbstractTrainer {
     return new CachedFeatureGenerator(featuresArray);
   }
 
-  public static final List<AdaptiveFeatureGenerator> createFeatureList(
+  private final List<AdaptiveFeatureGenerator> createFeatureList(
       TrainingParameters params) {
     List<AdaptiveFeatureGenerator> featureList = new ArrayList<AdaptiveFeatureGenerator>();
     int leftWindow = getWindowRange(params).get(0);
@@ -146,8 +147,17 @@ public class FixedTrainer extends AbstractTrainer {
     int maxLength = getNgramRange(params).get(1);
     
     if (params.getSettings().get("TokenFeatures").equalsIgnoreCase("yes")) {
+      if (params.getSettings().get("BrownClusterFeatures")
+          .equalsIgnoreCase("yes")) {
+        brownFeatures = true;
+        System.err.println("-> Brown cluster Token features added!");
+        String brownClusterPath = params.getSettings().get("BrownClusterPath");
+        if (brownCluster == null) {
+          brownCluster = new BrownCluster(brownClusterPath);
+        }
+      }
       addWindowTokenFeatures(leftWindow, rightWindow, featureList);
-      System.err.println("-> Token features with added!: Window range " + leftWindow + ":" + rightWindow);
+      System.err.println("-> Token features added!: Window range " + leftWindow + ":" + rightWindow);
     } 
     if (params.getSettings().get("TokenClassFeatures")
         .equalsIgnoreCase("yes")) {
@@ -206,16 +216,36 @@ public class FixedTrainer extends AbstractTrainer {
     } 
     if (params.getSettings().get("DictionaryFeatures")
         .equalsIgnoreCase("yes")) {
-      addDictionaryFeatures(featureList);
       System.err.println("-> Dictionary features added!");
+      String dictPath = params.getSettings().get("DictionaryPath");
+      if (dictionaries == null) {
+        dictionaries = new Dictionaries(dictPath);
+      }
+      addDictionaryFeatures(featureList);
+    }
+    if (params.getSettings().get("DistSimFeatures")
+        .equalsIgnoreCase("yes")) {
+      System.err.println("-> Distributional similarity features added!");
+      String distSimPath = params.getSettings().get("DistSimPath");
+      if (distSimCluster == null) {
+        distSimCluster = new ClarkCluster(distSimPath);
+      }
+      addDistSimFeatures(featureList);
     }
     return featureList;
   }
 
   public static void addWindowTokenFeatures(int leftWindow, int rightWindow,
       List<AdaptiveFeatureGenerator> featureList) {
-    featureList.add(new WindowFeatureGenerator(new TokenFeatureGenerator(),
-        leftWindow, rightWindow));
+    if (brownFeatures) {
+      featureList.add(new WindowFeatureGenerator(new TokenFeatureGenerator(true, brownFeatures, brownCluster),
+          leftWindow, rightWindow));
+    }
+    else {
+      featureList.add(new WindowFeatureGenerator(new TokenFeatureGenerator(),
+          leftWindow, rightWindow));
+    }
+    
   }
 
   public static void addWindowTokenClassFeatures(int leftWindow,
@@ -287,6 +317,11 @@ public class FixedTrainer extends AbstractTrainer {
       dictionary = dictionaries.getIgnoreCaseDictionaries().get(i);
       featureList.add(new DictionaryFeatureGenerator(prefix, dictionary));
     }
+  }
+  
+  private static void addDistSimFeatures(final List<AdaptiveFeatureGenerator> featureList) {
+    distSimLexicon = distSimCluster.getIgnoreCaseDictionary();
+    featureList.add(new DistSimFeatureGenerator(distSimLexicon));
   }
 
   public static List<Integer> getWindowRange(TrainingParameters params) {

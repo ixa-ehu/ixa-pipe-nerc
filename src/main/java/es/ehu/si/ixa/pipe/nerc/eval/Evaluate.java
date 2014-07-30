@@ -85,7 +85,7 @@ public class Evaluate {
         }
       }
     }
-    nameFinderTrainer = new FixedTrainer(properties, params);
+    nameFinderTrainer = new FixedTrainer(params);
     nameFinder = new NameClassifier(nercModel, nameFinderTrainer.createFeatureGenerator(params), beamsize);
   }
 

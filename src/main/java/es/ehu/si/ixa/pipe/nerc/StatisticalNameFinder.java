@@ -71,7 +71,7 @@ public class StatisticalNameFinder implements NameFinder {
     String model = props.getProperty("model");
     Integer beamsize = Integer.parseInt(params.getSettings().get("Beamsize"));
     NameModel nerModel = loadModel(lang, model);
-    nameFinderTrainer = getTrainer(props, params);
+    nameFinderTrainer = new FixedTrainer(params);
     nameFinder = new NameClassifier(nerModel,
         nameFinderTrainer.createFeatureGenerator(params), beamsize);
   }
@@ -92,7 +92,7 @@ public class StatisticalNameFinder implements NameFinder {
     String lang = props.getProperty("lang");
     this.nameFactory = aNameFactory;
     NameModel nerModel = loadModel(lang, model);
-    nameFinderTrainer = getTrainer(props, params);
+    nameFinderTrainer = new FixedTrainer(params);
     nameFinder = new NameClassifier(nerModel,
         nameFinderTrainer.createFeatureGenerator(params), beamsize);
   }
@@ -231,17 +231,6 @@ public class StatisticalNameFinder implements NameFinder {
       trainedModelInputStream = getClass().getResourceAsStream("/nl/nl-nerc-perceptron-baseline-c0-b3-conll02-testa.bin");
     }
     return trainedModelInputStream;
-  }
-  
-  private Trainer getTrainer(Properties props, TrainingParameters params) {
-    String dictPath = props.getProperty("dictPath");
-    if (!dictPath.equals(CLI.DEFAULT_DICT_PATH)) {
-      nameFinderTrainer = new FixedTrainer(props, params);
-    }
-    else {
-      nameFinderTrainer = new FixedTrainer(params);
-    }
-    return nameFinderTrainer;
   }
 
 }

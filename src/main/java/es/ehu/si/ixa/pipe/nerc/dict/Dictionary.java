@@ -19,8 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * It defines a Dictionary class consisting of a HashMap. The keys are Named
- * Entity tokens and the values are the corresponding Named Entity class.
+ * It defines a Dictionary class consisting of a HashMap.
  * 
  * @author ragerri
  * @version 2014/06/25
@@ -35,8 +34,8 @@ public class Dictionary {
 
   /**
    * Construct a Dictionary with a Map of Strings.
-   * The key is the Named Entity token and the value
-   * is the Named Entity class.
+   * The key can be a Named Entity token and the value
+   * its Named Entity class.
    * 
    * @param aMap
    *          the map of strings

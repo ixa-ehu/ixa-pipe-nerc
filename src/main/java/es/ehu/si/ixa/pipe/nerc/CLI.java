@@ -171,9 +171,7 @@ public class CLI {
       final OutputStream outputStream) throws IOException {
 
     String model = parsedArguments.getString("model");
-    String dictionariesOption = parsedArguments.getString("dictionaries");
     String lexer = parsedArguments.getString("lexer");
-    String dictPath = parsedArguments.getString("dictPath");
     // load training parameters file
     String paramFile = parsedArguments.getString("params");
     TrainingParameters params = InputOutputUtils
@@ -194,8 +192,7 @@ public class CLI {
     KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor(
         "entities", "ixa-pipe-nerc-" + lang + "-" + model, version);
     newLp.setBeginTimestamp();
-    Properties properties = setAnnotateProperties(lang, model, dictionariesOption,
-        dictPath, lexer);
+    Properties properties = setAnnotateProperties(lang, model, lexer);
     Annotate annotator = new Annotate(properties, params);
     annotator.annotateNEsToKAF(kaf);
     newLp.setEndTimestamp();
@@ -215,7 +212,6 @@ public class CLI {
     String trainSet = parsedArguments.getString("trainSet");
     String devSet = parsedArguments.getString("devSet");
     String testSet = parsedArguments.getString("testSet");
-    String dictPath = parsedArguments.getString("dictPath");
     String outModel = null;
     // load training parameters file
     String paramFile = parsedArguments.getString("params");
@@ -228,8 +224,7 @@ public class CLI {
       outModel = FilenameUtils.removeExtension(trainSet) + "-" + "-model"
           + ".bin";
     }
-    Properties props = setTrainProperties(dictPath);
-    Trainer nercTrainer = new FixedTrainer(props, trainSet, testSet, params);
+    Trainer nercTrainer = new FixedTrainer(trainSet, testSet, params);
     String evalParam = params.getSettings().get("CrossEval");
     String[] evalRange = evalParam.split("[ :-]");
     NameModel trainedModel = null;
@@ -255,7 +250,6 @@ public class CLI {
    */
   public final void eval() throws IOException {
 
-    String dictPath = parsedArguments.getString("dictPath");
     String model = parsedArguments.getString("model");
     String testSet = parsedArguments.getString("testSet");
     String predFile = parsedArguments.getString("prediction");
@@ -265,7 +259,7 @@ public class CLI {
         .loadTrainingParameters(paramFile);
     Properties properties = null;
     if (!parsedArguments.getString("model").equals(DEFAULT_EVALUATE_MODEL)) {
-      properties = setEvaluateProperties(testSet, model, dictPath);
+      properties = setEvaluateProperties(testSet, model);
       Evaluate evaluator = new Evaluate(properties, params);
       if (parsedArguments.getString("evalReport") != null) {
         if (parsedArguments.getString("evalReport").equalsIgnoreCase("brief")) {
@@ -307,12 +301,6 @@ public class CLI {
         .help(
             "Use gazetteers directly for tagging or "
                 + "for post-processing the probabilistic NERC output\n");
-    annotateParser
-        .addArgument("--dictPath")
-        .setDefault(DEFAULT_DICT_PATH)
-        .required(false)
-        .help(
-            "Path to the dictionaries if -d or -f dict options (or both) are chosen\n");
     annotateParser.addArgument("--lexer").choices("numeric")
         .setDefault(DEFAULT_LEXER).required(false)
         .help("Use lexer rules for NERC tagging\n");
@@ -322,12 +310,6 @@ public class CLI {
    * Create the main parameters available for training NERC models.
    */
   private void loadTrainingParameters() {
-    trainParser
-        .addArgument("--dictPath")
-        .setDefault(DEFAULT_DICT_PATH)
-        .required(false)
-        .help(
-            "Provide directory containing dictionaries if dictionary features in params file is activated\n");
     trainParser.addArgument("-p", "--params").required(true)
         .help("Load the parameters file\n");
     trainParser.addArgument("-i", "--trainSet").required(true)
@@ -349,12 +331,6 @@ public class CLI {
     evalParser.addArgument("-m", "--model").required(false)
         .setDefault(DEFAULT_EVALUATE_MODEL)
         .help("Choose model or prediction file\n");
-    evalParser
-        .addArgument("--dictPath")
-        .required(false)
-        .setDefault(DEFAULT_DICT_PATH)
-        .help(
-            "Path to the gazetteers for evaluation if dict features are used\n");
     evalParser.addArgument("-t", "--testSet").required(true)
         .help("Input testset for evaluation\n");
     evalParser
@@ -366,28 +342,18 @@ public class CLI {
         .choices("brief", "detailed", "error");
   }
 
-  private Properties setAnnotateProperties(String lang, String model, String dictOption,
-      String dictPath, String ruleBasedOption) {
+  private Properties setAnnotateProperties(String lang, String model, String ruleBasedOption) {
     Properties annotateProperties = new Properties();
     annotateProperties.setProperty("lang", lang);
     annotateProperties.setProperty("model", model);
-    annotateProperties.setProperty("dictOption", dictOption);
-    annotateProperties.setProperty("dictPath", dictPath);
     annotateProperties.setProperty("ruleBasedOption", ruleBasedOption);
     return annotateProperties;
   }
 
-  private Properties setTrainProperties(String dictPath) {
-    Properties trainProperties = new Properties();
-    trainProperties.setProperty("dictPath", dictPath);
-    return trainProperties;
-  }
-
-  private Properties setEvaluateProperties(String testSet, String model, String dictPath) {
+  private Properties setEvaluateProperties(String testSet, String model) {
     Properties evaluateProperties = new Properties();
     evaluateProperties.setProperty("testSet", testSet);
     evaluateProperties.setProperty("model", model);
-    evaluateProperties.setProperty("dictPath", dictPath);
     return evaluateProperties;
   }
 

@@ -25,10 +25,10 @@ Threads=4
 ##################################################
 
 # Languages supported: de, en, es, it, nl
-Language=de
+Language=en
 
 # Formats: conll02, conll03, germEvalOuter2014, germEvalInner2014, opennlp
-Corpus=germEvalOuter2014
+Corpus=opennlp
 
 # Named Entity types; if empty all ne types in the training corpus.
 # Otherwise, separate with comma, eg., location,organization,person,misc
@@ -64,7 +64,7 @@ PreviousMapFeatures=yes
 # SentenceFeatures: add first and last words of sentence as features.
 SentenceFeatures=yes
 
-# PrefixFeatures: takes first 4 characters of current token as feature.
+# PrefixFeatures: takes first 3rd and 4rd characters of current token as feature.
 PrefixFeatures=yes
 
 # SuffixFeatures: takes last 4 characters of current token as feature.
@@ -76,7 +76,7 @@ BigramClassFeatures=yes
 
 # TrigramClassFeatures: add trigram features based on tokens and their class
 # features.
-TrigramClassFeatures=yes
+TrigramClassFeatures=no
 
 # FourgramClassFeatures: add fourgram features based on tokens and their
 # class features.
@@ -88,11 +88,31 @@ FivegramClassFeatures=no
 
 # CharNgramFeatures: min and maximum length for character ngrams of current
 # token. If value is yes, specify the desired range in CharNgramFeaturesRange.
-CharNgramFeatures=yes
+CharNgramFeatures=no
 CharNgramFeaturesRange=2:5
 
 # DictionaryFeatures: add features if token found in some gazetteers.
-DictionaryFeatures=yes
+DictionaryFeatures=no
+DictionaryPath=~/javacode/ixa-pipe-nerc/nerc-resources/en/dictionaries
+
+# DirectDictionaryTagging: Use a gazetteer to directly annotate named entities. If off, only
+# statistical models are used (this is the default). If activated, it has two
+# options, "tag" and "post": tag only tags with a gazetteer and "post"
+# post-processes the probabilistic annotation giving priority to the
+# gazetteer. Obviously, this option depends on DictionaryPath being correctly
+# specified.
+DirectDictionaryTagging=off
+
+# DistSimFeatures: add features using Clark (2003) clusters. If value is yes,
+# specify the location of the clustering lexicon in Clark format.
+DistSimFeatures=yes
+DistSimPath=/home/ragerri/javacode/ixa-pipe-nerc/clusters.nem.32
+
+# BrownClusterFeatures: add features using Brown clusters
+# (http://metaoptimize.com/projects/wordreprs/). If yes, specify the location
+# of the Brown clustering lexicon.
+BrownClusterFeatures=no
+BrownClusterPath=/home/ragerri/javacode/ixa-pipe-nerc/brown-rcv1.clean.tokenized-CoNLL03.txt-c1000-freq1.txt
 
 ## END FEATURES ##
 
