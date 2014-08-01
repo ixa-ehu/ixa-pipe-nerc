@@ -70,6 +70,9 @@ import es.ehu.si.ixa.pipe.nerc.features.WindowFeatureGenerator;
  */
 public class FixedTrainer extends AbstractTrainer {
 
+  public static final String DEFAULT_FEATURE_FLAG = "no";
+  public static final String CHAR_NGRAM_RANGE = "2:5";
+  public static final String DEFAULT_WINDOW = "2:2";
   /**
    * The {@link Dictionaries} contained in the given directory.
    */
@@ -142,12 +145,11 @@ public class FixedTrainer extends AbstractTrainer {
     List<AdaptiveFeatureGenerator> featureList = new ArrayList<AdaptiveFeatureGenerator>();
     int leftWindow = getWindowRange(params).get(0);
     int rightWindow = getWindowRange(params).get(1);
-    int minLength = getNgramRange(params).get(0);
-    int maxLength = getNgramRange(params).get(1);
     
-    if (params.getSettings().get("TokenFeatures").equalsIgnoreCase("yes")) {
-      if (params.getSettings().get("BrownClusterFeatures")
-          .equalsIgnoreCase("yes")) {
+    String tokenParam = InputOutputUtils.getTokenFeatures(params);
+    if (tokenParam.equalsIgnoreCase("yes")) {
+      String brownFlag = InputOutputUtils.getBrownFeatures(params);
+      if (brownFlag.equalsIgnoreCase("yes")) {
         brownFeatures = true;
         System.err.println("-> Brown cluster Token features added!");
         String brownClusterPath = params.getSettings().get("BrownClusterPath");
@@ -157,75 +159,78 @@ public class FixedTrainer extends AbstractTrainer {
       }
       addWindowTokenFeatures(leftWindow, rightWindow, featureList);
       System.err.println("-> Token features added!: Window range " + leftWindow + ":" + rightWindow);
-    } 
-    if (params.getSettings().get("TokenClassFeatures")
-        .equalsIgnoreCase("yes")) {
+    }
+    String tokenClassParam = InputOutputUtils.getTokenClassFeatures(params);
+    if (tokenClassParam.equalsIgnoreCase("yes")) {
       addWindowTokenClassFeatures(leftWindow, rightWindow, featureList);
       System.err.println("-> Token Class features added!: Window range " + leftWindow + ":" + rightWindow);
-    } 
-    if (params.getSettings().get("OutcomePriorFeatures")
-        .equalsIgnoreCase("yes")) {
+    }
+    String outcomePriorParam = InputOutputUtils.getOutcomePriorFeatures(params);
+    if (outcomePriorParam.equalsIgnoreCase("yes")) {
       addOutcomePriorFeatures(featureList);
       System.err.println("-> Outcome prior features added!");
-    } 
-    if (params.getSettings().get("PreviousMapFeatures")
-        .equalsIgnoreCase("yes")) {
+    }
+    String previousMapParam = InputOutputUtils.getPreviousMapFeatures(params);
+    if (previousMapParam.equalsIgnoreCase("yes")) {
       addPreviousMapFeatures(featureList);
       System.err.println("-> Previous map features added!");
-    } 
-    if (params.getSettings().get("SentenceFeatures")
-        .equalsIgnoreCase("yes")) {
+    }
+    String sentenceParam = InputOutputUtils.getSentenceFeatures(params);
+    if (sentenceParam.equalsIgnoreCase("yes")) {
       addSentenceFeatures(featureList);
       System.err.println("-> Sentence features added!");
     }
-    if (params.getSettings().get("PrefixFeatures")
+    String preffixParam = InputOutputUtils.getPreffixFeatures(params);
+    if (preffixParam
         .equalsIgnoreCase("yes")) {
       addPrefixFeatures(featureList);
       System.err.println("-> Prefix features added!");
-    } 
-    if (params.getSettings().get("SuffixFeatures")
-        .equalsIgnoreCase("yes")) {
+    }
+    String suffixParam = InputOutputUtils.getSuffixFeatures(params);
+    if (suffixParam.equalsIgnoreCase("yes")) {
       addSuffixFeatures(featureList);
       System.err.println("-> Suffix features added!");
-    } 
-    if (params.getSettings().get("BigramClassFeatures")
-        .equalsIgnoreCase("yes")) {
+    }
+    String bigramClassParam = InputOutputUtils.getBigramClassFeatures(params);
+    if (bigramClassParam.equalsIgnoreCase("yes")) {
       addBigramClassFeatures(featureList);
       System.err.println("-> Bigram class features added!");
-    } 
-    if (params.getSettings().get("TrigramClassFeatures")
-        .equalsIgnoreCase("yes")) {
+    }
+    String trigramClassParam = InputOutputUtils.getTrigramClassFeatures(params);
+    if (trigramClassParam.equalsIgnoreCase("yes")) {
       addTrigramClassFeatures(featureList);
       System.err.println("-> Trigram class features added!");
     }
-    if (params.getSettings().get("FourgramClassFeatures")
-        .equalsIgnoreCase("yes")) {
+    String fourgramClassParam = InputOutputUtils.getFourgramClassFeatures(params);
+    if (fourgramClassParam.equalsIgnoreCase("yes")) {
       addFourgramClassFeatures(featureList);
       System.err.println("-> 4-gram class features added!");
     }
-    if (params.getSettings().get("FivegramClassFeatures")
-        .equalsIgnoreCase("yes")) {
+    String fivegramClassParam = InputOutputUtils.getFivegramClassFeatures(params);
+    if (fivegramClassParam.equalsIgnoreCase("yes")) {
       addFivegramClassFeatures(featureList);
       System.err.println("-> 5-gram class features added!");
-    } 
-    if (params.getSettings().get("CharNgramFeatures")
-        .equalsIgnoreCase("yes")) {
+    }
+    String charNgramParam = InputOutputUtils.getCharNgramFeatures(params);
+    if (charNgramParam.equalsIgnoreCase("yes")) {
+      int minLength = getNgramRange(params).get(0);
+      int maxLength = getNgramRange(params).get(1);
       addCharNgramFeatures(minLength, maxLength, featureList);
       System.err.println("-> CharNgram features added!: Range " + minLength + ":" + maxLength);
-    } 
-    if (params.getSettings().get("DictionaryFeatures")
-        .equalsIgnoreCase("yes")) {
+    }
+    String dictionaryParam = InputOutputUtils.getDictionaryFeatures(params);
+    if (dictionaryParam.equalsIgnoreCase("yes")) {
       System.err.println("-> Dictionary features added!");
-      String dictPath = params.getSettings().get("DictionaryPath");
+      String dictPath = InputOutputUtils.getDictPath(params);
       if (dictionaries == null) {
         dictionaries = new Dictionaries(dictPath);
       }
       addDictionaryFeatures(featureList);
     }
-    if (params.getSettings().get("DistSimFeatures")
-        .equalsIgnoreCase("yes")) {
+    String distSimParam = InputOutputUtils.getDistSimFeatures(params);
+    if (distSimParam.equalsIgnoreCase("yes")) {
       System.err.println("-> Distributional similarity features added!");
-      String distSimPath = params.getSettings().get("DistSimPath");
+      String distSimPath = InputOutputUtils.getDistSimPath(params);
       if (distSimCluster == null) {
         distSimCluster = new ClarkCluster(distSimPath);
       }
@@ -325,7 +330,7 @@ public class FixedTrainer extends AbstractTrainer {
 
   public static List<Integer> getWindowRange(TrainingParameters params) {
     List<Integer> windowRange = new ArrayList<Integer>();
-    String windowParam = params.getSettings().get("Window");
+    String windowParam = InputOutputUtils.getWindow(params);
     String[] windowArray = windowParam.split("[ :-]");
     if (windowArray.length == 2) {
       windowRange.add(Integer.parseInt(windowArray[0]));
@@ -336,13 +341,13 @@ public class FixedTrainer extends AbstractTrainer {
 
   public static List<Integer> getNgramRange(TrainingParameters params) {
     List<Integer> ngramRange = new ArrayList<Integer>();
-    String charngramParam = params.getSettings().get("CharNgramFeaturesRange");
-    String[] charngramArray = charngramParam.split("[ :-]");
-    if (charngramArray.length == 2) {
-      ngramRange.add(Integer.parseInt(charngramArray[0]));
-      ngramRange.add(Integer.parseInt(charngramArray[1]));
+      String charNgramParam = InputOutputUtils.getCharNgramFeaturesRange(params);
+      String[] charngramArray = charNgramParam.split("[ :-]");
+      if (charngramArray.length == 2) {
+        ngramRange.add(Integer.parseInt(charngramArray[0]));
+        ngramRange.add(Integer.parseInt(charngramArray[1]));
 
-    }
+      }
     return ngramRange;
   }
 

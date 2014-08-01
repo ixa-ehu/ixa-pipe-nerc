@@ -51,7 +51,8 @@ Beamsize=3
 ##############
 
 # Window: left and right window range from the current token. TokenFeatures
-# and TokenClassFeatures depend on the window range specified here.
+# and TokenClassFeatures depend on the window range specified here. If
+# commented out, it will default to 2:2.
 Window=2:2
 
 # TokenFeatures: include current token (both in original and lowercase form)
@@ -96,8 +97,9 @@ FivegramClassFeatures=no
 
 # CharNgramFeatures: min and maximum length for character ngrams of current
 # token. If value is yes, specify the desired range in CharNgramFeaturesRange.
+# If Range is commented out, it defaults to 2:5 when this feature is "yes".
 CharNgramFeatures=no
-CharNgramFeaturesRange=2:5
+#CharNgramFeaturesRange=2:5
 
 # DictionaryFeatures: add features if token found in some gazetteers.
 DictionaryFeatures=no

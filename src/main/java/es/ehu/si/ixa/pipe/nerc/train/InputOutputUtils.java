@@ -126,18 +126,6 @@ public class InputOutputUtils {
     return trainSet;
   }
 
-  public static String getDictPath(TrainingParameters params) {
-    String dictPath = null;
-    if (params.getSettings().get("DictionaryFeatures") != null) {
-      if (params.getSettings().get("DictionaryPath") != null) {
-        dictPath = params.getSettings().get("DictionaryPath");
-      }
-    } else {
-      InputOutputUtils.dictionaryException();
-    }
-    return dictPath;
-  }
-
   public static String getDictOption(TrainingParameters params) {
     String dictOption = null;
     if (params.getSettings().get("DirectDictionaryTagging") != null) {
@@ -179,6 +167,238 @@ public class InputOutputUtils {
       beamsize = Integer.parseInt(params.getSettings().get("Beamsize"));
     }
     return beamsize;
+  }
+  
+  public static String getWindow(TrainingParameters params) {
+    String windowFlag = null;
+    if (params.getSettings().get("Window") != null) {
+      windowFlag = params.getSettings().get("Window");
+    }
+    else {
+      windowFlag = FixedTrainer.DEFAULT_WINDOW;
+    }
+    return windowFlag;
+  }
+  
+  public static String getTokenFeatures(TrainingParameters params) {
+    String tokenFlag = null;
+    if (params.getSettings().get("TokenFeatures") != null) {
+      tokenFlag = params.getSettings().get("TokenFeatures");
+    }
+    else {
+      tokenFlag = FixedTrainer.DEFAULT_FEATURE_FLAG;
+    }
+    return tokenFlag;
+  }
+  
+  public static String getTokenClassFeatures(TrainingParameters params) {
+    String tokenClassFlag = null;
+    if (params.getSettings().get("TokenClassFeatures") != null) {
+      tokenClassFlag = params.getSettings().get("TokenClassFeatures");
+    }
+    else {
+      tokenClassFlag = FixedTrainer.DEFAULT_FEATURE_FLAG;
+    }
+    return tokenClassFlag;
+  }
+  
+  public static String getOutcomePriorFeatures(TrainingParameters params) {
+    String outcomePriorFlag = null;
+    if (params.getSettings().get("OutcomePriorFeatures") != null) {
+      outcomePriorFlag = params.getSettings().get("OutcomePriorFeatures");
+    }
+    else {
+      outcomePriorFlag = FixedTrainer.DEFAULT_FEATURE_FLAG;
+    }
+    return outcomePriorFlag;
+  }
+  
+  public static String getPreviousMapFeatures(TrainingParameters params) {
+    String previousMapFlag = null;
+    if (params.getSettings().get("PreviousMapFeatures") != null) {
+      previousMapFlag = params.getSettings().get("PreviousMapFeatures");
+    }
+    else {
+      previousMapFlag = FixedTrainer.DEFAULT_FEATURE_FLAG;
+    }
+    return previousMapFlag;
+  }
+  
+  public static String getSentenceFeatures(TrainingParameters params) {
+    String sentenceFlag = null;
+    if (params.getSettings().get("SentenceFeatures") != null) {
+      sentenceFlag = params.getSettings().get("SentenceFeatures");
+    }
+    else {
+      sentenceFlag = FixedTrainer.DEFAULT_FEATURE_FLAG;
+    }
+    return sentenceFlag;
+  }
+  
+  public static String getPreffixFeatures(TrainingParameters params) {
+    String prefixFlag = null;
+    if (params.getSettings().get("PrefixFeatures") != null) {
+      prefixFlag = params.getSettings().get("PrefixFeatures");
+    }
+    else {
+      prefixFlag = FixedTrainer.DEFAULT_FEATURE_FLAG;
+    }
+    return prefixFlag;
+  }
+  
+  public static String getSuffixFeatures(TrainingParameters params) {
+    String suffixFlag = null;
+    if (params.getSettings().get("SuffixFeatures") != null) {
+      suffixFlag = params.getSettings().get("SuffixFeatures");
+    }
+    else {
+      suffixFlag = FixedTrainer.DEFAULT_FEATURE_FLAG;
+    }
+    return suffixFlag;
+  }
+  
+
+  public static String getBigramClassFeatures(TrainingParameters params) {
+    String bigramClassFlag = null;
+    if (params.getSettings().get("BigramClassFeatures") != null) {
+      bigramClassFlag = params.getSettings().get("BigramClassFeatures");
+    }
+    else {
+      bigramClassFlag = FixedTrainer.DEFAULT_FEATURE_FLAG;
+    }
+    return bigramClassFlag;
+  }
+  
+  public static String getTrigramClassFeatures(TrainingParameters params) {
+    String trigramClassFlag = null;
+    if (params.getSettings().get("TrigramClassFeatures") != null) {
+      trigramClassFlag = params.getSettings().get("TrigramClassFeatures");
+    }
+    else {
+      trigramClassFlag = FixedTrainer.DEFAULT_FEATURE_FLAG;
+    }
+    return trigramClassFlag;
+  }
+  
+
+  public static String getFourgramClassFeatures(TrainingParameters params) {
+    String fourgramClassFlag = null;
+    if (params.getSettings().get("FourgramClassFeatures") != null) {
+      fourgramClassFlag = params.getSettings().get("FourgramClassFeatures");
+    }
+    else {
+      fourgramClassFlag = FixedTrainer.DEFAULT_FEATURE_FLAG;
+    }
+    return fourgramClassFlag;
+  }
+  
+  public static String getFivegramClassFeatures(TrainingParameters params) {
+    String fivegramClassFlag = null;
+    if (params.getSettings().get("FivegramClassFeatures") != null) {
+      fivegramClassFlag = params.getSettings().get("FivegramClassFeatures");
+    }
+    else {
+      fivegramClassFlag = FixedTrainer.DEFAULT_FEATURE_FLAG;
+    }
+    return fivegramClassFlag;
+  }
+  public static String getCharNgramFeatures(TrainingParameters params) {
+    String charNgramFlag = null;
+    if (params.getSettings().get("CharNgramFeatures") != null) {
+      charNgramFlag = params.getSettings().get("CharNgramFeatures");
+    }
+    else {
+      charNgramFlag = FixedTrainer.DEFAULT_FEATURE_FLAG;
+    }
+    return charNgramFlag;
+  }
+  
+  public static String getCharNgramFeaturesRange(TrainingParameters params) {
+    String charNgramRangeFlag = null;
+    if (params.getSettings().get("CharNgramFeaturesRange") != null) {
+      charNgramRangeFlag = params.getSettings().get("CharNgramFeaturesRange");
+    }
+    else {
+      charNgramRangeFlag = FixedTrainer.CHAR_NGRAM_RANGE;
+    }
+    return charNgramRangeFlag;
+  }
+  
+  public static String getDictionaryFeatures(TrainingParameters params) {
+    String dictionaryFlag = null;
+    if (params.getSettings().get("DictionaryFeatures") != null) {
+      dictionaryFlag = params.getSettings().get("DictionaryFeatures");
+    }
+    else {
+      dictionaryFlag = FixedTrainer.DEFAULT_FEATURE_FLAG;
+    }
+    return dictionaryFlag;
+  }
+  public static String getDictPath(TrainingParameters params) {
+    String dictPathFlag = null;
+    if (params.getSettings().get("DictionaryFeatures") != null) {
+      if (params.getSettings().get("DictionaryPath") != null) {
+        dictPathFlag = params.getSettings().get("DictionaryPath");
+      } else {
+        InputOutputUtils.dictionaryException();
+      }
+    }
+    else {
+      InputOutputUtils.dictionaryFeaturesException();
+    }
+    return dictPathFlag;
+  }
+  
+  public static String getDistSimFeatures(TrainingParameters params) {
+    String distSimFlag = null;
+    if (params.getSettings().get("DistSimFeatures") != null) {
+      distSimFlag = params.getSettings().get("DistSimFeatures");
+    }
+    else {
+      distSimFlag = FixedTrainer.DEFAULT_FEATURE_FLAG;
+    }
+    return distSimFlag;
+  }
+  
+  public static String getDistSimPath(TrainingParameters params) {
+    String distSimPathFlag = null;
+    if (params.getSettings().get("DistSimFeatures") != null) {
+      if (params.getSettings().get("DistSimPath") != null) {
+        distSimPathFlag = params.getSettings().get("DistSimPath");
+      } else {
+        InputOutputUtils.dictionaryException();
+      }
+    }
+    else {
+      InputOutputUtils.dictionaryFeaturesException();
+    }
+    return distSimPathFlag;
+  }
+  
+  public static String getBrownFeatures(TrainingParameters params) {
+    String brownFlag = null;
+    if (params.getSettings().get("BrownClusterFeatures") != null) {
+      brownFlag = params.getSettings().get("BrownClusterFeatures");
+    }
+    else {
+      brownFlag = FixedTrainer.DEFAULT_FEATURE_FLAG;
+    }
+    return brownFlag;
+  }
+  
+  public static String getBrownClusterPath(TrainingParameters params) {
+    String brownFlag = null;
+    if (params.getSettings().get("BrownClusterFeatures") != null) {
+      if (params.getSettings().get("BrownClusterPath") != null) {
+        brownFlag = params.getSettings().get("BrownClusterPath");
+      } else {
+        InputOutputUtils.dictionaryException();
+      }
+    }
+    else {
+      InputOutputUtils.dictionaryFeaturesException();
+    }
+    return brownFlag;
   }
 
   public static ObjectStream<String> readInputData(String infile)
@@ -279,6 +499,24 @@ public class InputOutputUtils {
   public static void dictionaryException() {
     System.err
         .println("You need to specify the DictionaryPath in the parameters file to use the DictionaryFeatures!");
+    System.exit(1);
+  }
+  
+  public static void dictionaryFeaturesException() {
+    System.err
+        .println("You need to specify the DictionaryFeatures in the parameters file to use the DictionaryPath!");
+    System.exit(1);
+  }
+  
+  public static void distsimException() {
+    System.err
+        .println("You need to specify the DistSimPath in the parameters file to use the DistSimFeatures!");
+    System.exit(1);
+  }
+  
+  public static void distsimFeaturesException() {
+    System.err
+        .println("You need to specify the DistSimFeatures in the parameters file to use the DistSimPath!");
     System.exit(1);
   }
 
