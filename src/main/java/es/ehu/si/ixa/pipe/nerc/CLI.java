@@ -170,29 +170,33 @@ public class CLI {
   public final void annotate(final InputStream inputStream,
       final OutputStream outputStream) throws IOException {
 
-    String model = parsedArguments.getString("model");
-    String lexer = parsedArguments.getString("lexer");
-    // load training parameters file
-    String paramFile = parsedArguments.getString("params");
-    TrainingParameters params = InputOutputUtils
-        .loadTrainingParameters(paramFile);
     BufferedReader breader = new BufferedReader(new InputStreamReader(
         inputStream, "UTF-8"));
     BufferedWriter bwriter = new BufferedWriter(new OutputStreamWriter(
         outputStream, "UTF-8"));
     // read KAF document from inputstream
     KAFDocument kaf = KAFDocument.createFromStream(breader);
+    // load properties parameters file
+    String paramFile = parsedArguments.getString("params");
+    TrainingParameters params = InputOutputUtils
+        .loadTrainingParameters(paramFile);
     // language parameter
-    String lang;
-    if (parsedArguments.get("lang") == null) {
-      lang = kaf.getLang();
+    String lang = null;
+    if (params.getSettings().get("Language") != null) {
+      lang = params.getSettings().get("Language");
+      if (!kaf.getLang().equalsIgnoreCase(lang)) {
+        System.err
+            .println("Lang parameter in NAF and parameters file do not match!!");
+        System.exit(1);
+      }
     } else {
-      lang = parsedArguments.get("lang");
+      params.getSettings().put("Language", kaf.getLang());
     }
+    String lexer = parsedArguments.getString("lexer");
     KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor(
-        "entities", "ixa-pipe-nerc-" + lang + "-" + model, version);
+        "entities", "ixa-pipe-nerc-" + lang + "-" + paramFile, version);
     newLp.setBeginTimestamp();
-    Properties properties = setAnnotateProperties(lang, model, lexer);
+    Properties properties = setAnnotateProperties(lexer);
     Annotate annotator = new Annotate(properties, params);
     annotator.annotateNEsToKAF(kaf);
     newLp.setEndTimestamp();
@@ -209,30 +213,35 @@ public class CLI {
    */
   public final void train() throws IOException {
 
-    String trainSet = parsedArguments.getString("trainSet");
-    String devSet = parsedArguments.getString("devSet");
-    String testSet = parsedArguments.getString("testSet");
-    String outModel = null;
     // load training parameters file
     String paramFile = parsedArguments.getString("params");
     TrainingParameters params = InputOutputUtils
         .loadTrainingParameters(paramFile);
-
-    if (parsedArguments.get("output") != null) {
-      outModel = parsedArguments.getString("output");
-    } else {
-      outModel = FilenameUtils.removeExtension(trainSet) + "-" + "-model"
-          + ".bin";
+    String outModel = null;
+    if (params.getSettings().get("OutputModel") == null || params.getSettings().get("OutputModel").length() == 0) {
+      outModel = FilenameUtils.getBaseName(paramFile) + ".bin";
+      params.put("OutputModel", outModel);
     }
+    else {
+      outModel = InputOutputUtils.getModel(params);
+    }
+    String trainSet = InputOutputUtils.getDataSet("TrainSet", params);
+    String testSet = InputOutputUtils.getDataSet("TestSet", params);
     Trainer nercTrainer = new FixedTrainer(trainSet, testSet, params);
-    String evalParam = params.getSettings().get("CrossEval");
-    String[] evalRange = evalParam.split("[ :-]");
     NameModel trainedModel = null;
-    if (evalRange.length == 2) {
-      if (parsedArguments.get("devSet") == null) {
+    // check if CrossEval
+    if (params.getSettings().get("CrossEval") != null) {
+      String evalParam = params.getSettings().get("CrossEval");
+      String[] evalRange = evalParam.split("[ :-]");
+      if (evalRange.length != 2) {
         InputOutputUtils.devSetException();
       } else {
-        trainedModel = nercTrainer.trainCrossEval(devSet, params, evalRange);
+        if (params.getSettings().get("DevSet") != null) {
+          String devSet = params.getSettings().get("DevSet");
+          trainedModel = nercTrainer.trainCrossEval(devSet, params, evalRange);
+        } else {
+          InputOutputUtils.devSetException();
+        }
       }
     } else {
       trainedModel = nercTrainer.train(params);
@@ -250,17 +259,13 @@ public class CLI {
    */
   public final void eval() throws IOException {
 
-    String model = parsedArguments.getString("model");
-    String testSet = parsedArguments.getString("testSet");
     String predFile = parsedArguments.getString("prediction");
     // load training parameters file
     String paramFile = parsedArguments.getString("params");
     TrainingParameters params = InputOutputUtils
         .loadTrainingParameters(paramFile);
-    Properties properties = null;
-    if (!parsedArguments.getString("model").equals(DEFAULT_EVALUATE_MODEL)) {
-      properties = setEvaluateProperties(testSet, model);
-      Evaluate evaluator = new Evaluate(properties, params);
+    if (parsedArguments.getString("prediction") == null) {
+      Evaluate evaluator = new Evaluate(params);
       if (parsedArguments.getString("evalReport") != null) {
         if (parsedArguments.getString("evalReport").equalsIgnoreCase("brief")) {
           evaluator.evaluate();
@@ -275,7 +280,7 @@ public class CLI {
         evaluator.detailEvaluate();
       }
     } else if (parsedArguments.getString("prediction") != null) {
-      CorpusEvaluate corpusEvaluator = new CorpusEvaluate(predFile, properties);
+      CorpusEvaluate corpusEvaluator = new CorpusEvaluate(predFile, params);
       corpusEvaluator.evaluate();
     } else {
       System.err
@@ -289,18 +294,6 @@ public class CLI {
   private void loadAnnotateParameters() {
     annotateParser.addArgument("-p", "--params").required(true)
         .help("Load the parameters file\n");
-    annotateParser.addArgument("-l", "--lang").required(false).choices("de","en","es","it","nl").help("choose language for annotation\n");
-    annotateParser.addArgument("-m", "--model").required(false)
-        .setDefault(DEFAULT_EVALUATE_MODEL)
-        .help("Choose model to perform NERC annotation\n");
-    annotateParser
-        .addArgument("-d", "--dictionaries")
-        .choices("tag", "post")
-        .setDefault(DEFAULT_DICT_OPTION)
-        .required(false)
-        .help(
-            "Use gazetteers directly for tagging or "
-                + "for post-processing the probabilistic NERC output\n");
     annotateParser.addArgument("--lexer").choices("numeric")
         .setDefault(DEFAULT_LEXER).required(false)
         .help("Use lexer rules for NERC tagging\n");
@@ -311,15 +304,7 @@ public class CLI {
    */
   private void loadTrainingParameters() {
     trainParser.addArgument("-p", "--params").required(true)
-        .help("Load the parameters file\n");
-    trainParser.addArgument("-i", "--trainSet").required(true)
-        .help("Input training set\n");
-    trainParser.addArgument("-t", "--testSet").required(true)
-        .help("Input testset for evaluation\n");
-    trainParser.addArgument("-d", "--devSet").required(false)
-        .help("Input development set for cross-evaluation\n");
-    trainParser.addArgument("-o", "--output").required(false)
-        .help("Choose output file to save the annotation\n");
+        .help("Load the training parameters file\n");
   }
 
   /**
@@ -327,12 +312,7 @@ public class CLI {
    */
   private void loadEvalParameters() {
     evalParser.addArgument("-p", "--params").required(true)
-    .help("Load the parameters file\n");
-    evalParser.addArgument("-m", "--model").required(false)
-        .setDefault(DEFAULT_EVALUATE_MODEL)
-        .help("Choose model or prediction file\n");
-    evalParser.addArgument("-t", "--testSet").required(true)
-        .help("Input testset for evaluation\n");
+        .help("Load the parameters file\n");
     evalParser
         .addArgument("--prediction")
         .required(false)
@@ -342,19 +322,10 @@ public class CLI {
         .choices("brief", "detailed", "error");
   }
 
-  private Properties setAnnotateProperties(String lang, String model, String ruleBasedOption) {
+  private Properties setAnnotateProperties(String ruleBasedOption) {
     Properties annotateProperties = new Properties();
-    annotateProperties.setProperty("lang", lang);
-    annotateProperties.setProperty("model", model);
     annotateProperties.setProperty("ruleBasedOption", ruleBasedOption);
     return annotateProperties;
-  }
-
-  private Properties setEvaluateProperties(String testSet, String model) {
-    Properties evaluateProperties = new Properties();
-    evaluateProperties.setProperty("testSet", testSet);
-    evaluateProperties.setProperty("model", model);
-    return evaluateProperties;
   }
 
 }

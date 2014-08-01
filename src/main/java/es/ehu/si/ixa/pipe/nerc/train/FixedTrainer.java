@@ -19,7 +19,6 @@ package es.ehu.si.ixa.pipe.nerc.train;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 import opennlp.tools.util.TrainingParameters;
 import es.ehu.si.ixa.pipe.nerc.dict.BrownCluster;

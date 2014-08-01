@@ -3,15 +3,14 @@ package es.ehu.si.ixa.pipe.nerc.eval;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
-import opennlp.tools.namefind.TokenNameFinderEvaluator;
 import opennlp.tools.util.ObjectStream;
+import opennlp.tools.util.TrainingParameters;
 import opennlp.tools.util.eval.FMeasure;
-import es.ehu.si.ixa.pipe.nerc.CLI;
 import es.ehu.si.ixa.pipe.nerc.formats.CorpusSample;
 import es.ehu.si.ixa.pipe.nerc.formats.CorpusSampleTypeFilter;
 import es.ehu.si.ixa.pipe.nerc.train.AbstractTrainer;
+import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
 
 /**
  * Evaluation class mostly using {@link TokenNameFinderEvaluator}.
@@ -44,15 +43,15 @@ public class CorpusEvaluate {
    * @param corpusFormat the format of the testData corpus
    * @throws IOException if input data not available
    */
-  public CorpusEvaluate(final String predictionData, final Properties properties) throws IOException {
+  public CorpusEvaluate(final String predictionData, final TrainingParameters params) throws IOException {
 
-    String referenceData = properties.getProperty("testSet");
-    String lang = properties.getProperty("lang");
-    String corpusFormat = properties.getProperty("corpusFormat");
-    String neTypes = properties.getProperty("neTypes");
+    String referenceData = InputOutputUtils.getDataSet("TestSet", params);
+    String lang = InputOutputUtils.getLanguage(params);
+    String corpusFormat = InputOutputUtils.getCorpusFormat(params);
     referenceSamples = AbstractTrainer.getNameStream(referenceData, lang, corpusFormat);
     predictionSamples = AbstractTrainer.getNameStream(predictionData, lang, corpusFormat);
-    if (!neTypes.equals(CLI.DEFAULT_NE_TYPES)) {
+    if (params.getSettings().get("Types") != null) {
+      String neTypes = params.getSettings().get("Types");
       String[] neTypesArray = neTypes.split(",");
       referenceSamples = new CorpusSampleTypeFilter(neTypesArray, referenceSamples);
       predictionSamples = new CorpusSampleTypeFilter(neTypesArray, predictionSamples);

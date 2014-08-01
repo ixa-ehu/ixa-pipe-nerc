@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Properties;
 
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.TrainingParameters;
@@ -14,6 +13,7 @@ import es.ehu.si.ixa.pipe.nerc.formats.CorpusSample;
 import es.ehu.si.ixa.pipe.nerc.formats.CorpusSampleTypeFilter;
 import es.ehu.si.ixa.pipe.nerc.train.AbstractTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.FixedTrainer;
+import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
 import es.ehu.si.ixa.pipe.nerc.train.NameClassifier;
 import es.ehu.si.ixa.pipe.nerc.train.Trainer;
 import es.ehu.si.ixa.pipe.nerc.train.NameModel;
@@ -54,17 +54,17 @@ public class Evaluate {
    * @param corpusFormat the format of the testData corpus
    * @throws IOException if input data not available
    */
-  public Evaluate(final Properties properties, final TrainingParameters params) throws IOException {
+  public Evaluate(final TrainingParameters params) throws IOException {
     
-    String testSet = properties.getProperty("testSet");
-    String model = properties.getProperty("model");
-    String lang = params.getSettings().get("Language");
-    String corpusFormat = params.getSettings().get("Corpus");
-    String neTypes = params.getSettings().get("Types");
-    Integer beamsize = Integer.parseInt(params.getSettings().get("Beamsize"));
+    String testSet = InputOutputUtils.getDataSet("TestSet", params);
+    String model = InputOutputUtils.getModel(params);
+    String lang = InputOutputUtils.getLanguage(params);
+    String corpusFormat = InputOutputUtils.getCorpusFormat(params);
+    Integer beamsize = InputOutputUtils.getBeamsize(params);
     
     testSamples = AbstractTrainer.getNameStream(testSet, lang, corpusFormat);
-    if (neTypes.length() != 0) {
+    if (params.getSettings().get("Types") != null) {
+      String neTypes = params.getSettings().get("Types");
       String[] neTypesArray = neTypes.split(",");
       testSamples = new CorpusSampleTypeFilter(neTypesArray, testSamples);
     }

@@ -14,21 +14,7 @@
    limitations under the License.
  */
 
-package es.ehu.si.ixa.pipe.nerc.train;/*
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
- */
-
+package es.ehu.si.ixa.pipe.nerc.train;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -52,9 +38,11 @@ import opennlp.tools.util.model.BaseModel;
 
 import org.apache.commons.io.FileUtils;
 
+import es.ehu.si.ixa.pipe.nerc.CLI;
+
 /**
  * 
- * Utility functions to read and save ObjectStreams
+ * Utility functions to read and save ObjectStreams.
  * 
  * @author ragerri
  * 
@@ -89,13 +77,10 @@ public class InputOutputUtils {
     TrainingParameters params = null;
 
     if (paramFile != null) {
-
       checkInputFile("Training Parameter", new File(paramFile));
-
       InputStream paramsIn = null;
       try {
         paramsIn = new FileInputStream(new File(paramFile));
-
         params = new opennlp.tools.util.TrainingParameters(paramsIn);
       } catch (IOException e) {
         throw new TerminateToolException(-1,
@@ -108,31 +93,103 @@ public class InputOutputUtils {
           // sorry that this can fail
         }
       }
-
       if (!TrainUtil.isValid(params.getSettings())) {
         throw new TerminateToolException(1, "Training parameters file '"
             + paramFile + "' is invalid!");
       }
-
       if (!supportSequenceTraining
           && TrainUtil.isSequenceTraining(params.getSettings())) {
         throw new TerminateToolException(1,
             "Sequence training is not supported!");
       }
     }
-
     return params;
   }
-  
-  public static ObjectStream<String> readInputData(String infile)
-          throws IOException {
 
-        BufferedReader breader = new BufferedReader(new InputStreamReader(
-            new FileInputStream(infile), "UTF-8"));
-        ObjectStream<String> lineStream = new PlainTextByLineStream(breader);
-        return lineStream;
+  public static String getLanguage(TrainingParameters params) {
+    String lang = null;
+    if (params.getSettings().get("Language") == null) {
+      InputOutputUtils.langException();
+    } else {
+      lang = params.getSettings().get("Language");
+    }
+    return lang;
+  }
 
+  public static String getDataSet(String dataset, TrainingParameters params) {
+    String trainSet = null;
+    if (params.getSettings().get(dataset) == null) {
+      InputOutputUtils.datasetException();
+    } else {
+      trainSet = params.getSettings().get(dataset);
+    }
+    return trainSet;
+  }
+
+  public static String getDictPath(TrainingParameters params) {
+    String dictPath = null;
+    if (params.getSettings().get("DictionaryFeatures") != null) {
+      if (params.getSettings().get("DictionaryPath") != null) {
+        dictPath = params.getSettings().get("DictionaryPath");
       }
+    } else {
+      InputOutputUtils.dictionaryException();
+    }
+    return dictPath;
+  }
+
+  public static String getDictOption(TrainingParameters params) {
+    String dictOption = null;
+    if (params.getSettings().get("DirectDictionaryTagging") != null) {
+      dictOption = params.getSettings().get("DirectDictionaryTagging");
+    } else {
+      dictOption = CLI.DEFAULT_DICT_OPTION;
+    }
+    return dictOption;
+  }
+
+  public static String getModel(TrainingParameters params) {
+    String model = null;
+    if (params.getSettings().get("OutputModel") == null) {
+      InputOutputUtils.modelException();
+    } else if (params.getSettings().get("OutputModel") != null
+        && params.getSettings().get("OutputModel").length() == 0) {
+      InputOutputUtils.modelException();
+    } else {
+      model = params.getSettings().get("OutputModel");
+    }
+    return model;
+  }
+
+  public static String getCorpusFormat(TrainingParameters params) {
+    String corpusFormat = null;
+    if (params.getSettings().get("CorpusFormat") == null) {
+      InputOutputUtils.corpusFormatException();
+    } else {
+      corpusFormat = params.getSettings().get("CorpusFormat");
+    }
+    return corpusFormat;
+  }
+
+  public static Integer getBeamsize(TrainingParameters params) {
+    Integer beamsize = null;
+    if (params.getSettings().get("Beamsize") == null) {
+      beamsize = CLI.DEFAULT_BEAM_SIZE;
+    } else {
+      beamsize = Integer.parseInt(params.getSettings().get("Beamsize"));
+    }
+    return beamsize;
+  }
+
+  public static ObjectStream<String> readInputData(String infile)
+      throws IOException {
+
+    BufferedReader breader = new BufferedReader(new InputStreamReader(
+        new FileInputStream(infile), "UTF-8"));
+    ObjectStream<String> lineStream = new PlainTextByLineStream(breader);
+    return lineStream;
+
+  }
 
   public static void printIterationResults(Map<List<Integer>, Double> results)
       throws IOException {
@@ -190,11 +247,39 @@ public class InputOutputUtils {
   }
 
   public static void devSetException() {
-    System.err.println("Use --devSet option if performing crossEvaluation!");
-    System.out
-        .println("Run java -jar target/ixa-pipe-train-1.0.jar -help for details; \n" +
-                "also check your trainParams.txt file");
+    System.err
+        .println("UseDevSet options in the parameters file if CrossEval is activated!");
     System.exit(1);
   }
- 
+
+  public static void modelException() {
+    System.err
+        .println("Please provide a model in the OutputModel field in the parameters file!");
+    System.exit(1);
+  }
+
+  public static void langException() {
+    System.err
+        .println("Please fill in the Language field in the parameters file!");
+    System.exit(1);
+  }
+
+  public static void datasetException() {
+    System.err
+        .println("Please specify your training/testing sets in the TrainSet and TestSet fields in the parameters file!");
+    System.exit(1);
+  }
+
+  public static void corpusFormatException() {
+    System.err
+        .println("Please fill in CorpusFormat field in the parameters file!");
+    System.exit(1);
+  }
+
+  public static void dictionaryException() {
+    System.err
+        .println("You need to specify the DictionaryPath in the parameters file to use the DictionaryFeatures!");
+    System.exit(1);
+  }
+
 }

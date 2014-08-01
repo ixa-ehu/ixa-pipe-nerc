@@ -27,12 +27,20 @@ Threads=4
 # Languages supported: de, en, es, it, nl
 Language=en
 
-# Formats: conll02, conll03, germEvalOuter2014, germEvalInner2014, opennlp
-Corpus=opennlp
+# TrainingCorpus:
+TrainSet=/home/ragerri/experiments/nerc/conll03/eng.train
+DevSet=
+TestSet=/home/ragerri/experiments/nerc/conll03/eng.testb
 
-# Named Entity types; if empty all ne types in the training corpus.
+# CorpusFormat: conll02, conll03, germEvalOuter2014, germEvalInner2014, opennlp
+CorpusFormat=conll03
+
+# OutputModel: if commented out, ixa-pipe-nerc will save the model with the
+# name of this properties file
+OutputModel=trainParams.bin
+
+# Named Entity types; if not active all ne types in the training corpus.
 # Otherwise, separate with comma, eg., location,organization,person,misc
-Types=
 #Types=location,organization,person,misc
 
 # Beamsize 1 amounts to greedy search
@@ -76,7 +84,7 @@ BigramClassFeatures=yes
 
 # TrigramClassFeatures: add trigram features based on tokens and their class
 # features.
-TrigramClassFeatures=no
+TrigramClassFeatures=yes
 
 # FourgramClassFeatures: add fourgram features based on tokens and their
 # class features.
@@ -101,30 +109,19 @@ DictionaryPath=~/javacode/ixa-pipe-nerc/nerc-resources/en/dictionaries
 # post-processes the probabilistic annotation giving priority to the
 # gazetteer. Obviously, this option depends on DictionaryPath being correctly
 # specified.
-DirectDictionaryTagging=off
+#DirectDictionaryTagging=post
 
 # DistSimFeatures: add features using Clark (2003) clusters. If value is yes,
 # specify the location of the clustering lexicon in Clark format.
-DistSimFeatures=yes
+DistSimFeatures=no
 DistSimPath=/home/ragerri/javacode/ixa-pipe-nerc/clusters.nem.32
-
-# BrownClusterFeatures: add features using Brown clusters
-# (http://metaoptimize.com/projects/wordreprs/). If yes, specify the location
-# of the Brown clustering lexicon.
-BrownClusterFeatures=no
-BrownClusterPath=/home/ragerri/javacode/ixa-pipe-nerc/brown-rcv1.clean.tokenized-CoNLL03.txt-c1000-freq1.txt
 
 ## END FEATURES ##
 
 ## Cross Evaluation: only for learning MaxEnt models using GISTrainer.
-## If empty no cross evaluation is performed;
 ## Cross Evaluation takes two values as arguments, namely, 50:100;
 ## These values represent: 
 ##    + The iteration to start the cross evaluation 
 ##    + The range of iterations to perform each cross evaluation
-## Leave empty to disactivate this option (this is the default)
-#
-
 #CrossEval=1:10
-CrossEval=
 

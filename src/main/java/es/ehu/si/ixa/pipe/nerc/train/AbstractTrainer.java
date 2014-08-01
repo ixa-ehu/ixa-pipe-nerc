@@ -104,15 +104,15 @@ public abstract class AbstractTrainer implements Trainer {
    */
   public AbstractTrainer(final String aTrainData,
       final String aTestData, final TrainingParameters params) throws IOException {
-    this.lang = params.getSettings().get("Language");
-    this.corpusFormat = params.getSettings().get("Corpus");
+    this.lang = InputOutputUtils.getLanguage(params);
+    this.corpusFormat = InputOutputUtils.getCorpusFormat(params);
     this.trainData = aTrainData;
     this.testData = aTestData;
     trainSamples = getNameStream(trainData, lang, corpusFormat);
     testSamples = getNameStream(testData, lang, corpusFormat);
-    this.beamSize = Integer.parseInt(params.getSettings().get("Beamsize"));
-    String netypes = params.getSettings().get("Types");
-    if (netypes.length() != 0) {
+    this.beamSize = InputOutputUtils.getBeamsize(params);
+    if (params.getSettings().get("Types") != null) {
+      String netypes = params.getSettings().get("Types");
       String[] neTypes = netypes.split(",");
       trainSamples = new CorpusSampleTypeFilter(neTypes, trainSamples);
       testSamples = new CorpusSampleTypeFilter(neTypes, testSamples);
@@ -125,6 +125,8 @@ public abstract class AbstractTrainer implements Trainer {
    * @param beamsize
    *          the beamsize for decoding
    */
+  //TODO remove these constructors by including the featuresets in the model via
+  //a feature factory
   public AbstractTrainer(final TrainingParameters params) {
     this.beamSize = Integer.parseInt(params.getSettings().get("Beamsize"));
   }

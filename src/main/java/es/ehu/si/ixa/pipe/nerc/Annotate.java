@@ -31,6 +31,7 @@ import java.util.Properties;
 import opennlp.tools.util.Span;
 import opennlp.tools.util.TrainingParameters;
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
+import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
 import es.ehu.si.ixa.pipe.nerc.train.NameClassifier;
 
 /**
@@ -91,9 +92,6 @@ public class Annotate {
   public Annotate(final Properties properties, TrainingParameters params)
       throws IOException {
 
-    if (properties.getProperty("model").equalsIgnoreCase("default")) {
-      System.err.println("Backing off to default model!");
-    }
     nameFactory = new NameFactory();
     annotateOptions(properties, params);
   }
@@ -118,9 +116,9 @@ public class Annotate {
       TrainingParameters params) throws IOException {
     
     String ruleBasedOption = properties.getProperty("ruleBasedOption");
-    String dictPath = params.getSettings().get("DictionaryPath");
-    String dictOption = params.getSettings().get("DirectDictionaryTagging");
-    nameFinder = new StatisticalNameFinder(properties, params, nameFactory);
+    String dictPath = InputOutputUtils.getDictPath(params);
+    String dictOption = InputOutputUtils.getDictOption(params);
+    
     if (!dictPath.equals(CLI.DEFAULT_DICT_PATH)) {
       if (!ruleBasedOption.equals(CLI.DEFAULT_LEXER)) {
         lexerFind = true;
@@ -133,11 +131,13 @@ public class Annotate {
           postProcess = false;
           statistical = false;
         } else if (dictOption.equalsIgnoreCase("post")) {
+          nameFinder = new StatisticalNameFinder(properties, params, nameFactory);
           statistical = true;
           postProcess = true;
           dictTag = false;
         }
       } else {
+        nameFinder = new StatisticalNameFinder(properties, params, nameFactory);
         statistical = true;
         dictTag = false;
         postProcess = false;
@@ -148,12 +148,14 @@ public class Annotate {
       statistical = true;
       dictTag = false;
       postProcess = false;
+      nameFinder = new StatisticalNameFinder(properties, params, nameFactory);
     }
     else {
       lexerFind = false;
       statistical = true;
       dictTag = false;
       postProcess = false;
+      nameFinder = new StatisticalNameFinder(properties, params, nameFactory);
     }
   }
 

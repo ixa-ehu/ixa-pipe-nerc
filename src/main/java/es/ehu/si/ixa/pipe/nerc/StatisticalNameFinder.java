@@ -28,6 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import opennlp.tools.util.Span;
 import opennlp.tools.util.TrainingParameters;
 import es.ehu.si.ixa.pipe.nerc.train.FixedTrainer;
+import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
 import es.ehu.si.ixa.pipe.nerc.train.NameClassifier;
 import es.ehu.si.ixa.pipe.nerc.train.Trainer;
 import es.ehu.si.ixa.pipe.nerc.train.NameModel;
@@ -67,9 +68,9 @@ public class StatisticalNameFinder implements NameFinder {
    * @param beamsize the beamsize for decoding
    */
   public StatisticalNameFinder(final Properties props, final TrainingParameters params) {
-    String lang = props.getProperty("lang");
-    String model = props.getProperty("model");
-    Integer beamsize = Integer.parseInt(params.getSettings().get("Beamsize"));
+    String lang = InputOutputUtils.getLanguage(params);
+    String model = InputOutputUtils.getModel(params);
+    Integer beamsize = InputOutputUtils.getBeamsize(params);
     NameModel nerModel = loadModel(lang, model);
     nameFinderTrainer = new FixedTrainer(params);
     nameFinder = new NameClassifier(nerModel,
@@ -87,9 +88,9 @@ public class StatisticalNameFinder implements NameFinder {
    */
   public StatisticalNameFinder(final Properties props, final TrainingParameters params, final NameFactory aNameFactory) {
 
-    Integer beamsize = Integer.parseInt(params.getSettings().get("Beamsize"));
-    String model = props.getProperty("model");
-    String lang = props.getProperty("lang");
+    String lang = InputOutputUtils.getLanguage(params);
+    String model = InputOutputUtils.getModel(params);
+    Integer beamsize = InputOutputUtils.getBeamsize(params);
     this.nameFactory = aNameFactory;
     NameModel nerModel = loadModel(lang, model);
     nameFinderTrainer = new FixedTrainer(params);
@@ -183,11 +184,7 @@ public class StatisticalNameFinder implements NameFinder {
     InputStream trainedModelInputStream = null;
     try {
       if (!nercModels.containsKey(lang)) {
-        if (model.equalsIgnoreCase(CLI.DEFAULT_EVALUATE_MODEL)) {
-          trainedModelInputStream = getDefaultModelStream(lang, model);
-        } else {
-          trainedModelInputStream = new FileInputStream(model);
-        }
+        trainedModelInputStream = new FileInputStream(model);
         nercModels.put(lang, new NameModel(trainedModelInputStream));
       }
     } catch (IOException e) {
@@ -203,34 +200,4 @@ public class StatisticalNameFinder implements NameFinder {
     }
     return nercModels.get(lang);
   }
-
-  /**
-   * Method to back-off to a default model when no model is
-   * chosen in the command line.
-   *
-   * @param lang the language
-   * @param model the default value to load the baseline model
-   * @return the input stream from a model
-   */
-  private InputStream getDefaultModelStream(final String lang, final String model) {
-    InputStream trainedModelInputStream = null;
-    if (lang.equalsIgnoreCase("de")) {
-      trainedModelInputStream = getClass().getResourceAsStream("/de/de-nerc-perceptron-baseline-c0-b3-conll03-testa.bin");
-    }
-    if (lang.equalsIgnoreCase("en")) {
-      trainedModelInputStream = getClass().getResourceAsStream("/en/en-nerc-perceptron-baseline-c0-b3-conll03-ontonotes-4.0-4-types.bin");
-    }
-    if (lang.equalsIgnoreCase("es")) {
-      trainedModelInputStream = getClass().getResourceAsStream(
-          "/es/es-nerc-maxent-baseline-750-c4-b3-conll02-testa.bin");
-    }
-    if (lang.equalsIgnoreCase("it")) {
-      trainedModelInputStream = getClass().getResourceAsStream("/it/it-nerc-perceptron-baseline-c0-b3-evalita07.bin");
-    }
-    if (lang.equalsIgnoreCase("nl")) {
-      trainedModelInputStream = getClass().getResourceAsStream("/nl/nl-nerc-perceptron-baseline-c0-b3-conll02-testa.bin");
-    }
-    return trainedModelInputStream;
-  }
-
 }

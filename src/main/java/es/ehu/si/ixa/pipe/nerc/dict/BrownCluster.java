@@ -9,7 +9,7 @@ import org.apache.commons.io.FileUtils;
 
 /**
  * 
- * Class to load a Brown cluster document: word\\sword_class\tprob
+ * Class to load a Brown cluster document: word\tword_class\tprob
  * http://metaoptimize.com/projects/wordreprs/
  * 
  * The file containing the clustering lexicon has to be passed as the 
@@ -80,11 +80,13 @@ public class BrownCluster {
     dictionary = new Dictionary();
     dictionaryIgnoreCase = new Dictionary();
     for (String line : fileLines) {
-      String noTabs = line.replaceAll("\\t", " ");
-      String[] lineArray = noTabs.split(" ");
+      String[] lineArray = line.split("\\t");
       if (lineArray.length == 3) {
-        dictionary.populate(lineArray[0],lineArray[1]);
-        dictionaryIgnoreCase.populate(lineArray[0].toLowerCase(), lineArray[1]);
+        int freq = Integer.parseInt(lineArray[2]);
+        if (freq > 5) {
+          dictionary.populate(lineArray[1],lineArray[0]);
+          dictionaryIgnoreCase.populate(lineArray[1].toLowerCase(), lineArray[0]);
+        }
       }
       else {
         System.err.println("Brown Clustering lexicon not well-formed after line:");
