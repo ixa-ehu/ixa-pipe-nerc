@@ -118,6 +118,12 @@ DictionaryPath=~/javacode/ixa-pipe-nerc/nerc-resources/en/dictionaries
 DistSimFeatures=no
 DistSimPath=/home/ragerri/javacode/ixa-pipe-nerc/clusters.nem.32
 
+# BrownClusterFeatures: add features using Brown clusters
+# (http://metaoptimize.com/projects/wordreprs/). If yes, specify the location
+# of the Brown clustering lexicon.
+BrownClusterFeatures=no
+BrownClusterPath=/home/ragerri/javacode/ixa-pipe-nerc/brown-rcv1.clean.tokenized-CoNLL03.txt-c1000-freq1.txt
+
 ## END FEATURES ##
 
 ## Cross Evaluation: only for learning MaxEnt models using GISTrainer.
