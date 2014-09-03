@@ -103,7 +103,7 @@ CharNgramFeatures=no
 
 # DictionaryFeatures: add features if token found in some gazetteers.
 DictionaryFeatures=no
-DictionaryPath=~/javacode/ixa-pipe-nerc/nerc-resources/en/dictionaries
+DictionaryPath=/home/ragerri/javacode/ixa-pipe-nerc/nerc-resources/en/dictionaries
 
 # DirectDictionaryTagging: Use a gazetteer to directly annotate named entities. If off, only
 # statistical models are used (this is the default). If activated, it has two
