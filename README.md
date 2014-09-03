@@ -45,9 +45,10 @@ learning API provided by the [Apache OpenNLP project](http://opennlp.apache.org)
 
 ### Features
 
-A description of every feature is provided in the trainParams.prop properties
-file distributed with ixa-pipe-nerc. As most functionality is configured in
-properties files, please do check this document.
+**A description of every feature is provided in the trainParams.prop properties
+file** distributed with ixa-pipe-nerc. As most functionality is configured in
+properties files, please do check this document. For each model distributed,
+there is a prop file which describes the training of the model.
 
 ### Models
 
@@ -57,7 +58,8 @@ We distribute the following models
   
   + **CoNLL 2003 models**: We distribute models trained with local features
   (84.53 F1) and with external knowledge (87.11 F1). Furthermore, we also
-  distribute opennlp compatible models (check for "opennlp" in the props files. 
+  distribute opennlp compatible models (check for "opennlp" in the props
+  files).
  
   + **Ontonotes 4.0**: 
     + Trained on the **full corpus** with the **18 NE types**, suitable **for production use**.
