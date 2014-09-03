@@ -34,9 +34,11 @@ and [CoNLL 2003](http://www.clips.ua.ac.be/conll2003/ner/) for more information.
 + **ONTONOTES 4.0**: 18 Named Entity types: TIME, LAW, GPE, NORP, LANGUAGE,
 PERCENT, FACILITY, PRODUCT, ORDINAL, LOCATION, PERSON, WORK_OF_ART, MONEY, DATE, EVENT, QUANTITY, ORGANIZATION, CARDINAL.
 
-We provide very fast models train on local features only, similar to those of Zhang and Johnson (2003) with several differences: We do not use POS
+We provide very fast models trained on local features only, similar to those of Zhang and Johnson (2003) with several differences: We do not use POS
 tags, chunking or gazetteers in our baseline models but we do use
-bigrams, trigrams and character ngrams. To avoid duplication of efforts, we use the machine
+bigrams, trigrams and character ngrams. We also provide some models with
+external knowledge (with the "dict" keyword in its properties file). 
+To avoid duplication of efforts, we use the machine
 learning API provided by the [Apache OpenNLP project](http://opennlp.apache.org).
 
 **ixa-pipe-nerc models and resources**: 
@@ -73,20 +75,20 @@ We distribute the following models
   is used, but those models are slower for production than when a c4 (cutoff 4)
   is used. Therefore, we provide both types for opennlp and local features
 
-  + CoNLL 2002 **opennlp cutoff 0**: F1 80.01
-  + CoNLL 2002 **opennlp cutoff 4**: F1 77.85
-  + CoNLL 2002 **local features cutoff 0**: F1 80.25
-  + CoNLL 2002 **local features cuttoff 4 **: F1 79.73
+  + CoNLL 2002 opennlp cutoff 0: F1 80.01
+  + CoNLL 2002 opennlp cutoff 4: F1 77.85
+  + CoNLL 2002 local features cutoff 0: F1 80.25
+  + CoNLL 2002 local features cuttoff 4: F1 79.73
 
 + **Dutch Models**: 
-  + CoNLL 2002 **local features**: F1 79.40
+  + CoNLL 2002 local features: F1 79.40
 
 + **German Models**: We distribute the following CoNLL02 models:
-  + CoNLL 2003 **local features**: F1 71.93
+  + CoNLL 2003 local features: F1 71.93
 
 + **Italian Models**: Currently we distribute models trained with Evalita07 and Evalita09: 
-  + Evalita07 **local features**: F1 70.79
-  + Evalita09 **local features**: F1 74.97
+  + Evalita07 local features: F1 70.79
+  + Evalita09 local features: F1 74.97
 
 **Summarizing**, and even though the best way of knowing which model to use is
 to try them, for production use, we recommend using: 
