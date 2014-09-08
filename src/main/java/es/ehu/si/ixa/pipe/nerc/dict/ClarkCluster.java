@@ -97,7 +97,7 @@ public class ClarkCluster {
     dictionaryIgnoreCase = new Dictionary();
     for (String line : fileLines) {
       String[] lineArray = line.split(" ");
-      if (lineArray.length == 2) {
+      if (lineArray.length == 3) {
         dictionary.populate(lineArray[0],lineArray[1]);
         dictionaryIgnoreCase.populate(lineArray[0].toLowerCase(), lineArray[1]);
       }
