@@ -18,7 +18,7 @@ public class DistSimFeatureGenerator extends FeatureGeneratorAdapter {
   public void createFeatures(List<String> features, String[] tokens, int index,
       String[] preds) {
     
-      String wordClass = getWordClass(tokens[index]);
+      String wordClass = getWordClass(tokens[index].toLowerCase());
       features.add("DISTSIM=" + wordClass);
     }
   
