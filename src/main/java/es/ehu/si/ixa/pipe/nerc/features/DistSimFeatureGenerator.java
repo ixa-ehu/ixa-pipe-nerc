@@ -24,7 +24,7 @@ public class DistSimFeatureGenerator extends FeatureGeneratorAdapter {
   
   private String getWordClass(String token) {
     
-    String distSim = distSimLexicon.getDict().get(token.toLowerCase());
+    String distSim = distSimLexicon.getDict().get(token);
     if (distSim == null) {
       distSim = unknowndistSimClass;
     }
