@@ -37,7 +37,7 @@ CorpusFormat=conll03
 
 # OutputModel: if commented out, ixa-pipe-nerc will save the model with the
 # name of this properties file
-#OutputModel=
+OutputModel=trainParams.bin
 
 # Named Entity types; if not active all ne types in the training corpus.
 # Otherwise, separate with comma, eg., location,organization,person,misc
