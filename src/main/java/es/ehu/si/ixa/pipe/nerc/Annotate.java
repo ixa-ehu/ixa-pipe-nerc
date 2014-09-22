@@ -328,7 +328,7 @@ public class Annotate {
   }
   
   /**
-   * Output Conll2003 format.
+   * Output Conll2002 format.
    * @param kaf the kaf document
    * @return the annotated named entities in conll03 format
    */
