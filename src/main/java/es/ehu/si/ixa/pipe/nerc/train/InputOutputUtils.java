@@ -158,6 +158,16 @@ public class InputOutputUtils {
     }
     return corpusFormat;
   }
+  
+  public static String getOutputFormat(TrainingParameters params) {
+    String outFormatOption = null;
+    if (params.getSettings().get("OutputFormat") != null) {
+      outFormatOption = params.getSettings().get("OutputFormat");
+    } else {
+      outFormatOption = CLI.DEFAULT_OUTPUT_FORMAT;
+    }
+    return outFormatOption;
+  }
 
   public static Integer getBeamsize(TrainingParameters params) {
     Integer beamsize = null;

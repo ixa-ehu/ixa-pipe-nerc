@@ -99,6 +99,7 @@ public class CLI {
   public static final String DEFAULT_LEXER = "off";
   public static final String DEFAULT_DICT_OPTION = "off";
   public static final String DEFAULT_DICT_PATH = "off";
+  public static final String DEFAULT_OUTPUT_FORMAT="naf";
 
   /**
    * Construct a CLI object with the three sub-parsers to manage the command
@@ -198,9 +199,18 @@ public class CLI {
     newLp.setBeginTimestamp();
     Properties properties = setAnnotateProperties(lexer);
     Annotate annotator = new Annotate(properties, params);
-    annotator.annotateNEsToKAF(kaf);
+    annotator.annotateNEs(kaf);
+    String outputFormatOption = InputOutputUtils.getOutputFormat(params);
+    String kafToString = null;
+    if (outputFormatOption.equalsIgnoreCase("conll2003")) {
+      kafToString = annotator.annotateNEsToCoNLL2003(kaf);
+    } else if (outputFormatOption.equalsIgnoreCase("conll2002")) {
+      kafToString = annotator.annotateNEsToCoNLL2002(kaf);
+    } else {
+      kafToString = annotator.annotateNEsToKAF(kaf);
+    }
     newLp.setEndTimestamp();
-    bwriter.write(kaf.toString());
+    bwriter.write(kafToString);
     bwriter.close();
     breader.close();
   }

@@ -113,7 +113,7 @@
 	</build>
 	<organization>
 		<url>ixa2.si.ehu.es/ixa-pipes</url>
-		<name>IXA Pipeline</name>
+		<name>IXA Pipes</name>
 	</organization>
 	<scm>
 		<url>https://github.com/ixa-ehu/ixa-pipe-nerc</url>

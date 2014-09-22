@@ -16,6 +16,7 @@
 
 package es.ehu.si.ixa.pipe.nerc;
 
+import ixa.kaflib.Entity;
 import ixa.kaflib.KAFDocument;
 import ixa.kaflib.Term;
 import ixa.kaflib.WF;
@@ -25,13 +26,14 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import opennlp.tools.util.Span;
 import opennlp.tools.util.TrainingParameters;
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
-import es.ehu.si.ixa.pipe.nerc.train.FixedTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
 import es.ehu.si.ixa.pipe.nerc.train.NameClassifier;
 
@@ -170,7 +172,7 @@ public class Annotate {
    * @throws IOException
    *           throws exception if problems with the kaf document
    */
-  public final void annotateNEsToKAF(final KAFDocument kaf) throws IOException {
+  public final void annotateNEs(final KAFDocument kaf) throws IOException {
 
     List<Span> allSpans = new ArrayList<Span>();
     List<List<WF>> sentences = kaf.getSentences();
@@ -213,12 +215,212 @@ public class Annotate {
         Integer endIndex = name.getSpan().getEnd();
         List<Term> nameTerms = kaf.getTermsFromWFs(Arrays.asList(Arrays
             .copyOfRange(tokenIds, startIndex, endIndex)));
-
-        List<List<Term>> references = new ArrayList<List<Term>>();
-        references.add(nameTerms);
-        kaf.createEntity(name.getType(), references);
+        ixa.kaflib.Span<Term> neSpan = KAFDocument.newTermSpan(nameTerms);
+        List<ixa.kaflib.Span<Term>> references = new ArrayList<ixa.kaflib.Span<Term>>();
+        references.add(neSpan);
+        Entity neEntity = kaf.newEntity(references);
+        neEntity.setType(name.getType());
       }
     }
+  }
+  
+  public final String annotateNEsToKAF(KAFDocument kaf) {
+    return kaf.toString();
+  }
+  
+  /**
+   * Enumeration class for CoNLL 2003 BIO format
+   */
+  private static enum BIO {
+      BEGIN("B-"), IN("I-"), OUT("O");
+      String tag;
+      BIO(String tag) {
+          this.tag = tag;
+      }
+      public String toString() {
+          return this.tag;
+      }
+  }
+  
+  /**
+   * Output Conll2003 format.
+   * @param kaf the kaf document
+   * @return the annotated named entities in conll03 format
+   */
+  public String annotateNEsToCoNLL2003(KAFDocument kaf) {
+    List<Entity> namedEntityList = kaf.getEntities();
+    Map<String, Integer> entityToSpanSize = new HashMap<String, Integer>();
+    Map<String, String> entityToType = new HashMap<String, String>();
+    for (Entity ne : namedEntityList) {
+      List<ixa.kaflib.Span<Term>> entitySpanList = ne.getSpans();
+      for (ixa.kaflib.Span<Term> spanTerm : entitySpanList) {
+        Term neTerm = spanTerm.getFirstTarget();
+        entityToSpanSize.put(neTerm.getId(), spanTerm.size());
+        entityToType.put(neTerm.getId(), ne.getType());
+      }
+    }
+    
+    List<List<WF>> sentences = kaf.getSentences();
+    StringBuilder sb = new StringBuilder();
+    for (List<WF> sentence : sentences) {
+      int index = 1;
+      int sentNumber = sentence.get(0).getSent();
+      List<Term> sentenceTerms = kaf.getSentenceTerms(sentNumber);
+      boolean previousIsEntity = false;
+      
+      for (int i = 0; i < sentenceTerms.size(); i++) {
+        Term thisTerm = sentenceTerms.get(i);
+        
+        if (entityToSpanSize.get(thisTerm.getId()) != null) {
+          int neSpanSize = entityToSpanSize.get(thisTerm.getId());
+          String neType = entityToType.get(thisTerm.getId()).substring(0, 3);
+          if (neSpanSize > 1) {
+            for (int j = 0; j < neSpanSize; j++) {
+              thisTerm = sentenceTerms.get(i + j);
+              sb.append(thisTerm.getForm());
+              sb.append("\t");
+              sb.append(thisTerm.getLemma());
+              sb.append("\t");
+              sb.append(thisTerm.getMorphofeat());
+              sb.append("\t");
+              if (j == 0 && previousIsEntity) {
+                sb.append(BIO.BEGIN.toString());
+              } else {
+                sb.append(BIO.IN.toString());
+              }
+              sb.append(neType);
+              sb.append("\n");
+              index++;
+            }
+          } else {
+            sb.append(thisTerm.getForm());
+            sb.append("\t");
+            sb.append(thisTerm.getLemma());
+            sb.append("\t");
+            sb.append(thisTerm.getMorphofeat());
+            sb.append("\t");
+            if (previousIsEntity) {
+              sb.append(BIO.BEGIN.toString());
+            } else {
+              sb.append(BIO.IN.toString());
+            }
+            sb.append("\n");
+            index++;
+          }
+          previousIsEntity = true;
+          i += neSpanSize -1;
+        } else {
+          sb.append(thisTerm.getForm());
+          sb.append("\t");
+          sb.append(thisTerm.getLemma());
+          sb.append("\t");
+          sb.append(thisTerm.getMorphofeat());
+          sb.append("\t");
+          sb.append(BIO.OUT);
+          sb.append("\n");
+          index++;
+          previousIsEntity = false;
+        }
+      }
+      sb.append("\n");//end of sentence
+    }
+    return sb.toString();
+  }
+  
+  /**
+   * Output Conll2003 format.
+   * @param kaf the kaf document
+   * @return the annotated named entities in conll03 format
+   */
+  public String annotateNEsToCoNLL2002(KAFDocument kaf) {
+    List<Entity> namedEntityList = kaf.getEntities();
+    Map<String, Integer> entityToSpanSize = new HashMap<String, Integer>();
+    Map<String, String> entityToType = new HashMap<String, String>();
+    for (Entity ne : namedEntityList) {
+      List<ixa.kaflib.Span<Term>> entitySpanList = ne.getSpans();
+      for (ixa.kaflib.Span<Term> spanTerm : entitySpanList) {
+        Term neTerm = spanTerm.getFirstTarget();
+        entityToSpanSize.put(neTerm.getId(), spanTerm.size());
+        entityToType.put(neTerm.getId(), ne.getType());
+      }
+    }
+    
+    List<List<WF>> sentences = kaf.getSentences();
+    StringBuilder sb = new StringBuilder();
+    for (List<WF> sentence : sentences) {
+      int index = 1;
+      int sentNumber = sentence.get(0).getSent();
+      List<Term> sentenceTerms = kaf.getSentenceTerms(sentNumber);
+      boolean previousIsEntity = false;
+      
+      for (int i = 0; i < sentenceTerms.size(); i++) {
+        Term thisTerm = sentenceTerms.get(i);
+        
+        if (entityToSpanSize.get(thisTerm.getId()) != null) {
+          int neSpanSize = entityToSpanSize.get(thisTerm.getId());
+          String neClass = entityToType.get(thisTerm.getId());
+          String neType = convertToConLLTypes(neClass);
+          if (neSpanSize > 1) {
+            for (int j = 0; j < neSpanSize; j++) {
+              thisTerm = sentenceTerms.get(i + j);
+              sb.append(thisTerm.getForm());
+              sb.append("\t");
+              sb.append(thisTerm.getLemma());
+              sb.append("\t");
+              sb.append(thisTerm.getMorphofeat());
+              sb.append("\t");
+              if (j == 0 || previousIsEntity) {
+                sb.append(BIO.BEGIN.toString());
+              } else {
+                sb.append(BIO.IN.toString());
+              }
+              sb.append(neType);
+              sb.append("\n");
+              index++;
+            }
+          } else {
+            sb.append(thisTerm.getForm());
+            sb.append("\t");
+            sb.append(thisTerm.getLemma());
+            sb.append("\t");
+            sb.append(thisTerm.getMorphofeat());
+            sb.append("\t");
+            sb.append(BIO.BEGIN.toString());
+            sb.append(neType);
+            sb.append("\n");
+            index++;
+          }
+          previousIsEntity = true;
+          i += neSpanSize -1;
+        } else {
+          sb.append(thisTerm.getForm());
+          sb.append("\t");
+          sb.append(thisTerm.getLemma());
+          sb.append("\t");
+          sb.append(thisTerm.getMorphofeat());
+          sb.append("\t");
+          sb.append(BIO.OUT);
+          sb.append("\n");
+          index++;
+          previousIsEntity = false;
+        }
+      }
+      sb.append("\n");//end of sentence
+    }
+    return sb.toString();
+  }
+
+  public String convertToConLLTypes(String neType) {
+    String conllType = null;
+    if (neType.startsWith("PER") || 
+        neType.startsWith("ORG") || 
+        neType.startsWith("LOC") ||
+        neType.startsWith("GPE")) {
+      conllType = neType.substring(0, 3);
+    } else if (neType.equalsIgnoreCase("MISC")) {
+      conllType = neType;
+    }
+    return conllType;
   }
 
   /**
