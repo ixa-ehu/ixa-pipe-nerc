@@ -107,14 +107,14 @@ public class Dictionaries {
    *           throws an exception if directory does not exist
    */
   private void loadDictionaries(final String inputDir) throws IOException {
-    File inputPath = new File(inputDir);
-    List<File> fileList = this.getFilesInDir(inputPath);
+    List<File> fileList = this.getFilesInDir(new File(inputDir));
       dictNames = new ArrayList<String>(fileList.size());
       dictionaries = new ArrayList<Dictionary>(fileList.size());
       dictionariesIgnoreCase = new ArrayList<Dictionary>(fileList.size());
       for (int i = 0; i < fileList.size(); ++i) {
-        System.err.println("\tloading dictionary:...."
-            + fileList.get(i).getCanonicalPath());
+       // System.err.println("\tloading dictionary:...."
+       //     + fileList.get(i).getCanonicalPath());
+        System.err.println("\tloading dictionaries in " + inputDir + " directory");
         dictNames.add(fileList.get(i).getName());
         dictionaries.add(new Dictionary());
         dictionariesIgnoreCase.add(new Dictionary());
@@ -136,9 +136,13 @@ public class Dictionaries {
         }
       }
       System.err.println("found " + dictionaries.size() + " dictionaries");
-
   }
   
+  /**
+   * Recursively get every file in a directory and add them to a list.
+   * @param inputPath the input directory
+   * @return the list containing all the files
+   */
   private List<File> getFilesInDir(File inputPath) {
     List<File> fileList = new ArrayList<File>();
     for (File aFile : Files.fileTreeTraverser().preOrderTraversal(inputPath)) {

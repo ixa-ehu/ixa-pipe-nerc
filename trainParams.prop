@@ -36,9 +36,11 @@ TestSet=/home/ragerri/experiments/nerc/conll03/eng.testb
 # CorpusFormat of the training corpus
 CorpusFormat=conll03
 
-# OutputFormat: naf or conll03
-# Choose the format in which to print the ixa-pipe-nerc annotations
-OutputFormat=conll03
+# OutputFormat: conll02, conll03 or naf
+# Choose the format in which to print the ixa-pipe-nerc annotations. If not
+# specified, it defaults to naf.
+#OutputFormat=conll03
+
 
 # OutputModel: if commented out, ixa-pipe-nerc will save the model with the
 # name of this properties file
