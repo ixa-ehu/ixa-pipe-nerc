@@ -313,6 +313,7 @@ public class Annotate {
             } else {
               sb.append(BIO.IN.toString());
             }
+            sb.append(neType);
             sb.append("\n");
             index++;
           }
