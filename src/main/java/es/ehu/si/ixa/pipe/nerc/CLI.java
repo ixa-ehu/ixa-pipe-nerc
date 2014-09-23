@@ -203,9 +203,9 @@ public class CLI {
     annotator.annotateNEs(kaf);
     String outputFormatOption = InputOutputUtils.getOutputFormat(params);
     String kafToString = null;
-    if (outputFormatOption.equalsIgnoreCase("conll2003")) {
+    if (outputFormatOption.equalsIgnoreCase("conll03")) {
       kafToString = annotator.annotateNEsToCoNLL2003(kaf);
-    } else if (outputFormatOption.equalsIgnoreCase("conll2002")) {
+    } else if (outputFormatOption.equalsIgnoreCase("conll02")) {
       kafToString = annotator.annotateNEsToCoNLL2002(kaf);
     } else {
       kafToString = annotator.annotateNEsToKAF(kaf);
