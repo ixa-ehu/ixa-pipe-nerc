@@ -125,6 +125,11 @@ DictionaryPath=/home/ragerri/javacode/ixa-pipe-nerc/nerc-resources/en/dictionari
 DistSimFeatures=no
 DistSimPath=/home/ragerri/javacode/ixa-pipe-nerc/clusters.nem.32
 
+# Word2VecClusterFeatures: add features using word2vec clusters. If value is
+# yes, specify the location of the clustering lexicon in word2vec format.
+Word2VecClusterFeatures=no
+Word2VecClusterPath=/home/ragerri/clusters.large.txt
+
 # BrownClusterFeatures: add features using Brown clusters
 # (http://metaoptimize.com/projects/wordreprs/). If yes, specify the location
 # of the Brown clustering lexicon.

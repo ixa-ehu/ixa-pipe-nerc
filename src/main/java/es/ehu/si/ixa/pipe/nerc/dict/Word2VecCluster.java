@@ -26,17 +26,17 @@ import com.google.common.io.Files;
 
 /**
  * 
- * Class to load a Clark cluster document: word\\s+word_class\\s+prob
- * https://github.com/ninjin/clark_pos_induction
+ * Class to load a Word2Vec cluster document: word\\s+word_class
+ * http://code.google.com/p/word2vec/
  * 
  * The file containing the clustering lexicon has to be passed as the 
- * argument of the DistSim property.
+ * argument of the Word2VecCluster property.
  * 
  * @author ragerri
  * @version 2014/07/29
  * 
  */
-public class ClarkCluster {
+public class Word2VecCluster {
 
   /**
    * The list of Dictionary in which to load the lexicon.
@@ -53,7 +53,7 @@ public class ClarkCluster {
    * @param inputDir
    *          the input directory
    */
-  public ClarkCluster(final String inputDir) {
+  public Word2VecCluster(final String inputDir) {
     if (dictionary == null && dictionaryIgnoreCase == null) {
       try {
         loadDictionary(inputDir);
@@ -98,12 +98,12 @@ public class ClarkCluster {
     dictionaryIgnoreCase = new Dictionary();
     for (String line : fileLines) {
       String[] lineArray = line.split(" ");
-      if (lineArray.length == 3) {
+      if (lineArray.length == 2) {
         dictionary.populate(lineArray[0],lineArray[1]);
         dictionaryIgnoreCase.populate(lineArray[0].toLowerCase(), lineArray[1]);
       }
       else {
-        System.err.println("Clark clustering lexicon not well-formed after line:");
+        System.err.println("Word2Vec clustering lexicon not well-formed after line:");
         System.err.println(line);
         System.exit(1);
       }
