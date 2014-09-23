@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.List;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableList;
 import com.google.common.io.Files;
 
 
@@ -107,11 +108,7 @@ public class Dictionaries {
    */
   private void loadDictionaries(final String inputDir) throws IOException {
     File inputPath = new File(inputDir);
-    if (inputPath.isDirectory()) {
-      List<File> fileList = new ArrayList<File>();
-      for (File aFile : Files.fileTreeTraverser().preOrderTraversal(inputPath)) {
-        fileList.add(aFile);
-      }
+    List<File> fileList = this.getFilesInDir(inputPath);
       dictNames = new ArrayList<String>(fileList.size());
       dictionaries = new ArrayList<Dictionary>(fileList.size());
       dictionariesIgnoreCase = new ArrayList<Dictionary>(fileList.size());
@@ -139,8 +136,17 @@ public class Dictionaries {
         }
       }
       System.err.println("found " + dictionaries.size() + " dictionaries");
-    }
 
+  }
+  
+  private List<File> getFilesInDir(File inputPath) {
+    List<File> fileList = new ArrayList<File>();
+    for (File aFile : Files.fileTreeTraverser().preOrderTraversal(inputPath)) {
+      if (aFile.isFile()) {
+        fileList.add(aFile);
+      }
+    }
+    return fileList;
   }
 
 }
