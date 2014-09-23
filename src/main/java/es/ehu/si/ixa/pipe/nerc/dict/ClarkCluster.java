@@ -20,7 +20,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
 
 
 /**
@@ -92,7 +93,7 @@ public class ClarkCluster {
   private void loadDictionary(final String inputFile) throws IOException {
     File inputPath = new File(inputFile);
     System.err.println("\tLoading clustering lexicon...: " + inputPath.getCanonicalPath());
-    List<String> fileLines = FileUtils.readLines(inputPath, "UTF-8");
+    List<String> fileLines = Files.readLines(inputPath, Charsets.UTF_8);
     dictionary = new Dictionary();
     dictionaryIgnoreCase = new Dictionary();
     for (String line : fileLines) {

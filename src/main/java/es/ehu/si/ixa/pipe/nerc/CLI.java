@@ -34,8 +34,9 @@ import net.sourceforge.argparse4j.inf.Subparser;
 import net.sourceforge.argparse4j.inf.Subparsers;
 import opennlp.tools.util.TrainingParameters;
 
-import org.apache.commons.io.FilenameUtils;
 import org.jdom2.JDOMException;
+
+import com.google.common.io.Files;
 
 import es.ehu.si.ixa.pipe.nerc.eval.CorpusEvaluate;
 import es.ehu.si.ixa.pipe.nerc.eval.Evaluate;
@@ -229,7 +230,7 @@ public class CLI {
         .loadTrainingParameters(paramFile);
     String outModel = null;
     if (params.getSettings().get("OutputModel") == null || params.getSettings().get("OutputModel").length() == 0) {
-      outModel = FilenameUtils.getBaseName(paramFile) + ".bin";
+      outModel = Files.getNameWithoutExtension(paramFile) + ".bin";
       params.put("OutputModel", outModel);
     }
     else {

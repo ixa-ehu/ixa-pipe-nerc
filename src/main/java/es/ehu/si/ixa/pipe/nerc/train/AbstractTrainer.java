@@ -24,11 +24,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
+
 
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.TrainingParameters;
-
-import org.apache.commons.io.FileUtils;
 
 import es.ehu.si.ixa.pipe.nerc.eval.NameFinderEvaluator;
 import es.ehu.si.ixa.pipe.nerc.features.AdaptiveFeatureGenerator;
@@ -256,7 +257,7 @@ public abstract class AbstractTrainer implements Trainer {
         sb.append("Iterations: ").append(iteration).append(" cutoff: ")
             .append(cuttOff).append(" ").append("PRF: ").append(precision)
             .append(" ").append(recall).append(" ").append(result).append("\n");
-        FileUtils.write(new File("ner-results.txt"), sb.toString(), true);
+        Files.append( sb.toString(), new File("ner-results.txt"), Charsets.UTF_8);
         List<Integer> bestParams = new ArrayList<Integer>();
         bestParams.add(iteration);
         bestParams.add(cuttOff);

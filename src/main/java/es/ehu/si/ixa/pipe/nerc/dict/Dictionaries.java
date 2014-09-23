@@ -21,7 +21,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
 
 
 /**
@@ -107,11 +108,13 @@ public class Dictionaries {
   private void loadDictionaries(final String inputDir) throws IOException {
     File inputPath = new File(inputDir);
     if (inputPath.isDirectory()) {
-      Collection<File> files = FileUtils.listFiles(inputPath, null, true);
-      List<File> fileList = new ArrayList<File>(files);
-      dictNames = new ArrayList<String>(files.size());
-      dictionaries = new ArrayList<Dictionary>(files.size());
-      dictionariesIgnoreCase = new ArrayList<Dictionary>(files.size());
+      List<File> fileList = new ArrayList<File>();
+      for (File aFile : Files.fileTreeTraverser().preOrderTraversal(inputPath)) {
+        fileList.add(aFile);
+      }
+      dictNames = new ArrayList<String>(fileList.size());
+      dictionaries = new ArrayList<Dictionary>(fileList.size());
+      dictionariesIgnoreCase = new ArrayList<Dictionary>(fileList.size());
       for (int i = 0; i < fileList.size(); ++i) {
         System.err.println("\tloading dictionary:...."
             + fileList.get(i).getCanonicalPath());
@@ -119,7 +122,7 @@ public class Dictionaries {
         dictionaries.add(new Dictionary());
         dictionariesIgnoreCase.add(new Dictionary());
 
-        List<String> fileLines = FileUtils.readLines(fileList.get(i), "UTF-8");
+        List<String> fileLines = Files.readLines(fileList.get(i), Charsets.UTF_8);
         for (String line : fileLines) {
           String[] lineArray = line.split("\t");
           if (lineArray.length == 2) {

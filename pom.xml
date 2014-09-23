@@ -4,7 +4,7 @@
 	<groupId>es.ehu.si</groupId>
 	<artifactId>ixa-pipe-nerc</artifactId>
 	<packaging>jar</packaging>
-	<version>1.1.4</version>
+	<version>1.1.5</version>
 	<name>ixa-pipe-nerc</name>
 	<description>NERC tagger of ixa pipes tools, a multilingual NLP pipeline. All models trained by the IXA NLP Group of the University of the Basque Country (ixa.si.ehu.es).</description>
 	<developers>
@@ -50,9 +50,9 @@
 			<version>0.4.3</version>
 		</dependency>
 		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-			<version>2.4</version>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>18.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.opennlp</groupId>

@@ -29,14 +29,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
+
 import opennlp.model.TrainUtil;
 import opennlp.tools.cmdline.TerminateToolException;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.TrainingParameters;
 import opennlp.tools.util.model.BaseModel;
-
-import org.apache.commons.io.FileUtils;
 
 import es.ehu.si.ixa.pipe.nerc.CLI;
 
@@ -448,8 +449,7 @@ public class InputOutputUtils {
             + result1.getValue());
       }
     }
-    FileUtils.writeStringToFile(new File("best-results.txt"), sb.toString(),
-        "UTF-8");
+    Files.write(sb.toString(), new File("best-results.txt"), Charsets.UTF_8);
     System.out.println("Best F via cross evaluation: " + bestResult);
     System.out.println("All Params " + allParams.size());
     return allParams;
