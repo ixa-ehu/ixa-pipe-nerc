@@ -3,20 +3,34 @@ package es.ehu.si.ixa.pipe.nerc.features;
 import java.util.ArrayList;
 import java.util.List;
 
-import es.ehu.si.ixa.pipe.nerc.dict.BrownCluster;
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
 
-public class BrownTokenFeatures {
+public class BrownTokenFeatureGenerator extends FeatureGeneratorAdapter {
 
   public static final int[] pathLengths = { 4, 6, 10, 20 };
+  
+  private Dictionary brownLexicon;
+  
 
-  public static String[] getWordClasses(String token, BrownCluster brownCluster) {
+  public BrownTokenFeatureGenerator(Dictionary aBrownLexicon) {
+    this.brownLexicon = aBrownLexicon;
+  }
+  
+  public void createFeatures(List<String> features, String[] tokens, int index,
+      String[] previousOutcomes) {
+    
+    String[] wordClasses = getWordClasses(tokens[index]);
+    for (int i = 0; i < wordClasses.length; i++) {
+      features.add("BROWN=" + tokens[index] + "" + wordClasses[i]);
+    }
+  }
 
-    Dictionary brownLexicon = brownCluster.getDictionary();
+  public String[] getWordClasses(String token) {
+
     if (brownLexicon.getDict().get(token) == null) {
       return new String[0];
     } else {
-      String distSim = brownCluster.getDictionary().getDict().get(token);
+      String distSim = brownLexicon.getDict().get(token);
       List<String> pathLengthsList = new ArrayList<String>();
       pathLengthsList.add(distSim.substring(0,
           Math.min(distSim.length(), pathLengths[0])));

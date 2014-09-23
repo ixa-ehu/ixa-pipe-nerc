@@ -28,6 +28,7 @@ import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
 import es.ehu.si.ixa.pipe.nerc.dict.Word2VecCluster;
 import es.ehu.si.ixa.pipe.nerc.features.AdaptiveFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.BigramClassFeatureGenerator;
+import es.ehu.si.ixa.pipe.nerc.features.BrownTokenFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.CachedFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.CharacterNgramFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.DictionaryFeatureGenerator;
@@ -64,6 +65,7 @@ import es.ehu.si.ixa.pipe.nerc.features.WindowFeatureGenerator;
  * <li>CharNgramFeatures: character ngram features of current token.
  * <li>DictionaryFeatures: check if current token appears in some gazetteer.
  * <li>DistSimFeatures: use the clustering class of a token as a feature.
+ * <li>BrownFeatures: use brown clusters as features.
  * <li>Word2VecClusterFeatures: use the clustering lcass of a token as a feature.
  * <ol>
  * 
@@ -107,6 +109,10 @@ public class FixedTrainer extends AbstractTrainer {
    * The brown cluster.
    */
   private static BrownCluster brownCluster;
+  /**
+   * The Brown cluster lexicon.
+   */
+  private static Dictionary brownLexicon;
 
   /**
    * Construct a trainer based on features specified in the trainParams.txt
@@ -233,6 +239,17 @@ public class FixedTrainer extends AbstractTrainer {
       }
       addDistSimFeatures(featureList);
     }
+    
+    String brownParam = InputOutputUtils.getBrownFeatures(params);
+    if (brownParam.equalsIgnoreCase("yes")) {
+      System.err.println("-> Brown cluster features added!");
+      String brownClusterPath = InputOutputUtils.getBrownClusterPath(params);
+      if (brownCluster == null) {
+        brownCluster = new BrownCluster(brownClusterPath);
+      }
+      addBrownClusterFeatures(featureList);
+    }
+    
     String word2vecClusterParam = InputOutputUtils.getWord2VecClusterFeatures(params);
     if (word2vecClusterParam.equalsIgnoreCase("yes")) {
       System.err.println("-> Word2vec clustering features added!");
@@ -327,6 +344,11 @@ public class FixedTrainer extends AbstractTrainer {
   private static void addDistSimFeatures(final List<AdaptiveFeatureGenerator> featureList) {
     distSimLexicon = distSimCluster.getIgnoreCaseDictionary();
     featureList.add(new DistSimFeatureGenerator(distSimLexicon));
+  }
+  
+  private static void addBrownClusterFeatures(final List<AdaptiveFeatureGenerator> featureList) {
+    brownLexicon = brownCluster.getIgnoreCaseDictionary();
+    featureList.add(new BrownTokenFeatureGenerator(brownLexicon));
   }
   
   private static void addWord2VecClusterFeatures(final List<AdaptiveFeatureGenerator> featureList) {
