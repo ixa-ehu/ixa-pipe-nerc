@@ -112,8 +112,9 @@ public class Dictionaries {
       dictionaries = new ArrayList<Dictionary>(fileList.size());
       dictionariesIgnoreCase = new ArrayList<Dictionary>(fileList.size());
       for (int i = 0; i < fileList.size(); ++i) {
-        System.err.println("\tloading dictionary:...."
-            + fileList.get(i).getCanonicalPath());
+       // System.err.println("\tloading dictionary:...."
+       //     + fileList.get(i).getCanonicalPath());
+        System.err.println("\tloading dictionaries in " + inputDir + " directory");
         dictNames.add(fileList.get(i).getName());
         dictionaries.add(new Dictionary());
         dictionariesIgnoreCase.add(new Dictionary());
