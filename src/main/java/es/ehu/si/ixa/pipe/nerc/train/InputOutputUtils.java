@@ -386,6 +386,32 @@ public class InputOutputUtils {
     return distSimPathFlag;
   }
   
+  public static String getWord2VecClusterFeatures(TrainingParameters params) {
+    String word2vecFlag = null;
+    if (params.getSettings().get("Word2VecClusterFeatures") != null) {
+      word2vecFlag = params.getSettings().get("Word2VecClusterFeatures");
+    }
+    else {
+      word2vecFlag = FixedTrainer.DEFAULT_FEATURE_FLAG;
+    }
+    return word2vecFlag;
+  }
+  
+  public static String getWord2VecClusterPath(TrainingParameters params) {
+    String word2vecClusterPathFlag = null;
+    if (params.getSettings().get("Word2VecClusterFeatures") != null) {
+      if (params.getSettings().get("Word2VecClusterPath") != null) {
+        word2vecClusterPathFlag = params.getSettings().get("Word2VecClusterPath");
+      } else {
+        InputOutputUtils.dictionaryException();
+      }
+    }
+    else {
+      InputOutputUtils.dictionaryFeaturesException();
+    }
+    return word2vecClusterPathFlag;
+  }
+  
   public static String getBrownFeatures(TrainingParameters params) {
     String brownFlag = null;
     if (params.getSettings().get("BrownClusterFeatures") != null) {
