@@ -164,7 +164,7 @@ public class Annotate {
   }
 
   /**
-   * Classify Named Entities and write them to a {@link KAFDocument} using
+   * Classify Named Entities creating the entities layer in the {@link KAFDocument} using
    * statistical models, post-processing and/or dictionaries only.
    * 
    * @param kaf
@@ -224,6 +224,11 @@ public class Annotate {
     }
   }
   
+  /**
+   * Output annotation as NAF.
+   * @param kaf the naf document
+   * @return the string containing the naf document
+   */
   public final String annotateNEsToKAF(KAFDocument kaf) {
     return kaf.toString();
   }
@@ -255,7 +260,9 @@ public class Annotate {
       List<ixa.kaflib.Span<Term>> entitySpanList = ne.getSpans();
       for (ixa.kaflib.Span<Term> spanTerm : entitySpanList) {
         Term neTerm = spanTerm.getFirstTarget();
+        //create map from term Id to Entity span size
         entityToSpanSize.put(neTerm.getId(), spanTerm.size());
+        //create map from term Id to Entity type
         entityToType.put(neTerm.getId(), ne.getType());
       }
     }
@@ -270,10 +277,12 @@ public class Annotate {
       
       for (int i = 0; i < sentenceTerms.size(); i++) {
         Term thisTerm = sentenceTerms.get(i);
-        
+        //if term is inside an entity span then annotate B-I entities
         if (entityToSpanSize.get(thisTerm.getId()) != null) {
           int neSpanSize = entityToSpanSize.get(thisTerm.getId());
-          String neType = entityToType.get(thisTerm.getId()).substring(0, 3);
+          String neClass = entityToType.get(thisTerm.getId());
+          String neType = this.convertToConLLTypes(neClass);
+          //if Entity span is multi token
           if (neSpanSize > 1) {
             for (int j = 0; j < neSpanSize; j++) {
               thisTerm = sentenceTerms.get(i + j);
@@ -410,6 +419,11 @@ public class Annotate {
     return sb.toString();
   }
 
+  /**
+   * Convert Entity class annotation to CoNLL formats.
+   * @param neType named entity class
+   * @return the converted string
+   */
   public String convertToConLLTypes(String neType) {
     String conllType = null;
     if (neType.startsWith("PER") || 
