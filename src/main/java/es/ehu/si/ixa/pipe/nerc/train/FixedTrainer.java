@@ -347,7 +347,7 @@ public class FixedTrainer extends AbstractTrainer {
   }
   
   private static void addBrownClusterFeatures(final List<AdaptiveFeatureGenerator> featureList) {
-    brownLexicon = brownCluster.getIgnoreCaseDictionary();
+    brownLexicon = brownCluster.getDictionary();
     featureList.add(new BrownTokenFeatureGenerator(brownLexicon));
   }
   
