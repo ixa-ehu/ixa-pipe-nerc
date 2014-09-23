@@ -107,10 +107,6 @@ public class FixedTrainer extends AbstractTrainer {
    * The brown cluster.
    */
   private static BrownCluster brownCluster;
-  /**
-   * The clustering dictionary;
-   */
-  private static boolean brownFeatures = false;
 
   /**
    * Construct a trainer based on features specified in the trainParams.txt
@@ -158,15 +154,6 @@ public class FixedTrainer extends AbstractTrainer {
     
     String tokenParam = InputOutputUtils.getTokenFeatures(params);
     if (tokenParam.equalsIgnoreCase("yes")) {
-      String brownFlag = InputOutputUtils.getBrownFeatures(params);
-      if (brownFlag.equalsIgnoreCase("yes")) {
-        brownFeatures = true;
-        System.err.println("-> Brown cluster Token features added!");
-        String brownClusterPath = params.getSettings().get("BrownClusterPath");
-        if (brownCluster == null) {
-          brownCluster = new BrownCluster(brownClusterPath);
-        }
-      }
       addWindowTokenFeatures(leftWindow, rightWindow, featureList);
       System.err.println("-> Token features added!: Window range " + leftWindow + ":" + rightWindow);
     }
@@ -260,14 +247,9 @@ public class FixedTrainer extends AbstractTrainer {
 
   public static void addWindowTokenFeatures(int leftWindow, int rightWindow,
       List<AdaptiveFeatureGenerator> featureList) {
-    if (brownFeatures) {
-      featureList.add(new WindowFeatureGenerator(new TokenFeatureGenerator(true, brownFeatures, brownCluster),
-          leftWindow, rightWindow));
-    }
-    else {
+    
       featureList.add(new WindowFeatureGenerator(new TokenFeatureGenerator(),
           leftWindow, rightWindow));
-    }
     
   }
 
