@@ -166,8 +166,10 @@ public class FixedTrainer extends AbstractTrainer {
       addWindowTokenFeatures(leftWindow, rightWindow, featureList);
       System.err.println("-> Token features added!: Window range " + leftWindow + ":" + rightWindow);
       if (brownParam.equalsIgnoreCase("yes")) {
+        System.err.println("-> Brown cluster token features added!");
         brownLexicon = setBrownResources(params, brownParam);
         addBrownWindowTokenFeatures(leftWindow, rightWindow, featureList);
+        
       }
     }
     String tokenClassParam = InputOutputUtils.getTokenClassFeatures(params);
@@ -377,7 +379,6 @@ public class FixedTrainer extends AbstractTrainer {
   
   public static Dictionary setBrownResources(TrainingParameters params, String brownParam) {
     if (brownParam.equalsIgnoreCase("yes")) {
-      System.err.println("-> Brown cluster features added!");
       String brownClusterPath = InputOutputUtils.getBrownClusterPath(params);
       if (brownCluster == null) {
         brownCluster = new BrownCluster(brownClusterPath);
