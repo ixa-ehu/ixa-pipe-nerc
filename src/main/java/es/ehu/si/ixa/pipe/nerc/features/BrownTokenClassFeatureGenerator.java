@@ -4,27 +4,24 @@ import java.util.List;
 
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
 
-public class BrownTokenFeatureGenerator extends FeatureGeneratorAdapter {
+public class BrownTokenClassFeatureGenerator extends FeatureGeneratorAdapter {
 
   private Dictionary brownLexicon;
-  private static boolean DEBUG = false;
-
-  public BrownTokenFeatureGenerator(Dictionary aBrownLexicon) {
+  
+  public BrownTokenClassFeatureGenerator(Dictionary aBrownLexicon) {
     this.brownLexicon = aBrownLexicon;
   }
-  
+
   public void createFeatures(List<String> features, String[] tokens, int index,
       String[] previousOutcomes) {
     
+    String tokenShape = TokenClassFeatureGenerator.tokenShapeFeature(tokens[index]);
     String[] wordClasses = BrownTokenClasses.getWordClasses(tokens[index], brownLexicon);
-    if (DEBUG) {
-      BrownTokenClasses.printArr(wordClasses);
-    }
+    
     for (int i = 0; i < wordClasses.length; i++) {
-      features.add("w,brown=" + tokens[index] + "," + wordClasses[i]);
+      features.add("w&c,brown=" + tokens[index].toLowerCase() + "," + tokenShape + "," + wordClasses[i]);
     }
+    
   }
-
   
-
 }

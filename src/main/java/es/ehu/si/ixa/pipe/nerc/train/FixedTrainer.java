@@ -28,6 +28,7 @@ import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
 import es.ehu.si.ixa.pipe.nerc.dict.Word2VecCluster;
 import es.ehu.si.ixa.pipe.nerc.features.AdaptiveFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.BigramClassFeatureGenerator;
+import es.ehu.si.ixa.pipe.nerc.features.BrownTokenClassFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.BrownTokenFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.CachedFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.CharacterNgramFeatureGenerator;
@@ -160,6 +161,9 @@ public class FixedTrainer extends AbstractTrainer {
     int leftWindow = getWindowRange(params).get(0);
     int rightWindow = getWindowRange(params).get(1);
     String brownParam = InputOutputUtils.getBrownFeatures(params);
+    if (brownParam.equalsIgnoreCase("yes")) {
+      brownLexicon = setBrownResources(params, brownParam);
+    }
     
     String tokenParam = InputOutputUtils.getTokenFeatures(params);
     if (tokenParam.equalsIgnoreCase("yes")) {
@@ -167,7 +171,6 @@ public class FixedTrainer extends AbstractTrainer {
       System.err.println("-> Token features added!: Window range " + leftWindow + ":" + rightWindow);
       if (brownParam.equalsIgnoreCase("yes")) {
         System.err.println("-> Brown cluster token features added!");
-        brownLexicon = setBrownResources(params, brownParam);
         addBrownWindowTokenFeatures(leftWindow, rightWindow, featureList);
         
       }
@@ -176,6 +179,10 @@ public class FixedTrainer extends AbstractTrainer {
     if (tokenClassParam.equalsIgnoreCase("yes")) {
       addWindowTokenClassFeatures(leftWindow, rightWindow, featureList);
       System.err.println("-> Token Class features added!: Window range " + leftWindow + ":" + rightWindow);
+      if (brownParam.equalsIgnoreCase("yes")) {
+        System.err.println("-> Brown cluster token class features added!");
+        addBrownWindowTokenClassFeatures(leftWindow, rightWindow, featureList);
+      }
     }
     String outcomePriorParam = InputOutputUtils.getOutcomePriorFeatures(params);
     if (outcomePriorParam.equalsIgnoreCase("yes")) {
@@ -277,6 +284,10 @@ public class FixedTrainer extends AbstractTrainer {
       int rightWindow, List<AdaptiveFeatureGenerator> featureList) {
     featureList.add(new WindowFeatureGenerator(new TokenClassFeatureGenerator(
         true), leftWindow, rightWindow));
+  }
+  
+  private static void addBrownWindowTokenClassFeatures(int leftWindow, int rightWindow, final List<AdaptiveFeatureGenerator> featureList) {
+    featureList.add(new WindowFeatureGenerator(new BrownTokenClassFeatureGenerator(brownLexicon), leftWindow, rightWindow));
   }
 
   public static void addOutcomePriorFeatures(

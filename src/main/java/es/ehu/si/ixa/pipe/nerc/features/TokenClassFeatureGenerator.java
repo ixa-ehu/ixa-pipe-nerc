@@ -45,9 +45,6 @@ import opennlp.tools.util.featuregen.StringPattern;
  */
 public class TokenClassFeatureGenerator extends FeatureGeneratorAdapter {
 
-  private static final String TOKEN_CLASS_PREFIX = "wc";
-  private static final String TOKEN_AND_CLASS_PREFIX = "w&c";
-
   private static Pattern capPeriod;
 
   static {
@@ -67,10 +64,10 @@ public class TokenClassFeatureGenerator extends FeatureGeneratorAdapter {
   public void createFeatures(List<String> features, String[] tokens, int index,
       String[] preds) {
     String wordClass = tokenShapeFeature(tokens[index]);
-    features.add(TOKEN_CLASS_PREFIX + "=" + wordClass);
+    features.add("wc=" + wordClass);
 
     if (generateWordAndClassFeature) {
-      features.add(TOKEN_AND_CLASS_PREFIX + "=" + tokens[index].toLowerCase()
+      features.add("w&c=" + tokens[index].toLowerCase()
           + "," + wordClass);
     }
   }
