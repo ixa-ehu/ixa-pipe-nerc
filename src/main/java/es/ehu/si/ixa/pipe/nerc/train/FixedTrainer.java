@@ -270,7 +270,7 @@ public class FixedTrainer extends AbstractTrainer {
   }
   
   private static void addBrownWindowTokenFeatures(int leftWindow, int rightWindow, final List<AdaptiveFeatureGenerator> featureList) {
-    featureList.add(new BrownTokenFeatureGenerator(brownLexicon));
+    featureList.add(new WindowFeatureGenerator(new BrownTokenFeatureGenerator(brownLexicon), leftWindow, rightWindow));
   }
 
   public static void addWindowTokenClassFeatures(int leftWindow,
