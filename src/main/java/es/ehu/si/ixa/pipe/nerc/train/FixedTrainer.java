@@ -39,6 +39,7 @@ import es.ehu.si.ixa.pipe.nerc.features.FivegramClassFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.FourgramClassFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.OutcomePriorFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.Prefix34FeatureGenerator;
+import es.ehu.si.ixa.pipe.nerc.features.Prev2MapFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.PreviousMapFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.PreviousMapTokenFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.SentenceFeatureGenerator;
@@ -187,7 +188,7 @@ public class FixedTrainer extends AbstractTrainer {
     }
     String previousMapParam = InputOutputUtils.getPreviousMapFeatures(params);
     if (previousMapParam.equalsIgnoreCase("yes")) {
-      addPreviousMapFeatures(featureList);
+      addPreviousMapFeatures(leftWindow, rightWindow, featureList);
       System.err.println("-> Previous map features added!");
     }
     String sentenceParam = InputOutputUtils.getSentenceFeatures(params);
@@ -254,8 +255,8 @@ public class FixedTrainer extends AbstractTrainer {
     
     String brownParam = InputOutputUtils.getBrownFeatures(params);
     if (brownParam.equalsIgnoreCase("yes")) {
-      brownLexicon = setBrownResources(params, brownParam);
       System.err.println("-> Brown clusters features added!");
+      brownLexicon = setBrownResources(params, brownParam);
       addBrownFeatures(leftWindow, rightWindow, featureList);
     }
     
@@ -308,58 +309,93 @@ public class FixedTrainer extends AbstractTrainer {
    * Adds the previous outcome for each token as a feature.
    * @param featureList the feature list to which the feature generator is added
    */
-  public static void addPreviousMapFeatures(
+  public static void addPreviousMapFeatures(int leftWindow, int rightWindow,
       List<AdaptiveFeatureGenerator> featureList) {
-    featureList.add(new PreviousMapFeatureGenerator());
-    //TODO add two previous tags
-    featureList.add(new PreviousMapTokenFeatureGenerator());
+    //TODO clarify this and other Ratinov and Roth baseline features
+    //featureList.add(new PreviousMapFeatureGenerator());
+    featureList.add(new Prev2MapFeatureGenerator());
+    featureList.add(new WindowFeatureGenerator(leftWindow, rightWindow, new PreviousMapTokenFeatureGenerator()));
   }
   
+  /**
+   * Add sentence end and begin as features.
+   * @param featureList the feature list
+   */
   public static void addSentenceFeatures(
       List<AdaptiveFeatureGenerator> featureList) {
     featureList.add(new SentenceFeatureGenerator(true, false));
   }
 
+  /**
+   * Add the first 4 characters of the token as feature.
+   * @param featureList the feature list
+   */
   public static void addPrefixFeatures(
       List<AdaptiveFeatureGenerator> featureList) {
     featureList.add(new Prefix34FeatureGenerator());
   }
 
+  /**
+   * Add the last 4 characters of the token as a feature.
+   * @param featureList the feature list
+   */
   public static void addSuffixFeatures(
       List<AdaptiveFeatureGenerator> featureList) {
     featureList.add(new SuffixFeatureGenerator());
   }
 
+  /**
+   * Add token and token shape bigram features.
+   * @param featureList the feature list
+   */
   public static void addBigramClassFeatures(
       List<AdaptiveFeatureGenerator> featureList) {
     featureList.add(new BigramClassFeatureGenerator());
   }
 
+  /**
+   * Add token and token shape trigram features.
+   * @param featureList the feature list
+   */
   public static void addTrigramClassFeatures(
       List<AdaptiveFeatureGenerator> featureList) {
     featureList.add(new TrigramClassFeatureGenerator());
   }
   
+  /**
+   * Add the fourgram token and token shape features.
+   * @param featureList the feature list
+   */
   public static void addFourgramClassFeatures(
       List<AdaptiveFeatureGenerator> featureList) {
     featureList.add(new FourgramClassFeatureGenerator());
   }
   
+  /**
+   * Add the fivegram token and token shape features.
+   * @param featureList the feature list
+   */
   public static void addFivegramClassFeatures(
       List<AdaptiveFeatureGenerator> featureList) {
     featureList.add(new FivegramClassFeatureGenerator());
   }
 
+  /**
+   * Add the character ngram features of the current token.
+   * @param minLength the minimun ngram
+   * @param maxLength the maximum ngram 
+   * @param featureList the feature list
+   */
   public static void addCharNgramFeatures(int minLength, int maxLength,
       List<AdaptiveFeatureGenerator> featureList) {
     featureList.add(new CharacterNgramFeatureGenerator(minLength, maxLength));
   }
 
   /**
-   * Adds the dictionary features to the feature list.
-   * 
-   * @param featureList
-   *          the feature list containing the dictionary features
+   * Adds the dictionary features of the curren token in a given window.
+   * @param leftWindow the left window
+   * @param rightWindow the right window
+   * @param featureList the feature list
    */
   private static void addDictionaryFeatures(int leftWindow, int rightWindow,
       final List<AdaptiveFeatureGenerator> featureList) {
@@ -370,13 +406,19 @@ public class FixedTrainer extends AbstractTrainer {
     }
   }
   
+  /**
+   * Add the Clark cluster class of the current token as a feature in a given window.
+   * @param leftWindow the left window
+   * @param rightWindow the right window
+   * @param featureList the feature list
+   */
   private static void addClarkFeatures(int leftWindow, int rightWindow, final List<AdaptiveFeatureGenerator> featureList) {
     clarkLexicon = clarkCluster.getIgnoreCaseDictionary();
     featureList.add(new WindowFeatureGenerator(leftWindow, rightWindow, new ClarkFeatureGenerator(clarkLexicon)));
   }
   
   /**
-   * Adds Brown classes features for each token in a given window.
+   * Adds Brown classes features for each token feature in a given window.
    * @param leftWindow the leftwindow value
    * @param rightWindow the rightwindow value
    * @param featureList the feature list to which the feature generator is added
@@ -388,11 +430,22 @@ public class FixedTrainer extends AbstractTrainer {
   }
 
   
+  /**
+   * Add the word2vec cluster class feature of the curren token in a given window.
+   * @param leftWindow the left window
+   * @param rightWindow the right window
+   * @param featureList the feature list
+   */
   private static void addWord2VecClusterFeatures(int leftWindow, int rightWindow, final List<AdaptiveFeatureGenerator> featureList) {
     word2vecClusterLexicon = word2vecCluster.getIgnoreCaseDictionary();
     featureList.add(new WindowFeatureGenerator(leftWindow, rightWindow, new Word2VecClusterFeatureGenerator(word2vecClusterLexicon)));
   }
 
+  /**
+   * Get the window range feature.
+   * @param params the training parameters
+   * @return the list containing the left and right window values
+   */
   public static List<Integer> getWindowRange(TrainingParameters params) {
     List<Integer> windowRange = new ArrayList<Integer>();
     String windowParam = InputOutputUtils.getWindow(params);
@@ -404,6 +457,11 @@ public class FixedTrainer extends AbstractTrainer {
     return windowRange;
   }
 
+  /**
+   * Get the range of the character ngram of current token.
+   * @param params the training parameters
+   * @return a list containing the initial and maximum ngram values
+   */
   public static List<Integer> getNgramRange(TrainingParameters params) {
     List<Integer> ngramRange = new ArrayList<Integer>();
       String charNgramParam = InputOutputUtils.getCharNgramFeaturesRange(params);
@@ -416,6 +474,12 @@ public class FixedTrainer extends AbstractTrainer {
     return ngramRange;
   }
   
+  /**
+   * Initialize Brown resources.
+   * @param params the training parameters
+   * @param brownParam the brown parameter
+   * @return the {@code Dictionary} containing the {@code BrownCluster} lexicon
+   */
   public static Dictionary setBrownResources(TrainingParameters params, String brownParam) {
     if (brownParam.equalsIgnoreCase("yes")) {
       String brownClusterPath = InputOutputUtils.getBrownClusterPath(params);
