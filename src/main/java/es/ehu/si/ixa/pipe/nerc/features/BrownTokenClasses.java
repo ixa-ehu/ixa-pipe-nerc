@@ -8,7 +8,6 @@ import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
 public class BrownTokenClasses {
   
   public static final int[] pathLengths = { 4, 6, 10, 20 };
-  
   public static List<String> getWordClasses(String token, Dictionary brownLexicon) {
 
     if (brownLexicon.getDict().get(token) == null) {

@@ -28,18 +28,19 @@ import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
 import es.ehu.si.ixa.pipe.nerc.dict.Word2VecCluster;
 import es.ehu.si.ixa.pipe.nerc.features.AdaptiveFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.BigramClassFeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.features.BrownPreviousMapFeatureGenerator;
+import es.ehu.si.ixa.pipe.nerc.features.BrownBigramFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.BrownTokenClassFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.BrownTokenFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.CachedFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.CharacterNgramFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.DictionaryFeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.features.DistSimFeatureGenerator;
+import es.ehu.si.ixa.pipe.nerc.features.ClarkFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.FivegramClassFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.FourgramClassFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.OutcomePriorFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.Prefix34FeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.PreviousMapFeatureGenerator;
+import es.ehu.si.ixa.pipe.nerc.features.PreviousMapTokenFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.SentenceFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.SuffixFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.TokenClassFeatureGenerator;
@@ -67,8 +68,8 @@ import es.ehu.si.ixa.pipe.nerc.features.Word2VecClusterFeatureGenerator;
  * <li>FivegramClassFeatures: fivegrams of token and token class.
  * <li>CharNgramFeatures: character ngram features of current token.
  * <li>DictionaryFeatures: check if current token appears in some gazetteer.
- * <li>DistSimFeatures: use the clustering class of a token as a feature.
- * <li>BrownFeatures: use brown clusters as features.
+ * <li>ClarkClusterFeatures: use the clustering class of a token as a feature.
+ * <li>BrownClusterFeatures: use brown clusters as features for each feature containing a token.
  * <li>Word2VecClusterFeatures: use the word2vec clustering class of a token as a feature.
  * <ol>
  * 
@@ -95,11 +96,11 @@ public class FixedTrainer extends AbstractTrainer {
   /**
    * The Clark clustering lexicon.
    */
-  private static ClarkCluster distSimCluster;
+  private static ClarkCluster clarkCluster;
   /**
    * The Clark clustering dictionary.
    */
-  private static Dictionary distSimLexicon;
+  private static Dictionary clarkLexicon;
   /**
    * The word2vec clustering lexicon.
    */
@@ -168,29 +169,16 @@ public class FixedTrainer extends AbstractTrainer {
     List<AdaptiveFeatureGenerator> featureList = new ArrayList<AdaptiveFeatureGenerator>();
     int leftWindow = getWindowRange(params).get(0);
     int rightWindow = getWindowRange(params).get(1);
-    String brownParam = InputOutputUtils.getBrownFeatures(params);
-    if (brownParam.equalsIgnoreCase("yes")) {
-      brownLexicon = setBrownResources(params, brownParam);
-    }
     
     String tokenParam = InputOutputUtils.getTokenFeatures(params);
     if (tokenParam.equalsIgnoreCase("yes")) {
       addWindowTokenFeatures(leftWindow, rightWindow, featureList);
       System.err.println("-> Token features added!: Window range " + leftWindow + ":" + rightWindow);
-      if (brownParam.equalsIgnoreCase("yes")) {
-        System.err.println("-> Brown cluster token features added!");
-        addBrownWindowTokenFeatures(leftWindow, rightWindow, featureList);
-        
-      }
     }
     String tokenClassParam = InputOutputUtils.getTokenClassFeatures(params);
     if (tokenClassParam.equalsIgnoreCase("yes")) {
       addWindowTokenClassFeatures(leftWindow, rightWindow, featureList);
       System.err.println("-> Token Class features added!: Window range " + leftWindow + ":" + rightWindow);
-      if (brownParam.equalsIgnoreCase("yes")) {
-        System.err.println("-> Brown cluster token class features added!");
-        addBrownWindowTokenClassFeatures(leftWindow, rightWindow, featureList);
-      }
     }
     String outcomePriorParam = InputOutputUtils.getOutcomePriorFeatures(params);
     if (outcomePriorParam.equalsIgnoreCase("yes")) {
@@ -252,30 +240,35 @@ public class FixedTrainer extends AbstractTrainer {
       if (dictionaries == null) {
         dictionaries = new Dictionaries(dictPath);
       }
-      addDictionaryFeatures(featureList);
+      addDictionaryFeatures(leftWindow, rightWindow, featureList);
     }
-    String distSimParam = InputOutputUtils.getDistSimFeatures(params);
+    String distSimParam = InputOutputUtils.getClarkFeatures(params);
     if (distSimParam.equalsIgnoreCase("yes")) {
-      System.err.println("-> Distributional similarity features added!");
-      String distSimPath = InputOutputUtils.getDistSimPath(params);
-      if (distSimCluster == null) {
-        distSimCluster = new ClarkCluster(distSimPath);
+      System.err.println("-> Clark clusters features added!");
+      String distSimPath = InputOutputUtils.getClarkPath(params);
+      if (clarkCluster == null) {
+        clarkCluster = new ClarkCluster(distSimPath);
       }
-      addDistSimFeatures(featureList);
+      addClarkFeatures(leftWindow, rightWindow, featureList);
+    }
+    
+    String brownParam = InputOutputUtils.getBrownFeatures(params);
+    if (brownParam.equalsIgnoreCase("yes")) {
+      brownLexicon = setBrownResources(params, brownParam);
+      System.err.println("-> Brown clusters features added!");
+      addBrownFeatures(leftWindow, rightWindow, featureList);
     }
     
     String word2vecClusterParam = InputOutputUtils.getWord2VecClusterFeatures(params);
     if (word2vecClusterParam.equalsIgnoreCase("yes")) {
-      System.err.println("-> Word2vec clustering features added!");
+      System.err.println("-> Word2vec clusters features added!");
       String word2vecClusterPath = InputOutputUtils.getWord2VecClusterPath(params);
       if (word2vecCluster == null) {
         word2vecCluster = new Word2VecCluster(word2vecClusterPath);
       }
-      addWord2VecClusterFeatures(featureList);
+      addWord2VecClusterFeatures(leftWindow, rightWindow, featureList);
     }
     return featureList;
-    
-    
   }
 
   /**
@@ -291,16 +284,6 @@ public class FixedTrainer extends AbstractTrainer {
   }
   
   /**
-   * Adds Brown classes features for each token in a given window.
-   * @param leftWindow the leftwindow value
-   * @param rightWindow the rightwindow value
-   * @param featureList the feature list to which the feature generator is added
-   */
-  private static void addBrownWindowTokenFeatures(int leftWindow, int rightWindow, final List<AdaptiveFeatureGenerator> featureList) {
-    featureList.add(new WindowFeatureGenerator(new BrownTokenFeatureGenerator(brownLexicon), leftWindow, rightWindow));
-  }
-
-  /**
    * Add window token class/shape features to the feature list.
    * @param leftWindow the leftwindow value
    * @param rightWindow the rightwindow value
@@ -310,16 +293,6 @@ public class FixedTrainer extends AbstractTrainer {
       int rightWindow, List<AdaptiveFeatureGenerator> featureList) {
     featureList.add(new WindowFeatureGenerator(new TokenClassFeatureGenerator(
         true), leftWindow, rightWindow));
-  }
-  
-  /**
-   * Add brown classes features for each token class in a given window.
-   * @param leftWindow the leftwindow value
-   * @param rightWindow the rightwindow value
-   * @param featureList the feature list to which the feature generator is added
-   */
-  private static void addBrownWindowTokenClassFeatures(int leftWindow, int rightWindow, final List<AdaptiveFeatureGenerator> featureList) {
-    featureList.add(new WindowFeatureGenerator(new BrownTokenClassFeatureGenerator(brownLexicon), leftWindow, rightWindow));
   }
 
   /**
@@ -338,12 +311,10 @@ public class FixedTrainer extends AbstractTrainer {
   public static void addPreviousMapFeatures(
       List<AdaptiveFeatureGenerator> featureList) {
     featureList.add(new PreviousMapFeatureGenerator());
+    //TODO add two previous tags
+    featureList.add(new PreviousMapTokenFeatureGenerator());
   }
   
-  public static void addBrownPreviousMapFeatures(List<AdaptiveFeatureGenerator> featureList) {
-    featureList.add(new BrownPreviousMapFeatureGenerator(brownLexicon));
-  }
-
   public static void addSentenceFeatures(
       List<AdaptiveFeatureGenerator> featureList) {
     featureList.add(new SentenceFeatureGenerator(true, false));
@@ -390,23 +361,36 @@ public class FixedTrainer extends AbstractTrainer {
    * @param featureList
    *          the feature list containing the dictionary features
    */
-  private static void addDictionaryFeatures(
+  private static void addDictionaryFeatures(int leftWindow, int rightWindow,
       final List<AdaptiveFeatureGenerator> featureList) {
     for (int i = 0; i < dictionaries.getIgnoreCaseDictionaries().size(); i++) {
       prefix = dictionaries.getDictNames().get(i);
       dictionary = dictionaries.getIgnoreCaseDictionaries().get(i);
-      featureList.add(new DictionaryFeatureGenerator(prefix, dictionary));
+      featureList.add(new WindowFeatureGenerator(leftWindow, rightWindow, new DictionaryFeatureGenerator(prefix, dictionary)));
     }
   }
   
-  private static void addDistSimFeatures(final List<AdaptiveFeatureGenerator> featureList) {
-    distSimLexicon = distSimCluster.getIgnoreCaseDictionary();
-    featureList.add(new DistSimFeatureGenerator(distSimLexicon));
+  private static void addClarkFeatures(int leftWindow, int rightWindow, final List<AdaptiveFeatureGenerator> featureList) {
+    clarkLexicon = clarkCluster.getIgnoreCaseDictionary();
+    featureList.add(new WindowFeatureGenerator(leftWindow, rightWindow, new ClarkFeatureGenerator(clarkLexicon)));
   }
   
-  private static void addWord2VecClusterFeatures(final List<AdaptiveFeatureGenerator> featureList) {
+  /**
+   * Adds Brown classes features for each token in a given window.
+   * @param leftWindow the leftwindow value
+   * @param rightWindow the rightwindow value
+   * @param featureList the feature list to which the feature generator is added
+   */
+  private static void addBrownFeatures(int leftWindow, int rightWindow, final List<AdaptiveFeatureGenerator> featureList) {
+    featureList.add(new WindowFeatureGenerator(new BrownTokenFeatureGenerator(brownLexicon), leftWindow, rightWindow));
+    featureList.add(new WindowFeatureGenerator(new BrownTokenClassFeatureGenerator(brownLexicon), leftWindow, rightWindow));
+    featureList.add(new BrownBigramFeatureGenerator(brownLexicon));
+  }
+
+  
+  private static void addWord2VecClusterFeatures(int leftWindow, int rightWindow, final List<AdaptiveFeatureGenerator> featureList) {
     word2vecClusterLexicon = word2vecCluster.getIgnoreCaseDictionary();
-    featureList.add(new Word2VecClusterFeatureGenerator(word2vecClusterLexicon));
+    featureList.add(new WindowFeatureGenerator(leftWindow, rightWindow, new Word2VecClusterFeatureGenerator(word2vecClusterLexicon)));
   }
 
   public static List<Integer> getWindowRange(TrainingParameters params) {

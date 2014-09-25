@@ -360,10 +360,10 @@ public class InputOutputUtils {
     return dictPathFlag;
   }
   
-  public static String getDistSimFeatures(TrainingParameters params) {
+  public static String getClarkFeatures(TrainingParameters params) {
     String distSimFlag = null;
-    if (params.getSettings().get("DistSimFeatures") != null) {
-      distSimFlag = params.getSettings().get("DistSimFeatures");
+    if (params.getSettings().get("ClarkClusterFeatures") != null) {
+      distSimFlag = params.getSettings().get("ClarkClusterFeatures");
     }
     else {
       distSimFlag = FixedTrainer.DEFAULT_FEATURE_FLAG;
@@ -371,11 +371,11 @@ public class InputOutputUtils {
     return distSimFlag;
   }
   
-  public static String getDistSimPath(TrainingParameters params) {
+  public static String getClarkPath(TrainingParameters params) {
     String distSimPathFlag = null;
-    if (params.getSettings().get("DistSimFeatures") != null) {
-      if (params.getSettings().get("DistSimPath") != null) {
-        distSimPathFlag = params.getSettings().get("DistSimPath");
+    if (params.getSettings().get("ClarkClusterFeatures") != null) {
+      if (params.getSettings().get("ClarkClusterPath") != null) {
+        distSimPathFlag = params.getSettings().get("ClarkClusterPath");
       } else {
         InputOutputUtils.dictionaryException();
       }

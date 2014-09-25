@@ -5,26 +5,26 @@ import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
 import java.util.List;
 
 
-public class DistSimFeatureGenerator extends FeatureGeneratorAdapter {
+public class ClarkFeatureGenerator extends FeatureGeneratorAdapter {
 
   
-  private Dictionary distSimLexicon;
+  private Dictionary clarkLexicon;
   public static String unknowndistSimClass = "JAR";
 
-  public DistSimFeatureGenerator(Dictionary distSimLexicon) {
-    this.distSimLexicon = distSimLexicon;
+  public ClarkFeatureGenerator(Dictionary distSimLexicon) {
+    this.clarkLexicon = distSimLexicon;
   }
   
   public void createFeatures(List<String> features, String[] tokens, int index,
       String[] preds) {
     
       String wordClass = getWordClass(tokens[index].toLowerCase());
-      features.add("DISTSIM=" + wordClass);
+      features.add("clark=" + wordClass);
     }
   
-  private String getWordClass(String token) {
+  public String getWordClass(String token) {
     
-    String distSim = distSimLexicon.getDict().get(token);
+    String distSim = clarkLexicon.getDict().get(token);
     if (distSim == null) {
       distSim = unknowndistSimClass;
     }

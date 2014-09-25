@@ -108,10 +108,6 @@ FivegramClassFeatures=no
 CharNgramFeatures=no
 #CharNgramFeaturesRange=2:5
 
-# DictionaryFeatures: add features if token found in some gazetteers.
-DictionaryFeatures=no
-DictionaryPath=/home/ragerri/javacode/ixa-pipe-nerc/nerc-resources/en/dictionaries
-
 # DirectDictionaryTagging: Use a gazetteer to directly annotate named entities. If off, only
 # statistical models are used (this is the default). If activated, it has two
 # options, "tag" and "post": tag only tags with a gazetteer and "post"
@@ -120,10 +116,14 @@ DictionaryPath=/home/ragerri/javacode/ixa-pipe-nerc/nerc-resources/en/dictionari
 # specified.
 #DirectDictionaryTagging=post
 
-# DistSimFeatures: add features using Clark (2003) clusters. If value is yes,
+# DictionaryFeatures: add features if token found in some gazetteers.
+DictionaryFeatures=no
+DictionaryPath=/home/ragerri/javacode/ixa-pipe-nerc/nerc-resources/en/dictionaries
+
+# ClarkClusterFeatures: add features using Clark (2003) clusters. If value is yes,
 # specify the location of the clustering lexicon in Clark format.
-DistSimFeatures=no
-DistSimPath=/home/ragerri/javacode/ixa-pipe-nerc/clusters.nem.32
+ClarkClusterFeatures=yes
+ClarkClusterPath=/home/ragerri/resources/reuters-rcv1/clark/reuters-rcv1.tok.punct.lower.300
 
 # Word2VecClusterFeatures: add features using word2vec clusters. If value is
 # yes, specify the location of the clustering lexicon in word2vec format.
