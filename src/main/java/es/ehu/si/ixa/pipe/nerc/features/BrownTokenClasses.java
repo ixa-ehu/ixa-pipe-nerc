@@ -24,19 +24,8 @@ public class BrownTokenClasses {
               Math.min(distSim.length(), pathLengths[i])));
         }
       }
-      /*String[] paths = new String[pathLengthsList.size()];
-      for (int i = 0; i < pathLengthsList.size(); ++i) {
-        paths[i] = pathLengthsList.get(i);
-      }
-      return paths;*/
       return pathLengthsList;
     }
-  }
-
-  public static void printArr(String[] arr) {
-    for (int i = 0; i < arr.length; i++)
-      System.out.print(" " + arr[i]);
-    System.out.println("");
   }
   
   public static void printList(List<String> classList) {

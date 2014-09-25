@@ -28,6 +28,7 @@ import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
 import es.ehu.si.ixa.pipe.nerc.dict.Word2VecCluster;
 import es.ehu.si.ixa.pipe.nerc.features.AdaptiveFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.BigramClassFeatureGenerator;
+import es.ehu.si.ixa.pipe.nerc.features.BrownPreviousMapFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.BrownTokenClassFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.BrownTokenFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.CachedFeatureGenerator;
@@ -154,6 +155,13 @@ public class FixedTrainer extends AbstractTrainer {
     return new CachedFeatureGenerator(featuresArray);
   }
 
+  /**
+   * Creates the list of features to be passed to the createFeatureGenerator(params)
+   * method. Every programatic use of ixa-pipe-nerc will need to implement/use a function
+   * like this to train a model.
+   * @param params the training parameters
+   * @return the list of {@code AdaptiveFeatureGenerator}s
+   */
   private final List<AdaptiveFeatureGenerator> createFeatureList(
       TrainingParameters params) {
     
@@ -270,31 +278,63 @@ public class FixedTrainer extends AbstractTrainer {
     
   }
 
+  /**
+   * Adds window token features to the feature list.
+   * @param leftWindow the leftwindow value
+   * @param rightWindow the rightwindow value
+   * @param featureList the feature list to which the feature generator is added
+   */
   public static void addWindowTokenFeatures(int leftWindow, int rightWindow,
       List<AdaptiveFeatureGenerator> featureList) {
       featureList.add(new WindowFeatureGenerator(new TokenFeatureGenerator(),
           leftWindow, rightWindow)); 
   }
   
+  /**
+   * Adds Brown classes features for each token in a given window.
+   * @param leftWindow the leftwindow value
+   * @param rightWindow the rightwindow value
+   * @param featureList the feature list to which the feature generator is added
+   */
   private static void addBrownWindowTokenFeatures(int leftWindow, int rightWindow, final List<AdaptiveFeatureGenerator> featureList) {
     featureList.add(new WindowFeatureGenerator(new BrownTokenFeatureGenerator(brownLexicon), leftWindow, rightWindow));
   }
 
+  /**
+   * Add window token class/shape features to the feature list.
+   * @param leftWindow the leftwindow value
+   * @param rightWindow the rightwindow value
+   * @param featureList the feature list to which the feature generator is added
+   */
   public static void addWindowTokenClassFeatures(int leftWindow,
       int rightWindow, List<AdaptiveFeatureGenerator> featureList) {
     featureList.add(new WindowFeatureGenerator(new TokenClassFeatureGenerator(
         true), leftWindow, rightWindow));
   }
   
+  /**
+   * Add brown classes features for each token class in a given window.
+   * @param leftWindow the leftwindow value
+   * @param rightWindow the rightwindow value
+   * @param featureList the feature list to which the feature generator is added
+   */
   private static void addBrownWindowTokenClassFeatures(int leftWindow, int rightWindow, final List<AdaptiveFeatureGenerator> featureList) {
     featureList.add(new WindowFeatureGenerator(new BrownTokenClassFeatureGenerator(brownLexicon), leftWindow, rightWindow));
   }
 
+  /**
+   * Adds a prior outcome to the feature list.
+   * @param featureList the feature list to which the feature generator is added
+   */
   public static void addOutcomePriorFeatures(
       List<AdaptiveFeatureGenerator> featureList) {
     featureList.add(new OutcomePriorFeatureGenerator());
   }
 
+  /**
+   * Adds the previous outcome for each token as a feature.
+   * @param featureList the feature list to which the feature generator is added
+   */
   public static void addPreviousMapFeatures(
       List<AdaptiveFeatureGenerator> featureList) {
     featureList.add(new PreviousMapFeatureGenerator());
