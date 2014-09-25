@@ -16,10 +16,10 @@ public class BrownTokenClassFeatureGenerator extends FeatureGeneratorAdapter {
       String[] previousOutcomes) {
     
     String tokenShape = TokenClassFeatureGenerator.tokenShapeFeature(tokens[index]);
-    String[] wordClasses = BrownTokenClasses.getWordClasses(tokens[index], brownLexicon);
+    List<String> wordClasses = BrownTokenClasses.getWordClasses(tokens[index], brownLexicon);
     
-    for (int i = 0; i < wordClasses.length; i++) {
-      features.add("w&c,brown=" + tokens[index].toLowerCase() + "," + tokenShape + "," + wordClasses[i]);
+    for (int i = 0; i < wordClasses.size(); i++) {
+      features.add("c,brown=" + tokenShape + "," + wordClasses.get(i));
     }
     
   }

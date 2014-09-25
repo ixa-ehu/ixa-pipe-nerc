@@ -9,10 +9,10 @@ public class BrownTokenClasses {
   
   public static final int[] pathLengths = { 4, 6, 10, 20 };
   
-  public static String[] getWordClasses(String token, Dictionary brownLexicon) {
+  public static List<String> getWordClasses(String token, Dictionary brownLexicon) {
 
     if (brownLexicon.getDict().get(token) == null) {
-      return new String[0];
+      return new ArrayList<String>(0);
     } else {
       String distSim = brownLexicon.getDict().get(token);
       List<String> pathLengthsList = new ArrayList<String>();
@@ -24,17 +24,25 @@ public class BrownTokenClasses {
               Math.min(distSim.length(), pathLengths[i])));
         }
       }
-      String[] paths = new String[pathLengthsList.size()];
+      /*String[] paths = new String[pathLengthsList.size()];
       for (int i = 0; i < pathLengthsList.size(); ++i) {
         paths[i] = pathLengthsList.get(i);
       }
-      return paths;
+      return paths;*/
+      return pathLengthsList;
     }
   }
 
   public static void printArr(String[] arr) {
     for (int i = 0; i < arr.length; i++)
       System.out.print(" " + arr[i]);
+    System.out.println("");
+  }
+  
+  public static void printList(List<String> classList) {
+    for (int i = 0; i < classList.size(); i++) {
+      System.out.print(" " + classList.get(i));
+    }
     System.out.println("");
   }
 

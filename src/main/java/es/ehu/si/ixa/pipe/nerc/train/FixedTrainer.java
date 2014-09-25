@@ -299,6 +299,10 @@ public class FixedTrainer extends AbstractTrainer {
       List<AdaptiveFeatureGenerator> featureList) {
     featureList.add(new PreviousMapFeatureGenerator());
   }
+  
+  public static void addBrownPreviousMapFeatures(List<AdaptiveFeatureGenerator> featureList) {
+    featureList.add(new BrownPreviousMapFeatureGenerator(brownLexicon));
+  }
 
   public static void addSentenceFeatures(
       List<AdaptiveFeatureGenerator> featureList) {
