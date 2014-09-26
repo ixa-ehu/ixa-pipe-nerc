@@ -59,7 +59,7 @@ We distribute the following models
 + **English Models**: we offer a variety of Perceptron based models (Collins 2002):
   
   + **CoNLL 2003 models**: We distribute models trained with local features
-  (84.53 F1) and with external knowledge. Furthermore, we also
+  with external knowledge. Furthermore, we also
   distribute opennlp compatible models (check for "opennlp" in the prop
   file). Each of the models improve in F1 but they get slower: 
     + CoNLL 2003 local features: F1 84.52
