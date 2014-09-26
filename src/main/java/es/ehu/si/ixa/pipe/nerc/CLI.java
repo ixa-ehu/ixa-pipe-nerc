@@ -139,8 +139,9 @@ public class CLI {
    *          the arguments passed through the CLI
    * @throws IOException
    *           exception if problems with the incoming data
+   * @throws JDOMException 
    */
-  public final void parseCLI(final String[] args) throws IOException {
+  public final void parseCLI(final String[] args) throws IOException, JDOMException {
     try {
       parsedArguments = argParser.parseArgs(args);
       System.err.println("CLI options: " + parsedArguments);
@@ -170,7 +171,7 @@ public class CLI {
    *           exception if problems in input or output streams
    */
   public final void annotate(final InputStream inputStream,
-      final OutputStream outputStream) throws IOException {
+      final OutputStream outputStream) throws IOException, JDOMException {
 
     BufferedReader breader = new BufferedReader(new InputStreamReader(
         inputStream, "UTF-8"));
