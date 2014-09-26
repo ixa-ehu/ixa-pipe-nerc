@@ -241,16 +241,16 @@ public class FixedTrainer extends AbstractTrainer {
       if (dictionaries == null) {
         dictionaries = new Dictionaries(dictPath);
       }
-      //addDictionaryFeatures(leftWindow, rightWindow, featureList);
-      addDictionaryFeatures(featureList);
+      addDictionaryFeatures(leftWindow, rightWindow, featureList);
+      //addDictionaryFeatures(featureList);
     }
     
     String brownParam = InputOutputUtils.getBrownFeatures(params);
     if (brownParam.equalsIgnoreCase("yes")) {
       System.err.println("-> Brown clusters features added!");
       brownLexicon = setBrownResources(params, brownParam);
-      //addBrownFeatures(leftWindow, rightWindow, featureList);
-      addBrownFeatures(featureList);
+      addBrownFeatures(leftWindow, rightWindow, featureList);
+      //addBrownFeatures(featureList);
     }
     
     String clarkParam = InputOutputUtils.getClarkFeatures(params);
@@ -260,8 +260,8 @@ public class FixedTrainer extends AbstractTrainer {
       if (clarkCluster == null) {
         clarkCluster = new ClarkCluster(clarkPath);
       }
-      //addClarkFeatures(leftWindow, rightWindow, featureList);
-      addClarkFeatures(featureList);
+      addClarkFeatures(leftWindow, rightWindow, featureList);
+      //addClarkFeatures(featureList);
     }
     String word2vecClusterParam = InputOutputUtils.getWord2VecClusterFeatures(params);
     if (word2vecClusterParam.equalsIgnoreCase("yes")) {
@@ -270,8 +270,8 @@ public class FixedTrainer extends AbstractTrainer {
       if (word2vecCluster == null) {
         word2vecCluster = new Word2VecCluster(word2vecClusterPath);
       }
-      //addWord2VecClusterFeatures(leftWindow, rightWindow, featureList);
-      addWord2VecClusterFeatures(featureList);
+      addWord2VecClusterFeatures(leftWindow, rightWindow, featureList);
+      //addWord2VecClusterFeatures(featureList);
     }
     return featureList;
   }
@@ -488,7 +488,7 @@ public class FixedTrainer extends AbstractTrainer {
    */
   private static void addWord2VecClusterFeatures(final List<AdaptiveFeatureGenerator> featureList) {
     word2vecClusterLexicon = word2vecCluster.getIgnoreCaseDictionary();
-    featureList.add(Word2VecClusterFeatureGenerator(word2vecClusterLexicon));
+    featureList.add(new Word2VecClusterFeatureGenerator(word2vecClusterLexicon));
   }
 
   /**

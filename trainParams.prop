@@ -120,6 +120,12 @@ CharNgramFeatures=no
 DictionaryFeatures=no
 DictionaryPath=/home/ragerri/javacode/ixa-pipe-nerc/nerc-resources/en/dictionaries
 
+# BrownClusterFeatures: add features using Brown clusters
+# (http://metaoptimize.com/projects/wordreprs/). If yes, specify the location
+# of the Brown clustering lexicon.
+BrownClusterFeatures=no
+BrownClusterPath=/home/ragerri/javacode/ixa-pipe-nerc/brown-rcv1.clean.tokenized-CoNLL03.txt-c1000-freq1.txt
+
 # ClarkClusterFeatures: add features using Clark (2003) clusters. If value is yes,
 # specify the location of the clustering lexicon in Clark format.
 ClarkClusterFeatures=yes
@@ -129,12 +135,6 @@ ClarkClusterPath=/home/ragerri/resources/reuters-rcv1/clark/reuters-rcv1.tok.pun
 # yes, specify the location of the clustering lexicon in word2vec format.
 Word2VecClusterFeatures=no
 Word2VecClusterPath=/home/ragerri/clusters.large.txt
-
-# BrownClusterFeatures: add features using Brown clusters
-# (http://metaoptimize.com/projects/wordreprs/). If yes, specify the location
-# of the Brown clustering lexicon.
-BrownClusterFeatures=no
-BrownClusterPath=/home/ragerri/javacode/ixa-pipe-nerc/brown-rcv1.clean.tokenized-CoNLL03.txt-c1000-freq1.txt
 
 ## END FEATURES ##
 
