@@ -128,7 +128,7 @@ public class FixedTrainer extends AbstractTrainer {
       throws IOException {
     super(trainData, testData, params);
     
-    setFeatures(createFeatureGenerator(params));
+    this.setNameClassifierFactory(aNameClassifierFactory)(createFeatureGenerator(params));
   }
 
   /**

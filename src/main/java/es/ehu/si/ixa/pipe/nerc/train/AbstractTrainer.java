@@ -24,15 +24,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Files;
-
-
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.TrainingParameters;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
+
 import es.ehu.si.ixa.pipe.nerc.eval.NameFinderEvaluator;
-import es.ehu.si.ixa.pipe.nerc.features.AdaptiveFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.formats.Conll02NameStream;
 import es.ehu.si.ixa.pipe.nerc.formats.Conll03NameStream;
 import es.ehu.si.ixa.pipe.nerc.formats.CorpusSample;
@@ -83,7 +81,7 @@ public abstract class AbstractTrainer implements Trainer {
   /**
    * features needs to be implemented by any class extending this one.
    */
-  private AdaptiveFeatureGenerator features;
+  private NameClassifierFactory nameClassifierFactory;
 
   /**
    * Constructs a trainer with training and test data, and with options for
@@ -139,17 +137,16 @@ public abstract class AbstractTrainer implements Trainer {
    * .TrainingParameters)
    */
   public final NameModel train(final TrainingParameters params) {
-    if (getFeatures() == null) {
+    if (getNameClassifierFactory() == null) {
       throw new IllegalStateException(
           "Classes derived from AbstractNameFinderTrainer must create and fill the AdaptiveFeatureGenerator features!");
     }
-    Map<String, Object> resources = null;
     NameModel trainedModel = null;
     NameFinderEvaluator nerEvaluator = null;
     try {
       trainedModel = NameClassifier.train(lang, null, trainSamples, params,
-          getFeatures(), resources);
-      NameClassifier nerTagger = new NameClassifier(trainedModel, getFeatures(), beamSize);
+          getNameClassifierFactory());
+      NameClassifier nerTagger = new NameClassifier(trainedModel);
       nerEvaluator = new NameFinderEvaluator(nerTagger);
       nerEvaluator.evaluate(testSamples);
     } catch (IOException e) {
@@ -213,7 +210,6 @@ public abstract class AbstractTrainer implements Trainer {
     // lists to store best parameters
     List<List<Integer>> allParams = new ArrayList<List<Integer>>();
     List<Integer> finalParams = new ArrayList<Integer>();
-    Map<String, Object> resources = null;
 
     // F:<iterations,cutoff> Map
     Map<List<Integer>, Double> results = new LinkedHashMap<List<Integer>, Double>();
@@ -245,9 +241,9 @@ public abstract class AbstractTrainer implements Trainer {
 
         // training model
         NameModel trainedModel = NameClassifier.train(lang, null,
-            aTrainSamples, params, getFeatures(), resources);
+            aTrainSamples, params, getNameClassifierFactory());
         // evaluate model
-        NameClassifier nerClassifier = new NameClassifier(trainedModel, getFeatures(), beamSize);
+        NameClassifier nerClassifier = new NameClassifier(trainedModel);
         NameFinderEvaluator nerEvaluator = new NameFinderEvaluator(nerClassifier);
         nerEvaluator.evaluate(devSamples);
         double result = nerEvaluator.getFMeasure().getFMeasure();
@@ -322,8 +318,8 @@ public abstract class AbstractTrainer implements Trainer {
    * this class.
    * @return the features
    */
-  public final AdaptiveFeatureGenerator getFeatures() {
-    return features;
+  public final NameClassifierFactory getNameClassifierFactory() {
+    return nameClassifierFactory;
   }
 
   /**
@@ -332,8 +328,8 @@ public abstract class AbstractTrainer implements Trainer {
    * @param aFeatures
    *          the implemented features
    */
-  public final void setFeatures(final AdaptiveFeatureGenerator aFeatures) {
-    this.features = aFeatures;
+  public final void setNameClassifierFactory(final NameClassifierFactory aNameClassifierFactory) {
+    this.nameClassifierFactory = aNameClassifierFactory;
   }
   /**
    * Get the language.
