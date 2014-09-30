@@ -17,21 +17,16 @@
 
 package es.ehu.si.ixa.pipe.nerc.train;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Map;
-import java.util.Properties;
-
-import es.ehu.si.ixa.pipe.nerc.features.AdaptiveFeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.features.NameContextGenerator;
 
 import opennlp.tools.namefind.BioCodec;
 import opennlp.tools.util.BaseToolFactory;
 import opennlp.tools.util.InvalidFormatException;
 import opennlp.tools.util.SequenceCodec;
-import opennlp.tools.util.SequenceValidator;
 import opennlp.tools.util.ext.ExtensionLoader;
+import es.ehu.si.ixa.pipe.nerc.features.AdaptiveFeatureGenerator;
+import es.ehu.si.ixa.pipe.nerc.features.AggregatedFeatureGenerator;
+import es.ehu.si.ixa.pipe.nerc.features.NameContextGenerator;
 
 // Idea of this factory is that most resources/impls used by the name finder
 // can be modified through this class!

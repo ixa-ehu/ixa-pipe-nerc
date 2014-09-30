@@ -128,19 +128,7 @@ public class FixedTrainer extends AbstractTrainer {
       throws IOException {
     super(trainData, testData, params);
     
-    this.setNameClassifierFactory(aNameClassifierFactory)(createFeatureGenerator(params));
-  }
-
-  /**
-   * Construct a baseline trainer with only beamsize specified.
-   * Only for annotation.
-   * 
-   * @param beamsize
-   *          the beamsize
-   */
-  public FixedTrainer(TrainingParameters params) {
-    super(params);
-    setFeatures(createFeatureGenerator(params));
+    setNameClassifierFactory(new NameClassifierFactory());
   }
 
   /*
