@@ -10,6 +10,22 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import opennlp.tools.ml.BeamSearch;
+import opennlp.tools.ml.EventModelSequenceTrainer;
+import opennlp.tools.ml.EventTrainer;
+import opennlp.tools.ml.SequenceTrainer;
+import opennlp.tools.ml.TrainerFactory;
+import opennlp.tools.ml.TrainerFactory.TrainerType;
+import opennlp.tools.ml.model.Event;
+import opennlp.tools.ml.model.MaxentModel;
+import opennlp.tools.ml.model.SequenceClassificationModel;
+import opennlp.tools.namefind.BioCodec;
+import opennlp.tools.util.ObjectStream;
+import opennlp.tools.util.Sequence;
+import opennlp.tools.util.SequenceCodec;
+import opennlp.tools.util.SequenceValidator;
+import opennlp.tools.util.Span;
+import opennlp.tools.util.TrainingParameters;
 import es.ehu.si.ixa.pipe.nerc.features.AdaptiveFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.AdditionalContextFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.features.BigramClassFeatureGenerator;
@@ -24,17 +40,6 @@ import es.ehu.si.ixa.pipe.nerc.features.WindowFeatureGenerator;
 import es.ehu.si.ixa.pipe.nerc.formats.CorpusSample;
 import es.ehu.si.ixa.pipe.nerc.formats.CorpusSampleSequenceStream;
 
-import opennlp.model.AbstractModel;
-import opennlp.model.EventStream;
-import opennlp.model.MaxentModel;
-import opennlp.model.TrainUtil;
-import opennlp.tools.util.BeamSearch;
-import opennlp.tools.util.ObjectStream;
-import opennlp.tools.util.Sequence;
-import opennlp.tools.util.SequenceValidator;
-import opennlp.tools.util.Span;
-import opennlp.tools.util.TrainingParameters;
-import opennlp.tools.util.model.ModelUtil;
 
 public class NameClassifier {
   
@@ -47,59 +52,28 @@ public class NameClassifier {
   public static final String START = "start";
   public static final String CONTINUE = "cont";
   public static final String OTHER = "other";
-
-  protected MaxentModel model;
+  
+  private SequenceCodec<String> seqCodec = new BioCodec();
+  protected SequenceClassificationModel<String> model;
+  
   protected NameContextGenerator contextGenerator;
   private Sequence bestSequence;
-  private BeamSearch<String> beam;
-  
   private AdditionalContextFeatureGenerator additionalContextFeatureGenerator =
       new AdditionalContextFeatureGenerator();
+  private SequenceValidator<String> sequenceValidator;
 
   public NameClassifier(NameModel model) {
-    this(model, DEFAULT_BEAM_SIZE);
-  }
-
-  /**
-   * Initializes the name finder with the specified model.
-   *
-   * @param model
-   * @param beamSize
-   */
-  public NameClassifier(NameModel model, AdaptiveFeatureGenerator generator, int beamSize,
-      SequenceValidator<String> sequenceValidator) {
-    this.model = model.getNameFinderModel();
-
-    // If generator is provided always use that one
-    if (generator != null) {
-      contextGenerator = new DefaultNameContextGenerator(generator);
-    }
-    else {
-      // If model has a generator use that one, otherwise create default
-      AdaptiveFeatureGenerator featureGenerator = createFeatureGenerator();
-
-      contextGenerator = new DefaultNameContextGenerator(featureGenerator);
-    }
-
+    NameClassifierFactory factory = model.getFactory();
+    seqCodec = factory.createSequenceCodec();
+    sequenceValidator = seqCodec.createSequenceValidator();
+    this.model = model.getNameFinderSequenceModel();
+    contextGenerator = factory.createContextGenerator();
+    // TODO: We should deprecate this. And come up with a better solution!
     contextGenerator.addFeatureGenerator(
-          new WindowFeatureGenerator(additionalContextFeatureGenerator, 8, 8));
-
-    if (sequenceValidator == null)
-      sequenceValidator = new NameFinderSequenceValidator();
-
-    beam = new BeamSearch<String>(beamSize, contextGenerator, this.model,
-        sequenceValidator, beamSize);
-  }
-
-  public NameClassifier(NameModel model, AdaptiveFeatureGenerator generator, int beamSize) {
-    this(model, generator, beamSize, null);
-  }
-
-  public NameClassifier(NameModel model, int beamSize) {
-    this(model, null, beamSize);
+            new WindowFeatureGenerator(additionalContextFeatureGenerator, 8, 8));
   }
   
-  private static AdaptiveFeatureGenerator createFeatureGenerator() {
+  static AdaptiveFeatureGenerator createFeatureGenerator() {
     return new CachedFeatureGenerator(
           new AdaptiveFeatureGenerator[]{
             new WindowFeatureGenerator(new TokenFeatureGenerator(), 2, 2),
@@ -111,58 +85,82 @@ public class NameClassifier {
             });
    }
 
-
   public Span[] find(String[] tokens) {
     return find(tokens, EMPTY);
   }
 
   /**
-   * Generates name tags for the given sequence, typically a sentence,
-   * returning token spans for any identified names.
-   *
-   * @param tokens an array of the tokens or words of the sequence,
-   *     typically a sentence.
-   * @param additionalContext features which are based on context outside
-   *     of the sentence but which should also be used.
-   *
-   * @return an array of spans for each of the names identified.
-   */
-  public Span[] find(String[] tokens, String[][] additionalContext) {
-    additionalContextFeatureGenerator.setCurrentContext(additionalContext);
-    bestSequence = beam.bestSequence(tokens, additionalContext);
+  * Generates name tags for the given sequence, typically a sentence, returning
+  * token spans for any identified names.
+  *
+  * @param tokens an array of the tokens or words of the sequence, typically a
+  * sentence.
+  * @param additionalContext features which are based on context outside of the
+  * sentence but which should also be used.
+  *
+  * @return an array of spans for each of the names identified.
+  */
+ public Span[] find(String[] tokens, String[][] additionalContext) {
 
-    List<String> c = bestSequence.getOutcomes();
+   additionalContextFeatureGenerator.setCurrentContext(additionalContext);
 
-    contextGenerator.updateAdaptiveData(tokens, c.toArray(new String[c.size()]));
+   bestSequence = model.bestSequence(tokens, additionalContext, contextGenerator, sequenceValidator);
 
-    int start = -1;
-    int end = -1;
-    List<Span> spans = new ArrayList<Span>(tokens.length);
-    for (int li = 0; li < c.size(); li++) {
-      String chunkTag = c.get(li);
-      if (chunkTag.endsWith(NameClassifier.START)) {
-        if (start != -1) {
-          spans.add(new Span(start, end, extractNameType(c.get(li - 1))));
-        }
-        start = li;
-        end = li + 1;
-      }
-      else if (chunkTag.endsWith(NameClassifier.CONTINUE)) {
-        end = li + 1;
-      }
-      else if (chunkTag.endsWith(NameClassifier.OTHER)) {
-        if (start != -1) {
-          spans.add(new Span(start, end, extractNameType(c.get(li - 1))));
-          start = -1;
-          end = -1;
-        }
-      }
-    }
-    if (start != -1) {
-      spans.add(new Span(start, end, extractNameType(c.get(c.size() - 1))));
-    }
-    return spans.toArray(new Span[spans.size()]);
-  }
+   List<String> c = bestSequence.getOutcomes();
+
+   contextGenerator.updateAdaptiveData(tokens, c.toArray(new String[c.size()]));
+   Span[] spans = seqCodec.decode(c);
+   spans = setProbs(spans);
+   return spans;
+ }
+ 
+ /**
+  * sets the probs for the spans
+  *
+  * @param spans
+  * @return
+  */
+ private Span[] setProbs(Span[] spans) {
+    double[] probs = probs(spans);
+    if (probs != null) {    
+      
+     for (int i = 0; i < probs.length; i++) {
+       double prob = probs[i];
+       spans[i]= new Span(spans[i], prob);
+     }
+   }
+   return spans;
+ }
+ 
+ /**
+  * Returns an array of probabilities for each of the specified spans which is
+  * the arithmetic mean of the probabilities for each of the outcomes which
+  * make up the span.
+  *
+  * @param spans The spans of the names for which probabilities are desired.
+  *
+  * @return an array of probabilities for each of the specified spans.
+  */
+ public double[] probs(Span[] spans) {
+
+   double[] sprobs = new double[spans.length];
+   double[] probs = bestSequence.getProbs();
+
+   for (int si = 0; si < spans.length; si++) {
+
+     double p = 0;
+
+     for (int oi = spans[si].getStart(); oi < spans[si].getEnd(); oi++) {
+       p += probs[oi];
+     }
+
+     p /= spans[si].length();
+
+     sprobs[si] = p;
+   }
+
+   return sprobs;
+ }
 
   /**
    * Forgets all adaptive data which was collected during previous
@@ -199,109 +197,55 @@ public class NameClassifier {
      return bestSequence.getProbs();
    }
 
-   /**
-    * Returns an array of probabilities for each of the specified spans which is the arithmetic mean
-    * of the probabilities for each of the outcomes which make up the span.
-    *
-    * @param spans The spans of the names for which probabilities are desired.
-    *
-    * @return an array of probabilities for each of the specified spans.
-    */
-   public double[] probs(Span[] spans) {
+   public static NameModel train(String languageCode, String type,
+           ObjectStream<CorpusSample> samples, TrainingParameters trainParams,
+           NameClassifierFactory factory) throws IOException {
+     String beamSizeString = trainParams.getSettings().get(BeamSearch.BEAM_SIZE_PARAMETER);
 
-     double[] sprobs = new double[spans.length];
-     double[] probs = bestSequence.getProbs();
-
-     for (int si=0; si<spans.length; si++) {
-
-       double p = 0;
-
-       for (int oi = spans[si].getStart(); oi < spans[si].getEnd(); oi++) {
-         p += probs[oi];
-       }
-
-       p /= spans[si].length();
-
-       sprobs[si] = p;
+     int beamSize = NameClassifier.DEFAULT_BEAM_SIZE;
+     if (beamSizeString != null) {
+       beamSize = Integer.parseInt(beamSizeString);
      }
 
-     return sprobs;
-   }
-
-   /**
-    * Trains a name finder model.
-    *
-    * @param languageCode
-    *          the language of the training data
-    * @param type
-    *          null or an override type for all types in the training data
-    * @param samples
-    *          the training data
-    * @param trainParams
-    *          machine learning train parameters
-    * @param generator
-    *          null or the feature generator
-    * @param resources
-    *          the resources for the name finder or null if none
-    *
-    * @return the newly trained model
-    *
-    * @throws IOException
-    */
-   public static NameModel train(String languageCode, String type, ObjectStream<CorpusSample> samples,
-       TrainingParameters trainParams, AdaptiveFeatureGenerator generator, final Map<String, Object> resources) throws IOException {
-
-     if (languageCode == null) {
-       throw new IllegalArgumentException("languageCode must not be null!");
-     }
-     
      Map<String, String> manifestInfoEntries = new HashMap<String, String>();
 
-     AdaptiveFeatureGenerator featureGenerator;
+     MaxentModel nameFinderModel = null;
 
-     if (generator != null)
-       featureGenerator = generator;
-     else
-       featureGenerator = createFeatureGenerator();
+     SequenceClassificationModel<String> seqModel = null;
 
-     AbstractModel nameFinderModel;
+     TrainerType trainerType = TrainerFactory.getTrainerType(trainParams.getSettings());
 
-     if (!TrainUtil.isSequenceTraining(trainParams.getSettings())) {
-       EventStream eventStream = new NameFinderEventStream(samples, type,
-           new DefaultNameContextGenerator(featureGenerator));
+     if (TrainerType.EVENT_MODEL_TRAINER.equals(trainerType)) {
+       ObjectStream<Event> eventStream = new NameFinderEventStream(samples, type,
+               factory.createContextGenerator(), factory.createSequenceCodec());
 
-       nameFinderModel = TrainUtil.train(eventStream, trainParams.getSettings(), manifestInfoEntries);
+       EventTrainer trainer = TrainerFactory.getEventTrainer(trainParams.getSettings(), manifestInfoEntries);
+       nameFinderModel = trainer.train(eventStream);
+     } // TODO: Maybe it is not a good idea, that these two don't use the context generator ?!
+     // These also don't use the sequence codec ?!
+     else if (TrainerType.EVENT_MODEL_SEQUENCE_TRAINER.equals(trainerType)) {
+       CorpusSampleSequenceStream ss = new CorpusSampleSequenceStream(samples, factory.createContextGenerator());
+
+       EventModelSequenceTrainer trainer = TrainerFactory.getEventModelSequenceTrainer(
+               trainParams.getSettings(), manifestInfoEntries);
+       nameFinderModel = trainer.train(ss);
+     } else if (TrainerType.SEQUENCE_TRAINER.equals(trainerType)) {
+       SequenceTrainer trainer = TrainerFactory.getSequenceModelTrainer(
+               trainParams.getSettings(), manifestInfoEntries);
+
+       CorpusSampleSequenceStream ss = new CorpusSampleSequenceStream(samples, factory.createContextGenerator(), false);
+       seqModel = trainer.train(ss);
+     } else {
+       throw new IllegalStateException("Unexpected trainer type!");
      }
-     else {
-       CorpusSampleSequenceStream ss = new CorpusSampleSequenceStream(samples, featureGenerator);
 
-       nameFinderModel = TrainUtil.train(ss, trainParams.getSettings(), manifestInfoEntries);
+     if (seqModel != null) {
+       return new NameModel(languageCode, seqModel, null,
+               factory.getResources(), manifestInfoEntries, factory.getSequenceCodec());
+     } else {
+       return new NameModel(languageCode, nameFinderModel, beamSize, null,
+               factory.getResources(), manifestInfoEntries, factory.getSequenceCodec());
      }
-
-     return new NameModel(languageCode, nameFinderModel,
-         resources, manifestInfoEntries);
-   }
-
-   /**
-    * Trains a name finder model.
-    *
-    * @param languageCode the language of the training data
-    * @param type null or an override type for all types in the training data
-    * @param samples the training data
-    * @param iterations the number of iterations
-    * @param cutoff
-    * @param resources the resources for the name finder or null if none
-    *
-    * @return the newly trained model
-    *
-    * @throws IOException
-    * @throws ObjectStreamException
-    */
-   public static NameModel train(String languageCode, String type, ObjectStream<CorpusSample> samples,
-       AdaptiveFeatureGenerator generator, final Map<String, Object> resources,
-       int iterations, int cutoff) throws IOException {
-     return train(languageCode, type, samples, ModelUtil.createTrainingParameters(iterations, cutoff),
-         generator, resources);
    }
 
   /**

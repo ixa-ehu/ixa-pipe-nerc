@@ -32,8 +32,8 @@ import java.util.Map;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 
-import opennlp.model.TrainUtil;
 import opennlp.tools.cmdline.TerminateToolException;
+import opennlp.tools.ml.model.TrainUtil;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.TrainingParameters;
