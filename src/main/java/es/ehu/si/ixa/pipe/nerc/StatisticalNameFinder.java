@@ -70,11 +70,8 @@ public class StatisticalNameFinder implements NameFinder {
   public StatisticalNameFinder(final Properties props, final TrainingParameters params) {
     String lang = InputOutputUtils.getLanguage(params);
     String model = InputOutputUtils.getModel(params);
-    Integer beamsize = InputOutputUtils.getBeamsize(params);
     NameModel nerModel = loadModel(lang, model);
-    nameFinderTrainer = new FixedTrainer(params);
-    nameFinder = new NameClassifier(nerModel,
-        nameFinderTrainer.createFeatureGenerator(params), beamsize);
+    nameFinder = new NameClassifier(nerModel);
   }
 
   /**
@@ -90,12 +87,9 @@ public class StatisticalNameFinder implements NameFinder {
 
     String lang = InputOutputUtils.getLanguage(params);
     String model = InputOutputUtils.getModel(params);
-    Integer beamsize = InputOutputUtils.getBeamsize(params);
     this.nameFactory = aNameFactory;
     NameModel nerModel = loadModel(lang, model);
-    nameFinderTrainer = new FixedTrainer(params);
-    nameFinder = new NameClassifier(nerModel,
-        nameFinderTrainer.createFeatureGenerator(params), beamsize);
+    nameFinder = new NameClassifier(nerModel);
   }
 
   

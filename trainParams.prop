@@ -116,25 +116,22 @@ CharNgramFeatures=no
 # specified.
 #DirectDictionaryTagging=post
 
-# DictionaryFeatures: add features if token found in some gazetteers.
-DictionaryFeatures=no
-DictionaryPath=/home/ragerri/javacode/ixa-pipe-nerc/nerc-resources/en/dictionaries
+# DictionaryFeatures: add features if token found in some gazetteers. Comment
+# it out deactivate this feature.
+DictionaryFeatures=/home/ragerri/javacode/ixa-pipe-nerc/nerc-resources/en/dictionaries
 
 # BrownClusterFeatures: add features using Brown clusters
-# (http://metaoptimize.com/projects/wordreprs/). If yes, specify the location
-# of the Brown clustering lexicon.
-BrownClusterFeatures=no
-BrownClusterPath=/home/ragerri/javacode/ixa-pipe-nerc/brown-rcv1.clean.tokenized-CoNLL03.txt-c1000-freq1.txt
+# (http://metaoptimize.com/projects/wordreprs/). Comment it out to deactivate
+# this feature.
+BrownClusterFeatures=/home/ragerri/javacode/ixa-pipe-nerc/brown-rcv1.clean.tokenized-CoNLL03.txt-c1000-freq1.txt
 
-# ClarkClusterFeatures: add features using Clark (2003) clusters. If value is yes,
+# ClarkClusterFeatures: add features using Clark (2003) clusters. If value is uncommented,
 # specify the location of the clustering lexicon in Clark format.
-ClarkClusterFeatures=yes
-ClarkClusterPath=/home/ragerri/resources/reuters-rcv1/clark/reuters-rcv1.tok.punct.lower.300
+ClarkClusterFeatures=/home/ragerri/resources/reuters-rcv1/clark/reuters-rcv1.tok.punct.lower.300
 
 # Word2VecClusterFeatures: add features using word2vec clusters. If value is
 # yes, specify the location of the clustering lexicon in word2vec format.
-Word2VecClusterFeatures=no
-Word2VecClusterPath=/home/ragerri/clusters.large.txt
+Word2VecClusterFeatures=/home/ragerri/clusters.large.txt
 
 ## END FEATURES ##
 

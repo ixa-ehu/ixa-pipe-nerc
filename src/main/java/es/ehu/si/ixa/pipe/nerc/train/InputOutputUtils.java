@@ -430,20 +430,6 @@ public final class InputOutputUtils {
     return dictionaryFlag;
   }
 
-  public static String getDictPath(TrainingParameters params) {
-    String dictPathFlag = null;
-    if (params.getSettings().get("DictionaryFeatures") != null) {
-      if (params.getSettings().get("DictionaryPath") != null) {
-        dictPathFlag = params.getSettings().get("DictionaryPath");
-      } else {
-        InputOutputUtils.dictionaryException();
-      }
-    } else {
-      InputOutputUtils.dictionaryFeaturesException();
-    }
-    return dictPathFlag;
-  }
-
   public static String getClarkFeatures(TrainingParameters params) {
     String distSimFlag = null;
     if (params.getSettings().get("ClarkClusterFeatures") != null) {
@@ -452,20 +438,6 @@ public final class InputOutputUtils {
       distSimFlag = FixedTrainer.DEFAULT_FEATURE_FLAG;
     }
     return distSimFlag;
-  }
-
-  public static String getClarkPath(TrainingParameters params) {
-    String distSimPathFlag = null;
-    if (params.getSettings().get("ClarkClusterFeatures") != null) {
-      if (params.getSettings().get("ClarkClusterPath") != null) {
-        distSimPathFlag = params.getSettings().get("ClarkClusterPath");
-      } else {
-        InputOutputUtils.dictionaryException();
-      }
-    } else {
-      InputOutputUtils.dictionaryFeaturesException();
-    }
-    return distSimPathFlag;
   }
 
   public static String getWord2VecClusterFeatures(TrainingParameters params) {
@@ -478,41 +450,12 @@ public final class InputOutputUtils {
     return word2vecFlag;
   }
 
-  public static String getWord2VecClusterPath(TrainingParameters params) {
-    String word2vecClusterPathFlag = null;
-    if (params.getSettings().get("Word2VecClusterFeatures") != null) {
-      if (params.getSettings().get("Word2VecClusterPath") != null) {
-        word2vecClusterPathFlag = params.getSettings().get(
-            "Word2VecClusterPath");
-      } else {
-        InputOutputUtils.dictionaryException();
-      }
-    } else {
-      InputOutputUtils.dictionaryFeaturesException();
-    }
-    return word2vecClusterPathFlag;
-  }
-
   public static String getBrownFeatures(TrainingParameters params) {
     String brownFlag = null;
     if (params.getSettings().get("BrownClusterFeatures") != null) {
       brownFlag = params.getSettings().get("BrownClusterFeatures");
     } else {
       brownFlag = FixedTrainer.DEFAULT_FEATURE_FLAG;
-    }
-    return brownFlag;
-  }
-
-  public static String getBrownClusterPath(TrainingParameters params) {
-    String brownFlag = null;
-    if (params.getSettings().get("BrownClusterFeatures") != null) {
-      if (params.getSettings().get("BrownClusterPath") != null) {
-        brownFlag = params.getSettings().get("BrownClusterPath");
-      } else {
-        InputOutputUtils.dictionaryException();
-      }
-    } else {
-      InputOutputUtils.dictionaryFeaturesException();
     }
     return brownFlag;
   }

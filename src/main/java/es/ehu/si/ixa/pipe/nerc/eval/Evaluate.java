@@ -12,10 +12,8 @@ import opennlp.tools.util.eval.EvaluationMonitor;
 import es.ehu.si.ixa.pipe.nerc.formats.CorpusSample;
 import es.ehu.si.ixa.pipe.nerc.formats.CorpusSampleTypeFilter;
 import es.ehu.si.ixa.pipe.nerc.train.AbstractTrainer;
-import es.ehu.si.ixa.pipe.nerc.train.FixedTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
 import es.ehu.si.ixa.pipe.nerc.train.NameClassifier;
-import es.ehu.si.ixa.pipe.nerc.train.Trainer;
 import es.ehu.si.ixa.pipe.nerc.train.NameModel;
 
 /**
@@ -34,10 +32,6 @@ public class Evaluate {
    * Static instance of {@link TokenNameFinderModel}.
    */
   private static NameModel nercModel;
-  /**
-   * The name finder trainer to use for appropriate features.
-   */
-  private Trainer nameFinderTrainer;
   /**
    * An instance of the probabilistic {@link NameFinderME}.
    */
@@ -60,7 +54,6 @@ public class Evaluate {
     String model = InputOutputUtils.getModel(params);
     String lang = InputOutputUtils.getLanguage(params);
     String corpusFormat = InputOutputUtils.getCorpusFormat(params);
-    Integer beamsize = InputOutputUtils.getBeamsize(params);
     
     testSamples = AbstractTrainer.getNameStream(testSet, lang, corpusFormat);
     if (params.getSettings().get("Types") != null) {
@@ -85,8 +78,7 @@ public class Evaluate {
         }
       }
     }
-    nameFinderTrainer = new FixedTrainer(params);
-    nameFinder = new NameClassifier(nercModel, nameFinderTrainer.createFeatureGenerator(params), beamsize);
+    nameFinder = new NameClassifier(nercModel);
   }
 
   /**

@@ -126,7 +126,7 @@ public class Annotate {
       if (!ruleBasedOption.equals(CLI.DEFAULT_LEXER)) {
         lexerFind = true;
       }
-      String dictPath = InputOutputUtils.getDictPath(params);
+      String dictPath = InputOutputUtils.getDictionaryFeatures(params);
       dictionaries = new Dictionaries(dictPath);
       if (!dictOption.equals(CLI.DEFAULT_DICT_OPTION)) {
         dictFinder = new DictionariesNameFinder(dictionaries, nameFactory);

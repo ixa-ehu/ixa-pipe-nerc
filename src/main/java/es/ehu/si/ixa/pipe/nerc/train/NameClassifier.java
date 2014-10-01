@@ -73,6 +73,11 @@ public class NameClassifier {
             new WindowFeatureGenerator(additionalContextFeatureGenerator, 8, 8));
   }
   
+  /**
+   * Create default opennlp feature generators if none are created
+   * in the NameClassifierFactory.
+   * @return
+   */
   static AdaptiveFeatureGenerator createFeatureGenerator() {
     return new CachedFeatureGenerator(
           new AdaptiveFeatureGenerator[]{
@@ -240,11 +245,9 @@ public class NameClassifier {
      }
 
      if (seqModel != null) {
-       return new NameModel(languageCode, seqModel, null,
-               factory.getResources(), manifestInfoEntries, factory.getSequenceCodec());
+       return new NameModel(languageCode, seqModel, manifestInfoEntries, factory.getSequenceCodec());
      } else {
-       return new NameModel(languageCode, nameFinderModel, beamSize, null,
-               factory.getResources(), manifestInfoEntries, factory.getSequenceCodec());
+       return new NameModel(languageCode, nameFinderModel, beamSize, manifestInfoEntries, factory.getSequenceCodec());
      }
    }
 

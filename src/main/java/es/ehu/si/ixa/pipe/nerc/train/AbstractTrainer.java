@@ -50,10 +50,12 @@ public abstract class AbstractTrainer implements Trainer {
   public final static int DEFAULT_WINDOW_SIZE = 2;
   public final static int MIN_CHAR_NGRAM_LENGTH = 2;
   public final static int DEFAULT_CHAR_NGRAM_LENGTH = 6;
+  
+  private static TrainingParameters params;
   /**
    * The language.
    */
-  protected String lang;
+  private String lang;
   /**
    * String holding the training data.
    */
@@ -102,7 +104,8 @@ public abstract class AbstractTrainer implements Trainer {
    *           io exception
    */
   public AbstractTrainer(final String aTrainData,
-      final String aTestData, final TrainingParameters params) throws IOException {
+      final String aTestData, final TrainingParameters aParams) throws IOException {
+    params = aParams;
     this.lang = InputOutputUtils.getLanguage(params);
     this.corpusFormat = InputOutputUtils.getCorpusFormat(params);
     this.trainData = aTrainData;
@@ -347,6 +350,10 @@ public abstract class AbstractTrainer implements Trainer {
    */
   public final void setLanguage(final String aLang) {
     this.lang = aLang;
+  }
+  
+  public final static TrainingParameters getTrainingParameters() {
+    return params;
   }
 
 

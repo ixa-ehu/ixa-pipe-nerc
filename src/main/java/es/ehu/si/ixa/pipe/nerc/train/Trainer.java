@@ -18,8 +18,6 @@ package es.ehu.si.ixa.pipe.nerc.train;
 
 import opennlp.tools.util.TrainingParameters;
 
-import es.ehu.si.ixa.pipe.nerc.features.AdaptiveFeatureGenerator;
-
 /**
  * This interface defines the feature creation, the training method and the
  * evaluation of the trained model.
@@ -27,14 +25,7 @@ import es.ehu.si.ixa.pipe.nerc.features.AdaptiveFeatureGenerator;
  * @version 2014-07-11
  */
 public interface Trainer {
-  /**
-   * Generates the adaptive features to train Named Entity taggers.
-   * Every class extending {@code AbstractNameFinderTrainer} needs to
-   * provide an implementation of this method.
-   * @return the adaptive features
-   */
-  AdaptiveFeatureGenerator createFeatureGenerator(TrainingParameters params);
-  
+ 
   /**
    * Generate {@link NameModel} models.
    * @param params

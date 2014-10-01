@@ -22,16 +22,6 @@ public class DefaultNameContextGenerator implements NameContextGenerator {
 
   private AdaptiveFeatureGenerator featureGenerators[];
 
-  @Deprecated
-  private static AdaptiveFeatureGenerator windowFeatures = new CachedFeatureGenerator(
-      new AdaptiveFeatureGenerator[]{
-      new WindowFeatureGenerator(new TokenFeatureGenerator(), 2, 2),
-      new WindowFeatureGenerator(new TokenClassFeatureGenerator(true), 2, 2),
-      new OutcomePriorFeatureGenerator(),
-      new PreviousMapFeatureGenerator(),
-      new BigramClassFeatureGenerator()
-      });
-
   /**
    * Creates a name context generator with the specified cache size.
    */
@@ -43,7 +33,7 @@ public class DefaultNameContextGenerator implements NameContextGenerator {
     else {
       // use defaults
       this.featureGenerators = new AdaptiveFeatureGenerator[]{
-          windowFeatures,
+          NameClassifier.createFeatureGenerator(),
           new PreviousMapFeatureGenerator()};
     }
   }
