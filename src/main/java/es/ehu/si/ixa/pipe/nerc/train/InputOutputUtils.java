@@ -282,10 +282,10 @@ public final class InputOutputUtils {
 
   public static String getWindow(TrainingParameters params) {
     String windowFlag = null;
-    if (params.getSettings().get("Window") != null) {
-      windowFlag = params.getSettings().get("Window");
-    } else {
+    if (params.getSettings().get("Window") == null) {
       windowFlag = FixedTrainer.DEFAULT_WINDOW;
+    } else {
+      windowFlag = params.getSettings().get("Window");
     }
     return windowFlag;
   }

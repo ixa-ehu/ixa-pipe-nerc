@@ -63,30 +63,6 @@ public class FixedTrainer extends AbstractTrainer {
     super(trainData, testData, params);
     
     setNameClassifierFactory(new NameClassifierFactory());
-    createExternalKnowledgeResources(params);
-  }
- 
-  /**
-   * Create the external resources in the NameClassifierFactory.
-   * @param params
-   */
-  public final void createExternalKnowledgeResources(final TrainingParameters params) {
-    String dictionaryParam = InputOutputUtils.getDictionaryFeatures(params);
-    if (!dictionaryParam.equalsIgnoreCase(DEFAULT_FEATURE_FLAG)) {
-      this.getNameClassifierFactory().setGazetteers(this.getNameClassifierFactory().createGazetteers(dictionaryParam));
-    }
-    String brownParam = InputOutputUtils.getBrownFeatures(params);
-    if (!brownParam.equalsIgnoreCase(DEFAULT_FEATURE_FLAG)) {
-      this.getNameClassifierFactory().setBrownCluster(this.getNameClassifierFactory().createBrownCluster(brownParam));
-    }
-    String clarkParam = InputOutputUtils.getClarkFeatures(params);
-    if (!clarkParam.equalsIgnoreCase(DEFAULT_FEATURE_FLAG)) {
-      this.getNameClassifierFactory().setClarkCluster(this.getNameClassifierFactory().createClarkCluster(clarkParam));
-    }
-    String word2vecClusterParam = InputOutputUtils.getWord2VecClusterFeatures(params);
-    if (!word2vecClusterParam.equalsIgnoreCase(DEFAULT_FEATURE_FLAG)) {
-      this.getNameClassifierFactory().setWord2VecCluster(this.getNameClassifierFactory().createWord2VecCluster(word2vecClusterParam));
-    }
   }
 
 }
