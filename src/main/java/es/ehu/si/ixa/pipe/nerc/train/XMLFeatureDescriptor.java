@@ -37,11 +37,13 @@ public class XMLFeatureDescriptor {
     //<window prevLength="2" nextLength="2">
     //  <token />
     //</window>
+    
+    
     if (isTokenFeature(params)) {
       Element tokenFeature = new Element("token");
       Element tokenWindow = new Element("window");
       tokenWindow.setAttribute("prevLength", Integer.toString(leftWindow));
-      tokenWindow.setAttribute("nextLegth", Integer.toString(rightWindow));
+      tokenWindow.setAttribute("nextLength", Integer.toString(rightWindow));
       tokenWindow.addContent(tokenFeature);
       generators.addContent(tokenWindow);
       System.err.println("-> Token features added!: Window range " + leftWindow + ":" + rightWindow);
@@ -50,24 +52,20 @@ public class XMLFeatureDescriptor {
       Element tokenClassFeature = new Element("tokenclass");
       Element tokenClassWindow = new Element("window");
       tokenClassWindow.setAttribute("prevLength", Integer.toString(leftWindow));
-      tokenClassWindow.setAttribute("nextLegth", Integer.toString(rightWindow));
+      tokenClassWindow.setAttribute("nextLength", Integer.toString(rightWindow));
       tokenClassWindow.addContent(tokenClassFeature);
       generators.addContent(tokenClassWindow);
       System.err.println("-> Token Class Features added!: Window range " + leftWindow + ":" + rightWindow);
     }
     if (isOutcomePriorFeature(params)) {
-      Element outcomePriorFeature = new Element("outcomeprior");
+      Element outcomePriorFeature = new Element("definition");
       generators.addContent(outcomePriorFeature);
       System.err.println("-> Outcome Prior Features added!");
     }
     if (isPreviousMapFeature(params)) {
-      Element previousMapFeature = new Element("previousmap");
-      Element previousMapWindow = new Element("window");
-      previousMapWindow.setAttribute("prevLength", Integer.toString(leftWindow));
-      previousMapWindow.setAttribute("nextLegth", Integer.toString(rightWindow));
-      previousMapWindow.addContent(previousMapFeature);
-      generators.addContent(previousMapWindow);
-      System.err.println("-> Previous Map Features added!: Window range " + leftWindow + ":" + rightWindow);
+      Element previousMapFeature = new Element("prevmap");
+      generators.addContent(previousMapFeature);
+      System.err.println("-> Previous Map Features added!");
     }
     if (isSentenceFeature(params)) {
       Element sentenceFeature = new Element("sentence");
@@ -76,7 +74,7 @@ public class XMLFeatureDescriptor {
       generators.addContent(sentenceFeature);
       System.err.println("-> Sentence Features added!");
     }
-    if (isPrefixFeature(params)) {
+    /*if (isPrefixFeature(params)) {
       Element prefixFeature = new Element("prefix");
       generators.addContent(prefixFeature);
       System.err.println("-> Prefix Features added!");
@@ -85,9 +83,9 @@ public class XMLFeatureDescriptor {
       Element prefixFeature = new Element("suffix");
       generators.addContent(prefixFeature);
       System.err.println("-> Suffix Features added!");
-    }
+    }*/
     if (isBigramClassFeature(params)) {
-      Element bigramFeature = new Element("bigramclass");
+      Element bigramFeature = new Element("bigram");
       generators.addContent(bigramFeature);
       System.err.println("-> Bigram Class Features added!");
     }
@@ -96,7 +94,9 @@ public class XMLFeatureDescriptor {
     cached.addContent(generators);
     
     XMLOutputter xmlOutput = new XMLOutputter();
-    xmlOutput.setFormat(Format.getPrettyFormat());
+    Format format = Format.getPrettyFormat();
+    //format.setOmitDeclaration(true);
+    xmlOutput.setFormat(format);
     return xmlOutput.outputString(doc);
     
   }
@@ -119,7 +119,6 @@ public class XMLFeatureDescriptor {
     return !outcomePriorParam.equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
   }
   private static boolean isPreviousMapFeature(TrainingParameters params) {
-    setWindow(params);
     String previousMapParam = InputOutputUtils.getPreviousMapFeatures(params);
     return !previousMapParam.equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
   }

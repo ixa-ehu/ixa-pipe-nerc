@@ -23,6 +23,8 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.common.io.Files;
+
 import opennlp.tools.cmdline.CmdLineUtil;
 import opennlp.tools.namefind.BilouCodec;
 import opennlp.tools.namefind.BioCodec;
@@ -97,9 +99,12 @@ public class FixedTrainer extends AbstractTrainer {
     String featureDescription = XMLFeatureDescriptor.createXMLFeatureDescriptor(params);
     System.err.println(featureDescription);
     byte[] featureGeneratorBytes = featureDescription.getBytes(Charset.forName("UTF-8"));
-    System.err.println("feature bytes!" + featureGeneratorBytes);
-    //TODO why null??
-    setNameClassifierFactory(FixedNameFinderFactory.create(FixedNameFinderFactory.class.getName(), featureGeneratorBytes, resources, sequenceCodec));
+    System.err.println("feature bytes 1" + featureGeneratorBytes.length);
+    //TODO why null: get setFeatureGeneratorBytes
+    //TODO what is going with the features?
+    //TODO what is going on with the map in the generator factory?
+    TokenNameFinderFactory fixedFactory = TokenNameFinderFactory.create(FixedNameFinderFactory.class.getName(), featureGeneratorBytes, resources, sequenceCodec);
+    setNameClassifierFactory(fixedFactory);
     
    
   }

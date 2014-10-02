@@ -3,19 +3,17 @@ package es.ehu.si.ixa.pipe.nerc.train;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
+
+import es.ehu.si.ixa.pipe.nerc.features.GeneratorFactory;
+
 
 import opennlp.tools.namefind.TokenNameFinderFactory;
 import opennlp.tools.util.InvalidFormatException;
 import opennlp.tools.util.featuregen.AdaptiveFeatureGenerator;
 import opennlp.tools.util.featuregen.AggregatedFeatureGenerator;
 import opennlp.tools.util.featuregen.FeatureGeneratorResourceProvider;
-import es.ehu.si.ixa.pipe.nerc.features.GeneratorFactory;
 
 public class FixedNameFinderFactory extends TokenNameFinderFactory {
-  
-  private byte[] featureGeneratorBytes;
-  private Map<String, Object> resources;
 
   public FixedNameFinderFactory() {  
   }
@@ -34,20 +32,19 @@ public class FixedNameFinderFactory extends TokenNameFinderFactory {
   public AdaptiveFeatureGenerator createFeatureGenerators() {
 
     byte descriptorBytes[] = null;
-    descriptorBytes = featureGeneratorBytes;
-    System.err.println("jar" + descriptorBytes);
+    descriptorBytes = getFeatureGeneratorBytes();
+    System.err.println("featurebytes 2 " + descriptorBytes);
     if (descriptorBytes != null) {
       InputStream descriptorIn = new ByteArrayInputStream(descriptorBytes);
       AdaptiveFeatureGenerator generator = null;
       try {
         generator = GeneratorFactory.create(descriptorIn, new FeatureGeneratorResourceProvider() {
-
           public Object getResource(String key) {
             if (artifactProvider != null) {
               return artifactProvider.getArtifact(key);
             }
             else {
-              return resources.get(key);
+              return getResources().get(key);
             }
           }
         });
@@ -67,6 +64,7 @@ public class FixedNameFinderFactory extends TokenNameFinderFactory {
       } catch (IOException e) {
         throw new IllegalStateException("Reading from mem cannot result in an I/O error", e);
       }
+      System.err.println("generator done! " + generator);
 
       return generator;
     }

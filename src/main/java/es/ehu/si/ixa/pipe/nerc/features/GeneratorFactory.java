@@ -227,7 +227,7 @@ public class GeneratorFactory {
    */
   static class DefinitionFeatureGeneratorFactory implements XmlFeatureGeneratorFactory {
 
-    private static final String ELEMENT_NAME = "outcomeprior";
+    private static final String ELEMENT_NAME = "definition";
 
     private DefinitionFeatureGeneratorFactory() {
     }
@@ -316,7 +316,7 @@ public class GeneratorFactory {
     }
 
     static void register(Map<String, XmlFeatureGeneratorFactory> factoryMap) {
-      factoryMap.put("previousmap", new PreviousMapFeatureGeneratorFactory());
+      factoryMap.put("prevmap", new PreviousMapFeatureGeneratorFactory());
     }
   }
 
@@ -387,7 +387,7 @@ public class GeneratorFactory {
     }
 
     static void register(Map<String, XmlFeatureGeneratorFactory> factoryMap) {
-      factoryMap.put("bigramclass", new BigramNameFeatureGeneratorFactory());
+      factoryMap.put("bigram", new BigramNameFeatureGeneratorFactory());
     }
   }
 
@@ -578,6 +578,7 @@ public class GeneratorFactory {
 
     String elementName = generatorElement.getTagName();
 
+    System.err.println("generator element " + elementName);
     XmlFeatureGeneratorFactory generatorFactory = factories.get(elementName);
 
     if (generatorFactory == null) {
