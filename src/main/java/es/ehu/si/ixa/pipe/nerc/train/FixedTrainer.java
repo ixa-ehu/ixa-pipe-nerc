@@ -99,7 +99,7 @@ public class FixedTrainer extends AbstractTrainer {
     byte[] featureGeneratorBytes = featureDescription.getBytes(Charset.forName("UTF-8"));
     System.err.println("feature bytes!" + featureGeneratorBytes);
     //TODO why null??
-    setNameClassifierFactory(TokenNameFinderFactory.create(FixedNameFinderFactory.class.getName(), featureGeneratorBytes, resources, sequenceCodec));
+    setNameClassifierFactory(FixedNameFinderFactory.create(FixedNameFinderFactory.class.getName(), featureGeneratorBytes, resources, sequenceCodec));
     
    
   }
