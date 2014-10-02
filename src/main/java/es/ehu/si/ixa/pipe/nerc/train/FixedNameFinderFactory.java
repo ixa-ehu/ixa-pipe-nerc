@@ -7,21 +7,19 @@ import java.util.Map;
 
 import opennlp.tools.namefind.TokenNameFinderFactory;
 import opennlp.tools.util.InvalidFormatException;
-import opennlp.tools.util.SequenceCodec;
 import opennlp.tools.util.featuregen.AdaptiveFeatureGenerator;
 import opennlp.tools.util.featuregen.AggregatedFeatureGenerator;
 import opennlp.tools.util.featuregen.FeatureGeneratorResourceProvider;
-import opennlp.tools.util.featuregen.GeneratorFactory;
+import es.ehu.si.ixa.pipe.nerc.features.GeneratorFactory;
 
 public class FixedNameFinderFactory extends TokenNameFinderFactory {
   
   private byte[] featureGeneratorBytes;
   private Map<String, Object> resources;
 
-  public FixedNameFinderFactory(byte[] featureGeneratorBytes, final Map<String, Object> resources,
-      SequenceCodec<String> seqCodec) {
-    super(featureGeneratorBytes, resources, seqCodec);
+  public FixedNameFinderFactory() {  
   }
+  
   
   /**
    * Creates the {@link AdaptiveFeatureGenerator}. Usually this
@@ -37,6 +35,7 @@ public class FixedNameFinderFactory extends TokenNameFinderFactory {
 
     byte descriptorBytes[] = null;
     descriptorBytes = featureGeneratorBytes;
+    System.err.println("jar" + descriptorBytes);
     if (descriptorBytes != null) {
       InputStream descriptorIn = new ByteArrayInputStream(descriptorBytes);
       AdaptiveFeatureGenerator generator = null;

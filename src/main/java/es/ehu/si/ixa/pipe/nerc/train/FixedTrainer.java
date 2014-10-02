@@ -19,48 +19,18 @@ package es.ehu.si.ixa.pipe.nerc.train;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import es.ehu.si.ixa.pipe.nerc.dict.BrownCluster;
-import es.ehu.si.ixa.pipe.nerc.dict.ClarkCluster;
-import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
-import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
-import es.ehu.si.ixa.pipe.nerc.dict.Word2VecCluster;
-import es.ehu.si.ixa.pipe.nerc.features.BigramClassFeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.features.BrownBigramFeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.features.BrownTokenClassFeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.features.BrownTokenFeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.features.CharacterNgramFeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.features.ClarkFeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.features.DictionaryFeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.features.FivegramClassFeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.features.FourgramClassFeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.features.OutcomePriorFeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.features.Prefix34FeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.features.Prev2MapFeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.features.PreviousMapFeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.features.PreviousMapTokenFeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.features.SentenceFeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.features.SuffixFeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.features.TokenClassFeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.features.TokenFeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.features.TrigramClassFeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.features.WindowFeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.features.Word2VecClusterFeatureGenerator;
-
 import opennlp.tools.cmdline.CmdLineUtil;
+import opennlp.tools.namefind.BilouCodec;
+import opennlp.tools.namefind.BioCodec;
 import opennlp.tools.namefind.TokenNameFinderFactory;
 import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.InvalidFormatException;
 import opennlp.tools.util.SequenceCodec;
 import opennlp.tools.util.TrainingParameters;
-import opennlp.tools.util.featuregen.AdaptiveFeatureGenerator;
-import opennlp.tools.util.featuregen.CachedFeatureGenerator;
 import opennlp.tools.util.featuregen.GeneratorFactory;
 import opennlp.tools.util.model.ArtifactSerializer;
 
@@ -116,11 +86,20 @@ public class FixedTrainer extends AbstractTrainer {
    */
   public void createTrainer(TrainingParameters params) throws IOException {
     String seqCodec = getSequenceCodec();
+    if ("BIO".equals(seqCodec)) {
+      seqCodec = BioCodec.class.getName();
+    }
+    else if ("BILOU".equals(seqCodec)) {
+      seqCodec = BilouCodec.class.getName();
+    }
     SequenceCodec<String> sequenceCodec = TokenNameFinderFactory.instantiateSequenceCodec(seqCodec);
-    Map<String, Object> resources = loadResources(new File("jar.txt"), new File("jar.txt"));
+    Map<String, Object> resources = new HashMap<String, Object>();
     String featureDescription = XMLFeatureDescriptor.createXMLFeatureDescriptor(params);
+    System.err.println(featureDescription);
     byte[] featureGeneratorBytes = featureDescription.getBytes(Charset.forName("UTF-8"));
-    setNameClassifierFactory(FixedNameFinderFactory.create("FixedNameFinderFactory", featureGeneratorBytes, resources, sequenceCodec));
+    System.err.println("feature bytes!" + featureGeneratorBytes);
+    //TODO why null??
+    setNameClassifierFactory(TokenNameFinderFactory.create(FixedNameFinderFactory.class.getName(), featureGeneratorBytes, resources, sequenceCodec));
     
    
   }
