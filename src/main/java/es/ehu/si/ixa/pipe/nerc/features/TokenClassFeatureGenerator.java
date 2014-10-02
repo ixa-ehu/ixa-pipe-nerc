@@ -18,6 +18,7 @@ package es.ehu.si.ixa.pipe.nerc.features;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import opennlp.tools.util.featuregen.FeatureGeneratorAdapter;
 import opennlp.tools.util.featuregen.StringPattern;
 
 /**

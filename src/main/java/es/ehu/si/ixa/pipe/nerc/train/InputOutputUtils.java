@@ -279,11 +279,21 @@ public final class InputOutputUtils {
     }
     return beamsize;
   }
+  
+  public static String getSequenceCodec(TrainingParameters params) {
+    String seqCodec = null;
+    if (params.getSettings().get("SequenceCodec") == null) {
+      seqCodec = CLI.DEFAULT_SEQUENCE_CODEC;
+    } else {
+      seqCodec = params.getSettings().get("SequenceCodec");
+    }
+    return seqCodec;
+  }
 
   public static String getWindow(TrainingParameters params) {
     String windowFlag = null;
     if (params.getSettings().get("Window") == null) {
-      windowFlag = FixedTrainer.DEFAULT_WINDOW;
+      windowFlag = XMLFeatureDescriptor.DEFAULT_WINDOW;
     } else {
       windowFlag = params.getSettings().get("Window");
     }
@@ -295,7 +305,7 @@ public final class InputOutputUtils {
     if (params.getSettings().get("TokenFeatures") != null) {
       tokenFlag = params.getSettings().get("TokenFeatures");
     } else {
-      tokenFlag = FixedTrainer.DEFAULT_FEATURE_FLAG;
+      tokenFlag = XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG;
     }
     return tokenFlag;
   }
@@ -305,7 +315,7 @@ public final class InputOutputUtils {
     if (params.getSettings().get("TokenClassFeatures") != null) {
       tokenClassFlag = params.getSettings().get("TokenClassFeatures");
     } else {
-      tokenClassFlag = FixedTrainer.DEFAULT_FEATURE_FLAG;
+      tokenClassFlag = XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG;
     }
     return tokenClassFlag;
   }
@@ -315,7 +325,7 @@ public final class InputOutputUtils {
     if (params.getSettings().get("OutcomePriorFeatures") != null) {
       outcomePriorFlag = params.getSettings().get("OutcomePriorFeatures");
     } else {
-      outcomePriorFlag = FixedTrainer.DEFAULT_FEATURE_FLAG;
+      outcomePriorFlag = XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG;
     }
     return outcomePriorFlag;
   }
@@ -325,7 +335,7 @@ public final class InputOutputUtils {
     if (params.getSettings().get("PreviousMapFeatures") != null) {
       previousMapFlag = params.getSettings().get("PreviousMapFeatures");
     } else {
-      previousMapFlag = FixedTrainer.DEFAULT_FEATURE_FLAG;
+      previousMapFlag = XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG;
     }
     return previousMapFlag;
   }
@@ -335,7 +345,7 @@ public final class InputOutputUtils {
     if (params.getSettings().get("SentenceFeatures") != null) {
       sentenceFlag = params.getSettings().get("SentenceFeatures");
     } else {
-      sentenceFlag = FixedTrainer.DEFAULT_FEATURE_FLAG;
+      sentenceFlag = XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG;
     }
     return sentenceFlag;
   }
@@ -345,7 +355,7 @@ public final class InputOutputUtils {
     if (params.getSettings().get("PrefixFeatures") != null) {
       prefixFlag = params.getSettings().get("PrefixFeatures");
     } else {
-      prefixFlag = FixedTrainer.DEFAULT_FEATURE_FLAG;
+      prefixFlag = XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG;
     }
     return prefixFlag;
   }
@@ -355,7 +365,7 @@ public final class InputOutputUtils {
     if (params.getSettings().get("SuffixFeatures") != null) {
       suffixFlag = params.getSettings().get("SuffixFeatures");
     } else {
-      suffixFlag = FixedTrainer.DEFAULT_FEATURE_FLAG;
+      suffixFlag = XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG;
     }
     return suffixFlag;
   }
@@ -365,7 +375,7 @@ public final class InputOutputUtils {
     if (params.getSettings().get("BigramClassFeatures") != null) {
       bigramClassFlag = params.getSettings().get("BigramClassFeatures");
     } else {
-      bigramClassFlag = FixedTrainer.DEFAULT_FEATURE_FLAG;
+      bigramClassFlag = XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG;
     }
     return bigramClassFlag;
   }
@@ -375,7 +385,7 @@ public final class InputOutputUtils {
     if (params.getSettings().get("TrigramClassFeatures") != null) {
       trigramClassFlag = params.getSettings().get("TrigramClassFeatures");
     } else {
-      trigramClassFlag = FixedTrainer.DEFAULT_FEATURE_FLAG;
+      trigramClassFlag = XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG;
     }
     return trigramClassFlag;
   }
@@ -385,7 +395,7 @@ public final class InputOutputUtils {
     if (params.getSettings().get("FourgramClassFeatures") != null) {
       fourgramClassFlag = params.getSettings().get("FourgramClassFeatures");
     } else {
-      fourgramClassFlag = FixedTrainer.DEFAULT_FEATURE_FLAG;
+      fourgramClassFlag = XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG;
     }
     return fourgramClassFlag;
   }
@@ -395,7 +405,7 @@ public final class InputOutputUtils {
     if (params.getSettings().get("FivegramClassFeatures") != null) {
       fivegramClassFlag = params.getSettings().get("FivegramClassFeatures");
     } else {
-      fivegramClassFlag = FixedTrainer.DEFAULT_FEATURE_FLAG;
+      fivegramClassFlag = XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG;
     }
     return fivegramClassFlag;
   }
@@ -405,7 +415,7 @@ public final class InputOutputUtils {
     if (params.getSettings().get("CharNgramFeatures") != null) {
       charNgramFlag = params.getSettings().get("CharNgramFeatures");
     } else {
-      charNgramFlag = FixedTrainer.DEFAULT_FEATURE_FLAG;
+      charNgramFlag = XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG;
     }
     return charNgramFlag;
   }
@@ -415,7 +425,7 @@ public final class InputOutputUtils {
     if (params.getSettings().get("CharNgramFeaturesRange") != null) {
       charNgramRangeFlag = params.getSettings().get("CharNgramFeaturesRange");
     } else {
-      charNgramRangeFlag = FixedTrainer.CHAR_NGRAM_RANGE;
+      charNgramRangeFlag = XMLFeatureDescriptor.CHAR_NGRAM_RANGE;
     }
     return charNgramRangeFlag;
   }
@@ -425,7 +435,7 @@ public final class InputOutputUtils {
     if (params.getSettings().get("DictionaryFeatures") != null) {
       dictionaryFlag = params.getSettings().get("DictionaryFeatures");
     } else {
-      dictionaryFlag = FixedTrainer.DEFAULT_FEATURE_FLAG;
+      dictionaryFlag = XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG;
     }
     return dictionaryFlag;
   }
@@ -435,7 +445,7 @@ public final class InputOutputUtils {
     if (params.getSettings().get("ClarkClusterFeatures") != null) {
       distSimFlag = params.getSettings().get("ClarkClusterFeatures");
     } else {
-      distSimFlag = FixedTrainer.DEFAULT_FEATURE_FLAG;
+      distSimFlag = XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG;
     }
     return distSimFlag;
   }
@@ -445,7 +455,7 @@ public final class InputOutputUtils {
     if (params.getSettings().get("Word2VecClusterFeatures") != null) {
       word2vecFlag = params.getSettings().get("Word2VecClusterFeatures");
     } else {
-      word2vecFlag = FixedTrainer.DEFAULT_FEATURE_FLAG;
+      word2vecFlag = XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG;
     }
     return word2vecFlag;
   }
@@ -455,7 +465,7 @@ public final class InputOutputUtils {
     if (params.getSettings().get("BrownClusterFeatures") != null) {
       brownFlag = params.getSettings().get("BrownClusterFeatures");
     } else {
-      brownFlag = FixedTrainer.DEFAULT_FEATURE_FLAG;
+      brownFlag = XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG;
     }
     return brownFlag;
   }

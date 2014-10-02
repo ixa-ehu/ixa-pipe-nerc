@@ -101,6 +101,7 @@ public class CLI {
   public static final String DEFAULT_DICT_OPTION = "off";
   public static final String DEFAULT_DICT_PATH = "off";
   public static final String DEFAULT_OUTPUT_FORMAT="naf";
+  public static final String DEFAULT_SEQUENCE_CODEC = "BILOU";
 
   /**
    * Construct a CLI object with the three sub-parsers to manage the command

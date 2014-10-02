@@ -3,6 +3,9 @@ package es.ehu.si.ixa.pipe.nerc.features;
 import java.util.ArrayList;
 import java.util.List;
 
+import opennlp.tools.util.featuregen.AdaptiveFeatureGenerator;
+import opennlp.tools.util.featuregen.AggregatedFeatureGenerator;
+
 /**
  * Generates previous and next features for a given {@link AdaptiveFeatureGenerator}.
  * The window size can be specified.

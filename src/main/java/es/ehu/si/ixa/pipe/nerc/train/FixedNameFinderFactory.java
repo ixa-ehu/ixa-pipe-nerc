@@ -1,0 +1,80 @@
+package es.ehu.si.ixa.pipe.nerc.train;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Map;
+
+import opennlp.tools.namefind.TokenNameFinderFactory;
+import opennlp.tools.util.InvalidFormatException;
+import opennlp.tools.util.SequenceCodec;
+import opennlp.tools.util.featuregen.AdaptiveFeatureGenerator;
+import opennlp.tools.util.featuregen.AggregatedFeatureGenerator;
+import opennlp.tools.util.featuregen.FeatureGeneratorResourceProvider;
+import opennlp.tools.util.featuregen.GeneratorFactory;
+
+public class FixedNameFinderFactory extends TokenNameFinderFactory {
+  
+  private byte[] featureGeneratorBytes;
+  private Map<String, Object> resources;
+
+  public FixedNameFinderFactory(byte[] featureGeneratorBytes, final Map<String, Object> resources,
+      SequenceCodec<String> seqCodec) {
+    super(featureGeneratorBytes, resources, seqCodec);
+  }
+  
+  /**
+   * Creates the {@link AdaptiveFeatureGenerator}. Usually this
+   * is a set of generators contained in the {@link AggregatedFeatureGenerator}.
+   *
+   * Note:
+   * The generators are created on every call to this method.
+   *
+   * @return the feature generator or null if there is no descriptor in the model
+   */
+  // TODO: During training time the resources need to be loaded from the resources map!
+  public AdaptiveFeatureGenerator createFeatureGenerators() {
+
+    byte descriptorBytes[] = null;
+    descriptorBytes = featureGeneratorBytes;
+    if (descriptorBytes != null) {
+      InputStream descriptorIn = new ByteArrayInputStream(descriptorBytes);
+      AdaptiveFeatureGenerator generator = null;
+      try {
+        generator = GeneratorFactory.create(descriptorIn, new FeatureGeneratorResourceProvider() {
+
+          public Object getResource(String key) {
+            if (artifactProvider != null) {
+              return artifactProvider.getArtifact(key);
+            }
+            else {
+              return resources.get(key);
+            }
+          }
+        });
+      } catch (InvalidFormatException e) {
+        // It is assumed that the creation of the feature generation does not
+        // fail after it succeeded once during model loading.
+
+        // But it might still be possible that such an exception is thrown,
+        // in this case the caller should not be forced to handle the exception
+        // and a Runtime Exception is thrown instead.
+
+        // If the re-creation of the feature generation fails it is assumed
+        // that this can only be caused by a programming mistake and therefore
+        // throwing a Runtime Exception is reasonable
+
+        //throw new FeatureGeneratorCreationError(e);
+      } catch (IOException e) {
+        throw new IllegalStateException("Reading from mem cannot result in an I/O error", e);
+      }
+
+      return generator;
+    }
+    else {
+      return null;
+    }
+  }
+  
+
+}

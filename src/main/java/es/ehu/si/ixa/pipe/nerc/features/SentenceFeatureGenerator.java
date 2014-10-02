@@ -2,6 +2,8 @@ package es.ehu.si.ixa.pipe.nerc.features;
 
 import java.util.List;
 
+import opennlp.tools.util.featuregen.FeatureGeneratorAdapter;
+
 public class SentenceFeatureGenerator extends FeatureGeneratorAdapter {
 
  private final boolean isGenerateFirstWordFeature;

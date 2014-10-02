@@ -4,6 +4,8 @@ import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
 
 import java.util.List;
 
+import opennlp.tools.util.featuregen.FeatureGeneratorAdapter;
+
 
 public class ClarkFeatureGenerator extends FeatureGeneratorAdapter {
 

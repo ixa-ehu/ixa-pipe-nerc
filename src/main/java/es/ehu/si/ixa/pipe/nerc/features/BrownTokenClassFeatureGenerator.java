@@ -2,6 +2,8 @@ package es.ehu.si.ixa.pipe.nerc.features;
 
 import java.util.List;
 
+import opennlp.tools.util.featuregen.FeatureGeneratorAdapter;
+
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
 
 public class BrownTokenClassFeatureGenerator extends FeatureGeneratorAdapter {

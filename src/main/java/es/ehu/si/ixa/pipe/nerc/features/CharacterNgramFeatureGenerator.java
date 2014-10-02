@@ -4,6 +4,7 @@ import java.util.List;
 
 import opennlp.tools.ngram.NGramModel;
 import opennlp.tools.util.StringList;
+import opennlp.tools.util.featuregen.FeatureGeneratorAdapter;
 
 /**
  * The {@link CharacterNgramFeatureGenerator} uses character ngrams to

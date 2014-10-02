@@ -80,6 +80,10 @@ public abstract class AbstractTrainer implements Trainer {
    */
   protected int beamSize;
   /**
+   * The sequence encoding of the named entity spans, e.g., BIO or BILOU.
+   */
+  private String sequenceCodec;
+  /**
    * The corpus format: conll02, conll03, germEvalOuter2014, germEvalInner2014 and opennlp.
    */
   protected String corpusFormat;
@@ -111,6 +115,7 @@ public abstract class AbstractTrainer implements Trainer {
     trainSamples = getNameStream(trainData, lang, corpusFormat);
     testSamples = getNameStream(testData, lang, corpusFormat);
     this.beamSize = InputOutputUtils.getBeamsize(params);
+    this.sequenceCodec = InputOutputUtils.getSequenceCodec(params);
     if (params.getSettings().get("Types") != null) {
       String netypes = params.getSettings().get("Types");
       String[] neTypes = netypes.split(",");
@@ -337,6 +342,10 @@ public abstract class AbstractTrainer implements Trainer {
     return nameClassifierFactory;
   }
   
+  public final void setNameClassifierFactory(TokenNameFinderFactory aFactory) {
+    this.nameClassifierFactory = aFactory;
+  }
+  
   /**
    * Get the language.
    * @return the language
@@ -353,6 +362,14 @@ public abstract class AbstractTrainer implements Trainer {
    */
   public final void setLanguage(final String aLang) {
     this.lang = aLang;
+  }
+  
+  public final String getSequenceCodec() {
+    return sequenceCodec;
+  }
+  
+  public final void setSequenceCodec(final String aSeqCodec) {
+    this.sequenceCodec = aSeqCodec;
   }
 
 }

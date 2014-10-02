@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import opennlp.tools.util.featuregen.AdaptiveFeatureGenerator;
+
 public class Prev2MapFeatureGenerator implements AdaptiveFeatureGenerator {
   
   private Map<String, String> previousMap = new HashMap<String, String>();
