@@ -32,6 +32,7 @@ import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 import net.sourceforge.argparse4j.inf.Subparsers;
+import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.TrainingParameters;
 
 import org.jdom2.JDOMException;
@@ -42,7 +43,6 @@ import es.ehu.si.ixa.pipe.nerc.eval.CorpusEvaluate;
 import es.ehu.si.ixa.pipe.nerc.eval.Evaluate;
 import es.ehu.si.ixa.pipe.nerc.train.FixedTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
-import es.ehu.si.ixa.pipe.nerc.train.NameModel;
 import es.ehu.si.ixa.pipe.nerc.train.Trainer;
 
 /**
@@ -240,7 +240,7 @@ public class CLI {
     String trainSet = InputOutputUtils.getDataSet("TrainSet", params);
     String testSet = InputOutputUtils.getDataSet("TestSet", params);
     Trainer nercTrainer = new FixedTrainer(trainSet, testSet, params);
-    NameModel trainedModel = null;
+    TokenNameFinderModel trainedModel = null;
     // check if CrossEval
     if (params.getSettings().get("CrossEval") != null) {
       String evalParam = params.getSettings().get("CrossEval");

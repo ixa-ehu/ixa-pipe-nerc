@@ -4,11 +4,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import opennlp.tools.namefind.NameSample;
+import opennlp.tools.namefind.NameSampleTypeFilter;
+import opennlp.tools.namefind.TokenNameFinderEvaluator;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.TrainingParameters;
 import opennlp.tools.util.eval.FMeasure;
-import es.ehu.si.ixa.pipe.nerc.formats.CorpusSample;
-import es.ehu.si.ixa.pipe.nerc.formats.CorpusSampleTypeFilter;
 import es.ehu.si.ixa.pipe.nerc.train.AbstractTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
 
@@ -23,11 +24,11 @@ public class CorpusEvaluate {
   /**
    * The reference corpus to evaluate against.
    */
-  private ObjectStream<CorpusSample> referenceSamples;
+  private ObjectStream<NameSample> referenceSamples;
   /**
    * The reference corpus to evaluate against.
    */
-  private ObjectStream<CorpusSample> predictionSamples;
+  private ObjectStream<NameSample> predictionSamples;
   /**
    * The FMeasure implementation.
    */
@@ -53,14 +54,14 @@ public class CorpusEvaluate {
     if (params.getSettings().get("Types") != null) {
       String neTypes = params.getSettings().get("Types");
       String[] neTypesArray = neTypes.split(",");
-      referenceSamples = new CorpusSampleTypeFilter(neTypesArray, referenceSamples);
-      predictionSamples = new CorpusSampleTypeFilter(neTypesArray, predictionSamples);
+      referenceSamples = new NameSampleTypeFilter(neTypesArray, referenceSamples);
+      predictionSamples = new NameSampleTypeFilter(neTypesArray, predictionSamples);
     }
   }
   
-  public List<CorpusSample> readSamplesToList(ObjectStream<CorpusSample> samples) throws IOException {
-    CorpusSample sample;
-    List<CorpusSample> nameSampleList = new ArrayList<CorpusSample>();
+  public List<NameSample> readSamplesToList(ObjectStream<NameSample> samples) throws IOException {
+    NameSample sample;
+    List<NameSample> nameSampleList = new ArrayList<NameSample>();
     while ((sample = samples.read()) != null) {
       nameSampleList.add(sample);
     }
@@ -72,8 +73,8 @@ public class CorpusEvaluate {
    * @throws IOException if test corpus not loaded
    */
   public final void evaluate() throws IOException {
-    List<CorpusSample> refList = readSamplesToList(referenceSamples);
-    List<CorpusSample> predList = readSamplesToList(predictionSamples);
+    List<NameSample> refList = readSamplesToList(referenceSamples);
+    List<NameSample> predList = readSamplesToList(predictionSamples);
     for (int i = 0; i < refList.size(); ++i) {
       fmeasure.updateScores(refList.get(i).getNames(), predList.get(i).getNames());
     }

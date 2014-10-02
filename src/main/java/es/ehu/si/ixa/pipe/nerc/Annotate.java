@@ -31,11 +31,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.util.Span;
 import opennlp.tools.util.TrainingParameters;
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
 import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
-import es.ehu.si.ixa.pipe.nerc.train.NameClassifier;
 
 /**
  * Annotation class of ixa-pipe-nerc.
@@ -202,7 +202,7 @@ public class Annotate {
         List<Span> numericSpans = numericLexerFinder.nercToSpans(tokens);
         SpanUtils.concatenateSpans(allSpans, numericSpans);
       }
-      Span[] allSpansArray = NameClassifier.dropOverlappingSpans(allSpans
+      Span[] allSpansArray = NameFinderME.dropOverlappingSpans(allSpans
           .toArray(new Span[allSpans.size()]));
       List<Name> names = new ArrayList<Name>();
       if (statistical) {

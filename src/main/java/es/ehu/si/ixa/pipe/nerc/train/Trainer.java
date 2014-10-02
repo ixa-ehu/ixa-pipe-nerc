@@ -16,6 +16,7 @@
 package es.ehu.si.ixa.pipe.nerc.train;
 
 
+import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.TrainingParameters;
 
 /**
@@ -27,12 +28,12 @@ import opennlp.tools.util.TrainingParameters;
 public interface Trainer {
  
   /**
-   * Generate {@link NameModel} models.
+   * Generate {@link TokenNameFinderModel} models.
    * @param params
    *          the training parameters file
    * @return the model
    */
-  NameModel train(TrainingParameters params);
+  TokenNameFinderModel train(TrainingParameters params);
 
   /**
    * Trains a model with cross evaluation. This only makes sense here
@@ -42,7 +43,7 @@ public interface Trainer {
    * @param evalRange the range at which the evaluation is performed
    * @return the model trained with the best parameters
    */
-  NameModel trainCrossEval(String devData,
+  TokenNameFinderModel trainCrossEval(String devData,
       TrainingParameters params, String[] evalRange);
 
 }

@@ -61,8 +61,6 @@ public class FixedTrainer extends AbstractTrainer {
       final String testData, final TrainingParameters params)
       throws IOException {
     super(trainData, testData, params);
-    
-    setNameClassifierFactory(new NameClassifierFactory());
   }
 
 }

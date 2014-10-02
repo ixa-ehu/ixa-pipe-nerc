@@ -24,18 +24,22 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import opennlp.tools.formats.Conll02NameSampleStream;
+import opennlp.tools.formats.Conll03NameSampleStream;
+import opennlp.tools.formats.EvalitaNameSampleStream;
+import opennlp.tools.namefind.NameFinderME;
+import opennlp.tools.namefind.NameSample;
+import opennlp.tools.namefind.NameSampleDataStream;
+import opennlp.tools.namefind.NameSampleTypeFilter;
+import opennlp.tools.namefind.TokenNameFinderEvaluator;
+import opennlp.tools.namefind.TokenNameFinderFactory;
+import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.TrainingParameters;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 
-import es.ehu.si.ixa.pipe.nerc.eval.NameFinderEvaluator;
-import es.ehu.si.ixa.pipe.nerc.formats.Conll02NameStream;
-import es.ehu.si.ixa.pipe.nerc.formats.Conll03NameStream;
-import es.ehu.si.ixa.pipe.nerc.formats.CorpusSample;
-import es.ehu.si.ixa.pipe.nerc.formats.CorpusSampleDataStream;
-import es.ehu.si.ixa.pipe.nerc.formats.CorpusSampleTypeFilter;
 import es.ehu.si.ixa.pipe.nerc.formats.GermEval2014InnerNameStream;
 import es.ehu.si.ixa.pipe.nerc.formats.GermEval2014OuterNameStream;
 
@@ -51,7 +55,6 @@ public abstract class AbstractTrainer implements Trainer {
   public final static int MIN_CHAR_NGRAM_LENGTH = 2;
   public final static int DEFAULT_CHAR_NGRAM_LENGTH = 6;
   
-  private static TrainingParameters params;
   /**
    * The language.
    */
@@ -67,11 +70,11 @@ public abstract class AbstractTrainer implements Trainer {
   /**
    * ObjectStream of the training data.
    */
-  protected ObjectStream<CorpusSample> trainSamples;
+  protected ObjectStream<NameSample> trainSamples;
   /**
    * ObjectStream of the test data.
    */
-  protected ObjectStream<CorpusSample> testSamples;
+  protected ObjectStream<NameSample> testSamples;
   /**
    * beamsize value needs to be established in any class extending this one.
    */
@@ -81,9 +84,13 @@ public abstract class AbstractTrainer implements Trainer {
    */
   protected String corpusFormat;
   /**
+   * The named entity types.
+   */
+  private static int types;
+  /**
    * features needs to be implemented by any class extending this one.
    */
-  private NameClassifierFactory nameClassifierFactory;
+  private TokenNameFinderFactory nameClassifierFactory;
 
   /**
    * Constructs a trainer with training and test data, and with options for
@@ -92,20 +99,11 @@ public abstract class AbstractTrainer implements Trainer {
    *          the training data
    * @param aTestData
    *          the test data
-   * @param aLang
-   *          the language
-   * @param beamsize
-   *          the beamsize
-   * @param aCorpusFormat
-   *          the corpus format
-   * @param netypes
-   *          the NE classes for which the training should be done
    * @throws IOException
    *           io exception
    */
   public AbstractTrainer(final String aTrainData,
-      final String aTestData, final TrainingParameters aParams) throws IOException {
-    params = aParams;
+      final String aTestData, final TrainingParameters params) throws IOException {
     this.lang = InputOutputUtils.getLanguage(params);
     this.corpusFormat = InputOutputUtils.getCorpusFormat(params);
     this.trainData = aTrainData;
@@ -116,8 +114,9 @@ public abstract class AbstractTrainer implements Trainer {
     if (params.getSettings().get("Types") != null) {
       String netypes = params.getSettings().get("Types");
       String[] neTypes = netypes.split(",");
-      trainSamples = new CorpusSampleTypeFilter(neTypes, trainSamples);
-      testSamples = new CorpusSampleTypeFilter(neTypes, testSamples);
+      trainSamples = new NameSampleTypeFilter(neTypes, trainSamples);
+      testSamples = new NameSampleTypeFilter(neTypes, testSamples);
+      types = neTypes.length;
     }
   }
 
@@ -139,18 +138,18 @@ public abstract class AbstractTrainer implements Trainer {
    * es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer#train(opennlp.tools.util
    * .TrainingParameters)
    */
-  public final NameModel train(final TrainingParameters params) {
+  public final TokenNameFinderModel train(final TrainingParameters params) {
     if (getNameClassifierFactory() == null) {
       throw new IllegalStateException(
           "Classes derived from AbstractNameFinderTrainer must create and fill the AdaptiveFeatureGenerator features!");
     }
-    NameModel trainedModel = null;
-    NameFinderEvaluator nerEvaluator = null;
+    TokenNameFinderModel trainedModel = null;
+    TokenNameFinderEvaluator nerEvaluator = null;
     try {
-      trainedModel = NameClassifier.train(lang, null, trainSamples, params,
+      trainedModel = NameFinderME.train(lang, null, trainSamples, params,
           getNameClassifierFactory());
-      NameClassifier nerTagger = new NameClassifier(trainedModel);
-      nerEvaluator = new NameFinderEvaluator(nerTagger);
+      NameFinderME nerTagger = new NameFinderME(trainedModel);
+      nerEvaluator = new TokenNameFinderEvaluator(nerTagger);
       nerEvaluator.evaluate(testSamples);
     } catch (IOException e) {
       System.err.println("IO error while loading traing and test sets!");
@@ -168,7 +167,7 @@ public abstract class AbstractTrainer implements Trainer {
    * .String, java.lang.String, opennlp.tools.util.TrainingParameters,
    * java.lang.String[])
    */
-  public NameModel trainCrossEval(final String devData,
+  public TokenNameFinderModel trainCrossEval(final String devData,
       final TrainingParameters params, final String[] evalRange) {
 
     // get best parameters from cross evaluation
@@ -188,7 +187,7 @@ public abstract class AbstractTrainer implements Trainer {
         Integer.toString(bestParams.get(1)));
 
     // use best parameters to train model
-    NameModel trainedModel = train(crossEvalParams);
+    TokenNameFinderModel trainedModel = train(crossEvalParams);
     return trainedModel;
   }
 
@@ -231,9 +230,9 @@ public abstract class AbstractTrainer implements Trainer {
       int iterRange = Integer.valueOf(evalRange[1]);
       for (int iteration = start + start; iteration < iterList.size() + start; iteration += iterRange) {
         // reading data for training and test
-        ObjectStream<CorpusSample> aTrainSamples = getNameStream(trainData, lang,
+        ObjectStream<NameSample> aTrainSamples = getNameStream(trainData, lang,
             corpusFormat);
-        ObjectStream<CorpusSample> devSamples = getNameStream(devData, lang,
+        ObjectStream<NameSample> devSamples = getNameStream(devData, lang,
             corpusFormat);
 
         // dynamic creation of parameters
@@ -243,11 +242,11 @@ public abstract class AbstractTrainer implements Trainer {
         System.err.println("Trying with " + iteration + " iterations...");
 
         // training model
-        NameModel trainedModel = NameClassifier.train(lang, null,
+        TokenNameFinderModel trainedModel = NameFinderME.train(lang, null,
             aTrainSamples, params, getNameClassifierFactory());
         // evaluate model
-        NameClassifier nerClassifier = new NameClassifier(trainedModel);
-        NameFinderEvaluator nerEvaluator = new NameFinderEvaluator(nerClassifier);
+        NameFinderME nerClassifier = new NameFinderME(trainedModel);
+        TokenNameFinderEvaluator nerEvaluator = new TokenNameFinderEvaluator(nerClassifier);
         nerEvaluator.evaluate(devSamples);
         double result = nerEvaluator.getFMeasure().getFMeasure();
         double precision = nerEvaluator.getFMeasure().getPrecisionScore();
@@ -288,16 +287,29 @@ public abstract class AbstractTrainer implements Trainer {
    * @throws IOException
    *           the io exception
    */
-  public static ObjectStream<CorpusSample> getNameStream(final String inputData,
+  public static ObjectStream<NameSample> getNameStream(final String inputData,
       final String aLang, final String aCorpusFormat) throws IOException {
-    ObjectStream<CorpusSample> samples = null;
+    ObjectStream<NameSample> samples = null;
     if (aCorpusFormat.equalsIgnoreCase("conll03")) {
       ObjectStream<String> nameStream = InputOutputUtils.readInputData(inputData);
-      samples = new Conll03NameStream(aLang, nameStream);
+      if (aLang.equalsIgnoreCase("en")) {
+        samples = new Conll03NameSampleStream(Conll03NameSampleStream.LANGUAGE.EN, nameStream, types);
+      }
+      else if (aLang.equalsIgnoreCase("de")) {
+        samples = new Conll03NameSampleStream(Conll03NameSampleStream.LANGUAGE.DE, nameStream, types);
+      } 
     } else if (aCorpusFormat.equalsIgnoreCase("conll02")) {
       ObjectStream<String> nameStream = InputOutputUtils
           .readInputData(inputData);
-      samples = new Conll02NameStream(aLang, nameStream);
+      if (aLang.equalsIgnoreCase("es")) {
+        samples = new Conll02NameSampleStream(Conll02NameSampleStream.LANGUAGE.ES, nameStream, types);
+      }
+      else if (aLang.equalsIgnoreCase("nl")) {
+        samples = new Conll02NameSampleStream(Conll02NameSampleStream.LANGUAGE.NL, nameStream, types);
+      }
+    } else if (aLang.equalsIgnoreCase("it")) {
+      ObjectStream<String> nameStream = InputOutputUtils.readInputData(inputData);
+      samples = new EvalitaNameSampleStream(EvalitaNameSampleStream.LANGUAGE.IT, nameStream, types);
     } else if (aCorpusFormat.equalsIgnoreCase("germEvalOuter2014")) {
       ObjectStream<String> nameStream = InputOutputUtils
           .readInputData(inputData);
@@ -308,32 +320,23 @@ public abstract class AbstractTrainer implements Trainer {
       samples = new GermEval2014InnerNameStream(nameStream);
     } else if (aCorpusFormat.equalsIgnoreCase("opennlp")) {
       ObjectStream<String> nameStream = InputOutputUtils.readInputData(inputData);
-      samples = new CorpusSampleDataStream(nameStream);
+      samples = new NameSampleDataStream(nameStream);
     } else {
       System.err.println("Test set corpus format not valid!!");
       System.exit(1);
     }
     return samples;
   }
-
+ 
   /**
    * Get the features which are implemented in each of the trainers extending
    * this class.
    * @return the features
    */
-  public final NameClassifierFactory getNameClassifierFactory() {
+  public final TokenNameFinderFactory getNameClassifierFactory() {
     return nameClassifierFactory;
   }
-
-  /**
-   * Set the features. This method is used in every trainer extending this
-   * class.
-   * @param aFeatures
-   *          the implemented features
-   */
-  public final void setNameClassifierFactory(final NameClassifierFactory aNameClassifierFactory) {
-    this.nameClassifierFactory = aNameClassifierFactory;
-  }
+  
   /**
    * Get the language.
    * @return the language
@@ -351,10 +354,5 @@ public abstract class AbstractTrainer implements Trainer {
   public final void setLanguage(final String aLang) {
     this.lang = aLang;
   }
-  
-  public final static TrainingParameters getTrainingParameters() {
-    return params;
-  }
-
 
 }
