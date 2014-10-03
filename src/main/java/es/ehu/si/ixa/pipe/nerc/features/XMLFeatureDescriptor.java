@@ -41,6 +41,7 @@ public class XMLFeatureDescriptor {
     //</window>
     if (isTokenFeature(params)) {
       Element tokenFeature = new Element("token");
+      //tokenFeature.setAttribute("class", TokenFeatureGenerator.class.getName());
       Element tokenWindow = new Element("window");
       tokenWindow.setAttribute("prevLength", Integer.toString(leftWindow));
       tokenWindow.setAttribute("nextLength", Integer.toString(rightWindow));
@@ -48,9 +49,9 @@ public class XMLFeatureDescriptor {
       generators.addContent(tokenWindow);
       System.err.println("-> Token features added!: Window range " + leftWindow + ":" + rightWindow);
     }
-    /*if (isTokenClassFeature(params)) {
-      Element tokenClassFeature = new Element("custom");
-      tokenClassFeature.setAttribute("class", TokenClassFeatureGenerator.class.getName());
+    if (isTokenClassFeature(params)) {
+      Element tokenClassFeature = new Element("tokenclass");
+      //tokenClassFeature.setAttribute("class", TokenClassFeatureGenerator.class.getName());
       Element tokenClassWindow = new Element("window");
       tokenClassWindow.setAttribute("prevLength", Integer.toString(leftWindow));
       tokenClassWindow.setAttribute("nextLength", Integer.toString(rightWindow));
@@ -59,14 +60,14 @@ public class XMLFeatureDescriptor {
       System.err.println("-> Token Class Features added!: Window range " + leftWindow + ":" + rightWindow);
     }
     if (isOutcomePriorFeature(params)) {
-      Element outcomePriorFeature = new Element("custom");
-      outcomePriorFeature.setAttribute("class", OutcomePriorFeatureGenerator.class.getName());
+      Element outcomePriorFeature = new Element("definition");
+      //outcomePriorFeature.setAttribute("class", OutcomePriorFeatureGenerator.class.getName());
       generators.addContent(outcomePriorFeature);
       System.err.println("-> Outcome Prior Features added!");
     }
     if (isPreviousMapFeature(params)) {
-      Element previousMapFeature = new Element("custom");
-      previousMapFeature.setAttribute("class", PreviousMapFeatureGenerator.class.getName());
+      Element previousMapFeature = new Element("prevmap");
+      //previousMapFeature.setAttribute("class", PreviousMapFeatureGenerator.class.getName());
       generators.addContent(previousMapFeature);
       System.err.println("-> Previous Map Features added!");
     }
@@ -78,30 +79,29 @@ public class XMLFeatureDescriptor {
       System.err.println("-> Sentence Features added!");
     }
     if (isPrefixFeature(params)) {
-      Element prefixFeature = new Element("custom");
-      prefixFeature.setAttribute("class", Prefix34FeatureGenerator.class.getName());
+      Element prefixFeature = new Element("prefix");
+      //prefixFeature.setAttribute("class", Prefix34FeatureGenerator.class.getName());
       generators.addContent(prefixFeature);
       System.err.println("-> Prefix Features added!");
     }
     if (isSuffixFeature(params)) {
-      Element suffixFeature = new Element("custom");
-      suffixFeature.setAttribute("class", SuffixFeatureGenerator.class.getName());
+      Element suffixFeature = new Element("suffix");
+      //suffixFeature.setAttribute("class", SuffixFeatureGenerator.class.getName());
       generators.addContent(suffixFeature);
       System.err.println("-> Suffix Features added!");
     }
     if (isBigramClassFeature(params)) {
-      Element bigramFeature = new Element("custom");
-      bigramFeature.setAttribute("class", BigramClassFeatureGenerator.class.getName());
+      Element bigramFeature = new Element("bigram");
+      //bigramFeature.setAttribute("class", BigramClassFeatureGenerator.class.getName());
       generators.addContent(bigramFeature);
       System.err.println("-> Bigram Class Features added!");
-    }*/
+    }
     
     aggGenerators.addContent(cached);
     cached.addContent(generators);
     
     XMLOutputter xmlOutput = new XMLOutputter();
     Format format = Format.getPrettyFormat();
-    //format.setOmitDeclaration(true);
     xmlOutput.setFormat(format);
     return xmlOutput.outputString(doc);
     
@@ -113,7 +113,6 @@ public class XMLFeatureDescriptor {
     String tokenParam = InputOutputUtils.getTokenFeatures(params);
     return !tokenParam.equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
   }
-  
   private static boolean isTokenClassFeature(TrainingParameters params) {
     setWindow(params);
     String tokenParam = InputOutputUtils.getTokenClassFeatures(params);

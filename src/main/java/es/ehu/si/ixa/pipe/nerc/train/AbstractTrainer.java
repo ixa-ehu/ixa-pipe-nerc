@@ -152,7 +152,7 @@ public abstract class AbstractTrainer implements Trainer {
     TokenNameFinderEvaluator nerEvaluator = null;
     try {
       trainedModel = NameFinderME.train(lang, null, trainSamples, params,
-          getNameClassifierFactory());
+          nameClassifierFactory);
       NameFinderME nerTagger = new NameFinderME(trainedModel);
       nerEvaluator = new TokenNameFinderEvaluator(nerTagger);
       nerEvaluator.evaluate(testSamples);

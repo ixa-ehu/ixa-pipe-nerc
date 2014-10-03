@@ -16,27 +16,17 @@
 
 package es.ehu.si.ixa.pipe.nerc.train;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.common.io.Files;
-
-import es.ehu.si.ixa.pipe.nerc.features.XMLFeatureDescriptor;
-
-import opennlp.tools.cmdline.CmdLineUtil;
 import opennlp.tools.namefind.BilouCodec;
 import opennlp.tools.namefind.BioCodec;
 import opennlp.tools.namefind.TokenNameFinderFactory;
-import opennlp.tools.namefind.TokenNameFinderModel;
-import opennlp.tools.util.InvalidFormatException;
 import opennlp.tools.util.SequenceCodec;
 import opennlp.tools.util.TrainingParameters;
-import opennlp.tools.util.featuregen.GeneratorFactory;
-import opennlp.tools.util.model.ArtifactSerializer;
+import es.ehu.si.ixa.pipe.nerc.features.XMLFeatureDescriptor;
 
 /**
  * Training NER based on Apache OpenNLP Machine Learning API for English. This
@@ -101,8 +91,8 @@ public class FixedTrainer extends AbstractTrainer {
     String featureDescription = XMLFeatureDescriptor.createXMLFeatureDescriptor(params);
     System.err.println(featureDescription);
     byte[] featureGeneratorBytes = featureDescription.getBytes(Charset.forName("UTF-8"));
-    System.err.println("feature bytes 1" + featureGeneratorBytes.length);
-    setNameClassifierFactory(TokenNameFinderFactory.create(FixedNameFinderFactory.class.getName(), featureGeneratorBytes, resources, sequenceCodec));
+    System.err.println("feature bytes 1 " + featureGeneratorBytes.length);
+    setNameClassifierFactory(TokenNameFinderFactory.create(TokenNameFinderFactory.class.getName(), featureGeneratorBytes, resources, sequenceCodec));
   }
   
 }
