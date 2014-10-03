@@ -39,6 +39,7 @@ import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 
 import es.ehu.si.ixa.pipe.nerc.CLI;
+import es.ehu.si.ixa.pipe.nerc.features.XMLFeatureDescriptor;
 
 /**
  * Utility functions to read and save ObjectStreams.

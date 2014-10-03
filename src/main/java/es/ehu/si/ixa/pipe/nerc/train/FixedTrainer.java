@@ -25,6 +25,8 @@ import java.util.Map;
 
 import com.google.common.io.Files;
 
+import es.ehu.si.ixa.pipe.nerc.features.XMLFeatureDescriptor;
+
 import opennlp.tools.cmdline.CmdLineUtil;
 import opennlp.tools.namefind.BilouCodec;
 import opennlp.tools.namefind.BioCodec;
@@ -100,82 +102,7 @@ public class FixedTrainer extends AbstractTrainer {
     System.err.println(featureDescription);
     byte[] featureGeneratorBytes = featureDescription.getBytes(Charset.forName("UTF-8"));
     System.err.println("feature bytes 1" + featureGeneratorBytes.length);
-    //TODO why null: get setFeatureGeneratorBytes
-    //TODO what is going with the features?
-    //TODO what is going on with the map in the generator factory?
-    TokenNameFinderFactory fixedFactory = TokenNameFinderFactory.create(FixedNameFinderFactory.class.getName(), featureGeneratorBytes, resources, sequenceCodec);
-    setNameClassifierFactory(fixedFactory);
-    
-   
-  }
-  
-  /**
-   * Loads the external resources (cluster lexicons, etc.).
-   * @param resourcePath
-   * @param featureGenDescriptor
-   * @return
-   */
-  public static Map<String, Object> loadResources(File resourcePath, File featureGenDescriptor) {
-    Map<String, Object> resources = new HashMap<String, Object>();
-
-    if (resourcePath != null) {
-      Map<String, ArtifactSerializer> artifactSerializers = TokenNameFinderModel
-          .createArtifactSerializers();
-      
-      // TODO: If there is descriptor file, it should be consulted too
-      if (featureGenDescriptor != null) {
-        InputStream xmlDescriptorIn = null;
-        try {
-          artifactSerializers.putAll(GeneratorFactory.extractCustomArtifactSerializerMappings(xmlDescriptorIn));
-        } catch (IOException e) {
-          // TODO: Improve error handling!
-          e.printStackTrace();
-        }
-      }
-      File resourceFiles[] = resourcePath.listFiles();
-      // TODO: Filter files, also files with start with a dot
-      for (File resourceFile : resourceFiles) {
-        // TODO: Move extension extracting code to method and
-        // write unit test for it
-        // extract file ending
-        String resourceName = resourceFile.getName();
-        int lastDot = resourceName.lastIndexOf('.');
-        if (lastDot == -1) {
-          continue;
-        }
-        String ending = resourceName.substring(lastDot + 1);
-        // lookup serializer from map
-        ArtifactSerializer serializer = artifactSerializers.get(ending);
-        // TODO: Do different? For now just ignore ....
-        if (serializer == null)
-          continue;
-        InputStream resoruceIn = CmdLineUtil.openInFile(resourceFile);
-        try {
-          resources.put(resourceName, serializer.create(resoruceIn));
-        } catch (InvalidFormatException e) {
-          // TODO: Fix exception handling
-          e.printStackTrace();
-        } catch (IOException e) {
-          // TODO: Fix exception handling
-          e.printStackTrace();
-        } finally {
-          try {
-            resoruceIn.close();
-          } catch (IOException e) {
-          }
-        }
-      }
-    }
-    return resources;
-  }
-
-  static Map<String, Object> loadResources(String resourceDirectory, File featureGeneratorDescriptor) {
-
-    if (resourceDirectory != null) {
-      File resourcePath = new File(resourceDirectory);
-      return loadResources(resourcePath, featureGeneratorDescriptor);
-    }
-    return new HashMap<String, Object>();
+    setNameClassifierFactory(TokenNameFinderFactory.create(FixedNameFinderFactory.class.getName(), featureGeneratorBytes, resources, sequenceCodec));
   }
   
 }

@@ -1,4 +1,4 @@
-package es.ehu.si.ixa.pipe.nerc.train;
+package es.ehu.si.ixa.pipe.nerc.features;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -10,6 +10,8 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
+
+import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
 
 public class XMLFeatureDescriptor {
 
@@ -37,8 +39,6 @@ public class XMLFeatureDescriptor {
     //<window prevLength="2" nextLength="2">
     //  <token />
     //</window>
-    
-    
     if (isTokenFeature(params)) {
       Element tokenFeature = new Element("token");
       Element tokenWindow = new Element("window");
@@ -48,8 +48,9 @@ public class XMLFeatureDescriptor {
       generators.addContent(tokenWindow);
       System.err.println("-> Token features added!: Window range " + leftWindow + ":" + rightWindow);
     }
-    if (isTokenClassFeature(params)) {
-      Element tokenClassFeature = new Element("tokenclass");
+    /*if (isTokenClassFeature(params)) {
+      Element tokenClassFeature = new Element("custom");
+      tokenClassFeature.setAttribute("class", TokenClassFeatureGenerator.class.getName());
       Element tokenClassWindow = new Element("window");
       tokenClassWindow.setAttribute("prevLength", Integer.toString(leftWindow));
       tokenClassWindow.setAttribute("nextLength", Integer.toString(rightWindow));
@@ -58,12 +59,14 @@ public class XMLFeatureDescriptor {
       System.err.println("-> Token Class Features added!: Window range " + leftWindow + ":" + rightWindow);
     }
     if (isOutcomePriorFeature(params)) {
-      Element outcomePriorFeature = new Element("definition");
+      Element outcomePriorFeature = new Element("custom");
+      outcomePriorFeature.setAttribute("class", OutcomePriorFeatureGenerator.class.getName());
       generators.addContent(outcomePriorFeature);
       System.err.println("-> Outcome Prior Features added!");
     }
     if (isPreviousMapFeature(params)) {
-      Element previousMapFeature = new Element("prevmap");
+      Element previousMapFeature = new Element("custom");
+      previousMapFeature.setAttribute("class", PreviousMapFeatureGenerator.class.getName());
       generators.addContent(previousMapFeature);
       System.err.println("-> Previous Map Features added!");
     }
@@ -74,21 +77,24 @@ public class XMLFeatureDescriptor {
       generators.addContent(sentenceFeature);
       System.err.println("-> Sentence Features added!");
     }
-    /*if (isPrefixFeature(params)) {
-      Element prefixFeature = new Element("prefix");
+    if (isPrefixFeature(params)) {
+      Element prefixFeature = new Element("custom");
+      prefixFeature.setAttribute("class", Prefix34FeatureGenerator.class.getName());
       generators.addContent(prefixFeature);
       System.err.println("-> Prefix Features added!");
     }
     if (isSuffixFeature(params)) {
-      Element prefixFeature = new Element("suffix");
-      generators.addContent(prefixFeature);
+      Element suffixFeature = new Element("custom");
+      suffixFeature.setAttribute("class", SuffixFeatureGenerator.class.getName());
+      generators.addContent(suffixFeature);
       System.err.println("-> Suffix Features added!");
-    }*/
+    }
     if (isBigramClassFeature(params)) {
-      Element bigramFeature = new Element("bigram");
+      Element bigramFeature = new Element("custom");
+      bigramFeature.setAttribute("class", BigramClassFeatureGenerator.class.getName());
       generators.addContent(bigramFeature);
       System.err.println("-> Bigram Class Features added!");
-    }
+    }*/
     
     aggGenerators.addContent(cached);
     cached.addContent(generators);

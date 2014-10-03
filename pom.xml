@@ -88,6 +88,7 @@
 										<groupId>${project.groupId}</groupId>
 										<artifactId>${project.artifactId}</artifactId>
 										<Implementation-Version>${project.version}</Implementation-Version>
+										<Class-Path>es.ehu.si.ixa.pipe.nerc</Class-Path>
 									</manifestEntries>
 								</transformer>
 							</transformers>
