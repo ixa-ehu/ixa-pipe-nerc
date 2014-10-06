@@ -61,11 +61,6 @@ public class FixedTrainer extends AbstractTrainer {
    * Construct a trainer based on features specified in the trainParams.txt
    * properties file.
    */
-  
-  /**
-   * Construct a trainer based on features specified in the trainParams.txt
-   * properties file.
-   */
   public FixedTrainer(final String trainData,
       final String testData, final TrainingParameters params)
       throws IOException {
@@ -74,24 +69,17 @@ public class FixedTrainer extends AbstractTrainer {
   }
 
   /**
-   * Create fixed trainer parameters from the params file.
-   * @param params
+   * Create {@code TokenNameFinderFactory} with custom features.
+   * @param params the parameter training file
    * @throws IOException 
    */
   public void createTrainer(TrainingParameters params) throws IOException {
     String seqCodec = getSequenceCodec();
-    if ("BIO".equals(seqCodec)) {
-      seqCodec = BioCodec.class.getName();
-    }
-    else if ("BILOU".equals(seqCodec)) {
-      seqCodec = BilouCodec.class.getName();
-    }
     SequenceCodec<String> sequenceCodec = TokenNameFinderFactory.instantiateSequenceCodec(seqCodec);
     Map<String, Object> resources = new HashMap<String, Object>();
     String featureDescription = XMLFeatureDescriptor.createXMLFeatureDescriptor(params);
     System.err.println(featureDescription);
     byte[] featureGeneratorBytes = featureDescription.getBytes(Charset.forName("UTF-8"));
-    System.err.println("feature bytes 1 " + featureGeneratorBytes.length);
     setNameClassifierFactory(TokenNameFinderFactory.create(TokenNameFinderFactory.class.getName(), featureGeneratorBytes, resources, sequenceCodec));
   }
   

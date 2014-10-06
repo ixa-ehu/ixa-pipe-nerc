@@ -55,7 +55,7 @@ public class TokenClassFeatureGenerator extends FeatureGeneratorAdapter {
   private boolean generateWordAndClassFeature;
 
   public TokenClassFeatureGenerator() {
-    this(false);
+    this(true);
   }
 
   public TokenClassFeatureGenerator(boolean generateWordAndClassFeature) {

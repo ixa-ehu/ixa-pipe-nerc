@@ -27,6 +27,8 @@ import java.util.Map;
 import opennlp.tools.formats.Conll02NameSampleStream;
 import opennlp.tools.formats.Conll03NameSampleStream;
 import opennlp.tools.formats.EvalitaNameSampleStream;
+import opennlp.tools.namefind.BilouCodec;
+import opennlp.tools.namefind.BioCodec;
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.NameSample;
 import opennlp.tools.namefind.NameSampleDataStream;
@@ -365,7 +367,14 @@ public abstract class AbstractTrainer implements Trainer {
   }
   
   public final String getSequenceCodec() {
-    return sequenceCodec;
+    String seqCodec = null;
+    if ("BIO".equals(sequenceCodec)) {
+      seqCodec = BioCodec.class.getName();
+    }
+    else if ("BILOU".equals(sequenceCodec)) {
+      seqCodec = BilouCodec.class.getName();
+    }
+    return seqCodec;
   }
   
   public final void setSequenceCodec(final String aSeqCodec) {

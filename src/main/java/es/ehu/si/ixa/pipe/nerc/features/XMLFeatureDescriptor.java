@@ -21,6 +21,8 @@ public class XMLFeatureDescriptor {
   public static final String DEFAULT_WINDOW = "2:2";
   private static int leftWindow = -1;
   private static int rightWindow = -1;
+  private static int minCharNgram = -1;
+  private static int maxCharNgram = -1;
   
   private XMLFeatureDescriptor() {
   }
@@ -40,8 +42,8 @@ public class XMLFeatureDescriptor {
     //  <token />
     //</window>
     if (isTokenFeature(params)) {
-      Element tokenFeature = new Element("token");
-      //tokenFeature.setAttribute("class", TokenFeatureGenerator.class.getName());
+      Element tokenFeature = new Element("custom");
+      tokenFeature.setAttribute("class", TokenFeatureGenerator.class.getName());
       Element tokenWindow = new Element("window");
       tokenWindow.setAttribute("prevLength", Integer.toString(leftWindow));
       tokenWindow.setAttribute("nextLength", Integer.toString(rightWindow));
@@ -50,8 +52,8 @@ public class XMLFeatureDescriptor {
       System.err.println("-> Token features added!: Window range " + leftWindow + ":" + rightWindow);
     }
     if (isTokenClassFeature(params)) {
-      Element tokenClassFeature = new Element("tokenclass");
-      //tokenClassFeature.setAttribute("class", TokenClassFeatureGenerator.class.getName());
+      Element tokenClassFeature = new Element("custom");
+      tokenClassFeature.setAttribute("class", TokenClassFeatureGenerator.class.getName());
       Element tokenClassWindow = new Element("window");
       tokenClassWindow.setAttribute("prevLength", Integer.toString(leftWindow));
       tokenClassWindow.setAttribute("nextLength", Integer.toString(rightWindow));
@@ -60,41 +62,60 @@ public class XMLFeatureDescriptor {
       System.err.println("-> Token Class Features added!: Window range " + leftWindow + ":" + rightWindow);
     }
     if (isOutcomePriorFeature(params)) {
-      Element outcomePriorFeature = new Element("definition");
-      //outcomePriorFeature.setAttribute("class", OutcomePriorFeatureGenerator.class.getName());
+      Element outcomePriorFeature = new Element("custom");
+      outcomePriorFeature.setAttribute("class", OutcomePriorFeatureGenerator.class.getName());
       generators.addContent(outcomePriorFeature);
       System.err.println("-> Outcome Prior Features added!");
     }
     if (isPreviousMapFeature(params)) {
-      Element previousMapFeature = new Element("prevmap");
-      //previousMapFeature.setAttribute("class", PreviousMapFeatureGenerator.class.getName());
+      Element previousMapFeature = new Element("custom");
+      previousMapFeature.setAttribute("class", PreviousMapFeatureGenerator.class.getName());
       generators.addContent(previousMapFeature);
       System.err.println("-> Previous Map Features added!");
     }
     if (isSentenceFeature(params)) {
-      Element sentenceFeature = new Element("sentence");
+      Element sentenceFeature = new Element("custom");
+      sentenceFeature.setAttribute("class", SentenceFeatureGenerator.class.getName());
       sentenceFeature.setAttribute("begin", "true");
       sentenceFeature.setAttribute("end", "false");
       generators.addContent(sentenceFeature);
       System.err.println("-> Sentence Features added!");
     }
     if (isPrefixFeature(params)) {
-      Element prefixFeature = new Element("prefix");
-      //prefixFeature.setAttribute("class", Prefix34FeatureGenerator.class.getName());
+      Element prefixFeature = new Element("custom");
+      prefixFeature.setAttribute("class", Prefix34FeatureGenerator.class.getName());
       generators.addContent(prefixFeature);
       System.err.println("-> Prefix Features added!");
     }
     if (isSuffixFeature(params)) {
-      Element suffixFeature = new Element("suffix");
-      //suffixFeature.setAttribute("class", SuffixFeatureGenerator.class.getName());
+      Element suffixFeature = new Element("custom");
+      suffixFeature.setAttribute("class", SuffixFeatureGenerator.class.getName());
       generators.addContent(suffixFeature);
       System.err.println("-> Suffix Features added!");
     }
     if (isBigramClassFeature(params)) {
-      Element bigramFeature = new Element("bigram");
-      //bigramFeature.setAttribute("class", BigramClassFeatureGenerator.class.getName());
+      Element bigramFeature = new Element("custom");
+      bigramFeature.setAttribute("class", BigramClassFeatureGenerator.class.getName());
       generators.addContent(bigramFeature);
       System.err.println("-> Bigram Class Features added!");
+    }
+    if (isTrigramClassFeature(params)) {
+      Element trigramFeature = new Element("custom");
+      trigramFeature.setAttribute("class", TrigramClassFeatureGenerator.class.getName());
+      generators.addContent(trigramFeature);
+      System.err.println("-> Trigram Class Features added!");
+    }
+    if (isFourgramClassFeature(params)) {
+      Element fourgramFeature = new Element("custom");
+      fourgramFeature.setAttribute("class", FourgramClassFeatureGenerator.class.getName());
+      generators.addContent(fourgramFeature);
+      System.err.println("-> Fourgram Class Features added!");
+    }
+    if (isFivegramClassFeature(params)) {
+      Element fivegramFeature = new Element("custom");
+      fivegramFeature.setAttribute("class", FivegramClassFeatureGenerator.class.getName());
+      generators.addContent(fivegramFeature);
+      System.err.println("-> Fivegram Class Features added!");
     }
     
     aggGenerators.addContent(cached);
@@ -143,6 +164,23 @@ public class XMLFeatureDescriptor {
     String bigramParam = InputOutputUtils.getBigramClassFeatures(params);
     return !bigramParam.equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
   }
+  private static boolean isTrigramClassFeature(TrainingParameters params) {
+    String trigramParam = InputOutputUtils.getTrigramClassFeatures(params);
+    return !trigramParam.equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
+  }
+  private static boolean isFourgramClassFeature(TrainingParameters params) {
+    String fourgramParam = InputOutputUtils.getFourgramClassFeatures(params);
+    return !fourgramParam.equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
+  }
+  private static boolean isFivegramClassFeature(TrainingParameters params) {
+    String fivegramParam = InputOutputUtils.getFivegramClassFeatures(params);
+    return !fivegramParam.equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
+  }
+  private static boolean isCharNgramClassFeature(TrainingParameters params) {
+    setNgramRange(params);
+    String charngramParam = InputOutputUtils.getCharNgramFeatures(params);
+    return !charngramParam.equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
+  }
   
   /**
    * @param params
@@ -168,6 +206,13 @@ public class XMLFeatureDescriptor {
       windowRange.add(Integer.parseInt(windowArray[1]));
     }
     return windowRange;
+  }
+  
+  private static void setNgramRange(TrainingParameters params) {
+    if (minCharNgram == -1 || maxCharNgram == -1) {
+      minCharNgram = getNgramRange(params).get(0);
+      maxCharNgram = getNgramRange(params).get(1);
+    }
   }
 
   /**
