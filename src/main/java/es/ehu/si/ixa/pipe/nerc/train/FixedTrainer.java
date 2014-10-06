@@ -21,15 +21,13 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
-import opennlp.tools.namefind.BilouCodec;
-import opennlp.tools.namefind.BioCodec;
 import opennlp.tools.namefind.TokenNameFinderFactory;
 import opennlp.tools.util.SequenceCodec;
 import opennlp.tools.util.TrainingParameters;
 import es.ehu.si.ixa.pipe.nerc.features.XMLFeatureDescriptor;
 
 /**
- * Training NER based on Apache OpenNLP Machine Learning API for English. This
+ * Training NER based on Apache OpenNLP Machine Learning API. This
  * class creates a feature set based on the features activated in the
  * trainParams.txt properties file:
  * <ol>

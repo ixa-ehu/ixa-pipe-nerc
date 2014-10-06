@@ -11,6 +11,11 @@ import org.jdom2.Element;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 
+import es.ehu.si.ixa.pipe.nerc.dict.BrownCluster;
+import es.ehu.si.ixa.pipe.nerc.dict.ClarkCluster;
+import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
+import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
+import es.ehu.si.ixa.pipe.nerc.dict.Word2VecCluster;
 import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
 
 public class XMLFeatureDescriptor {
@@ -19,11 +24,50 @@ public class XMLFeatureDescriptor {
   public static final String DEFAULT_FEATURE_FLAG = "no";
   public static final String CHAR_NGRAM_RANGE = "2:5";
   public static final String DEFAULT_WINDOW = "2:2";
-  private static int leftWindow = -1;
-  private static int rightWindow = -1;
-  private static int minCharNgram = -1;
-  private static int maxCharNgram = -1;
+  public static int leftWindow = -1;
+  public static int rightWindow = -1;
+  public static int minCharNgram = -1;
+  public static int maxCharNgram = -1;
+  /**
+   * The {@link Dictionaries} contained in the given directory.
+   */
+  private static Dictionaries dictionaries;
+  /**
+   * A {@link Dictionary} object.
+   */
+  public static Dictionary dictionary;
+  /**
+   * The prefix to be used in the {@link DictionaryFeatureGenerator}.
+   */
+  public static String prefix;
+  /**
+   * The Clark clustering lexicon.
+   */
+  private static ClarkCluster clarkCluster;
+  /**
+   * The Clark clustering dictionary.
+   */
+  private static Dictionary clarkLexicon;
+  /**
+   * The word2vec clustering lexicon.
+   */
+  private static Word2VecCluster word2vecCluster;
+  /**
+   * The word2vec clustering dictionary.
+   */
+  private static Dictionary word2vecClusterLexicon;
+  /**
+   * The brown cluster.
+   */
+  private static BrownCluster brownCluster;
+  /**
+   * The Brown cluster lexicon.
+   */
+  private static Dictionary brownLexicon;
   
+  /**
+   * This class is not to be instantiated.
+   */
   private XMLFeatureDescriptor() {
   }
   
@@ -37,7 +81,6 @@ public class XMLFeatureDescriptor {
     //    <generators>
     Element cached = new Element("cache");
     Element generators = new Element("generators");
-    
     //<window prevLength="2" nextLength="2">
     //  <token />
     //</window>
@@ -117,6 +160,32 @@ public class XMLFeatureDescriptor {
       generators.addContent(fivegramFeature);
       System.err.println("-> Fivegram Class Features added!");
     }
+    if (isCharNgramClassFeature(params)) {
+      Element charngramFeature = new Element("custom");
+      charngramFeature.setAttribute("class", CharacterNgramFeatureGenerator.class.getName());
+      generators.addContent(charngramFeature);
+      System.err.println("-> CharNgram Class Features added!");
+    }
+    if (isDictionaryFeatures(params)) {
+      String dictPath = InputOutputUtils.getDictionaryFeatures(params);
+      System.err.println("-> Loading dictionaries from " + dictPath);
+      if (dictionaries == null) {
+        dictionaries = new Dictionaries(dictPath);
+      }
+      for (int i = 0; i < dictionaries.getIgnoreCaseDictionaries().size(); i++) {
+        prefix = dictionaries.getDictNames().get(i);
+        dictionary = dictionaries.getIgnoreCaseDictionaries().get(i);
+        Element dictFeatures = new Element("custom");
+        dictFeatures.setAttribute("class", DictionaryFeatureGenerator.class.getName());
+        dictFeatures.setAttribute("dict", prefix);
+        Element dictWindow = new Element("window");
+        dictWindow.setAttribute("prevLength", Integer.toString(leftWindow));
+        dictWindow.setAttribute("nextLength", Integer.toString(rightWindow));
+        dictWindow.addContent(dictFeatures);
+        generators.addContent(dictWindow);
+      }
+      System.err.println("-> Dictionary Features added!");
+    }
     
     aggGenerators.addContent(cached);
     cached.addContent(generators);
@@ -139,7 +208,6 @@ public class XMLFeatureDescriptor {
     String tokenParam = InputOutputUtils.getTokenClassFeatures(params);
     return !tokenParam.equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
   }
-  
   private static boolean isOutcomePriorFeature(TrainingParameters params) {
     String outcomePriorParam = InputOutputUtils.getOutcomePriorFeatures(params);
     return !outcomePriorParam.equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
@@ -180,6 +248,23 @@ public class XMLFeatureDescriptor {
     setNgramRange(params);
     String charngramParam = InputOutputUtils.getCharNgramFeatures(params);
     return !charngramParam.equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
+  }
+  private static boolean isDictionaryFeatures(TrainingParameters params) {
+    setWindow(params);
+    String dictFeatures = InputOutputUtils.getDictionaryFeatures(params);
+    return !dictFeatures.equalsIgnoreCase(DEFAULT_FEATURE_FLAG);
+  }
+  private static boolean isBrownFeatures(TrainingParameters params) {
+    String brownFeatures = InputOutputUtils.getBrownFeatures(params);
+    return !brownFeatures.equalsIgnoreCase(DEFAULT_FEATURE_FLAG);
+  }
+  private static boolean isClarkFeatures(TrainingParameters params) {
+    String clarkFeatures = InputOutputUtils.getClarkFeatures(params);
+    return !clarkFeatures.equalsIgnoreCase(DEFAULT_FEATURE_FLAG);
+  }
+  private static boolean isWordVecClusterFeatures(TrainingParameters params) {
+    String word2vecClusterFeatures = InputOutputUtils.getWord2VecClusterFeatures(params);
+    return !word2vecClusterFeatures.equalsIgnoreCase(DEFAULT_FEATURE_FLAG);
   }
   
   /**

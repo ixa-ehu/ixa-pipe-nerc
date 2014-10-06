@@ -19,31 +19,49 @@ import es.ehu.si.ixa.pipe.nerc.DictionaryNameFinder;
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
 
 import java.util.List;
+import java.util.Map;
 
-import opennlp.tools.util.featuregen.FeatureGeneratorAdapter;
+import opennlp.tools.util.InvalidFormatException;
+import opennlp.tools.util.featuregen.CustomFeatureGenerator;
+import opennlp.tools.util.featuregen.FeatureGeneratorResourceProvider;
 
 
-public class DictionaryFeatureGenerator extends FeatureGeneratorAdapter {
+public class DictionaryFeatureGenerator extends CustomFeatureGenerator {
 
   private InSpanGenerator isg;
+  private Map<String, String> attributes;
   
-  public DictionaryFeatureGenerator(Dictionary dict) {
-    this("",dict);
-  }
-  public DictionaryFeatureGenerator(String prefix, Dictionary dict) {
-    setDictionary(prefix,dict);
-  }
-  
-  public void setDictionary(Dictionary dict) {
-    setDictionary("",dict);
+  public DictionaryFeatureGenerator() {
   }
   
   public void setDictionary(String name, Dictionary dict) {
     isg = new InSpanGenerator(name, new DictionaryNameFinder(dict));
   }
-  
   public void createFeatures(List<String> features, String[] tokens, int index, String[] previousOutcomes) {
     isg.createFeatures(features, tokens, index, previousOutcomes);
   }
+  
+  @Override
+  public void updateAdaptiveData(String[] tokens, String[] outcomes) {
+    // TODO Auto-generated method stub
+    
+  }
+  @Override
+  public void clearAdaptiveData() {
+    // TODO Auto-generated method stub
+    
+  }
+  @Override
+  public void init(Map<String, String> properties,
+      FeatureGeneratorResourceProvider resourceProvider)
+      throws InvalidFormatException {
+    this.attributes = properties;
+    attributes.put("prefix", XMLFeatureDescriptor.prefix);
+    attributes.put("dict", XMLFeatureDescriptor.dictionary.getClass().getName());
+    setDictionary(attributes.get("prefix"), XMLFeatureDescriptor.dictionary);
+    
+  }
+  
+  
   
 }

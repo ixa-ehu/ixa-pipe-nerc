@@ -54,7 +54,8 @@ OutputModel=trainParams.bin
 Beamsize=3
 
 # Sequence codec used to code named entity spans: Choose between BIO and BILOU.
-SequenceCodec=BILOU
+# If commented out, it default to BILOU.
+SequenceCodec=BIO
 
 ##############
 ## FEATURES ##
@@ -72,6 +73,11 @@ TokenFeatures=yes
 # etc. see FastTokenClassFeatureGenerator class in ixa.pipe.nerc.train.features
 # for details
 TokenClassFeatures=yes
+
+# TokenPatternFeatures: Partitions tokens into sub-tokens based on character classes and generates
+# class features for each of the sub-tokens and combinations of those
+# sub-tokens.
+TokenPatternFeatures=yes
 
 # OutcomePriorFeatures: maps the underlying previous outcomes
 OutcomePriorFeatures=yes
@@ -109,7 +115,7 @@ FivegramClassFeatures=no
 # token. If value is yes, specify the desired range in CharNgramFeaturesRange.
 # If Range is commented out, it defaults to 2:5 when this feature is "yes".
 CharNgramFeatures=no
-#CharNgramFeaturesRange=2:5
+CharNgramFeaturesRange=2:5
 
 # DirectDictionaryTagging: Use a gazetteer to directly annotate named entities. If off, only
 # statistical models are used (this is the default). If activated, it has two

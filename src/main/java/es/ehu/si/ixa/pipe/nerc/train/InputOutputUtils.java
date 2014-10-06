@@ -320,6 +320,16 @@ public final class InputOutputUtils {
     }
     return tokenClassFlag;
   }
+  
+  public static String getTokenPatternFeatures(TrainingParameters params) {
+    String tokenClassFlag = null;
+    if (params.getSettings().get("TokenPatternFeatures") != null) {
+      tokenClassFlag = params.getSettings().get("TokenPatternFeatures");
+    } else {
+      tokenClassFlag = XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG;
+    }
+    return tokenClassFlag;
+  }
 
   public static String getOutcomePriorFeatures(TrainingParameters params) {
     String outcomePriorFlag = null;

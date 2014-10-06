@@ -29,7 +29,7 @@ import com.google.common.io.Files;
  * Dictionaries. The files need to have the following structure: Barack
  * Obama\tperson\n
  * 
- * Every file located in the directory passed as the argument of the --dirPath
+ * Every file located in the directory passed as the argument of the DictionaryFeatures
  * parameter will be loaded.
  * 
  * @author ragerri
@@ -116,7 +116,7 @@ public class Dictionaries {
         System.err.println("\tloading dictionary:...."
             + fileList.get(i).getCanonicalPath());
       }
-      dictNames.add(fileList.get(i).getName());
+      dictNames.add(fileList.get(i).getCanonicalPath());
       dictionaries.add(new Dictionary());
       dictionariesIgnoreCase.add(new Dictionary());
 
