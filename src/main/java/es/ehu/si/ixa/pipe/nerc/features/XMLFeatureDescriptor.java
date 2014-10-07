@@ -1,10 +1,14 @@
 package es.ehu.si.ixa.pipe.nerc.features;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import opennlp.tools.util.TrainingParameters;
+import opennlp.tools.util.featuregen.W2VClassesDictionary;
+import opennlp.tools.util.model.ArtifactSerializer;
 
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -16,6 +20,7 @@ import es.ehu.si.ixa.pipe.nerc.dict.ClarkCluster;
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
 import es.ehu.si.ixa.pipe.nerc.dict.Word2VecCluster;
+import es.ehu.si.ixa.pipe.nerc.train.FixedTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
 
 public class XMLFeatureDescriptor {
@@ -31,40 +36,22 @@ public class XMLFeatureDescriptor {
   /**
    * The {@link Dictionaries} contained in the given directory.
    */
-  private static Dictionaries dictionaries;
-  /**
-   * A {@link Dictionary} object.
-   */
+  public static Dictionaries dictionaries;
+  
   public static Dictionary dictionary;
   /**
    * The prefix to be used in the {@link DictionaryFeatureGenerator}.
    */
   public static String prefix;
-  /**
-   * The Clark clustering lexicon.
-   */
-  private static ClarkCluster clarkCluster;
-  /**
-   * The Clark clustering dictionary.
-   */
-  private static Dictionary clarkLexicon;
+  public static String clarkPath;
   /**
    * The word2vec clustering lexicon.
    */
-  private static Word2VecCluster word2vecCluster;
-  /**
-   * The word2vec clustering dictionary.
-   */
-  private static Dictionary word2vecClusterLexicon;
+  public static String word2vecClusterPath;
   /**
    * The brown cluster.
    */
-  private static BrownCluster brownCluster;
-  /**
-   * The Brown cluster lexicon.
-   */
-  private static Dictionary brownLexicon;
-  
+  public static BrownCluster brownCluster;
   /**
    * This class is not to be instantiated.
    */
@@ -84,7 +71,8 @@ public class XMLFeatureDescriptor {
     //<window prevLength="2" nextLength="2">
     //  <token />
     //</window>
-    if (isTokenFeature(params)) {
+    if (FixedTrainer.isTokenFeature(params)) {
+      setWindow(params);
       Element tokenFeature = new Element("custom");
       tokenFeature.setAttribute("class", TokenFeatureGenerator.class.getName());
       Element tokenWindow = new Element("window");
@@ -94,7 +82,8 @@ public class XMLFeatureDescriptor {
       generators.addContent(tokenWindow);
       System.err.println("-> Token features added!: Window range " + leftWindow + ":" + rightWindow);
     }
-    if (isTokenClassFeature(params)) {
+    if (FixedTrainer.isTokenClassFeature(params)) {
+      setWindow(params);
       Element tokenClassFeature = new Element("custom");
       tokenClassFeature.setAttribute("class", TokenClassFeatureGenerator.class.getName());
       Element tokenClassWindow = new Element("window");
@@ -104,19 +93,19 @@ public class XMLFeatureDescriptor {
       generators.addContent(tokenClassWindow);
       System.err.println("-> Token Class Features added!: Window range " + leftWindow + ":" + rightWindow);
     }
-    if (isOutcomePriorFeature(params)) {
+    if (FixedTrainer.isOutcomePriorFeature(params)) {
       Element outcomePriorFeature = new Element("custom");
       outcomePriorFeature.setAttribute("class", OutcomePriorFeatureGenerator.class.getName());
       generators.addContent(outcomePriorFeature);
       System.err.println("-> Outcome Prior Features added!");
     }
-    if (isPreviousMapFeature(params)) {
+    if (FixedTrainer.isPreviousMapFeature(params)) {
       Element previousMapFeature = new Element("custom");
       previousMapFeature.setAttribute("class", PreviousMapFeatureGenerator.class.getName());
       generators.addContent(previousMapFeature);
       System.err.println("-> Previous Map Features added!");
     }
-    if (isSentenceFeature(params)) {
+    if (FixedTrainer.isSentenceFeature(params)) {
       Element sentenceFeature = new Element("custom");
       sentenceFeature.setAttribute("class", SentenceFeatureGenerator.class.getName());
       sentenceFeature.setAttribute("begin", "true");
@@ -124,60 +113,61 @@ public class XMLFeatureDescriptor {
       generators.addContent(sentenceFeature);
       System.err.println("-> Sentence Features added!");
     }
-    if (isPrefixFeature(params)) {
+    if (FixedTrainer.isPrefixFeature(params)) {
       Element prefixFeature = new Element("custom");
       prefixFeature.setAttribute("class", Prefix34FeatureGenerator.class.getName());
       generators.addContent(prefixFeature);
       System.err.println("-> Prefix Features added!");
     }
-    if (isSuffixFeature(params)) {
+    if (FixedTrainer.isSuffixFeature(params)) {
       Element suffixFeature = new Element("custom");
       suffixFeature.setAttribute("class", SuffixFeatureGenerator.class.getName());
       generators.addContent(suffixFeature);
       System.err.println("-> Suffix Features added!");
     }
-    if (isBigramClassFeature(params)) {
+    if (FixedTrainer.isBigramClassFeature(params)) {
       Element bigramFeature = new Element("custom");
       bigramFeature.setAttribute("class", BigramClassFeatureGenerator.class.getName());
       generators.addContent(bigramFeature);
       System.err.println("-> Bigram Class Features added!");
     }
-    if (isTrigramClassFeature(params)) {
+    if (FixedTrainer.isTrigramClassFeature(params)) {
       Element trigramFeature = new Element("custom");
       trigramFeature.setAttribute("class", TrigramClassFeatureGenerator.class.getName());
       generators.addContent(trigramFeature);
       System.err.println("-> Trigram Class Features added!");
     }
-    if (isFourgramClassFeature(params)) {
+    if (FixedTrainer.isFourgramClassFeature(params)) {
       Element fourgramFeature = new Element("custom");
       fourgramFeature.setAttribute("class", FourgramClassFeatureGenerator.class.getName());
       generators.addContent(fourgramFeature);
       System.err.println("-> Fourgram Class Features added!");
     }
-    if (isFivegramClassFeature(params)) {
+    if (FixedTrainer.isFivegramClassFeature(params)) {
       Element fivegramFeature = new Element("custom");
       fivegramFeature.setAttribute("class", FivegramClassFeatureGenerator.class.getName());
       generators.addContent(fivegramFeature);
       System.err.println("-> Fivegram Class Features added!");
     }
-    if (isCharNgramClassFeature(params)) {
+    if (FixedTrainer.isCharNgramClassFeature(params)) {
       Element charngramFeature = new Element("custom");
       charngramFeature.setAttribute("class", CharacterNgramFeatureGenerator.class.getName());
       generators.addContent(charngramFeature);
       System.err.println("-> CharNgram Class Features added!");
     }
-    if (isDictionaryFeatures(params)) {
+    if (FixedTrainer.isDictionaryFeatures(params)) {
+      setWindow(params);
       String dictPath = InputOutputUtils.getDictionaryFeatures(params);
-      System.err.println("-> Loading dictionaries from " + dictPath);
       if (dictionaries == null) {
         dictionaries = new Dictionaries(dictPath);
       }
       for (int i = 0; i < dictionaries.getIgnoreCaseDictionaries().size(); i++) {
-        prefix = dictionaries.getDictNames().get(i);
         dictionary = dictionaries.getIgnoreCaseDictionaries().get(i);
+        prefix = dictionaries.getDictNames().get(i);
         Element dictFeatures = new Element("custom");
         dictFeatures.setAttribute("class", DictionaryFeatureGenerator.class.getName());
-        dictFeatures.setAttribute("dict", prefix);
+        dictFeatures.setAttribute("dict", dictionaries.getIgnoreCaseDictionaries().get(i).getClass().getName());
+        dictFeatures.setAttribute("prefix", dictionaries.getDictNames().get(i));
         Element dictWindow = new Element("window");
         dictWindow.setAttribute("prevLength", Integer.toString(leftWindow));
         dictWindow.setAttribute("nextLength", Integer.toString(rightWindow));
@@ -185,6 +175,79 @@ public class XMLFeatureDescriptor {
         generators.addContent(dictWindow);
       }
       System.err.println("-> Dictionary Features added!");
+    }
+    
+    if (FixedTrainer.isBrownFeatures(params)) {
+      setWindow(params);
+      //previous 2 maps features
+      Element prev2MapFeature = new Element("custom");
+      prev2MapFeature.setAttribute("class", Prev2MapFeatureGenerator.class.getName());
+      generators.addContent(prev2MapFeature);
+      //previous map and token feature (in window)
+      Element prevMapTokenFeature = new Element("custom");
+      prevMapTokenFeature.setAttribute("class", PreviousMapTokenFeatureGenerator.class.getName());
+      Element prevMapTokenWindow = new Element("window");
+      prevMapTokenWindow.setAttribute("prevLength", Integer.toString(leftWindow));
+      prevMapTokenWindow.setAttribute("nextLength", Integer.toString(rightWindow));
+      prevMapTokenWindow.addContent(prevMapTokenFeature);
+      generators.addContent(prevMapTokenWindow);
+      String brownPath = InputOutputUtils.getBrownFeatures(params);
+      if (brownCluster == null) {
+        brownCluster = new BrownCluster(brownPath);
+      }
+      //brown bigram class features
+      Element brownBigramFeatures = new Element("custom");
+      brownBigramFeatures.setAttribute("class", BrownBigramFeatureGenerator.class.getName());
+      brownBigramFeatures.setAttribute("brownlexicon", brownCluster.getDictionary().getClass().getName());
+      generators.addContent(brownBigramFeatures);
+      //brown token feature
+      Element brownTokenFeature = new Element("custom");
+      brownTokenFeature.setAttribute("class", BrownTokenFeatureGenerator.class.getName());
+      brownTokenFeature.setAttribute("brownlexicon", brownCluster.getDictionary().getClass().getName());
+      Element brownTokenWindow = new Element("window");
+      brownTokenWindow.setAttribute("prevLength", Integer.toString(leftWindow));
+      brownTokenWindow.setAttribute("nextLength", Integer.toString(rightWindow));
+      brownTokenWindow.addContent(brownTokenFeature);
+      generators.addContent(brownTokenWindow);
+      //brown token class feature
+      Element brownTokenClassFeature = new Element("custom");
+      brownTokenClassFeature.setAttribute("class", BrownTokenClassFeatureGenerator.class.getName());
+      brownTokenClassFeature.setAttribute("brownlexicon", brownCluster.getDictionary().getClass().getName());
+      Element brownTokenClassWindow = new Element("window");
+      brownTokenClassWindow.setAttribute("prevLength", Integer.toString(leftWindow));
+      brownTokenClassWindow.setAttribute("nextLength", Integer.toString(rightWindow));
+      brownTokenClassWindow.addContent(brownTokenClassFeature);
+      generators.addContent(brownTokenClassWindow);
+      
+    }
+    
+    if (FixedTrainer.isClarkFeatures(params)) {
+      setWindow(params);
+      clarkPath = InputOutputUtils.getClarkFeatures(params);
+      Element clarkFeatures = new Element("custom");
+      clarkFeatures.setAttribute("class", ClarkFeatureGenerator.class.getName());
+      clarkFeatures.setAttribute("clarklexicon", clarkPath);
+      Element clarkWindow = new Element("window");
+      clarkWindow.setAttribute("prevLength", Integer.toString(leftWindow));
+      clarkWindow.setAttribute("nextLength", Integer.toString(rightWindow));
+      clarkWindow.addContent(clarkFeatures);
+      generators.addContent(clarkWindow);
+    }
+    
+    if (FixedTrainer.isWord2VecClusterFeatures(params)) {
+      setWindow(params);
+      word2vecClusterPath = InputOutputUtils.getWord2VecClusterFeatures(params);
+      Element word2vecClusterFeatures = new Element("w2vwordcluster");
+      InputStream inputStream = new FileInputStream(word2vecClusterPath);
+      ArtifactSerializer serializer = new W2VClassesDictionary.W2VClassesDictionarySerializer();
+      //word2vecClusterFeatures.setAttribute("class", Word2VecClusterFeatureGenerator.class.getName());
+      //word2vecClusterFeatures.setAttribute("word2veccluster", word2vecClusterPath);
+      word2vecClusterFeatures.setAttribute("dict", serializer.create(inputStream).getClass().getName());
+      Element word2vecClusterWindow = new Element("window");
+      word2vecClusterWindow.setAttribute("prevLength", Integer.toString(leftWindow));
+      word2vecClusterWindow.setAttribute("nextLength", Integer.toString(rightWindow));
+      word2vecClusterWindow.addContent(word2vecClusterFeatures);
+      generators.addContent(word2vecClusterWindow);
     }
     
     aggGenerators.addContent(cached);
@@ -198,79 +261,10 @@ public class XMLFeatureDescriptor {
   }
   
   
-  private static boolean isTokenFeature(TrainingParameters params) {
-    setWindow(params);
-    String tokenParam = InputOutputUtils.getTokenFeatures(params);
-    return !tokenParam.equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
-  }
-  private static boolean isTokenClassFeature(TrainingParameters params) {
-    setWindow(params);
-    String tokenParam = InputOutputUtils.getTokenClassFeatures(params);
-    return !tokenParam.equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
-  }
-  private static boolean isOutcomePriorFeature(TrainingParameters params) {
-    String outcomePriorParam = InputOutputUtils.getOutcomePriorFeatures(params);
-    return !outcomePriorParam.equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
-  }
-  private static boolean isPreviousMapFeature(TrainingParameters params) {
-    String previousMapParam = InputOutputUtils.getPreviousMapFeatures(params);
-    return !previousMapParam.equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
-  }
-  private static boolean isSentenceFeature(TrainingParameters params) {
-    String sentenceParam = InputOutputUtils.getSentenceFeatures(params);
-    return !sentenceParam.equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
-  }
-  private static boolean isPrefixFeature(TrainingParameters params) {
-    String prefixParam = InputOutputUtils.getPreffixFeatures(params);
-    return !prefixParam.equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
-  }
-  private static boolean isSuffixFeature(TrainingParameters params) {
-    String suffixParam = InputOutputUtils.getSuffixFeatures(params);
-    return !suffixParam.equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
-  }
-  private static boolean isBigramClassFeature(TrainingParameters params) {
-    String bigramParam = InputOutputUtils.getBigramClassFeatures(params);
-    return !bigramParam.equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
-  }
-  private static boolean isTrigramClassFeature(TrainingParameters params) {
-    String trigramParam = InputOutputUtils.getTrigramClassFeatures(params);
-    return !trigramParam.equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
-  }
-  private static boolean isFourgramClassFeature(TrainingParameters params) {
-    String fourgramParam = InputOutputUtils.getFourgramClassFeatures(params);
-    return !fourgramParam.equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
-  }
-  private static boolean isFivegramClassFeature(TrainingParameters params) {
-    String fivegramParam = InputOutputUtils.getFivegramClassFeatures(params);
-    return !fivegramParam.equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
-  }
-  private static boolean isCharNgramClassFeature(TrainingParameters params) {
-    setNgramRange(params);
-    String charngramParam = InputOutputUtils.getCharNgramFeatures(params);
-    return !charngramParam.equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
-  }
-  private static boolean isDictionaryFeatures(TrainingParameters params) {
-    setWindow(params);
-    String dictFeatures = InputOutputUtils.getDictionaryFeatures(params);
-    return !dictFeatures.equalsIgnoreCase(DEFAULT_FEATURE_FLAG);
-  }
-  private static boolean isBrownFeatures(TrainingParameters params) {
-    String brownFeatures = InputOutputUtils.getBrownFeatures(params);
-    return !brownFeatures.equalsIgnoreCase(DEFAULT_FEATURE_FLAG);
-  }
-  private static boolean isClarkFeatures(TrainingParameters params) {
-    String clarkFeatures = InputOutputUtils.getClarkFeatures(params);
-    return !clarkFeatures.equalsIgnoreCase(DEFAULT_FEATURE_FLAG);
-  }
-  private static boolean isWordVecClusterFeatures(TrainingParameters params) {
-    String word2vecClusterFeatures = InputOutputUtils.getWord2VecClusterFeatures(params);
-    return !word2vecClusterFeatures.equalsIgnoreCase(DEFAULT_FEATURE_FLAG);
-  }
-  
   /**
    * @param params
    */
-  private static void setWindow(TrainingParameters params) {
+  public static void setWindow(TrainingParameters params) {
     if (leftWindow == -1 || rightWindow == -1) {
       leftWindow = getWindowRange(params).get(0);
       rightWindow = getWindowRange(params).get(1);
@@ -293,7 +287,7 @@ public class XMLFeatureDescriptor {
     return windowRange;
   }
   
-  private static void setNgramRange(TrainingParameters params) {
+  public static void setNgramRange(TrainingParameters params) {
     if (minCharNgram == -1 || maxCharNgram == -1) {
       minCharNgram = getNgramRange(params).get(0);
       maxCharNgram = getNgramRange(params).get(1);
@@ -316,5 +310,6 @@ public class XMLFeatureDescriptor {
       }
     return ngramRange;
   }
-
+  
+ 
 }

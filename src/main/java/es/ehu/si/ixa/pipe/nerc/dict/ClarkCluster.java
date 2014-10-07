@@ -16,12 +16,24 @@
 
 package es.ehu.si.ixa.pipe.nerc.dict;
 
-import java.io.File;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Files;
+import opennlp.tools.util.InvalidFormatException;
+import opennlp.tools.util.model.ArtifactSerializer;
+import opennlp.tools.util.model.SerializableArtifact;
+
+import com.google.common.io.CharStreams;
 
 
 /**
@@ -36,79 +48,51 @@ import com.google.common.io.Files;
  * @version 2014/07/29
  * 
  */
-public class ClarkCluster {
+public class ClarkCluster implements SerializableArtifact {
 
-  /**
-   * The list of Dictionary in which to load the lexicon.
-   */
-  private static Dictionary dictionary;
-  /**
-   * The lowercase dictionary as HashMap<String, String>.
-   */
-  private static Dictionary dictionaryIgnoreCase;
+  public static class ClarkClusterSerializer implements ArtifactSerializer<ClarkCluster> {
 
-  /**
-   * Construct the clark cluster.
-   * 
-   * @param inputDir
-   *          the input directory
-   */
-  public ClarkCluster(final String inputDir) {
-    if (dictionary == null && dictionaryIgnoreCase == null) {
-      try {
-        loadDictionary(inputDir);
-      } catch (IOException e) {
-        e.getMessage();
-      }
+    public ClarkCluster create(InputStream in) throws IOException,
+        InvalidFormatException {
+      return new ClarkCluster(in);
+    }
+
+    public void serialize(ClarkCluster artifact, OutputStream out)
+        throws IOException {
+      artifact.serialize(out);
     }
   }
   
-  /**
-   * Get the list of dictionaries as HashMaps.
-   * 
-   * @return a list of the dictionaries as HashMaps
-   */
-  public final Dictionary getDictionary() {
-    return dictionary;
-  }
+  private Map<String, String> tokenToClusterMap = new HashMap<String, String>();
 
-  /**
-   * Get the lower case dictionaries.
-   * 
-   * @return a list of the dictionaries as HashMaps
-   */
-  public final Dictionary getIgnoreCaseDictionary() {
-    return dictionaryIgnoreCase;
-  }
+  public ClarkCluster(InputStream in) throws IOException {
 
-
-  /**
-   * Load the lexicon.
-   * 
-   * @param inputFile
-   *          the input file containing the clustering lexicon
-   * @throws IOException
-   *           throws an exception if directory does not exist
-   */
-  private void loadDictionary(final String inputFile) throws IOException {
-    File inputPath = new File(inputFile);
-    System.err.println("\tLoading clustering lexicon...: " + inputPath.getCanonicalPath());
-    List<String> fileLines = Files.readLines(inputPath, Charsets.UTF_8);
-    dictionary = new Dictionary();
-    dictionaryIgnoreCase = new Dictionary();
+    BufferedReader breader = new BufferedReader(new InputStreamReader(in, Charset.forName("UTF-8")));
+    List<String> fileLines = CharStreams.readLines(breader);
     for (String line : fileLines) {
       String[] lineArray = line.split(" ");
       if (lineArray.length == 3) {
-        dictionary.populate(lineArray[0],lineArray[1]);
-        dictionaryIgnoreCase.populate(lineArray[0].toLowerCase(), lineArray[1]);
+        tokenToClusterMap.put(lineArray[0].toLowerCase(), lineArray[1]);
       }
-      else {
-        System.err.println("Clark clustering lexicon not well-formed after line:");
-        System.err.println(line);
-        System.exit(1);
-      }
-      }
+    }
   }
 
+  public String lookupToken(String string) {
+    return tokenToClusterMap.get(string);
+  }
+
+  public void serialize(OutputStream out) throws IOException {
+    Writer writer = new BufferedWriter(new OutputStreamWriter(out));
+
+    for (Map.Entry<String, String> entry : tokenToClusterMap.entrySet()) {
+      writer.write(entry.getKey() + " " + entry.getValue() + "\n");
+    }
+
+    writer.flush();
+  }
+
+  public Class<?> getArtifactSerializerClass() {
+    return ClarkClusterSerializer.class;
+  }
 }
 

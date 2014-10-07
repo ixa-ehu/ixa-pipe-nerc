@@ -29,7 +29,6 @@ import opennlp.tools.util.featuregen.FeatureGeneratorResourceProvider;
 public class DictionaryFeatureGenerator extends CustomFeatureGenerator {
 
   private InSpanGenerator isg;
-  private Map<String, String> attributes;
   
   public DictionaryFeatureGenerator() {
   }
@@ -55,10 +54,8 @@ public class DictionaryFeatureGenerator extends CustomFeatureGenerator {
   public void init(Map<String, String> properties,
       FeatureGeneratorResourceProvider resourceProvider)
       throws InvalidFormatException {
-    this.attributes = properties;
-    attributes.put("prefix", XMLFeatureDescriptor.prefix);
-    attributes.put("dict", XMLFeatureDescriptor.dictionary.getClass().getName());
-    setDictionary(attributes.get("prefix"), XMLFeatureDescriptor.dictionary);
+    properties.put("prefix", XMLFeatureDescriptor.prefix);
+    setDictionary(properties.get("prefix"), XMLFeatureDescriptor.dictionary);
     
   }
   

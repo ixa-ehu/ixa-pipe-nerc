@@ -1,17 +1,18 @@
 package es.ehu.si.ixa.pipe.nerc.features;
 
 import java.util.List;
+import java.util.Map;
 
-import opennlp.tools.util.featuregen.FeatureGeneratorAdapter;
-
+import opennlp.tools.util.InvalidFormatException;
+import opennlp.tools.util.featuregen.CustomFeatureGenerator;
+import opennlp.tools.util.featuregen.FeatureGeneratorResourceProvider;
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
 
-public class BrownBigramFeatureGenerator extends FeatureGeneratorAdapter {
+public class BrownBigramFeatureGenerator extends CustomFeatureGenerator {
   
   private Dictionary brownLexicon;
   
-  public BrownBigramFeatureGenerator(Dictionary aBrownLexicon) {
-    this.brownLexicon = aBrownLexicon;
+  public BrownBigramFeatureGenerator() {
   }
 
   public void createFeatures(List<String> features, String[] tokens, int index,
@@ -29,6 +30,24 @@ public class BrownBigramFeatureGenerator extends FeatureGeneratorAdapter {
         features.add("brown,nbrown=" + wordClasses.get(i) + "," + nextWordClasses.get(i));
       }
     }
+  }
+
+  @Override
+  public void updateAdaptiveData(String[] tokens, String[] outcomes) {
+    
+  }
+
+  @Override
+  public void clearAdaptiveData() {
+    
+  }
+
+  @Override
+  public void init(Map<String, String> properties,
+      FeatureGeneratorResourceProvider resourceProvider)
+      throws InvalidFormatException {
+    this.brownLexicon = XMLFeatureDescriptor.brownCluster.getDictionary();
+    
   }
   
   

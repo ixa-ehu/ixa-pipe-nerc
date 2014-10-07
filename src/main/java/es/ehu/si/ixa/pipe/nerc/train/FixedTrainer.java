@@ -16,14 +16,23 @@
 
 package es.ehu.si.ixa.pipe.nerc.train;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
+import opennlp.tools.cmdline.CmdLineUtil;
 import opennlp.tools.namefind.TokenNameFinderFactory;
+import opennlp.tools.namefind.TokenNameFinderModel;
+import opennlp.tools.util.InvalidFormatException;
 import opennlp.tools.util.SequenceCodec;
 import opennlp.tools.util.TrainingParameters;
+import opennlp.tools.util.featuregen.GeneratorFactory;
+import opennlp.tools.util.model.ArtifactSerializer;
+import es.ehu.si.ixa.pipe.nerc.dict.ClarkCluster;
 import es.ehu.si.ixa.pipe.nerc.features.XMLFeatureDescriptor;
 
 /**
@@ -74,11 +83,136 @@ public class FixedTrainer extends AbstractTrainer {
   public void createTrainer(TrainingParameters params) throws IOException {
     String seqCodec = getSequenceCodec();
     SequenceCodec<String> sequenceCodec = TokenNameFinderFactory.instantiateSequenceCodec(seqCodec);
-    Map<String, Object> resources = new HashMap<String, Object>();
     String featureDescription = XMLFeatureDescriptor.createXMLFeatureDescriptor(params);
     System.err.println(featureDescription);
     byte[] featureGeneratorBytes = featureDescription.getBytes(Charset.forName("UTF-8"));
+    Map<String, Object> resources = loadResources(params, featureGeneratorBytes);
     setNameClassifierFactory(TokenNameFinderFactory.create(TokenNameFinderFactory.class.getName(), featureGeneratorBytes, resources, sequenceCodec));
   }
+
+  public static boolean isWord2VecClusterFeatures(TrainingParameters params) {
+    String word2vecClusterFeatures = InputOutputUtils.getWord2VecClusterFeatures(params);
+    return !word2vecClusterFeatures.equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
+  }
+
+  public static boolean isClarkFeatures(TrainingParameters params) {
+    String clarkFeatures = InputOutputUtils.getClarkFeatures(params);
+    return !clarkFeatures.equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
+  }
+
+  public static boolean isBrownFeatures(TrainingParameters params) {
+    String brownFeatures = InputOutputUtils.getBrownFeatures(params);
+    return !brownFeatures.equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
+  }
+
+  public static boolean isDictionaryFeatures(TrainingParameters params) {
+    String dictFeatures = InputOutputUtils.getDictionaryFeatures(params);
+    return !dictFeatures.equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
+  }
+
+  public static boolean isCharNgramClassFeature(TrainingParameters params) {
+    XMLFeatureDescriptor.setNgramRange(params);
+    String charngramParam = InputOutputUtils.getCharNgramFeatures(params);
+    return !charngramParam.equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
+  }
+
+  public static boolean isFivegramClassFeature(TrainingParameters params) {
+    String fivegramParam = InputOutputUtils.getFivegramClassFeatures(params);
+    return !fivegramParam.equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
+  }
+
+  public static boolean isFourgramClassFeature(TrainingParameters params) {
+    String fourgramParam = InputOutputUtils.getFourgramClassFeatures(params);
+    return !fourgramParam.equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
+  }
+
+  public static boolean isTrigramClassFeature(TrainingParameters params) {
+    String trigramParam = InputOutputUtils.getTrigramClassFeatures(params);
+    return !trigramParam.equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
+  }
+
+  public static boolean isBigramClassFeature(TrainingParameters params) {
+    String bigramParam = InputOutputUtils.getBigramClassFeatures(params);
+    return !bigramParam.equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
+  }
+
+  public static boolean isSuffixFeature(TrainingParameters params) {
+    String suffixParam = InputOutputUtils.getSuffixFeatures(params);
+    return !suffixParam.equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
+  }
+
+  public static boolean isPrefixFeature(TrainingParameters params) {
+    String prefixParam = InputOutputUtils.getPreffixFeatures(params);
+    return !prefixParam.equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
+  }
+
+  public static boolean isSentenceFeature(TrainingParameters params) {
+    String sentenceParam = InputOutputUtils.getSentenceFeatures(params);
+    return !sentenceParam.equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
+  }
+
+  public static boolean isPreviousMapFeature(TrainingParameters params) {
+    String previousMapParam = InputOutputUtils.getPreviousMapFeatures(params);
+    return !previousMapParam.equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
+  }
+
+  public static boolean isOutcomePriorFeature(TrainingParameters params) {
+    String outcomePriorParam = InputOutputUtils.getOutcomePriorFeatures(params);
+    return !outcomePriorParam.equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
+  }
+
+  public static boolean isTokenClassFeature(TrainingParameters params) {
+    String tokenParam = InputOutputUtils.getTokenClassFeatures(params);
+    return !tokenParam.equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
+  }
+
+  public static boolean isTokenFeature(TrainingParameters params) {
+    String tokenParam = InputOutputUtils.getTokenFeatures(params);
+    return !tokenParam.equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
+  }
+  
+  public static Map<String, Object> loadResources(TrainingParameters params, byte[] featureGenDescriptor) {
+    Map<String, Object> resources = new HashMap<String, Object>();
+    if (isClarkFeatures(params)) {
+      String clarkPath = InputOutputUtils.getClarkFeatures(params);
+      loadResource(clarkPath, featureGenDescriptor, resources);
+    }
+    return resources;
+  }
+  
+  public static void loadResource(String resourcePath, byte[] featureGenDescriptor, Map<String, Object> resources) {
+    
+    File resourceFile = new File(resourcePath);
+    if (resourceFile != null) {
+      Map<String, ArtifactSerializer> artifactSerializers = TokenNameFinderModel
+          .createArtifactSerializers();
+      // TODO: If there is descriptor file, it should be consulted too
+      // this currently always returns null
+      if (featureGenDescriptor != null) {
+        InputStream xmlDescriptorIn = new ByteArrayInputStream(featureGenDescriptor);
+        try {
+          artifactSerializers.putAll(GeneratorFactory.extractCustomArtifactSerializerMappings(xmlDescriptorIn));
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      } 
+        ArtifactSerializer<?> serializer = new ClarkCluster.ClarkClusterSerializer();
+        InputStream resourceIn = CmdLineUtil.openInFile(resourceFile);
+
+        try {
+          resources.put("clarklexicon", serializer.create(resourceIn));
+        } catch (InvalidFormatException e) {
+          e.printStackTrace();
+        } catch (IOException e) {
+          e.printStackTrace();
+        } finally {
+          try {
+            resourceIn.close();
+          } catch (IOException e) {
+          }
+        }
+    }
+  }
+
   
 }

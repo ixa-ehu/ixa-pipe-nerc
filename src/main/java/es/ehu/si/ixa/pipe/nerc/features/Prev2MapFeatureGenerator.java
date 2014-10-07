@@ -4,9 +4,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import opennlp.tools.util.featuregen.AdaptiveFeatureGenerator;
+import opennlp.tools.util.InvalidFormatException;
+import opennlp.tools.util.featuregen.CustomFeatureGenerator;
+import opennlp.tools.util.featuregen.FeatureGeneratorResourceProvider;
 
-public class Prev2MapFeatureGenerator implements AdaptiveFeatureGenerator {
+public class Prev2MapFeatureGenerator extends CustomFeatureGenerator {
   
   private Map<String, String> previousMap = new HashMap<String, String>();
 
@@ -32,6 +34,13 @@ public class Prev2MapFeatureGenerator implements AdaptiveFeatureGenerator {
    */
   public void clearAdaptiveData() {
     previousMap.clear();
+  }
+
+  @Override
+  public void init(Map<String, String> properties,
+      FeatureGeneratorResourceProvider resourceProvider)
+      throws InvalidFormatException {
+    
   }
 
 }
