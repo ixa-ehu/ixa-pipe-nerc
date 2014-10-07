@@ -150,12 +150,12 @@ public class DictionariesNameFinder implements NameFinder {
         String neType = neEntry.getValue();
         List<Integer> neIds = StringUtils.exactTokenFinder(neForm,
             tokens);
-        if (!neIds.isEmpty()) {
-          Span neSpan = new Span(neIds.get(0), neIds.get(1), neType);
-          if (debug) {
-            System.err.println(neSpans.toString());
-          }
-          neSpans.add(neSpan);
+        for (int i = 0; i < neIds.size(); i += 2) {
+            Span neSpan = new Span(neIds.get(i), neIds.get(i+1), neType);
+            if (debug) {
+              System.err.println(neSpans.toString());
+            }
+            neSpans.add(neSpan);
         }
       }
     }
