@@ -7,7 +7,6 @@ import java.util.List;
 
 import opennlp.tools.util.Span;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -23,9 +22,9 @@ public class DictionariesNameFinderTest {
     public static void setUpClass() throws IOException {
         // copy to a temporary dir so that it can be loaded
         File dictsDir = Files.createTempDirectory("dicts").toFile();
-        FileUtils.copyURLToFile(DictionariesNameFinderTest.class
-                .getResource("/names.txt"),
-                new File(dictsDir, "names.txt"));
+        Files.copy(DictionariesNameFinderTest.class
+                .getResourceAsStream("/names.txt"),
+                new File(dictsDir, "names.txt").toPath());
         // now load it into a Dictionaries instance
         finder = new DictionariesNameFinder(
                 new Dictionaries(dictsDir.getAbsolutePath()));
