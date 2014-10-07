@@ -4,7 +4,7 @@
   <groupId>es.ehu.si</groupId>
   <artifactId>ixa-pipe-nerc</artifactId>
   <name>ixa-pipe-nerc</name>
-  <version>1.1.4</version>
+  <version>1.2.0</version>
   <description>NERC tagger of ixa pipes tools, a multilingual NLP pipeline. All models trained by the IXA NLP Group of the University of the Basque Country (ixa.si.ehu.es).</description>
   <url>http://ixa2.si.ehu.es/ixa-pipes</url>
   <prerequisites>
@@ -22,7 +22,7 @@
     <url>https://github.com/ixa-ehu/ixa-pipe-nerc</url>
   </scm>
   <organization>
-    <name>IXA Pipeline</name>
+    <name>IXA Pipes</name>
     <url>ixa2.si.ehu.es/ixa-pipes</url>
   </organization>
   <build>

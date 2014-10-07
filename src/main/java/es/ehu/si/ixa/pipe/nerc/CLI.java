@@ -34,8 +34,9 @@ import net.sourceforge.argparse4j.inf.Subparser;
 import net.sourceforge.argparse4j.inf.Subparsers;
 import opennlp.tools.util.TrainingParameters;
 
-import org.apache.commons.io.FilenameUtils;
 import org.jdom2.JDOMException;
+
+import com.google.common.io.Files;
 
 import es.ehu.si.ixa.pipe.nerc.eval.CorpusEvaluate;
 import es.ehu.si.ixa.pipe.nerc.eval.Evaluate;
@@ -99,6 +100,7 @@ public class CLI {
   public static final String DEFAULT_LEXER = "off";
   public static final String DEFAULT_DICT_OPTION = "off";
   public static final String DEFAULT_DICT_PATH = "off";
+  public static final String DEFAULT_OUTPUT_FORMAT="naf";
 
   /**
    * Construct a CLI object with the three sub-parsers to manage the command
@@ -137,8 +139,9 @@ public class CLI {
    *          the arguments passed through the CLI
    * @throws IOException
    *           exception if problems with the incoming data
+   * @throws JDOMException 
    */
-  public final void parseCLI(final String[] args) throws IOException {
+  public final void parseCLI(final String[] args) throws IOException, JDOMException {
     try {
       parsedArguments = argParser.parseArgs(args);
       System.err.println("CLI options: " + parsedArguments);
@@ -168,7 +171,7 @@ public class CLI {
    *           exception if problems in input or output streams
    */
   public final void annotate(final InputStream inputStream,
-      final OutputStream outputStream) throws IOException {
+      final OutputStream outputStream) throws IOException, JDOMException {
 
     BufferedReader breader = new BufferedReader(new InputStreamReader(
         inputStream, "UTF-8"));
@@ -198,9 +201,18 @@ public class CLI {
     newLp.setBeginTimestamp();
     Properties properties = setAnnotateProperties(lexer);
     Annotate annotator = new Annotate(properties, params);
-    annotator.annotateNEsToKAF(kaf);
+    annotator.annotateNEs(kaf);
+    String outputFormatOption = InputOutputUtils.getOutputFormat(params);
+    String kafToString = null;
+    if (outputFormatOption.equalsIgnoreCase("conll03")) {
+      kafToString = annotator.annotateNEsToCoNLL2003(kaf);
+    } else if (outputFormatOption.equalsIgnoreCase("conll02")) {
+      kafToString = annotator.annotateNEsToCoNLL2002(kaf);
+    } else {
+      kafToString = annotator.annotateNEsToKAF(kaf);
+    }
     newLp.setEndTimestamp();
-    bwriter.write(kaf.toString());
+    bwriter.write(kafToString);
     bwriter.close();
     breader.close();
   }
@@ -219,7 +231,7 @@ public class CLI {
         .loadTrainingParameters(paramFile);
     String outModel = null;
     if (params.getSettings().get("OutputModel") == null || params.getSettings().get("OutputModel").length() == 0) {
-      outModel = FilenameUtils.getBaseName(paramFile) + ".bin";
+      outModel = Files.getNameWithoutExtension(paramFile) + ".bin";
       params.put("OutputModel", outModel);
     }
     else {

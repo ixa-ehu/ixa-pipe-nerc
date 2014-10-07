@@ -18,19 +18,18 @@ package es.ehu.si.ixa.pipe.nerc.dict;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
-
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
 
 /**
  * 
  * Class to load a directory containing dictionaries into a list of
- * Dictionaries. The files need to have the following structure: 
- * Barack Obama\tperson\n
+ * Dictionaries. The files need to have the following structure: Barack
+ * Obama\tperson\n
  * 
- * Every file located in the directory passed as the argument of the --dirPath 
+ * Every file located in the directory passed as the argument of the --dirPath
  * parameter will be loaded.
  * 
  * @author ragerri
@@ -39,6 +38,7 @@ import org.apache.commons.io.FileUtils;
  */
 public class Dictionaries {
 
+  public static boolean DEBUG = false;
   /**
    * The list of dictionary names.
    */
@@ -59,14 +59,15 @@ public class Dictionaries {
    *          the input directory
    */
   public Dictionaries(final String inputDir) {
-    if (dictNames == null && dictionaries == null && dictionariesIgnoreCase == null) {
+    if (dictNames == null && dictionaries == null
+        && dictionariesIgnoreCase == null) {
       try {
         loadDictionaries(inputDir);
       } catch (IOException e) {
         e.getMessage();
       }
     }
-    
+
   }
 
   /**
@@ -105,39 +106,53 @@ public class Dictionaries {
    *           throws an exception if directory does not exist
    */
   private void loadDictionaries(final String inputDir) throws IOException {
-    File inputPath = new File(inputDir);
-    if (inputPath.isDirectory()) {
-      Collection<File> files = FileUtils.listFiles(inputPath, null, true);
-      List<File> fileList = new ArrayList<File>(files);
-      dictNames = new ArrayList<String>(files.size());
-      dictionaries = new ArrayList<Dictionary>(files.size());
-      dictionariesIgnoreCase = new ArrayList<Dictionary>(files.size());
-      for (int i = 0; i < fileList.size(); ++i) {
+    List<File> fileList = this.getFilesInDir(new File(inputDir));
+    dictNames = new ArrayList<String>(fileList.size());
+    dictionaries = new ArrayList<Dictionary>(fileList.size());
+    dictionariesIgnoreCase = new ArrayList<Dictionary>(fileList.size());
+    System.err.println("\tloading dictionaries in " + inputDir + " directory");
+    for (int i = 0; i < fileList.size(); ++i) {
+      if (DEBUG) {
         System.err.println("\tloading dictionary:...."
             + fileList.get(i).getCanonicalPath());
-        dictNames.add(fileList.get(i).getName());
-        dictionaries.add(new Dictionary());
-        dictionariesIgnoreCase.add(new Dictionary());
+      }
+      dictNames.add(fileList.get(i).getName());
+      dictionaries.add(new Dictionary());
+      dictionariesIgnoreCase.add(new Dictionary());
 
-        List<String> fileLines = FileUtils.readLines(fileList.get(i), "UTF-8");
-        for (String line : fileLines) {
-          String[] lineArray = line.split("\t");
-          if (lineArray.length == 2) {
-            dictionaries.get(i).populate(lineArray[0], lineArray[1]);
-            if ((!line.equalsIgnoreCase("in"))
-                && (!line.equalsIgnoreCase("on"))
-                && (!line.equalsIgnoreCase("us"))
-                && (!line.equalsIgnoreCase("or"))
-                && (!line.equalsIgnoreCase("am"))) {
-              dictionariesIgnoreCase.get(i).populate(
-                  lineArray[0].toLowerCase(), lineArray[1]);
-            }
+      List<String> fileLines = Files.readLines(fileList.get(i), Charsets.UTF_8);
+      for (String line : fileLines) {
+        String[] lineArray = line.split("\t");
+        if (lineArray.length == 2) {
+          dictionaries.get(i).populate(lineArray[0], lineArray[1]);
+          if ((!line.equalsIgnoreCase("in")) && (!line.equalsIgnoreCase("on"))
+              && (!line.equalsIgnoreCase("us"))
+              && (!line.equalsIgnoreCase("or"))
+              && (!line.equalsIgnoreCase("am"))) {
+            dictionariesIgnoreCase.get(i).populate(lineArray[0].toLowerCase(),
+                lineArray[1]);
           }
         }
       }
-      System.err.println("found " + dictionaries.size() + " dictionaries");
     }
+    System.err.println("found " + dictionaries.size() + " dictionaries");
+  }
 
+  /**
+   * Recursively get every file in a directory and add them to a list.
+   * 
+   * @param inputPath
+   *          the input directory
+   * @return the list containing all the files
+   */
+  private List<File> getFilesInDir(File inputPath) {
+    List<File> fileList = new ArrayList<File>();
+    for (File aFile : Files.fileTreeTraverser().preOrderTraversal(inputPath)) {
+      if (aFile.isFile()) {
+        fileList.add(aFile);
+      }
+    }
+    return fileList;
   }
 
 }

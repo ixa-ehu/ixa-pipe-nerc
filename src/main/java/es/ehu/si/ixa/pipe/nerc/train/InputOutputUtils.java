@@ -29,14 +29,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
+
 import opennlp.model.TrainUtil;
 import opennlp.tools.cmdline.TerminateToolException;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.TrainingParameters;
 import opennlp.tools.util.model.BaseModel;
-
-import org.apache.commons.io.FileUtils;
 
 import es.ehu.si.ixa.pipe.nerc.CLI;
 
@@ -157,6 +158,16 @@ public class InputOutputUtils {
       corpusFormat = params.getSettings().get("CorpusFormat");
     }
     return corpusFormat;
+  }
+  
+  public static String getOutputFormat(TrainingParameters params) {
+    String outFormatOption = null;
+    if (params.getSettings().get("OutputFormat") != null) {
+      outFormatOption = params.getSettings().get("OutputFormat");
+    } else {
+      outFormatOption = CLI.DEFAULT_OUTPUT_FORMAT;
+    }
+    return outFormatOption;
   }
 
   public static Integer getBeamsize(TrainingParameters params) {
@@ -349,10 +360,10 @@ public class InputOutputUtils {
     return dictPathFlag;
   }
   
-  public static String getDistSimFeatures(TrainingParameters params) {
+  public static String getClarkFeatures(TrainingParameters params) {
     String distSimFlag = null;
-    if (params.getSettings().get("DistSimFeatures") != null) {
-      distSimFlag = params.getSettings().get("DistSimFeatures");
+    if (params.getSettings().get("ClarkClusterFeatures") != null) {
+      distSimFlag = params.getSettings().get("ClarkClusterFeatures");
     }
     else {
       distSimFlag = FixedTrainer.DEFAULT_FEATURE_FLAG;
@@ -360,11 +371,11 @@ public class InputOutputUtils {
     return distSimFlag;
   }
   
-  public static String getDistSimPath(TrainingParameters params) {
+  public static String getClarkPath(TrainingParameters params) {
     String distSimPathFlag = null;
-    if (params.getSettings().get("DistSimFeatures") != null) {
-      if (params.getSettings().get("DistSimPath") != null) {
-        distSimPathFlag = params.getSettings().get("DistSimPath");
+    if (params.getSettings().get("ClarkClusterFeatures") != null) {
+      if (params.getSettings().get("ClarkClusterPath") != null) {
+        distSimPathFlag = params.getSettings().get("ClarkClusterPath");
       } else {
         InputOutputUtils.dictionaryException();
       }
@@ -373,6 +384,32 @@ public class InputOutputUtils {
       InputOutputUtils.dictionaryFeaturesException();
     }
     return distSimPathFlag;
+  }
+  
+  public static String getWord2VecClusterFeatures(TrainingParameters params) {
+    String word2vecFlag = null;
+    if (params.getSettings().get("Word2VecClusterFeatures") != null) {
+      word2vecFlag = params.getSettings().get("Word2VecClusterFeatures");
+    }
+    else {
+      word2vecFlag = FixedTrainer.DEFAULT_FEATURE_FLAG;
+    }
+    return word2vecFlag;
+  }
+  
+  public static String getWord2VecClusterPath(TrainingParameters params) {
+    String word2vecClusterPathFlag = null;
+    if (params.getSettings().get("Word2VecClusterFeatures") != null) {
+      if (params.getSettings().get("Word2VecClusterPath") != null) {
+        word2vecClusterPathFlag = params.getSettings().get("Word2VecClusterPath");
+      } else {
+        InputOutputUtils.dictionaryException();
+      }
+    }
+    else {
+      InputOutputUtils.dictionaryFeaturesException();
+    }
+    return word2vecClusterPathFlag;
   }
   
   public static String getBrownFeatures(TrainingParameters params) {
@@ -438,8 +475,7 @@ public class InputOutputUtils {
             + result1.getValue());
       }
     }
-    FileUtils.writeStringToFile(new File("best-results.txt"), sb.toString(),
-        "UTF-8");
+    Files.write(sb.toString(), new File("best-results.txt"), Charsets.UTF_8);
     System.out.println("Best F via cross evaluation: " + bestResult);
     System.out.println("All Params " + allParams.size());
     return allParams;

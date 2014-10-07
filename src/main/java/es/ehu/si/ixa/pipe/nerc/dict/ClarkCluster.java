@@ -20,7 +20,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
 
 
 /**
@@ -29,7 +30,7 @@ import org.apache.commons.io.FileUtils;
  * https://github.com/ninjin/clark_pos_induction
  * 
  * The file containing the clustering lexicon has to be passed as the 
- * argument of the --distSimPath parameter.
+ * argument of the DistSim property.
  * 
  * @author ragerri
  * @version 2014/07/29
@@ -47,7 +48,7 @@ public class ClarkCluster {
   private static Dictionary dictionaryIgnoreCase;
 
   /**
-   * Construct the
+   * Construct the clark cluster.
    * 
    * @param inputDir
    *          the input directory
@@ -92,7 +93,7 @@ public class ClarkCluster {
   private void loadDictionary(final String inputFile) throws IOException {
     File inputPath = new File(inputFile);
     System.err.println("\tLoading clustering lexicon...: " + inputPath.getCanonicalPath());
-    List<String> fileLines = FileUtils.readLines(inputPath, "UTF-8");
+    List<String> fileLines = Files.readLines(inputPath, Charsets.UTF_8);
     dictionary = new Dictionary();
     dictionaryIgnoreCase = new Dictionary();
     for (String line : fileLines) {
@@ -102,7 +103,7 @@ public class ClarkCluster {
         dictionaryIgnoreCase.populate(lineArray[0].toLowerCase(), lineArray[1]);
       }
       else {
-        System.err.println("Clustering lexicon not well-formed after line:");
+        System.err.println("Clark clustering lexicon not well-formed after line:");
         System.err.println(line);
         System.exit(1);
       }

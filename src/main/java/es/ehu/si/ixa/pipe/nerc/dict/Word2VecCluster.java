@@ -1,3 +1,19 @@
+/*
+ *  Copyright 2014 Rodrigo Agerri
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+ */
+
 package es.ehu.si.ixa.pipe.nerc.dict;
 
 import java.io.File;
@@ -10,17 +26,17 @@ import com.google.common.io.Files;
 
 /**
  * 
- * Class to load a Brown cluster document: word\tword_class\tprob
- * http://metaoptimize.com/projects/wordreprs/
+ * Class to load a Word2Vec cluster document: word\\s+word_class
+ * http://code.google.com/p/word2vec/
  * 
  * The file containing the clustering lexicon has to be passed as the 
- * argument of the --distSimBrownPath parameter.
+ * argument of the Word2VecCluster property.
  * 
  * @author ragerri
  * @version 2014/07/29
  * 
  */
-public class BrownCluster {
+public class Word2VecCluster {
 
   /**
    * The list of Dictionary in which to load the lexicon.
@@ -32,12 +48,12 @@ public class BrownCluster {
   private static Dictionary dictionaryIgnoreCase;
 
   /**
-   * Construct the
+   * Construct the clark cluster.
    * 
    * @param inputDir
    *          the input directory
    */
-  public BrownCluster(final String inputDir) {
+  public Word2VecCluster(final String inputDir) {
     if (dictionary == null && dictionaryIgnoreCase == null) {
       try {
         loadDictionary(inputDir);
@@ -81,16 +97,13 @@ public class BrownCluster {
     dictionary = new Dictionary();
     dictionaryIgnoreCase = new Dictionary();
     for (String line : fileLines) {
-      String[] lineArray = line.split("\\t");
-      if (lineArray.length == 3) {
-        int freq = Integer.parseInt(lineArray[2]);
-        if (freq > 5) {
-          dictionary.populate(lineArray[1],lineArray[0]);
-          dictionaryIgnoreCase.populate(lineArray[1].toLowerCase(), lineArray[0]);
-        }
+      String[] lineArray = line.split(" ");
+      if (lineArray.length == 2) {
+        dictionary.populate(lineArray[0],lineArray[1]);
+        dictionaryIgnoreCase.populate(lineArray[0].toLowerCase(), lineArray[1]);
       }
       else {
-        System.err.println("Brown Clustering lexicon not well-formed after line:");
+        System.err.println("Word2Vec clustering lexicon not well-formed after line:");
         System.err.println(line);
         System.exit(1);
       }
