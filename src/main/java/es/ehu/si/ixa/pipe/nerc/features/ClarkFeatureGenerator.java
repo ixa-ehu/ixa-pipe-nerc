@@ -63,7 +63,6 @@ public class ClarkFeatureGenerator extends CustomFeatureGenerator implements Art
     InputStream in;
     try {
       in = new FileInputStream(properties.get("clarklexicon"));
-      System.err.println(properties.get("clarklexicon"));
       clarkCluster = new ClarkCluster.ClarkClusterSerializer().create(in);
     } catch (FileNotFoundException e) {
       // TODO Auto-generated catch block

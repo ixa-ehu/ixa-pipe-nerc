@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.TrainingParameters;
 import opennlp.tools.util.featuregen.W2VClassesDictionary;
 import opennlp.tools.util.model.ArtifactSerializer;
@@ -239,10 +241,10 @@ public class XMLFeatureDescriptor {
       word2vecClusterPath = InputOutputUtils.getWord2VecClusterFeatures(params);
       Element word2vecClusterFeatures = new Element("w2vwordcluster");
       InputStream inputStream = new FileInputStream(word2vecClusterPath);
-      ArtifactSerializer serializer = new W2VClassesDictionary.W2VClassesDictionarySerializer();
+      Map<String, ArtifactSerializer> serializers = TokenNameFinderModel.createArtifactSerializers();
       //word2vecClusterFeatures.setAttribute("class", Word2VecClusterFeatureGenerator.class.getName());
       //word2vecClusterFeatures.setAttribute("word2veccluster", word2vecClusterPath);
-      word2vecClusterFeatures.setAttribute("dict", serializer.create(inputStream).getClass().getName());
+      word2vecClusterFeatures.setAttribute("dict", serializers.get("w2vclasses").getClass().getName());
       Element word2vecClusterWindow = new Element("window");
       word2vecClusterWindow.setAttribute("prevLength", Integer.toString(leftWindow));
       word2vecClusterWindow.setAttribute("nextLength", Integer.toString(rightWindow));
