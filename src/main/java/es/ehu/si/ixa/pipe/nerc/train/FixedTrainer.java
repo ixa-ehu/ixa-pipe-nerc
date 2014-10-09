@@ -21,7 +21,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import opennlp.tools.cmdline.CmdLineUtil;
@@ -99,6 +101,10 @@ public class FixedTrainer extends AbstractTrainer {
         resources, sequenceCodec));
   }
 
+  /**
+   * @param params
+   * @return whether the word2vecClusterfeatures are activated or not
+   */
   public static boolean isWord2VecClusterFeatures(TrainingParameters params) {
     String word2vecClusterFeatures = InputOutputUtils
         .getWord2VecClusterFeatures(params);
@@ -199,23 +205,32 @@ public class FixedTrainer extends AbstractTrainer {
 
   public static Map<String, Object> loadResources(TrainingParameters params,
       byte[] featureGenDescriptor) {
+    String resourceId = null;
     Map<String, Object> resources = new HashMap<String, Object>();
+    Map<String, ArtifactSerializer> artifactSerializers = TokenNameFinderModel.createArtifactSerializers();
     if (isClarkFeatures(params)) {
       String clarkPath = InputOutputUtils.getClarkFeatures(params);
-      loadResource(clarkPath, featureGenDescriptor, resources);
+      resourceId = "clarklexicon";
+      artifactSerializers.put(resourceId, new ClarkCluster.ClarkClusterSerializer());
+      loadResource(resourceId, artifactSerializers, clarkPath, featureGenDescriptor, resources);
+    }
+    if (isWord2VecClusterFeatures(params)) {
+      resourceId = "word2veclexicon";
+      String word2VecClusterPath = InputOutputUtils.getWord2VecClusterFeatures(params);
+      //artifactSerializers.put("word2veclexicon", Word2VecCluster.ClarkClusterSerializer());
+      loadResource(resourceId, artifactSerializers, word2VecClusterPath, featureGenDescriptor, resources);
     }
     return resources;
   }
 
-  public static void loadResource(String resourcePath,
+  public static void loadResource(String resourceId, Map<String, ArtifactSerializer> artifactSerializers, String resourcePath,
       byte[] featureGenDescriptor, Map<String, Object> resources) {
 
     File resourceFile = new File(resourcePath);
     if (resourceFile != null) {
-      Map<String, ArtifactSerializer> artifactSerializers = TokenNameFinderModel
-          .createArtifactSerializers();
+      System.err.println(artifactSerializers);
       // TODO: If there is descriptor file, it should be consulted too
-      // this currently always returns null
+      // to look at custom feature descriptors which require resources
       if (featureGenDescriptor != null) {
         InputStream xmlDescriptorIn = new ByteArrayInputStream(
             featureGenDescriptor);
@@ -226,13 +241,13 @@ public class FixedTrainer extends AbstractTrainer {
           e.printStackTrace();
         }
       }
-      artifactSerializers.put("clarklexicon", new ClarkCluster.ClarkClusterSerializer());
-      ArtifactSerializer serializer = artifactSerializers.get("clarklexicon");
+      ArtifactSerializer serializer = artifactSerializers.get(resourceId);
+      System.err.println(serializer);
 
       InputStream resourceIn = CmdLineUtil.openInFile(resourceFile);
 
       try {
-        resources.put("clarklexicon", serializer.create(resourceIn));
+        resources.put(resourceFile.getCanonicalPath(), serializer.create(resourceIn));
       } catch (InvalidFormatException e) {
         e.printStackTrace();
       } catch (IOException e) {

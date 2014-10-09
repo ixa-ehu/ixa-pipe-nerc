@@ -240,11 +240,9 @@ public class XMLFeatureDescriptor {
       setWindow(params);
       word2vecClusterPath = InputOutputUtils.getWord2VecClusterFeatures(params);
       Element word2vecClusterFeatures = new Element("w2vwordcluster");
-      InputStream inputStream = new FileInputStream(word2vecClusterPath);
-      Map<String, ArtifactSerializer> serializers = TokenNameFinderModel.createArtifactSerializers();
       //word2vecClusterFeatures.setAttribute("class", Word2VecClusterFeatureGenerator.class.getName());
       //word2vecClusterFeatures.setAttribute("word2veccluster", word2vecClusterPath);
-      word2vecClusterFeatures.setAttribute("dict", serializers.get("w2vclasses").getClass().getName());
+      //word2vecClusterFeatures.setAttribute("dict", word2vecClusterPath);
       Element word2vecClusterWindow = new Element("window");
       word2vecClusterWindow.setAttribute("prevLength", Integer.toString(leftWindow));
       word2vecClusterWindow.setAttribute("nextLength", Integer.toString(rightWindow));
