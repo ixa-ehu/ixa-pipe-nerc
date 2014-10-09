@@ -210,12 +210,12 @@ public class FixedTrainer extends AbstractTrainer {
     Map<String, ArtifactSerializer> artifactSerializers = TokenNameFinderModel.createArtifactSerializers();
     if (isClarkFeatures(params)) {
       String clarkPath = InputOutputUtils.getClarkFeatures(params);
-      resourceId = "clarklexicon";
+      resourceId = "clarkcluster";
       artifactSerializers.put(resourceId, new ClarkCluster.ClarkClusterSerializer());
       loadResource(resourceId, artifactSerializers, clarkPath, featureGenDescriptor, resources);
     }
     if (isWord2VecClusterFeatures(params)) {
-      resourceId = "word2veclexicon";
+      resourceId = "word2veccluster";
       String word2VecClusterPath = InputOutputUtils.getWord2VecClusterFeatures(params);
       //artifactSerializers.put("word2veclexicon", Word2VecCluster.ClarkClusterSerializer());
       loadResource(resourceId, artifactSerializers, word2VecClusterPath, featureGenDescriptor, resources);

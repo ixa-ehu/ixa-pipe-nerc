@@ -59,11 +59,12 @@ public class ClarkFeatureGenerator extends CustomFeatureGenerator implements Art
       FeatureGeneratorResourceProvider resourceProvider)
       throws InvalidFormatException {
     this.attributes = properties;
+    properties.put("dict", XMLFeatureDescriptor.clarkPath);
   }
 
   @Override
   public Map<String, ArtifactSerializer<?>> getArtifactSerializerMapping() {
-    mapping.put("clarklexicon", new ClarkCluster.ClarkClusterSerializer());
+    mapping.put("clarkcluster", new ClarkCluster.ClarkClusterSerializer());
     return Collections.unmodifiableMap(mapping);
   }
   

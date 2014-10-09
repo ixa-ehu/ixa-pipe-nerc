@@ -228,7 +228,7 @@ public class XMLFeatureDescriptor {
       clarkPath = InputOutputUtils.getClarkFeatures(params);
       Element clarkFeatures = new Element("custom");
       clarkFeatures.setAttribute("class", ClarkFeatureGenerator.class.getName());
-      clarkFeatures.setAttribute("clarklexicon", clarkPath);
+      clarkFeatures.setAttribute("dict", "clarklexicon");
       Element clarkWindow = new Element("window");
       clarkWindow.setAttribute("prevLength", Integer.toString(leftWindow));
       clarkWindow.setAttribute("nextLength", Integer.toString(rightWindow));
