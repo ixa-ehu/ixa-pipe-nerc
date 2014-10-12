@@ -30,10 +30,6 @@ public class XMLFeatureDescriptor {
    */
   public static Dictionaries dictionaries;
   /**
-   * The prefix to be used in the {@link DictionaryFeatureGenerator}.
-   */
-  public static String prefix;
-  /**
    * This class is not to be instantiated.
    */
   private XMLFeatureDescriptor() {
@@ -136,6 +132,7 @@ public class XMLFeatureDescriptor {
       generators.addContent(charngramFeature);
       System.err.println("-> CharNgram Class Features added!");
     }
+    //TODO dictionary features
     if (FixedTrainer.isDictionaryFeatures(params)) {
       setWindow(params);
       String dictPath = Flags.getDictionaryFeatures(params);
@@ -143,10 +140,9 @@ public class XMLFeatureDescriptor {
         dictionaries = new Dictionaries(dictPath);
       }
       for (int i = 0; i < dictionaries.getIgnoreCaseDictionaries().size(); i++) {
-        prefix = dictionaries.getDictNames().get(i);
         Element dictFeatures = new Element("custom");
         dictFeatures.setAttribute("class", DictionaryFeatureGenerator.class.getName());
-        dictFeatures.setAttribute("prefix", dictionaries.getDictNames().get(i));
+        dictFeatures.setAttribute("dict", dictionaries.getDictNames().get(i));
         Element dictWindow = new Element("window");
         dictWindow.setAttribute("prevLength", Integer.toString(leftWindow));
         dictWindow.setAttribute("nextLength", Integer.toString(rightWindow));
@@ -194,7 +190,7 @@ public class XMLFeatureDescriptor {
       brownTokenClassWindow.setAttribute("nextLength", Integer.toString(rightWindow));
       brownTokenClassWindow.addContent(brownTokenClassFeature);
       generators.addContent(brownTokenClassWindow);
-      System.err.println("-> Brown cluster features added!");
+      System.err.println("-> Brown Cluster Features added!");
       
     }
     
@@ -209,7 +205,7 @@ public class XMLFeatureDescriptor {
       clarkWindow.setAttribute("nextLength", Integer.toString(rightWindow));
       clarkWindow.addContent(clarkFeatures);
       generators.addContent(clarkWindow);
-      System.err.println("-> Clark cluster features added!");
+      System.err.println("-> Clark Cluster Features added!");
     }
     
     if (FixedTrainer.isWord2VecClusterFeatures(params)) {
@@ -223,7 +219,7 @@ public class XMLFeatureDescriptor {
       word2vecClusterWindow.setAttribute("nextLength", Integer.toString(rightWindow));
       word2vecClusterWindow.addContent(word2vecClusterFeatures);
       generators.addContent(word2vecClusterWindow);
-      System.err.println("-> Word2Vec clusters features added!");
+      System.err.println("-> Word2Vec Clusters Features added!");
     }
     
     aggGenerators.addContent(cached);
