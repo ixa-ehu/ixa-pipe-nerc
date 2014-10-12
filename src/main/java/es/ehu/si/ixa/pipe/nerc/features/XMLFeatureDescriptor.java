@@ -1,29 +1,19 @@
 package es.ehu.si.ixa.pipe.nerc.features;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.TrainingParameters;
-import opennlp.tools.util.featuregen.W2VClassesDictionary;
-import opennlp.tools.util.model.ArtifactSerializer;
 
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 
-import es.ehu.si.ixa.pipe.nerc.dict.BrownCluster;
-import es.ehu.si.ixa.pipe.nerc.dict.ClarkCluster;
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
-import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
-import es.ehu.si.ixa.pipe.nerc.dict.Word2VecCluster;
 import es.ehu.si.ixa.pipe.nerc.train.FixedTrainer;
-import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
+import es.ehu.si.ixa.pipe.nerc.train.Flags;
 
 public class XMLFeatureDescriptor {
 
@@ -39,21 +29,10 @@ public class XMLFeatureDescriptor {
    * The {@link Dictionaries} contained in the given directory.
    */
   public static Dictionaries dictionaries;
-  
-  public static Dictionary dictionary;
   /**
    * The prefix to be used in the {@link DictionaryFeatureGenerator}.
    */
   public static String prefix;
-  public static String clarkPath;
-  /**
-   * The word2vec clustering lexicon.
-   */
-  public static String word2vecClusterPath;
-  /**
-   * The brown cluster.
-   */
-  public static BrownCluster brownCluster;
   /**
    * This class is not to be instantiated.
    */
@@ -159,16 +138,14 @@ public class XMLFeatureDescriptor {
     }
     if (FixedTrainer.isDictionaryFeatures(params)) {
       setWindow(params);
-      String dictPath = InputOutputUtils.getDictionaryFeatures(params);
+      String dictPath = Flags.getDictionaryFeatures(params);
       if (dictionaries == null) {
         dictionaries = new Dictionaries(dictPath);
       }
       for (int i = 0; i < dictionaries.getIgnoreCaseDictionaries().size(); i++) {
-        dictionary = dictionaries.getIgnoreCaseDictionaries().get(i);
         prefix = dictionaries.getDictNames().get(i);
         Element dictFeatures = new Element("custom");
         dictFeatures.setAttribute("class", DictionaryFeatureGenerator.class.getName());
-        dictFeatures.setAttribute("dict", dictionaries.getIgnoreCaseDictionaries().get(i).getClass().getName());
         dictFeatures.setAttribute("prefix", dictionaries.getDictNames().get(i));
         Element dictWindow = new Element("window");
         dictWindow.setAttribute("prevLength", Integer.toString(leftWindow));
@@ -180,6 +157,7 @@ public class XMLFeatureDescriptor {
     }
     
     if (FixedTrainer.isBrownFeatures(params)) {
+      String brownClusterPath = Flags.getBrownFeatures(params);
       setWindow(params);
       //previous 2 maps features
       Element prev2MapFeature = new Element("custom");
@@ -193,19 +171,15 @@ public class XMLFeatureDescriptor {
       prevMapTokenWindow.setAttribute("nextLength", Integer.toString(rightWindow));
       prevMapTokenWindow.addContent(prevMapTokenFeature);
       generators.addContent(prevMapTokenWindow);
-      String brownPath = InputOutputUtils.getBrownFeatures(params);
-      if (brownCluster == null) {
-        brownCluster = new BrownCluster(brownPath);
-      }
       //brown bigram class features
       Element brownBigramFeatures = new Element("custom");
       brownBigramFeatures.setAttribute("class", BrownBigramFeatureGenerator.class.getName());
-      brownBigramFeatures.setAttribute("brownlexicon", brownCluster.getDictionary().getClass().getName());
+      brownBigramFeatures.setAttribute("dict", brownClusterPath);
       generators.addContent(brownBigramFeatures);
       //brown token feature
       Element brownTokenFeature = new Element("custom");
       brownTokenFeature.setAttribute("class", BrownTokenFeatureGenerator.class.getName());
-      brownTokenFeature.setAttribute("brownlexicon", brownCluster.getDictionary().getClass().getName());
+      brownTokenFeature.setAttribute("dict", brownClusterPath);
       Element brownTokenWindow = new Element("window");
       brownTokenWindow.setAttribute("prevLength", Integer.toString(leftWindow));
       brownTokenWindow.setAttribute("nextLength", Integer.toString(rightWindow));
@@ -214,40 +188,42 @@ public class XMLFeatureDescriptor {
       //brown token class feature
       Element brownTokenClassFeature = new Element("custom");
       brownTokenClassFeature.setAttribute("class", BrownTokenClassFeatureGenerator.class.getName());
-      brownTokenClassFeature.setAttribute("brownlexicon", brownCluster.getDictionary().getClass().getName());
+      brownTokenClassFeature.setAttribute("dict", brownClusterPath);
       Element brownTokenClassWindow = new Element("window");
       brownTokenClassWindow.setAttribute("prevLength", Integer.toString(leftWindow));
       brownTokenClassWindow.setAttribute("nextLength", Integer.toString(rightWindow));
       brownTokenClassWindow.addContent(brownTokenClassFeature);
       generators.addContent(brownTokenClassWindow);
+      System.err.println("-> Brown cluster features added!");
       
     }
     
     if (FixedTrainer.isClarkFeatures(params)) {
+      String clarkClusterPath = Flags.getClarkFeatures(params);
       setWindow(params);
-      clarkPath = InputOutputUtils.getClarkFeatures(params);
       Element clarkFeatures = new Element("custom");
       clarkFeatures.setAttribute("class", ClarkFeatureGenerator.class.getName());
-      clarkFeatures.setAttribute("dict", "clarklexicon");
+      clarkFeatures.setAttribute("dict", clarkClusterPath);
       Element clarkWindow = new Element("window");
       clarkWindow.setAttribute("prevLength", Integer.toString(leftWindow));
       clarkWindow.setAttribute("nextLength", Integer.toString(rightWindow));
       clarkWindow.addContent(clarkFeatures);
       generators.addContent(clarkWindow);
+      System.err.println("-> Clark cluster features added!");
     }
     
     if (FixedTrainer.isWord2VecClusterFeatures(params)) {
+      String word2vecClusterPath = Flags.getWord2VecClusterFeatures(params);
       setWindow(params);
-      word2vecClusterPath = InputOutputUtils.getWord2VecClusterFeatures(params);
-      Element word2vecClusterFeatures = new Element("w2vwordcluster");
-      //word2vecClusterFeatures.setAttribute("class", Word2VecClusterFeatureGenerator.class.getName());
-      //word2vecClusterFeatures.setAttribute("word2veccluster", word2vecClusterPath);
-      //word2vecClusterFeatures.setAttribute("dict", word2vecClusterPath);
+      Element word2vecClusterFeatures = new Element("custom");
+      word2vecClusterFeatures.setAttribute("class", Word2VecClusterFeatureGenerator.class.getName());
+      word2vecClusterFeatures.setAttribute("dict", word2vecClusterPath);
       Element word2vecClusterWindow = new Element("window");
       word2vecClusterWindow.setAttribute("prevLength", Integer.toString(leftWindow));
       word2vecClusterWindow.setAttribute("nextLength", Integer.toString(rightWindow));
       word2vecClusterWindow.addContent(word2vecClusterFeatures);
       generators.addContent(word2vecClusterWindow);
+      System.err.println("-> Word2Vec clusters features added!");
     }
     
     aggGenerators.addContent(cached);
@@ -278,7 +254,7 @@ public class XMLFeatureDescriptor {
    */
   private static List<Integer> getWindowRange(TrainingParameters params) {
     List<Integer> windowRange = new ArrayList<Integer>();
-    String windowParam = InputOutputUtils.getWindow(params);
+    String windowParam = Flags.getWindow(params);
     String[] windowArray = windowParam.split("[ :-]");
     if (windowArray.length == 2) {
       windowRange.add(Integer.parseInt(windowArray[0]));
@@ -301,7 +277,7 @@ public class XMLFeatureDescriptor {
    */
   public static List<Integer> getNgramRange(TrainingParameters params) {
     List<Integer> ngramRange = new ArrayList<Integer>();
-      String charNgramParam = InputOutputUtils.getCharNgramFeaturesRange(params);
+      String charNgramParam = Flags.getCharNgramFeaturesRange(params);
       String[] charngramArray = charNgramParam.split("[ :-]");
       if (charngramArray.length == 2) {
         ngramRange.add(Integer.parseInt(charngramArray[0]));

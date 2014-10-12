@@ -54,9 +54,6 @@ public class DictionaryFeatureGenerator extends CustomFeatureGenerator {
   public void init(Map<String, String> properties,
       FeatureGeneratorResourceProvider resourceProvider)
       throws InvalidFormatException {
-    properties.put("prefix", XMLFeatureDescriptor.prefix);
-    setDictionary(properties.get("prefix"), XMLFeatureDescriptor.dictionary);
-    
   }
   
   

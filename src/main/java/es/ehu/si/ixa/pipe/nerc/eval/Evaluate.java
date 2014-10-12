@@ -18,7 +18,7 @@ import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.TrainingParameters;
 import opennlp.tools.util.eval.EvaluationMonitor;
 import es.ehu.si.ixa.pipe.nerc.train.AbstractTrainer;
-import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
+import es.ehu.si.ixa.pipe.nerc.train.Flags;
 
 /**
  * Evaluation class mostly using {@link TokenNameFinderEvaluator}.
@@ -54,10 +54,10 @@ public class Evaluate {
    */
   public Evaluate(final TrainingParameters params) throws IOException {
     
-    String testSet = InputOutputUtils.getDataSet("TestSet", params);
-    String model = InputOutputUtils.getModel(params);
-    String lang = InputOutputUtils.getLanguage(params);
-    String corpusFormat = InputOutputUtils.getCorpusFormat(params);
+    String testSet = Flags.getDataSet("TestSet", params);
+    String model = Flags.getModel(params);
+    String lang = Flags.getLanguage(params);
+    String corpusFormat = Flags.getCorpusFormat(params);
     
     testSamples = AbstractTrainer.getNameStream(testSet, lang, corpusFormat);
     if (params.getSettings().get("Types") != null) {

@@ -110,14 +110,14 @@ public abstract class AbstractTrainer implements Trainer {
    */
   public AbstractTrainer(final String aTrainData,
       final String aTestData, final TrainingParameters params) throws IOException {
-    this.lang = InputOutputUtils.getLanguage(params);
-    this.corpusFormat = InputOutputUtils.getCorpusFormat(params);
+    this.lang = Flags.getLanguage(params);
+    this.corpusFormat = Flags.getCorpusFormat(params);
     this.trainData = aTrainData;
     this.testData = aTestData;
     trainSamples = getNameStream(trainData, lang, corpusFormat);
     testSamples = getNameStream(testData, lang, corpusFormat);
-    this.beamSize = InputOutputUtils.getBeamsize(params);
-    this.sequenceCodec = InputOutputUtils.getSequenceCodec(params);
+    this.beamSize = Flags.getBeamsize(params);
+    this.sequenceCodec = Flags.getSequenceCodec(params);
     if (params.getSettings().get("Types") != null) {
       String netypes = params.getSettings().get("Types");
       String[] neTypes = netypes.split(",");

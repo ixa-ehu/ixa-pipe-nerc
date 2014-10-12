@@ -30,7 +30,7 @@ import opennlp.tools.namefind.TokenNameFinder;
 import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.Span;
 import opennlp.tools.util.TrainingParameters;
-import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
+import es.ehu.si.ixa.pipe.nerc.train.Flags;
 
 /**
  * Named Entity Recognition module based on Apache OpenNLP Machine Learning API.
@@ -63,8 +63,8 @@ public class StatisticalNameFinder implements NameFinder {
    * @param beamsize the beamsize for decoding
    */
   public StatisticalNameFinder(final Properties props, final TrainingParameters params) {
-    String lang = InputOutputUtils.getLanguage(params);
-    String model = InputOutputUtils.getModel(params);
+    String lang = Flags.getLanguage(params);
+    String model = Flags.getModel(params);
     TokenNameFinderModel nerModel = loadModel(lang, model);
     nameFinder = new NameFinderME(nerModel);
   }
@@ -80,8 +80,8 @@ public class StatisticalNameFinder implements NameFinder {
    */
   public StatisticalNameFinder(final Properties props, final TrainingParameters params, final NameFactory aNameFactory) {
 
-    String lang = InputOutputUtils.getLanguage(params);
-    String model = InputOutputUtils.getModel(params);
+    String lang = Flags.getLanguage(params);
+    String model = Flags.getModel(params);
     this.nameFactory = aNameFactory;
     TokenNameFinderModel nerModel = loadModel(lang, model);
     nameFinder = new NameFinderME(nerModel);

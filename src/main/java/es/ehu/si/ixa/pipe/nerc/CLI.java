@@ -19,6 +19,7 @@ import ixa.kaflib.KAFDocument;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -32,6 +33,7 @@ import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 import net.sourceforge.argparse4j.inf.Subparsers;
+import opennlp.tools.cmdline.CmdLineUtil;
 import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.TrainingParameters;
 
@@ -42,6 +44,7 @@ import com.google.common.io.Files;
 import es.ehu.si.ixa.pipe.nerc.eval.CorpusEvaluate;
 import es.ehu.si.ixa.pipe.nerc.eval.Evaluate;
 import es.ehu.si.ixa.pipe.nerc.train.FixedTrainer;
+import es.ehu.si.ixa.pipe.nerc.train.Flags;
 import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
 import es.ehu.si.ixa.pipe.nerc.train.Trainer;
 
@@ -203,7 +206,7 @@ public class CLI {
     Properties properties = setAnnotateProperties(lexer);
     Annotate annotator = new Annotate(properties, params);
     annotator.annotateNEs(kaf);
-    String outputFormatOption = InputOutputUtils.getOutputFormat(params);
+    String outputFormatOption = Flags.getOutputFormat(params);
     String kafToString = null;
     if (outputFormatOption.equalsIgnoreCase("conll03")) {
       kafToString = annotator.annotateNEsToCoNLL2003(kaf);
@@ -236,10 +239,10 @@ public class CLI {
       params.put("OutputModel", outModel);
     }
     else {
-      outModel = InputOutputUtils.getModel(params);
+      outModel = Flags.getModel(params);
     }
-    String trainSet = InputOutputUtils.getDataSet("TrainSet", params);
-    String testSet = InputOutputUtils.getDataSet("TestSet", params);
+    String trainSet = Flags.getDataSet("TrainSet", params);
+    String testSet = Flags.getDataSet("TestSet", params);
     Trainer nercTrainer = new FixedTrainer(trainSet, testSet, params);
     TokenNameFinderModel trainedModel = null;
     // check if CrossEval
@@ -247,19 +250,19 @@ public class CLI {
       String evalParam = params.getSettings().get("CrossEval");
       String[] evalRange = evalParam.split("[ :-]");
       if (evalRange.length != 2) {
-        InputOutputUtils.devSetException();
+        Flags.devSetException();
       } else {
         if (params.getSettings().get("DevSet") != null) {
           String devSet = params.getSettings().get("DevSet");
           trainedModel = nercTrainer.trainCrossEval(devSet, params, evalRange);
         } else {
-          InputOutputUtils.devSetException();
+          Flags.devSetException();
         }
       }
     } else {
       trainedModel = nercTrainer.train(params);
     }
-    InputOutputUtils.saveModel(trainedModel, outModel);
+    CmdLineUtil.writeModel("name finder", new File(outModel), trainedModel);
     System.out.println();
     System.out.println("Wrote trained NERC model to " + outModel);
   }

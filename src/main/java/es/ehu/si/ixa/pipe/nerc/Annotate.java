@@ -35,7 +35,7 @@ import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.util.Span;
 import opennlp.tools.util.TrainingParameters;
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
-import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
+import es.ehu.si.ixa.pipe.nerc.train.Flags;
 
 /**
  * Annotation class of ixa-pipe-nerc.
@@ -119,14 +119,14 @@ public class Annotate {
       TrainingParameters params) throws IOException {
     
     String ruleBasedOption = properties.getProperty("ruleBasedOption");
-    String dictFeature = InputOutputUtils.getDictionaryFeatures(params);
-    String dictOption = InputOutputUtils.getDictOption(params);
+    String dictFeature = Flags.getDictionaryFeatures(params);
+    String dictOption = Flags.getDictOption(params);
     
     if (dictFeature.equals("yes")) {
       if (!ruleBasedOption.equals(CLI.DEFAULT_LEXER)) {
         lexerFind = true;
       }
-      String dictPath = InputOutputUtils.getDictionaryFeatures(params);
+      String dictPath = Flags.getDictionaryFeatures(params);
       dictionaries = new Dictionaries(dictPath);
       if (!dictOption.equals(CLI.DEFAULT_DICT_OPTION)) {
         dictFinder = new DictionariesNameFinder(dictionaries, nameFactory);
