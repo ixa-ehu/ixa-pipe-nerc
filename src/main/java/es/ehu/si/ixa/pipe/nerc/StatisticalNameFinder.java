@@ -26,7 +26,6 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 import opennlp.tools.namefind.NameFinderME;
-import opennlp.tools.namefind.TokenNameFinder;
 import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.Span;
 import opennlp.tools.util.TrainingParameters;
@@ -40,7 +39,7 @@ import es.ehu.si.ixa.pipe.nerc.train.Flags;
  *
  */
 
-public class StatisticalNameFinder implements TokenNameFinder {
+public class StatisticalNameFinder implements NameFinder {
 
   /**
    * The models to use for every language. The keys of the hash are the
@@ -101,7 +100,7 @@ public class StatisticalNameFinder implements TokenNameFinder {
    * @return a List of names
    */
   public final List<Name> getNames(final String[] tokens) {
-    Span[] origSpans = find(tokens);
+    Span[] origSpans = nercToSpans(tokens);
     Span[] neSpans = NameFinderME.dropOverlappingSpans(origSpans);
     List<Name> names = getNamesFromSpans(neSpans, tokens);
     return names;
@@ -121,7 +120,7 @@ public class StatisticalNameFinder implements TokenNameFinder {
    *          an array of tokenized text
    * @return an list of {@link Span}s of Named Entities
    */
-  public final Span[] find(final String[] tokens) {
+  public final Span[] nercToSpans(final String[] tokens) {
     Span[] annotatedText = nameFinder.find(tokens);
     clearAdaptiveData();
     List<Span> probSpans = new ArrayList<Span>(Arrays.asList(annotatedText));

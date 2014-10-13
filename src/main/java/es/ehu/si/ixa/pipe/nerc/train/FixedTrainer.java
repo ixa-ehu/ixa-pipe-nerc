@@ -36,10 +36,8 @@ import opennlp.tools.util.model.ArtifactSerializer;
 import es.ehu.si.ixa.pipe.nerc.StringUtils;
 import es.ehu.si.ixa.pipe.nerc.dict.BrownCluster;
 import es.ehu.si.ixa.pipe.nerc.dict.ClarkCluster;
-import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
 import es.ehu.si.ixa.pipe.nerc.dict.Word2VecCluster;
-import es.ehu.si.ixa.pipe.nerc.dict.Dictionary.DictionarySerializer;
 import es.ehu.si.ixa.pipe.nerc.features.XMLFeatureDescriptor;
 
 /**

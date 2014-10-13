@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import opennlp.tools.namefind.NameFinderME;
-import opennlp.tools.namefind.TokenNameFinder;
 import opennlp.tools.util.Span;
 import opennlp.tools.util.TrainingParameters;
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
@@ -185,16 +184,16 @@ public class Annotate {
         tokenIds[i] = sentence.get(i).getId();
       }
       if (statistical) {
-        Span[] statSpans = nameFinder.find(tokens);
+        Span[] statSpans = nameFinder.nercToSpans(tokens);
         allSpans = Arrays.asList(statSpans);
       }
       if (postProcess) {
-        Span[] dictSpans = dictFinder.findExact(tokens);
+        Span[] dictSpans = dictFinder.nercToSpansExact(tokens);
         SpanUtils.postProcessDuplicatedSpans(allSpans, dictSpans);
         SpanUtils.concatenateSpans(allSpans, dictSpans);
       }
       if (dictTag) {
-        Span[] dictOnlySpans = dictFinder.findExact(tokens);
+        Span[] dictOnlySpans = dictFinder.nercToSpansExact(tokens);
         allSpans = Arrays.asList(dictOnlySpans);
       }
       if (lexerFind) {
@@ -202,7 +201,7 @@ public class Annotate {
         StringReader stringReader = new StringReader(sentenceText);
         BufferedReader sentenceReader = new BufferedReader(stringReader);
         numericLexerFinder = new NumericNameFinder(sentenceReader, nameFactory);
-        Span[] numericSpans = numericLexerFinder.find(tokens);
+        Span[] numericSpans = numericLexerFinder.nercToSpans(tokens);
         SpanUtils.concatenateSpans(allSpans, numericSpans);
       }
       Span[] allSpansArray = NameFinderME.dropOverlappingSpans(allSpans

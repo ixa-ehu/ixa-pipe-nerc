@@ -24,7 +24,6 @@ import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
 
 
 import opennlp.tools.namefind.NameFinderME;
-import opennlp.tools.namefind.TokenNameFinder;
 import opennlp.tools.util.Span;
 
 
@@ -33,7 +32,7 @@ import opennlp.tools.util.Span;
  * @author ragerri
  *
  */
-public class DictionaryNameFinder implements TokenNameFinder {
+public class DictionaryNameFinder implements NameFinder {
 
   /**
    * The name factory to create Name objects.
@@ -68,7 +67,7 @@ public class DictionaryNameFinder implements TokenNameFinder {
    */
   public final List<Name> getNames(final String[] tokens) {
 
-    Span[] origSpans = find(tokens);
+    Span[] origSpans = nercToSpans(tokens);
     Span[] neSpans = NameFinderME.dropOverlappingSpans(origSpans);
     List<Name> names = getNamesFromSpans(neSpans, tokens);
     return names;
@@ -81,7 +80,7 @@ public class DictionaryNameFinder implements TokenNameFinder {
    *          the tokenized sentence
    * @return spans of the Named Entities
    */
-  public final Span[] find(final String[] tokens) {
+  public final Span[] nercToSpans(final String[] tokens) {
     List<Span> namesFound = new LinkedList<Span>();
 
     for (int offsetFrom = 0; offsetFrom < tokens.length; offsetFrom++) {
@@ -121,7 +120,7 @@ public class DictionaryNameFinder implements TokenNameFinder {
    *          the tokenized sentence
    * @return spans of the Named Entities
    */
-  public final Span[] findExact(final String[] tokens) {
+  public final Span[] nercToSpansExact(final String[] tokens) {
     List<Span> namesFound = new LinkedList<Span>();
 
     for (int offsetFrom = 0; offsetFrom < tokens.length; offsetFrom++) {

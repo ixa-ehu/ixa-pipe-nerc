@@ -22,10 +22,9 @@ import java.util.List;
 import es.ehu.si.ixa.pipe.nerc.lexer.NumericNameLexer;
 
 import opennlp.tools.namefind.NameFinderME;
-import opennlp.tools.namefind.TokenNameFinder;
 import opennlp.tools.util.Span;
 
-public class NumericNameFinder implements TokenNameFinder {
+public class NumericNameFinder implements NameFinder {
   
   private NumericNameLexer<Name> numericLexer;
   private NameFactory nameFactory;
@@ -36,13 +35,13 @@ public class NumericNameFinder implements TokenNameFinder {
   }
 
   public List<Name> getNames(String[] tokens) {
-    Span[] origSpans = find(tokens);
+    Span[] origSpans = nercToSpans(tokens);
     Span[] neSpans = NameFinderME.dropOverlappingSpans(origSpans);
     List<Name> names = getNamesFromSpans(neSpans, tokens);
     return names;
   }
 
-  public Span[] find(final String[] tokens) {
+  public Span[] nercToSpans(final String[] tokens) {
     List<Span> neSpans = new ArrayList<Span>();
     List<Name> flexNameList = numericLexer.nameLex();
     for (Name name : flexNameList) {
