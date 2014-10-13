@@ -6,6 +6,10 @@ import es.ehu.si.ixa.pipe.nerc.features.XMLFeatureDescriptor;
 
 public class Flags {
 
+  public static final String DEFAULT_FEATURE_FLAG = "no";
+  public static final String CHAR_NGRAM_RANGE = "2:5";
+  public static final String DEFAULT_WINDOW = "2:2";
+
   private Flags() {
     
   }
@@ -96,7 +100,7 @@ public class Flags {
   public static String getWindow(TrainingParameters params) {
     String windowFlag = null;
     if (params.getSettings().get("Window") == null) {
-      windowFlag = XMLFeatureDescriptor.DEFAULT_WINDOW;
+      windowFlag = Flags.DEFAULT_WINDOW;
     } else {
       windowFlag = params.getSettings().get("Window");
     }
@@ -108,7 +112,7 @@ public class Flags {
     if (params.getSettings().get("TokenFeatures") != null) {
       tokenFlag = params.getSettings().get("TokenFeatures");
     } else {
-      tokenFlag = XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG;
+      tokenFlag = Flags.DEFAULT_FEATURE_FLAG;
     }
     return tokenFlag;
   }
@@ -118,7 +122,7 @@ public class Flags {
     if (params.getSettings().get("TokenClassFeatures") != null) {
       tokenClassFlag = params.getSettings().get("TokenClassFeatures");
     } else {
-      tokenClassFlag = XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG;
+      tokenClassFlag = Flags.DEFAULT_FEATURE_FLAG;
     }
     return tokenClassFlag;
   }
@@ -128,7 +132,7 @@ public class Flags {
     if (params.getSettings().get("TokenPatternFeatures") != null) {
       tokenClassFlag = params.getSettings().get("TokenPatternFeatures");
     } else {
-      tokenClassFlag = XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG;
+      tokenClassFlag = Flags.DEFAULT_FEATURE_FLAG;
     }
     return tokenClassFlag;
   }
@@ -138,7 +142,7 @@ public class Flags {
     if (params.getSettings().get("OutcomePriorFeatures") != null) {
       outcomePriorFlag = params.getSettings().get("OutcomePriorFeatures");
     } else {
-      outcomePriorFlag = XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG;
+      outcomePriorFlag = Flags.DEFAULT_FEATURE_FLAG;
     }
     return outcomePriorFlag;
   }
@@ -148,7 +152,7 @@ public class Flags {
     if (params.getSettings().get("PreviousMapFeatures") != null) {
       previousMapFlag = params.getSettings().get("PreviousMapFeatures");
     } else {
-      previousMapFlag = XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG;
+      previousMapFlag = Flags.DEFAULT_FEATURE_FLAG;
     }
     return previousMapFlag;
   }
@@ -158,7 +162,7 @@ public class Flags {
     if (params.getSettings().get("SentenceFeatures") != null) {
       sentenceFlag = params.getSettings().get("SentenceFeatures");
     } else {
-      sentenceFlag = XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG;
+      sentenceFlag = Flags.DEFAULT_FEATURE_FLAG;
     }
     return sentenceFlag;
   }
@@ -168,7 +172,7 @@ public class Flags {
     if (params.getSettings().get("PrefixFeatures") != null) {
       prefixFlag = params.getSettings().get("PrefixFeatures");
     } else {
-      prefixFlag = XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG;
+      prefixFlag = Flags.DEFAULT_FEATURE_FLAG;
     }
     return prefixFlag;
   }
@@ -178,7 +182,7 @@ public class Flags {
     if (params.getSettings().get("SuffixFeatures") != null) {
       suffixFlag = params.getSettings().get("SuffixFeatures");
     } else {
-      suffixFlag = XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG;
+      suffixFlag = Flags.DEFAULT_FEATURE_FLAG;
     }
     return suffixFlag;
   }
@@ -188,7 +192,7 @@ public class Flags {
     if (params.getSettings().get("BigramClassFeatures") != null) {
       bigramClassFlag = params.getSettings().get("BigramClassFeatures");
     } else {
-      bigramClassFlag = XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG;
+      bigramClassFlag = Flags.DEFAULT_FEATURE_FLAG;
     }
     return bigramClassFlag;
   }
@@ -198,7 +202,7 @@ public class Flags {
     if (params.getSettings().get("TrigramClassFeatures") != null) {
       trigramClassFlag = params.getSettings().get("TrigramClassFeatures");
     } else {
-      trigramClassFlag = XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG;
+      trigramClassFlag = Flags.DEFAULT_FEATURE_FLAG;
     }
     return trigramClassFlag;
   }
@@ -208,7 +212,7 @@ public class Flags {
     if (params.getSettings().get("FourgramClassFeatures") != null) {
       fourgramClassFlag = params.getSettings().get("FourgramClassFeatures");
     } else {
-      fourgramClassFlag = XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG;
+      fourgramClassFlag = Flags.DEFAULT_FEATURE_FLAG;
     }
     return fourgramClassFlag;
   }
@@ -218,7 +222,7 @@ public class Flags {
     if (params.getSettings().get("FivegramClassFeatures") != null) {
       fivegramClassFlag = params.getSettings().get("FivegramClassFeatures");
     } else {
-      fivegramClassFlag = XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG;
+      fivegramClassFlag = Flags.DEFAULT_FEATURE_FLAG;
     }
     return fivegramClassFlag;
   }
@@ -228,7 +232,7 @@ public class Flags {
     if (params.getSettings().get("CharNgramFeatures") != null) {
       charNgramFlag = params.getSettings().get("CharNgramFeatures");
     } else {
-      charNgramFlag = XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG;
+      charNgramFlag = Flags.DEFAULT_FEATURE_FLAG;
     }
     return charNgramFlag;
   }
@@ -238,7 +242,7 @@ public class Flags {
     if (params.getSettings().get("CharNgramFeaturesRange") != null) {
       charNgramRangeFlag = params.getSettings().get("CharNgramFeaturesRange");
     } else {
-      charNgramRangeFlag = XMLFeatureDescriptor.CHAR_NGRAM_RANGE;
+      charNgramRangeFlag = Flags.CHAR_NGRAM_RANGE;
     }
     return charNgramRangeFlag;
   }
@@ -248,7 +252,7 @@ public class Flags {
     if (params.getSettings().get("DictionaryFeatures") != null) {
       dictionaryFlag = params.getSettings().get("DictionaryFeatures");
     } else {
-      dictionaryFlag = XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG;
+      dictionaryFlag = Flags.DEFAULT_FEATURE_FLAG;
     }
     return dictionaryFlag;
   }
@@ -258,7 +262,7 @@ public class Flags {
     if (params.getSettings().get("ClarkClusterFeatures") != null) {
       distSimFlag = params.getSettings().get("ClarkClusterFeatures");
     } else {
-      distSimFlag = XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG;
+      distSimFlag = Flags.DEFAULT_FEATURE_FLAG;
     }
     return distSimFlag;
   }
@@ -268,7 +272,7 @@ public class Flags {
     if (params.getSettings().get("Word2VecClusterFeatures") != null) {
       word2vecFlag = params.getSettings().get("Word2VecClusterFeatures");
     } else {
-      word2vecFlag = XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG;
+      word2vecFlag = Flags.DEFAULT_FEATURE_FLAG;
     }
     return word2vecFlag;
   }
@@ -278,7 +282,7 @@ public class Flags {
     if (params.getSettings().get("BrownClusterFeatures") != null) {
       brownFlag = params.getSettings().get("BrownClusterFeatures");
     } else {
-      brownFlag = XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG;
+      brownFlag = Flags.DEFAULT_FEATURE_FLAG;
     }
     return brownFlag;
   }
@@ -335,6 +339,107 @@ public class Flags {
     System.err
         .println("You need to specify the DistSimFeatures in the parameters file to use the DistSimPath!");
     System.exit(1);
+  }
+
+  /**
+   * @param params
+   * @return whether the word2vecClusterfeatures are activated or not
+   */
+  public static boolean isWord2VecClusterFeatures(TrainingParameters params) {
+    String word2vecClusterFeatures = getWord2VecClusterFeatures(params);
+    return !word2vecClusterFeatures
+        .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
+  }
+
+  public static boolean isClarkFeatures(TrainingParameters params) {
+    String clarkFeatures = getClarkFeatures(params);
+    return !clarkFeatures
+        .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
+  }
+
+  public static boolean isBrownFeatures(TrainingParameters params) {
+    String brownFeatures = getBrownFeatures(params);
+    return !brownFeatures
+        .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
+  }
+
+  public static boolean isDictionaryFeatures(TrainingParameters params) {
+    String dictFeatures = getDictionaryFeatures(params);
+    return !dictFeatures
+        .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
+  }
+
+  public static boolean isCharNgramClassFeature(TrainingParameters params) {
+    XMLFeatureDescriptor.setNgramRange(params);
+    String charngramParam = getCharNgramFeatures(params);
+    return !charngramParam
+        .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
+  }
+
+  public static boolean isFivegramClassFeature(TrainingParameters params) {
+    String fivegramParam = getFivegramClassFeatures(params);
+    return !fivegramParam
+        .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
+  }
+
+  public static boolean isFourgramClassFeature(TrainingParameters params) {
+    String fourgramParam = getFourgramClassFeatures(params);
+    return !fourgramParam
+        .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
+  }
+
+  public static boolean isTrigramClassFeature(TrainingParameters params) {
+    String trigramParam = getTrigramClassFeatures(params);
+    return !trigramParam
+        .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
+  }
+
+  public static boolean isBigramClassFeature(TrainingParameters params) {
+    String bigramParam = getBigramClassFeatures(params);
+    return !bigramParam
+        .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
+  }
+
+  public static boolean isSuffixFeature(TrainingParameters params) {
+    String suffixParam = getSuffixFeatures(params);
+    return !suffixParam
+        .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
+  }
+
+  public static boolean isPrefixFeature(TrainingParameters params) {
+    String prefixParam = getPreffixFeatures(params);
+    return !prefixParam
+        .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
+  }
+
+  public static boolean isSentenceFeature(TrainingParameters params) {
+    String sentenceParam = getSentenceFeatures(params);
+    return !sentenceParam
+        .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
+  }
+
+  public static boolean isPreviousMapFeature(TrainingParameters params) {
+    String previousMapParam = getPreviousMapFeatures(params);
+    return !previousMapParam
+        .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
+  }
+
+  public static boolean isOutcomePriorFeature(TrainingParameters params) {
+    String outcomePriorParam = getOutcomePriorFeatures(params);
+    return !outcomePriorParam
+        .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
+  }
+
+  public static boolean isTokenClassFeature(TrainingParameters params) {
+    String tokenParam = getTokenClassFeatures(params);
+    return !tokenParam
+        .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
+  }
+
+  public static boolean isTokenFeature(TrainingParameters params) {
+    String tokenParam = getTokenFeatures(params);
+    return !tokenParam
+        .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
   }
 
 }

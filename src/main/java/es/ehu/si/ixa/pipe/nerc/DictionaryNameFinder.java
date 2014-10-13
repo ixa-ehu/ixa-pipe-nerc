@@ -24,6 +24,7 @@ import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
 
 
 import opennlp.tools.namefind.NameFinderME;
+import opennlp.tools.namefind.TokenNameFinder;
 import opennlp.tools.util.Span;
 
 
@@ -32,7 +33,7 @@ import opennlp.tools.util.Span;
  * @author ragerri
  *
  */
-public class DictionaryNameFinder implements NameFinder {
+public class DictionaryNameFinder implements TokenNameFinder {
 
   /**
    * The name factory to create Name objects.
@@ -67,9 +68,8 @@ public class DictionaryNameFinder implements NameFinder {
    */
   public final List<Name> getNames(final String[] tokens) {
 
-    List<Span> origSpans = nercToSpans(tokens);
-    Span[] neSpans = NameFinderME.dropOverlappingSpans(origSpans
-        .toArray(new Span[origSpans.size()]));
+    Span[] origSpans = find(tokens);
+    Span[] neSpans = NameFinderME.dropOverlappingSpans(origSpans);
     List<Name> names = getNamesFromSpans(neSpans, tokens);
     return names;
   }
@@ -81,7 +81,7 @@ public class DictionaryNameFinder implements NameFinder {
    *          the tokenized sentence
    * @return spans of the Named Entities
    */
-  public final List<Span> nercToSpans(final String[] tokens) {
+  public final Span[] find(final String[] tokens) {
     List<Span> namesFound = new LinkedList<Span>();
 
     for (int offsetFrom = 0; offsetFrom < tokens.length; offsetFrom++) {
@@ -101,18 +101,17 @@ public class DictionaryNameFinder implements NameFinder {
           String entryForSearch = StringUtils.getStringFromTokens(tokensSearching).toLowerCase();
           
           if (dictionary.getDict().containsKey(entryForSearch)) {
-            nameFound = new Span(offsetFrom, offsetTo + 1, dictionary.getDict().get(entryForSearch));
+            nameFound = new Span(offsetFrom, offsetTo + 1, dictionary.lookup(entryForSearch));
           }
         }
       }
-
       if (nameFound != null) {
         namesFound.add(nameFound);
         // skip over the found tokens for the next search
         offsetFrom += (nameFound.length() - 1);
       }
     }
-    return namesFound;
+    return namesFound.toArray(new Span[namesFound.size()]);
   }
   
   /**
@@ -122,7 +121,7 @@ public class DictionaryNameFinder implements NameFinder {
    *          the tokenized sentence
    * @return spans of the Named Entities
    */
-  public final List<Span> nercToSpansExact(final String[] tokens) {
+  public final Span[] findExact(final String[] tokens) {
     List<Span> namesFound = new LinkedList<Span>();
 
     for (int offsetFrom = 0; offsetFrom < tokens.length; offsetFrom++) {
@@ -142,7 +141,7 @@ public class DictionaryNameFinder implements NameFinder {
           String entryForSearch = StringUtils.getStringFromTokens(tokensSearching);
           
           if (dictionary.getDict().containsKey(entryForSearch)) {
-            nameFound = new Span(offsetFrom, offsetTo + 1, dictionary.getDict().get(entryForSearch));
+            nameFound = new Span(offsetFrom, offsetTo + 1, dictionary.lookup(entryForSearch));
           }
         }
       }
@@ -153,7 +152,7 @@ public class DictionaryNameFinder implements NameFinder {
         offsetFrom += (nameFound.length() - 1);
       }
     }
-    return namesFound;
+    return namesFound.toArray(new Span[namesFound.size()]);
   }
 
   /**

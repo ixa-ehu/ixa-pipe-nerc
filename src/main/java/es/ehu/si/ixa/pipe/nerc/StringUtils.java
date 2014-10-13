@@ -16,8 +16,11 @@
 
 package es.ehu.si.ixa.pipe.nerc;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.google.common.io.Files;
 
 import opennlp.tools.util.Span;
 
@@ -155,4 +158,22 @@ public final class StringUtils {
     }
     return sb.toString().trim();
   }
+  
+  /**
+   * Recursively get every file in a directory and add them to a list.
+   * 
+   * @param inputPath
+   *          the input directory
+   * @return the list containing all the files
+   */
+  public static List<File> getFilesInDir(File inputPath) {
+    List<File> fileList = new ArrayList<File>();
+    for (File aFile : Files.fileTreeTraverser().preOrderTraversal(inputPath)) {
+      if (aFile.isFile()) {
+        fileList.add(aFile);
+      }
+    }
+    return fileList;
+  }
+
 }

@@ -56,11 +56,11 @@ public class CharacterNgramFeatureGenerator extends CustomFeatureGenerator {
   }
   
   private void setMinLength(Map<String, String> properties) {
-    properties.put("minLength", Integer.toString(XMLFeatureDescriptor.minCharNgram));
+    properties.put("minLength", Integer.toString(XMLFeatureDescriptor.getLeftWindow()));
   }
   
   private void setMaxLength(Map<String, String> properties) {
-    properties.put("maxLength", Integer.toString(XMLFeatureDescriptor.maxCharNgram));
+    properties.put("maxLength", Integer.toString(XMLFeatureDescriptor.getRightWindow()));
   }
 }
 

@@ -18,10 +18,14 @@ package es.ehu.si.ixa.pipe.nerc.dict;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
+
+import es.ehu.si.ixa.pipe.nerc.StringUtils;
 
 /**
  * 
@@ -29,8 +33,7 @@ import com.google.common.io.Files;
  * Dictionaries. The files need to have the following structure: Barack
  * Obama\tperson\n
  * 
- * Every file located in the directory passed as the argument of the DictionaryFeatures
- * parameter will be loaded.
+ * Every file located in the directory passed as a parameter will be loaded.
  * 
  * @author ragerri
  * @version 2014/06/25
@@ -46,11 +49,11 @@ public class Dictionaries {
   /**
    * The list of dictionaries as HashMap<String, String>.
    */
-  private static List<Dictionary> dictionaries;
+  private static List<Map<String, String>> dictionaries;
   /**
    * The list of lowercase dictionaries as HashMap<String, String>.
    */
-  private static List<Dictionary> dictionariesIgnoreCase;
+  private static List<Map<String, String>> dictionariesIgnoreCase;
 
   /**
    * Construct the dictionaries from the input directory path.
@@ -75,7 +78,7 @@ public class Dictionaries {
    * 
    * @return a list of the dictionaries as HashMaps
    */
-  public final List<Dictionary> getDictionaries() {
+  public final List<Map<String, String>> getDictionaries() {
     return dictionaries;
   }
 
@@ -84,7 +87,7 @@ public class Dictionaries {
    * 
    * @return a list of the dictionaries as HashMaps
    */
-  public final List<Dictionary> getIgnoreCaseDictionaries() {
+  public final List<Map<String, String>> getIgnoreCaseDictionaries() {
     return dictionariesIgnoreCase;
   }
 
@@ -106,10 +109,10 @@ public class Dictionaries {
    *           throws an exception if directory does not exist
    */
   private void loadDictionaries(final String inputDir) throws IOException {
-    List<File> fileList = this.getFilesInDir(new File(inputDir));
+    List<File> fileList = StringUtils.getFilesInDir(new File(inputDir));
     dictNames = new ArrayList<String>(fileList.size());
-    dictionaries = new ArrayList<Dictionary>(fileList.size());
-    dictionariesIgnoreCase = new ArrayList<Dictionary>(fileList.size());
+    dictionaries = new ArrayList<Map<String, String>>(fileList.size());
+    dictionariesIgnoreCase = new ArrayList<Map<String, String>>(fileList.size());
     System.err.println("\tloading dictionaries in " + inputDir + " directory");
     for (int i = 0; i < fileList.size(); ++i) {
       if (DEBUG) {
@@ -117,19 +120,19 @@ public class Dictionaries {
             + fileList.get(i).getCanonicalPath());
       }
       dictNames.add(fileList.get(i).getCanonicalPath());
-      dictionaries.add(new Dictionary());
-      dictionariesIgnoreCase.add(new Dictionary());
+      dictionaries.add(new HashMap<String, String>());
+      dictionariesIgnoreCase.add(new HashMap<String, String>());
 
       List<String> fileLines = Files.readLines(fileList.get(i), Charsets.UTF_8);
       for (String line : fileLines) {
         String[] lineArray = line.split("\t");
         if (lineArray.length == 2) {
-          dictionaries.get(i).populate(lineArray[0], lineArray[1]);
+          dictionaries.get(i).put(lineArray[0], lineArray[1]);
           if ((!line.equalsIgnoreCase("in")) && (!line.equalsIgnoreCase("on"))
               && (!line.equalsIgnoreCase("us"))
               && (!line.equalsIgnoreCase("or"))
               && (!line.equalsIgnoreCase("am"))) {
-            dictionariesIgnoreCase.get(i).populate(lineArray[0].toLowerCase(),
+            dictionariesIgnoreCase.get(i).put(lineArray[0].toLowerCase(),
                 lineArray[1]);
           }
         }
@@ -137,22 +140,4 @@ public class Dictionaries {
     }
     System.err.println("found " + dictionaries.size() + " dictionaries");
   }
-
-  /**
-   * Recursively get every file in a directory and add them to a list.
-   * 
-   * @param inputPath
-   *          the input directory
-   * @return the list containing all the files
-   */
-  private List<File> getFilesInDir(File inputPath) {
-    List<File> fileList = new ArrayList<File>();
-    for (File aFile : Files.fileTreeTraverser().preOrderTraversal(inputPath)) {
-      if (aFile.isFile()) {
-        fileList.add(aFile);
-      }
-    }
-    return fileList;
-  }
-
 }

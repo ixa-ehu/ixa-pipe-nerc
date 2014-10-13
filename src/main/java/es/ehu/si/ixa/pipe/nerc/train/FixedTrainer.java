@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import opennlp.tools.cmdline.CmdLineUtil;
@@ -32,9 +33,13 @@ import opennlp.tools.util.SequenceCodec;
 import opennlp.tools.util.TrainingParameters;
 import opennlp.tools.util.featuregen.GeneratorFactory;
 import opennlp.tools.util.model.ArtifactSerializer;
+import es.ehu.si.ixa.pipe.nerc.StringUtils;
 import es.ehu.si.ixa.pipe.nerc.dict.BrownCluster;
 import es.ehu.si.ixa.pipe.nerc.dict.ClarkCluster;
+import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
+import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
 import es.ehu.si.ixa.pipe.nerc.dict.Word2VecCluster;
+import es.ehu.si.ixa.pipe.nerc.dict.Dictionary.DictionarySerializer;
 import es.ehu.si.ixa.pipe.nerc.features.XMLFeatureDescriptor;
 
 /**
@@ -64,23 +69,10 @@ import es.ehu.si.ixa.pipe.nerc.features.XMLFeatureDescriptor;
  * <ol>
  * 
  * @author ragerri
- * @version 2014-09-24
+ * @version 2014-10-13
  */
 public class FixedTrainer extends AbstractTrainer {
-
-  /**
-   * The brown cluster.
-   */
-  public static String brownClusterPath;
-  /**
-   * The path to the clark clustering lexicon.
-   */
-  public static String clarkClusterPath;
-  /**
-   * The word2vec clustering lexicon.
-   */
-  public static String word2vecClusterPath;
-
+  
   /**
    * Construct a trainer based on features specified in the trainParams.txt
    * properties file.
@@ -114,141 +106,58 @@ public class FixedTrainer extends AbstractTrainer {
   }
 
   /**
-   * @param params
-   * @return whether the word2vecClusterfeatures are activated or not
-   */
-  public static boolean isWord2VecClusterFeatures(TrainingParameters params) {
-    String word2vecClusterFeatures = Flags
-        .getWord2VecClusterFeatures(params);
-    return !word2vecClusterFeatures
-        .equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
-  }
-
-  public static boolean isClarkFeatures(TrainingParameters params) {
-    String clarkFeatures = Flags.getClarkFeatures(params);
-    return !clarkFeatures
-        .equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
-  }
-
-  public static boolean isBrownFeatures(TrainingParameters params) {
-    String brownFeatures = Flags.getBrownFeatures(params);
-    return !brownFeatures
-        .equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
-  }
-
-  public static boolean isDictionaryFeatures(TrainingParameters params) {
-    String dictFeatures = Flags.getDictionaryFeatures(params);
-    return !dictFeatures
-        .equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
-  }
-
-  public static boolean isCharNgramClassFeature(TrainingParameters params) {
-    XMLFeatureDescriptor.setNgramRange(params);
-    String charngramParam = Flags.getCharNgramFeatures(params);
-    return !charngramParam
-        .equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
-  }
-
-  public static boolean isFivegramClassFeature(TrainingParameters params) {
-    String fivegramParam = Flags.getFivegramClassFeatures(params);
-    return !fivegramParam
-        .equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
-  }
-
-  public static boolean isFourgramClassFeature(TrainingParameters params) {
-    String fourgramParam = Flags.getFourgramClassFeatures(params);
-    return !fourgramParam
-        .equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
-  }
-
-  public static boolean isTrigramClassFeature(TrainingParameters params) {
-    String trigramParam = Flags.getTrigramClassFeatures(params);
-    return !trigramParam
-        .equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
-  }
-
-  public static boolean isBigramClassFeature(TrainingParameters params) {
-    String bigramParam = Flags.getBigramClassFeatures(params);
-    return !bigramParam
-        .equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
-  }
-
-  public static boolean isSuffixFeature(TrainingParameters params) {
-    String suffixParam = Flags.getSuffixFeatures(params);
-    return !suffixParam
-        .equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
-  }
-
-  public static boolean isPrefixFeature(TrainingParameters params) {
-    String prefixParam = Flags.getPreffixFeatures(params);
-    return !prefixParam
-        .equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
-  }
-
-  public static boolean isSentenceFeature(TrainingParameters params) {
-    String sentenceParam = Flags.getSentenceFeatures(params);
-    return !sentenceParam
-        .equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
-  }
-
-  public static boolean isPreviousMapFeature(TrainingParameters params) {
-    String previousMapParam = Flags.getPreviousMapFeatures(params);
-    return !previousMapParam
-        .equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
-  }
-
-  public static boolean isOutcomePriorFeature(TrainingParameters params) {
-    String outcomePriorParam = Flags.getOutcomePriorFeatures(params);
-    return !outcomePriorParam
-        .equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
-  }
-
-  public static boolean isTokenClassFeature(TrainingParameters params) {
-    String tokenParam = Flags.getTokenClassFeatures(params);
-    return !tokenParam
-        .equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
-  }
-
-  public static boolean isTokenFeature(TrainingParameters params) {
-    String tokenParam = Flags.getTokenFeatures(params);
-    return !tokenParam
-        .equalsIgnoreCase(XMLFeatureDescriptor.DEFAULT_FEATURE_FLAG);
-  }
-
-  /**
-   * Load the external resources.
+   * Load the external resources such as gazetters and clustering lexicons.
    * @param params the training parameters
    * @param featureGenDescriptor the feature generator descriptor
    * @return the map contanining and id and the resource
+   * @throws IOException 
    */
   public static Map<String, Object> loadResources(TrainingParameters params,
-      byte[] featureGenDescriptor) {
+      byte[] featureGenDescriptor) throws IOException {
     String resourceId = null;
     Map<String, Object> resources = new HashMap<String, Object>();
     Map<String, ArtifactSerializer> artifactSerializers = TokenNameFinderModel.createArtifactSerializers();
     
-    if (isBrownFeatures(params)) {
-      brownClusterPath = Flags.getBrownFeatures(params);
+    if (Flags.isBrownFeatures(params)) {
+      String brownClusterPath = Flags.getBrownFeatures(params);
       resourceId = "browncluster";
       artifactSerializers.put(resourceId, new BrownCluster.BrownClusterSerializer());
       loadResource(resourceId, artifactSerializers, brownClusterPath, featureGenDescriptor, resources);
     }
     
-    if (isClarkFeatures(params)) {
-      clarkClusterPath = Flags.getClarkFeatures(params);
+    if (Flags.isClarkFeatures(params)) {
+      String clarkClusterPath = Flags.getClarkFeatures(params);
       resourceId = "clarkcluster";
       artifactSerializers.put(resourceId, new ClarkCluster.ClarkClusterSerializer());
       loadResource(resourceId, artifactSerializers, clarkClusterPath, featureGenDescriptor, resources);
     }
-    if (isWord2VecClusterFeatures(params)) {
+    if (Flags.isWord2VecClusterFeatures(params)) {
       resourceId = "word2veccluster";
-      word2vecClusterPath = Flags.getWord2VecClusterFeatures(params);
+      String word2vecClusterPath = Flags.getWord2VecClusterFeatures(params);
       artifactSerializers.put(resourceId, new Word2VecCluster.Word2VecClusterSerializer());
       loadResource(resourceId, artifactSerializers, word2vecClusterPath, featureGenDescriptor, resources);
+    }
+    if (Flags.isDictionaryFeatures(params)) {
+      String dictDir = Flags.getDictionaryFeatures(params);
+      List<File> fileList = StringUtils.getFilesInDir(new File(dictDir));
+      for (int i = 0; i < fileList.size(); i++) {
+        resourceId = fileList.get(i).getName();
+        String dictionaryPath = fileList.get(i).getCanonicalPath();
+        artifactSerializers.put(resourceId, new Dictionary.DictionarySerializer());
+        loadResource(resourceId, artifactSerializers, dictionaryPath, featureGenDescriptor, resources);
+      }
     }
     return resources;
   }
 
+  /**
+   * Load a resource by resourceId. 
+   * @param resourceId the id of the resource
+   * @param artifactSerializers the serializers in which to put the resource
+   * @param resourcePath the canonical path of the resource
+   * @param featureGenDescriptor the feature descriptor
+   * @param resources the map in which to put the resource
+   */
   public static void loadResource(String resourceId, Map<String, ArtifactSerializer> artifactSerializers, String resourcePath,
       byte[] featureGenDescriptor, Map<String, Object> resources) {
 
@@ -265,7 +174,7 @@ public class FixedTrainer extends AbstractTrainer {
           e.printStackTrace();
         }
       }
-      ArtifactSerializer serializer = artifactSerializers.get(resourceId);
+      ArtifactSerializer<?> serializer = artifactSerializers.get(resourceId);
       InputStream resourceIn = CmdLineUtil.openInFile(resourceFile);
       try {
         resources.put(resourceFile.getCanonicalPath(), serializer.create(resourceIn));

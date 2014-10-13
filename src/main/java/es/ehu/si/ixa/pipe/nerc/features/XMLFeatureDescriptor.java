@@ -1,5 +1,6 @@
 package es.ehu.si.ixa.pipe.nerc.features;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,30 +12,70 @@ import org.jdom2.Element;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 
-import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
-import es.ehu.si.ixa.pipe.nerc.train.FixedTrainer;
+import es.ehu.si.ixa.pipe.nerc.StringUtils;
 import es.ehu.si.ixa.pipe.nerc.train.Flags;
 
 public class XMLFeatureDescriptor {
 
 
-  public static final String DEFAULT_FEATURE_FLAG = "no";
-  public static final String CHAR_NGRAM_RANGE = "2:5";
-  public static final String DEFAULT_WINDOW = "2:2";
-  public static int leftWindow = -1;
-  public static int rightWindow = -1;
-  public static int minCharNgram = -1;
-  public static int maxCharNgram = -1;
   /**
-   * The {@link Dictionaries} contained in the given directory.
+   * The leftWindow length.
    */
-  public static Dictionaries dictionaries;
+  private static int leftWindow = -1;
+  /**
+   * The rightWindow length.
+   */
+  private static int rightWindow = -1;
+  /**
+   * The minimum character ngram to be applied to a token.
+   */
+  private static int minCharNgram = -1;
+  /**
+   * The maximum character ngram to be applied to a token.
+   */
+  private static int maxCharNgram = -1;
   /**
    * This class is not to be instantiated.
    */
   private XMLFeatureDescriptor() {
   }
   
+  /**
+   * Get the left window feature length.
+   * @return the leftWindow length
+   */
+  public static int getLeftWindow() {
+    return leftWindow;
+  }
+  /**
+   * Get the right window feature length.
+   * @return the rightWindow length
+   */
+  public static int getRightWindow() {
+    return rightWindow;
+  }
+  /**
+   * Get the minimum character ngram.
+   * @return the minimum character ngram value
+   */
+  public static int getMinCharNgram() {
+    return minCharNgram;
+  }
+  
+  /**
+   * Get the maximum character ngram.
+   * @return the maximum character ngram value
+   */
+  public static int getMaxCharNgram() {
+    return maxCharNgram;
+  }
+  
+  /**
+   * Generate the XML feature descriptor from the TrainingParameters prop file.
+   * @param params the properties file
+   * @return the XML feature descriptor
+   * @throws IOException if input output fails
+   */
   public static String createXMLFeatureDescriptor(TrainingParameters params) throws IOException {
     
     Element aggGenerators = new Element("generators");
@@ -48,7 +89,7 @@ public class XMLFeatureDescriptor {
     //<window prevLength="2" nextLength="2">
     //  <token />
     //</window>
-    if (FixedTrainer.isTokenFeature(params)) {
+    if (Flags.isTokenFeature(params)) {
       setWindow(params);
       Element tokenFeature = new Element("custom");
       tokenFeature.setAttribute("class", TokenFeatureGenerator.class.getName());
@@ -59,7 +100,7 @@ public class XMLFeatureDescriptor {
       generators.addContent(tokenWindow);
       System.err.println("-> Token features added!: Window range " + leftWindow + ":" + rightWindow);
     }
-    if (FixedTrainer.isTokenClassFeature(params)) {
+    if (Flags.isTokenClassFeature(params)) {
       setWindow(params);
       Element tokenClassFeature = new Element("custom");
       tokenClassFeature.setAttribute("class", TokenClassFeatureGenerator.class.getName());
@@ -70,19 +111,19 @@ public class XMLFeatureDescriptor {
       generators.addContent(tokenClassWindow);
       System.err.println("-> Token Class Features added!: Window range " + leftWindow + ":" + rightWindow);
     }
-    if (FixedTrainer.isOutcomePriorFeature(params)) {
+    if (Flags.isOutcomePriorFeature(params)) {
       Element outcomePriorFeature = new Element("custom");
       outcomePriorFeature.setAttribute("class", OutcomePriorFeatureGenerator.class.getName());
       generators.addContent(outcomePriorFeature);
       System.err.println("-> Outcome Prior Features added!");
     }
-    if (FixedTrainer.isPreviousMapFeature(params)) {
+    if (Flags.isPreviousMapFeature(params)) {
       Element previousMapFeature = new Element("custom");
       previousMapFeature.setAttribute("class", PreviousMapFeatureGenerator.class.getName());
       generators.addContent(previousMapFeature);
       System.err.println("-> Previous Map Features added!");
     }
-    if (FixedTrainer.isSentenceFeature(params)) {
+    if (Flags.isSentenceFeature(params)) {
       Element sentenceFeature = new Element("custom");
       sentenceFeature.setAttribute("class", SentenceFeatureGenerator.class.getName());
       sentenceFeature.setAttribute("begin", "true");
@@ -90,59 +131,57 @@ public class XMLFeatureDescriptor {
       generators.addContent(sentenceFeature);
       System.err.println("-> Sentence Features added!");
     }
-    if (FixedTrainer.isPrefixFeature(params)) {
+    if (Flags.isPrefixFeature(params)) {
       Element prefixFeature = new Element("custom");
       prefixFeature.setAttribute("class", Prefix34FeatureGenerator.class.getName());
       generators.addContent(prefixFeature);
       System.err.println("-> Prefix Features added!");
     }
-    if (FixedTrainer.isSuffixFeature(params)) {
+    if (Flags.isSuffixFeature(params)) {
       Element suffixFeature = new Element("custom");
       suffixFeature.setAttribute("class", SuffixFeatureGenerator.class.getName());
       generators.addContent(suffixFeature);
       System.err.println("-> Suffix Features added!");
     }
-    if (FixedTrainer.isBigramClassFeature(params)) {
+    if (Flags.isBigramClassFeature(params)) {
       Element bigramFeature = new Element("custom");
       bigramFeature.setAttribute("class", BigramClassFeatureGenerator.class.getName());
       generators.addContent(bigramFeature);
       System.err.println("-> Bigram Class Features added!");
     }
-    if (FixedTrainer.isTrigramClassFeature(params)) {
+    if (Flags.isTrigramClassFeature(params)) {
       Element trigramFeature = new Element("custom");
       trigramFeature.setAttribute("class", TrigramClassFeatureGenerator.class.getName());
       generators.addContent(trigramFeature);
       System.err.println("-> Trigram Class Features added!");
     }
-    if (FixedTrainer.isFourgramClassFeature(params)) {
+    if (Flags.isFourgramClassFeature(params)) {
       Element fourgramFeature = new Element("custom");
       fourgramFeature.setAttribute("class", FourgramClassFeatureGenerator.class.getName());
       generators.addContent(fourgramFeature);
       System.err.println("-> Fourgram Class Features added!");
     }
-    if (FixedTrainer.isFivegramClassFeature(params)) {
+    if (Flags.isFivegramClassFeature(params)) {
       Element fivegramFeature = new Element("custom");
       fivegramFeature.setAttribute("class", FivegramClassFeatureGenerator.class.getName());
       generators.addContent(fivegramFeature);
       System.err.println("-> Fivegram Class Features added!");
     }
-    if (FixedTrainer.isCharNgramClassFeature(params)) {
+    if (Flags.isCharNgramClassFeature(params)) {
       Element charngramFeature = new Element("custom");
       charngramFeature.setAttribute("class", CharacterNgramFeatureGenerator.class.getName());
       generators.addContent(charngramFeature);
       System.err.println("-> CharNgram Class Features added!");
     }
-    //TODO dictionary features
-    if (FixedTrainer.isDictionaryFeatures(params)) {
+    //Dictionary Features
+    if (Flags.isDictionaryFeatures(params)) {
       setWindow(params);
       String dictPath = Flags.getDictionaryFeatures(params);
-      if (dictionaries == null) {
-        dictionaries = new Dictionaries(dictPath);
-      }
-      for (int i = 0; i < dictionaries.getIgnoreCaseDictionaries().size(); i++) {
+      List<File> fileList = StringUtils.getFilesInDir(new File(dictPath));
+      for (int i = 0; i < fileList.size(); i++) {
         Element dictFeatures = new Element("custom");
         dictFeatures.setAttribute("class", DictionaryFeatureGenerator.class.getName());
-        dictFeatures.setAttribute("dict", dictionaries.getDictNames().get(i));
+        dictFeatures.setAttribute("dict", fileList.get(i).getCanonicalPath());
         Element dictWindow = new Element("window");
         dictWindow.setAttribute("prevLength", Integer.toString(leftWindow));
         dictWindow.setAttribute("nextLength", Integer.toString(rightWindow));
@@ -151,8 +190,8 @@ public class XMLFeatureDescriptor {
       }
       System.err.println("-> Dictionary Features added!");
     }
-    
-    if (FixedTrainer.isBrownFeatures(params)) {
+    //Brown clustering features
+    if (Flags.isBrownFeatures(params)) {
       String brownClusterPath = Flags.getBrownFeatures(params);
       setWindow(params);
       //previous 2 maps features
@@ -193,8 +232,8 @@ public class XMLFeatureDescriptor {
       System.err.println("-> Brown Cluster Features added!");
       
     }
-    
-    if (FixedTrainer.isClarkFeatures(params)) {
+    //Clark clustering features
+    if (Flags.isClarkFeatures(params)) {
       String clarkClusterPath = Flags.getClarkFeatures(params);
       setWindow(params);
       Element clarkFeatures = new Element("custom");
@@ -207,8 +246,8 @@ public class XMLFeatureDescriptor {
       generators.addContent(clarkWindow);
       System.err.println("-> Clark Cluster Features added!");
     }
-    
-    if (FixedTrainer.isWord2VecClusterFeatures(params)) {
+    //word2vec clustering features
+    if (Flags.isWord2VecClusterFeatures(params)) {
       String word2vecClusterPath = Flags.getWord2VecClusterFeatures(params);
       setWindow(params);
       Element word2vecClusterFeatures = new Element("custom");
@@ -232,9 +271,9 @@ public class XMLFeatureDescriptor {
     
   }
   
-  
   /**
-   * @param params
+   * Set the window length from the training parameters file.
+   * @param params the properties file
    */
   public static void setWindow(TrainingParameters params) {
     if (leftWindow == -1 || rightWindow == -1) {
@@ -259,6 +298,10 @@ public class XMLFeatureDescriptor {
     return windowRange;
   }
   
+  /**
+   * Set the character ngrams minimum and maximum values.
+   * @param params the parameters file
+   */
   public static void setNgramRange(TrainingParameters params) {
     if (minCharNgram == -1 || maxCharNgram == -1) {
       minCharNgram = getNgramRange(params).get(0);
@@ -283,5 +326,4 @@ public class XMLFeatureDescriptor {
     return ngramRange;
   }
   
- 
 }
