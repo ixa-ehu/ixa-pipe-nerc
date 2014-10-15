@@ -52,10 +52,6 @@ import es.ehu.si.ixa.pipe.nerc.formats.GermEval2014OuterNameStream;
  * @version 2014-04-17
  */
 public abstract class AbstractTrainer implements Trainer {
-
-  public final static int DEFAULT_WINDOW_SIZE = 2;
-  public final static int MIN_CHAR_NGRAM_LENGTH = 2;
-  public final static int DEFAULT_CHAR_NGRAM_LENGTH = 6;
   
   /**
    * The language.
@@ -99,8 +95,8 @@ public abstract class AbstractTrainer implements Trainer {
   private TokenNameFinderFactory nameClassifierFactory;
 
   /**
-   * Constructs a trainer with training and test data, and with options for
-   * language, beamsize for decoding, and corpus format (conll or opennlp).
+   * Construct a trainer with training and test data, and with options for
+   * language, beamsize for decoding, sequence codec and corpus format (conll or opennlp).
    * @param aTrainData
    *          the training data
    * @param aTestData
@@ -110,6 +106,7 @@ public abstract class AbstractTrainer implements Trainer {
    */
   public AbstractTrainer(final String aTrainData,
       final String aTestData, final TrainingParameters params) throws IOException {
+    
     this.lang = Flags.getLanguage(params);
     this.corpusFormat = Flags.getCorpusFormat(params);
     this.trainData = aTrainData;
@@ -127,22 +124,10 @@ public abstract class AbstractTrainer implements Trainer {
     }
   }
 
-  /**
-   * Constructs a trainer with only beamsize as option. This is used for tagging
-   * time with the appropriate features.
-   * @param beamsize
-   *          the beamsize for decoding
-   */
-  //TODO remove these constructors by including the featuresets in the model via
-  //a feature factory
-  public AbstractTrainer(final TrainingParameters params) {
-    this.beamSize = Integer.parseInt(params.getSettings().get("Beamsize"));
-  }
-
   /*
    * (non-Javadoc)
    * @see
-   * es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer#train(opennlp.tools.util
+   * es.ehu.si.ixa.pipe.nerc.train.Trainer#train(opennlp.tools.util
    * .TrainingParameters)
    */
   public final TokenNameFinderModel train(final TrainingParameters params) {
@@ -358,7 +343,6 @@ public abstract class AbstractTrainer implements Trainer {
 
   /**
    * Set the language.
-   * class.
    * @param aLang
    *          the language
    */
@@ -366,6 +350,10 @@ public abstract class AbstractTrainer implements Trainer {
     this.lang = aLang;
   }
   
+  /**
+   * Get the Sequence codec.
+   * @return the sequence codec
+   */
   public final String getSequenceCodec() {
     String seqCodec = null;
     if ("BIO".equals(sequenceCodec)) {
@@ -377,6 +365,10 @@ public abstract class AbstractTrainer implements Trainer {
     return seqCodec;
   }
   
+  /**
+   * Set the sequence codec.
+   * @param aSeqCodec the sequence codec to be set
+   */
   public final void setSequenceCodec(final String aSeqCodec) {
     this.sequenceCodec = aSeqCodec;
   }

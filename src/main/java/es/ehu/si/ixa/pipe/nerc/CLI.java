@@ -252,7 +252,7 @@ public class CLI {
     } else {
       trainedModel = nercTrainer.train(params);
     }
-    CmdLineUtil.writeModel("ixa-pipe-nerc model", new File(outModel), trainedModel);
+    CmdLineUtil.writeModel("ixa-pipe-nerc ", new File(outModel), trainedModel);
     System.err.println();
     System.err.println("Wrote trained NERC model to " + outModel);
   }

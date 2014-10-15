@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
@@ -168,6 +169,7 @@ public class StatisticalNameFinder implements NameFinder {
    */
   public final TokenNameFinderModel loadModel(final String lang, final String model) {
     InputStream trainedModelInputStream = null;
+    long lStartTime = new Date().getTime();
     try {
       if (!nercModels.containsKey(lang)) {
         trainedModelInputStream = new FileInputStream(model);
@@ -184,6 +186,10 @@ public class StatisticalNameFinder implements NameFinder {
         }
       }
     }
+    long lEndTime = new Date().getTime();
+    long difference = lEndTime - lStartTime;
+    System.err.println("ixa-pipe-nerc model loaded in: " + difference
+        + " miliseconds ... [DONE]");
     return nercModels.get(lang);
   }
 }

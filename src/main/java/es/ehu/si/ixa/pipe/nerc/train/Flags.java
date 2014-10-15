@@ -1,5 +1,9 @@
 package es.ehu.si.ixa.pipe.nerc.train;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import opennlp.tools.util.TrainingParameters;
 import es.ehu.si.ixa.pipe.nerc.features.XMLFeatureDescriptor;
 
@@ -286,6 +290,23 @@ public class Flags {
       brownFlag = Flags.DEFAULT_FEATURE_FLAG;
     }
     return brownFlag;
+  }
+  
+  /**
+   * Get a parameter in trainParams.prop file consisting of a list of
+   * clustering lexicons separated by comma "," and return a list of
+   * files, one for each lexicon.
+   * @param clusterPath the clustering parameter in the prop file
+   * @return a list of files one for each lexicon
+   */
+  public static List<File> getClusterLexiconFiles(String clusterPath) {
+    List<File> clusterLexicons = new ArrayList<File>();
+    String[] clusterPaths = clusterPath.split(",");
+    for (String clusterName : clusterPaths) {
+      clusterLexicons.add(new File(clusterName));
+    }
+    return clusterLexicons;
+    
   }
 
   public static void devSetException() {
