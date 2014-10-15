@@ -5,20 +5,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 import opennlp.tools.cmdline.namefind.NameEvaluationErrorListener;
 import opennlp.tools.cmdline.namefind.TokenNameFinderDetailedFMeasureListener;
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.NameSample;
-import opennlp.tools.namefind.NameSampleTypeFilter;
 import opennlp.tools.namefind.TokenNameFinderEvaluationMonitor;
 import opennlp.tools.namefind.TokenNameFinderEvaluator;
 import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.ObjectStream;
-import opennlp.tools.util.TrainingParameters;
 import opennlp.tools.util.eval.EvaluationMonitor;
 import es.ehu.si.ixa.pipe.nerc.train.AbstractTrainer;
-import es.ehu.si.ixa.pipe.nerc.train.Flags;
 
 /**
  * Evaluation class mostly using {@link TokenNameFinderEvaluator}.
@@ -33,43 +32,37 @@ public class Evaluate {
    */
   private ObjectStream<NameSample> testSamples;
   /**
-   * Static instance of {@link TokenNameFinderModel}.
-   */
-  private static TokenNameFinderModel nercModel;
-  /**
    * An instance of the probabilistic {@link NameFinderME}.
    */
   private NameFinderME nameFinder;
+  /**
+   * The models to use for every language. The keys of the hash are the
+   * language codes, the values the models.
+   */
+  private static ConcurrentHashMap<String, TokenNameFinderModel> nercModels =
+      new ConcurrentHashMap<String, TokenNameFinderModel>();
  
   /**
-   * Construct an evaluator.
-   *
-   * @param testData the reference data to evaluate against
-   * @param model the model to be evaluated
-   * @param features the features
-   * @param lang the language
-   * @param beamsize the beam size for decoding
-   * @param corpusFormat the format of the testData corpus
-   * @throws IOException if input data not available
+   * Construct an evaluator. It takes from the properties a model,
+   * a testset and the format of the testset. Every other parameter
+   * set in the training, e.g., beamsize, decoding, etc., is serialized
+   * in the model.
+   * @param props the properties parameter
+   * @throws IOException the io exception
    */
-  public Evaluate(final TrainingParameters params) throws IOException {
+  public Evaluate(final Properties props) throws IOException {
     
-    String testSet = Flags.getDataSet("TestSet", params);
-    String model = Flags.getModel(params);
-    String lang = Flags.getLanguage(params);
-    String corpusFormat = Flags.getCorpusFormat(params);
+    String lang = props.getProperty("language");
+    String model = props.getProperty("model");
+    String testSet = props.getProperty("testset");
+    String corpusFormat = props.getProperty("corpusFormat");
     
     testSamples = AbstractTrainer.getNameStream(testSet, lang, corpusFormat);
-    if (params.getSettings().get("Types") != null) {
-      String neTypes = params.getSettings().get("Types");
-      String[] neTypesArray = neTypes.split(",");
-      testSamples = new NameSampleTypeFilter(neTypesArray, testSamples);
-    }
     InputStream trainedModelInputStream = null;
     try {
-      if (nercModel == null) {
+      if (!nercModels.containsKey(lang)) {
         trainedModelInputStream = new FileInputStream(model);
-        nercModel = new TokenNameFinderModel(trainedModelInputStream);
+        nercModels.put(lang, new TokenNameFinderModel(trainedModelInputStream));
       }
     } catch (IOException e) {
       e.printStackTrace();
@@ -82,7 +75,7 @@ public class Evaluate {
         }
       }
     }
-    nameFinder = new NameFinderME(nercModel);
+    nameFinder = new NameFinderME(nercModels.get(lang));
   }
 
   /**

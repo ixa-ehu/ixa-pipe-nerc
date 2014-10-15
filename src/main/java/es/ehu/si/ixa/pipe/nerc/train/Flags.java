@@ -19,6 +19,7 @@ public class Flags {
   public static final String DEFAULT_DICT_PATH = "off";
   public static final String DEFAULT_OUTPUT_FORMAT="naf";
   public static final String DEFAULT_SEQUENCE_CODEC = "BILOU";
+  public static final String DEFAULT_EVAL_FORMAT = "opennlp";
 
   private Flags() {
     
@@ -42,16 +43,6 @@ public class Flags {
       trainSet = params.getSettings().get(dataset);
     }
     return trainSet;
-  }
-
-  public static String getDictOption(TrainingParameters params) {
-    String dictOption = null;
-    if (params.getSettings().get("DirectDictionaryTagging") != null) {
-      dictOption = params.getSettings().get("DirectDictionaryTagging");
-    } else {
-      dictOption = Flags.DEFAULT_DICT_OPTION;
-    }
-    return dictOption;
   }
 
   public static String getModel(TrainingParameters params) {
@@ -336,18 +327,6 @@ public class Flags {
   public static void dictionaryFeaturesException() {
     System.err
         .println("You need to specify the DictionaryFeatures in the parameters file to use the DictionaryPath!");
-    System.exit(1);
-  }
-
-  public static void distsimException() {
-    System.err
-        .println("You need to specify the DistSimPath in the parameters file to use the DistSimFeatures!");
-    System.exit(1);
-  }
-
-  public static void distsimFeaturesException() {
-    System.err
-        .println("You need to specify the DistSimFeatures in the parameters file to use the DistSimPath!");
     System.exit(1);
   }
 

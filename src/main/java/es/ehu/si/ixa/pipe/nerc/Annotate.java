@@ -34,6 +34,7 @@ import java.util.Properties;
 import com.google.common.collect.Lists;
 
 import opennlp.tools.namefind.NameFinderME;
+import opennlp.tools.namefind.NameSample;
 import opennlp.tools.util.Span;
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
 import es.ehu.si.ixa.pipe.nerc.train.Flags;
@@ -85,11 +86,15 @@ public class Annotate {
    */
   private boolean lexerFind;
 
-  /**
+  /** It manages the use of the three different name finders: {@code StatisticalNameFinder}, 
+   * {@code DictionariesNameFinder} and {@code NumericNameFinder}. In particular, if --dictTag
+   * option in CLI is off, statistical models are used (this is the default). If --dictTag is
+   * activated, it has two options, "tag" and "post": tag only tags with a gazetteer and "post" 
+   * post-processes the probabilistic annotation giving priority to the gazetteer. 
+   * Obviously, this option depends on the --dictPath parameter being correctly specified. Finally,
+   * --lexer numeric option annotates numeric entities (dates, percentages, and so on) via rules.
    * @param properties
    *          the properties
-   * @param beamsize
-   *          the beamsize for decoding
    * @throws IOException
    *           the io thrown
    */
@@ -125,8 +130,10 @@ public class Annotate {
         lexerFind = true;
       }
       if (!dictPath.equals(Flags.DEFAULT_DICT_PATH)) {
-        dictionaries = new Dictionaries(dictPath);
-        dictFinder = new DictionariesNameFinder(dictionaries, nameFactory);
+        if (dictionaries == null) {
+          dictionaries = new Dictionaries(dictPath);
+          dictFinder = new DictionariesNameFinder(dictionaries, nameFactory);
+        }
         if (dictOption.equalsIgnoreCase("tag")) {
           dictTag = true;
           postProcess = false;
@@ -231,6 +238,53 @@ public class Annotate {
    */
   public final String annotateNEsToKAF(KAFDocument kaf) {
     return kaf.toString();
+  }
+  
+  /**
+   * Output annotation in OpenNLP format.
+   * 
+   * @param kaf
+   *          the naf document
+   * @return the string containing the naf document
+   */
+  public final String annotateNEsToOpenNLP(KAFDocument kaf) {
+    StringBuilder sb = new StringBuilder();
+    List<Span> allSpans = null;
+    List<List<WF>> sentences = kaf.getSentences();
+    for (List<WF> sentence : sentences) {
+      String[] tokens = new String[sentence.size()];
+      String[] tokenIds = new String[sentence.size()];
+      for (int i = 0; i < sentence.size(); i++) {
+        tokens[i] = sentence.get(i).getForm();
+        tokenIds[i] = sentence.get(i).getId();
+      }
+      if (statistical) {
+        Span[] statSpans = nameFinder.nercToSpans(tokens);
+        allSpans = Lists.newArrayList(statSpans);
+      }
+      if (postProcess) {
+        Span[] dictSpans = dictFinder.nercToSpansExact(tokens);
+        SpanUtils.postProcessDuplicatedSpans(allSpans, dictSpans);
+        SpanUtils.concatenateSpans(allSpans, dictSpans);
+      }
+      if (dictTag) {
+        Span[] dictOnlySpans = dictFinder.nercToSpansExact(tokens);
+        allSpans = Lists.newArrayList(dictOnlySpans);
+      }
+      if (lexerFind) {
+        String sentenceText = StringUtils.getStringFromTokens(tokens);
+        StringReader stringReader = new StringReader(sentenceText);
+        BufferedReader sentenceReader = new BufferedReader(stringReader);
+        numericLexerFinder = new NumericNameFinder(sentenceReader, nameFactory);
+        Span[] numericSpans = numericLexerFinder.nercToSpans(tokens);
+        SpanUtils.concatenateSpans(allSpans, numericSpans);
+      }
+      Span[] allSpansArray = NameFinderME.dropOverlappingSpans(allSpans
+          .toArray(new Span[allSpans.size()]));
+      NameSample nameSample = new NameSample(tokens, allSpansArray, false);
+      sb.append(nameSample.toString()).append("\n");
+    }
+    return sb.toString();
   }
 
   /**

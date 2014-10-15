@@ -201,6 +201,8 @@ public class CLI {
       kafToString = annotator.annotateNEsToCoNLL2003(kaf);
     } else if (outputFormat.equalsIgnoreCase("conll02")) {
       kafToString = annotator.annotateNEsToCoNLL2002(kaf);
+    } else if (outputFormat.equalsIgnoreCase("opennlp")) {
+      kafToString = annotator.annotateNEsToOpenNLP(kaf);
     } else {
       kafToString = annotator.annotateNEsToKAF(kaf);
     }
@@ -263,13 +265,14 @@ public class CLI {
    */
   public final void eval() throws IOException {
 
-    String predFile = parsedArguments.getString("prediction");
-    // load training parameters file
-    String paramFile = parsedArguments.getString("params");
-    TrainingParameters params = InputOutputUtils
-        .loadTrainingParameters(paramFile);
+    String lang = parsedArguments.getString("language");
+    String model = parsedArguments.getString("model");
+    String testset = parsedArguments.getString("testset");
+    String corpusFormat = parsedArguments.getString("corpusFormat");
+    Properties props = setEvalProperties(lang, model, testset, corpusFormat);
+    
     if (parsedArguments.getString("prediction") == null) {
-      Evaluate evaluator = new Evaluate(params);
+      Evaluate evaluator = new Evaluate(props);
       if (parsedArguments.getString("evalReport") != null) {
         if (parsedArguments.getString("evalReport").equalsIgnoreCase("brief")) {
           evaluator.evaluate();
@@ -284,7 +287,8 @@ public class CLI {
         evaluator.detailEvaluate();
       }
     } else if (parsedArguments.getString("prediction") != null) {
-      CorpusEvaluate corpusEvaluator = new CorpusEvaluate(predFile, params);
+      String predFile = parsedArguments.getString("prediction");
+      CorpusEvaluate corpusEvaluator = new CorpusEvaluate(predFile, props);
       corpusEvaluator.evaluate();
     } else {
       System.err
@@ -296,6 +300,7 @@ public class CLI {
    * Create the available parameters for NER tagging.
    */
   private void loadAnnotateParameters() {
+    
     annotateParser.addArgument("-m", "--model")
         .required(true)
         .help("Pass the model to do the tagging as a parameter.\n");
@@ -305,7 +310,7 @@ public class CLI {
         .help("Choose language; it defaults to the language value in incoming NAF file.\n");
     annotateParser.addArgument("-o","--outputFormat")
         .required(false)
-        .choices("conll03", "conll02", "naf")
+        .choices("conll03", "conll02", "naf", "opennlp")
         .setDefault(Flags.DEFAULT_OUTPUT_FORMAT)
         .help("Choose output format; it defaults to NAF.\n");
     annotateParser.addArgument("--lexer")
@@ -339,19 +344,34 @@ public class CLI {
    * Create the parameters available for evaluation.
    */
   private void loadEvalParameters() {
-    evalParser.addArgument("-p", "--params").required(true)
-        .help("Load the parameters file\n");
+    evalParser.addArgument("-l", "--language")
+        .required(true)
+        .choices("de", "en", "es", "eu", "it", "nl")
+        .help("Choose language.\n");
+    evalParser.addArgument("-m", "--model")
+        .required(true)
+        .help("Pass the model to evaluate as a parameter.\n");
+    evalParser.addArgument("-t", "--testset")
+        .required(true)
+        .help("The test or reference corpus.\n");
+    evalParser.addArgument("-f","--corpusFormat")
+        .required(false)
+        .choices("conll03", "conll02", "opennlp")
+        .setDefault(Flags.DEFAULT_EVAL_FORMAT)
+        .help("Choose format of reference corpus; it defaults to opennlp format.\n");
     evalParser
         .addArgument("--prediction")
         .required(false)
         .help(
-            "Use this parameter to evaluate one prediction corpus against a reference corpus\n");
-    evalParser.addArgument("--evalReport").required(false)
-        .choices("brief", "detailed", "error");
+            "Use this parameter to evaluate one prediction corpus against the reference corpus.\n");
+    evalParser.addArgument("--evalReport")
+        .required(false)
+        .choices("brief", "detailed", "error")
+        .help("Choose level of detail of evaluation report; it defaults to detailed evaluation.\n");
   }
 
   /**
-   * Set a Properties object with the CLI parameters.
+   * Set a Properties object with the CLI parameters for annotation.
    * @param model the model parameter
    * @param language language parameter
    * @param lexer rule based parameter
@@ -367,6 +387,22 @@ public class CLI {
     annotateProperties.setProperty("dictTag", dictTag);
     annotateProperties.setProperty("dictPath", dictPath);
     return annotateProperties;
+  }
+  
+  /**
+   * Set a Properties object with the CLI parameters for evaluation.
+   * @param model the model parameter
+   * @param testset the reference set
+   * @param corpusFormat the format of the testset
+   * @return the properties object
+   */
+  private Properties setEvalProperties(String language, String model, String testset, String corpusFormat) {
+    Properties evalProperties = new Properties();
+    evalProperties.setProperty("language", language);
+    evalProperties.setProperty("model", model);
+    evalProperties.setProperty("testset", testset);
+    evalProperties.setProperty("corpusFormat", corpusFormat);
+    return evalProperties;
   }
 
 }

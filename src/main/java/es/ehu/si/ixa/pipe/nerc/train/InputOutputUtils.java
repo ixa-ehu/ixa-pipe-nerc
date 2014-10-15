@@ -186,25 +186,4 @@ public final class InputOutputUtils {
     System.out.println("All Params " + allParams.size());
     return allParams;
   }
-
-  public static void saveModel(BaseModel trainedModel, String outfile) {
-    OutputStream modelOut = null;
-    try {
-      modelOut = new BufferedOutputStream(new FileOutputStream(outfile));
-      trainedModel.serialize(modelOut);
-    } catch (IOException e) {
-      // Failed to save model
-      e.printStackTrace();
-    } finally {
-      if (modelOut != null) {
-        try {
-          modelOut.close();
-        } catch (IOException e) {
-          // Failed to correctly save model.
-          // Written model might be invalid.
-          e.printStackTrace();
-        }
-      }
-    }
-  }
 }
