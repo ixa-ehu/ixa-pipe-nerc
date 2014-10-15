@@ -150,4 +150,3 @@ Word2VecClusterFeatures=/home/ragerri/clusters.large.txt
 ##    + The iteration to start the cross evaluation 
 ##    + The range of iterations to perform each cross evaluation
 #CrossEval=1:10
-

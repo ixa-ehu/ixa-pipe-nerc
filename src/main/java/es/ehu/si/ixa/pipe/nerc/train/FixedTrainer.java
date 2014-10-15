@@ -161,8 +161,7 @@ public class FixedTrainer extends AbstractTrainer {
 
     File resourceFile = new File(resourcePath);
     if (resourceFile != null) {
-   
-      if (featureGenDescriptor != null) {
+      /*if (featureGenDescriptor != null) {
         InputStream xmlDescriptorIn = new ByteArrayInputStream(
             featureGenDescriptor);
         try {
@@ -171,7 +170,7 @@ public class FixedTrainer extends AbstractTrainer {
         } catch (IOException e) {
           e.printStackTrace();
         }
-      }
+      }*/
       ArtifactSerializer<?> serializer = artifactSerializers.get(resourceId);
       InputStream resourceIn = CmdLineUtil.openInFile(resourceFile);
       try {

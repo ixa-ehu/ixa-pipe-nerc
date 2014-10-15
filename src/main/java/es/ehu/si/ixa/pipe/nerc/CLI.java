@@ -183,34 +183,32 @@ public class CLI {
         outputStream, "UTF-8"));
     // read KAF document from inputstream
     KAFDocument kaf = KAFDocument.createFromStream(breader);
-    // load properties parameters file
-    String paramFile = parsedArguments.getString("params");
-    TrainingParameters params = InputOutputUtils
-        .loadTrainingParameters(paramFile);
+    // load parameters into a properties
+    String model = parsedArguments.getString("model");
+    String outputFormat = parsedArguments.getString("outputFormat");
+    String lexer = parsedArguments.getString("lexer");
     // language parameter
     String lang = null;
-    if (params.getSettings().get("Language") != null) {
-      lang = params.getSettings().get("Language");
+    if (parsedArguments.getString("language") != null) {
+      lang = parsedArguments.getString("language");
       if (!kaf.getLang().equalsIgnoreCase(lang)) {
         System.err
-            .println("Lang parameter in NAF and parameters file do not match!!");
+            .println("Language parameter in NAF and CLI do not match!!");
         System.exit(1);
       }
     } else {
-      params.getSettings().put("Language", kaf.getLang());
+      lang = kaf.getLang();
     }
-    String lexer = parsedArguments.getString("lexer");
+    Properties properties = setAnnotateProperties(model, lang, lexer);
     KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor(
-        "entities", "ixa-pipe-nerc-" + lang + "-" + paramFile, version);
+        "entities", "ixa-pipe-nerc-" + lang + "-" + Files.getNameWithoutExtension(model), version);
     newLp.setBeginTimestamp();
-    Properties properties = setAnnotateProperties(lexer);
-    Annotate annotator = new Annotate(properties, params);
+    Annotate annotator = new Annotate(properties);
     annotator.annotateNEs(kaf);
-    String outputFormatOption = Flags.getOutputFormat(params);
     String kafToString = null;
-    if (outputFormatOption.equalsIgnoreCase("conll03")) {
+    if (outputFormat.equalsIgnoreCase("conll03")) {
       kafToString = annotator.annotateNEsToCoNLL2003(kaf);
-    } else if (outputFormatOption.equalsIgnoreCase("conll02")) {
+    } else if (outputFormat.equalsIgnoreCase("conll02")) {
       kafToString = annotator.annotateNEsToCoNLL2002(kaf);
     } else {
       kafToString = annotator.annotateNEsToKAF(kaf);
@@ -308,9 +306,20 @@ public class CLI {
    * Create the available parameters for NER tagging.
    */
   private void loadAnnotateParameters() {
-    annotateParser.addArgument("-p", "--params").required(true)
-        .help("Load the parameters file\n");
-    annotateParser.addArgument("--lexer").choices("numeric")
+    annotateParser.addArgument("-m", "--model")
+        .required(true)
+        .help("Pass the model to do the tagging as a parameter.\n");
+    annotateParser.addArgument("-l","--language")
+        .required(false)
+        .choices("de", "en", "es", "eu", "it", "nl")
+        .help("Choose language");
+    annotateParser.addArgument("-o","--outputFormat")
+        .required(false)
+        .choices("conll03", "conll02", "naf")
+        .setDefault(DEFAULT_OUTPUT_FORMAT)
+        .help("Choose output format; it defaults to NAF.\n");
+    annotateParser.addArgument("--lexer")
+        .choices("numeric")
         .setDefault(DEFAULT_LEXER).required(false)
         .help("Use lexer rules for NERC tagging\n");
   }
@@ -338,9 +347,11 @@ public class CLI {
         .choices("brief", "detailed", "error");
   }
 
-  private Properties setAnnotateProperties(String ruleBasedOption) {
+  private Properties setAnnotateProperties(String model, String language, String lexer) {
     Properties annotateProperties = new Properties();
-    annotateProperties.setProperty("ruleBasedOption", ruleBasedOption);
+    annotateProperties.setProperty("model", model);
+    annotateProperties.setProperty("language", language);
+    annotateProperties.setProperty("ruleBasedOption", lexer);
     return annotateProperties;
   }
 

@@ -92,11 +92,11 @@ public class Annotate {
    * @throws IOException
    *           the io thrown
    */
-  public Annotate(final Properties properties, TrainingParameters params)
+  public Annotate(final Properties properties)
       throws IOException {
 
     nameFactory = new NameFactory();
-    annotateOptions(properties, params);
+    annotateOptions(properties);
   }
 
   /**
@@ -107,16 +107,13 @@ public class Annotate {
    * 
    * @param lang
    * @param model
-   * @param features
-   * @param beamsize
    * @param dictOption
    * @param dictPath
    * @param ruleBasedOption
    * @throws IOException
    */
   // TODO surely we can simplify this?
-  private void annotateOptions(Properties properties,
-      TrainingParameters params) throws IOException {
+  private void annotateOptions(Properties properties) throws IOException {
     
     String ruleBasedOption = properties.getProperty("ruleBasedOption");
     String dictFeature = Flags.getDictionaryFeatures(params);
