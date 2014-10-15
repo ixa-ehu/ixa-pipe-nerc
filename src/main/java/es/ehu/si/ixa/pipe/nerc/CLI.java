@@ -349,7 +349,8 @@ public class CLI {
         .choices("de", "en", "es", "eu", "it", "nl")
         .help("Choose language.\n");
     evalParser.addArgument("-m", "--model")
-        .required(true)
+        .required(false)
+        .setDefault(Flags.DEFAULT_EVALUATE_MODEL)
         .help("Pass the model to evaluate as a parameter.\n");
     evalParser.addArgument("-t", "--testset")
         .required(true)

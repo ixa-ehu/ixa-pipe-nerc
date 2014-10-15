@@ -245,7 +245,7 @@ public class Annotate {
    * 
    * @param kaf
    *          the naf document
-   * @return the string containing the naf document
+   * @return the string containing the annotated document
    */
   public final String annotateNEsToOpenNLP(KAFDocument kaf) {
     StringBuilder sb = new StringBuilder();
