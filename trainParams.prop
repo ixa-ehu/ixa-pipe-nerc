@@ -36,12 +36,6 @@ TestSet=/home/ragerri/experiments/nerc/conll03/eng.testb
 # CorpusFormat of the training corpus
 CorpusFormat=conll03
 
-# OutputFormat: conll02, conll03 or naf
-# Choose the format in which to print the ixa-pipe-nerc annotations. If not
-# specified, it defaults to naf.
-#OutputFormat=conll03
-
-
 # OutputModel: if commented out, ixa-pipe-nerc will save the model with the
 # name of this properties file
 OutputModel=trainParams.bin
@@ -54,7 +48,7 @@ OutputModel=trainParams.bin
 Beamsize=3
 
 # Sequence codec used to code named entity spans: Choose between BIO and BILOU.
-# If commented out, it default to BILOU.
+# If commented out, it defaults to BILOU.
 SequenceCodec=BIO
 
 ##############
@@ -116,14 +110,6 @@ FivegramClassFeatures=no
 # If Range is commented out, it defaults to 2:5 when this feature is "yes".
 CharNgramFeatures=no
 CharNgramFeaturesRange=2:5
-
-# DirectDictionaryTagging: Use a gazetteer to directly annotate named entities. If off, only
-# statistical models are used (this is the default). If activated, it has two
-# options, "tag" and "post": tag only tags with a gazetteer and "post"
-# post-processes the probabilistic annotation giving priority to the
-# gazetteer. Obviously, this option depends on DictionaryPath being correctly
-# specified.
-#DirectDictionaryTagging=post
 
 # DictionaryFeatures: add features if token found in some gazetteers. Comment
 # it out deactivate this feature.
