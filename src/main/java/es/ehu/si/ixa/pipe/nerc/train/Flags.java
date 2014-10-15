@@ -1,7 +1,6 @@
 package es.ehu.si.ixa.pipe.nerc.train;
 
 import opennlp.tools.util.TrainingParameters;
-import es.ehu.si.ixa.pipe.nerc.CLI;
 import es.ehu.si.ixa.pipe.nerc.features.XMLFeatureDescriptor;
 
 public class Flags {
@@ -9,6 +8,17 @@ public class Flags {
   public static final String DEFAULT_FEATURE_FLAG = "no";
   public static final String CHAR_NGRAM_RANGE = "2:5";
   public static final String DEFAULT_WINDOW = "2:2";
+  /**
+   * Default beam size for decoding.
+   */
+  public static final int DEFAULT_BEAM_SIZE = 3;
+  public static final String DEFAULT_EVALUATE_MODEL = "off";
+  public static final String DEFAULT_NE_TYPES = "off";
+  public static final String DEFAULT_LEXER = "off";
+  public static final String DEFAULT_DICT_OPTION = "off";
+  public static final String DEFAULT_DICT_PATH = "off";
+  public static final String DEFAULT_OUTPUT_FORMAT="naf";
+  public static final String DEFAULT_SEQUENCE_CODEC = "BILOU";
 
   private Flags() {
     
@@ -39,7 +49,7 @@ public class Flags {
     if (params.getSettings().get("DirectDictionaryTagging") != null) {
       dictOption = params.getSettings().get("DirectDictionaryTagging");
     } else {
-      dictOption = CLI.DEFAULT_DICT_OPTION;
+      dictOption = Flags.DEFAULT_DICT_OPTION;
     }
     return dictOption;
   }
@@ -72,7 +82,7 @@ public class Flags {
     if (params.getSettings().get("OutputFormat") != null) {
       outFormatOption = params.getSettings().get("OutputFormat");
     } else {
-      outFormatOption = CLI.DEFAULT_OUTPUT_FORMAT;
+      outFormatOption = Flags.DEFAULT_OUTPUT_FORMAT;
     }
     return outFormatOption;
   }
@@ -80,7 +90,7 @@ public class Flags {
   public static Integer getBeamsize(TrainingParameters params) {
     Integer beamsize = null;
     if (params.getSettings().get("Beamsize") == null) {
-      beamsize = CLI.DEFAULT_BEAM_SIZE;
+      beamsize = Flags.DEFAULT_BEAM_SIZE;
     } else {
       beamsize = Integer.parseInt(params.getSettings().get("Beamsize"));
     }
@@ -90,7 +100,7 @@ public class Flags {
   public static String getSequenceCodec(TrainingParameters params) {
     String seqCodec = null;
     if (params.getSettings().get("SequenceCodec") == null) {
-      seqCodec = CLI.DEFAULT_SEQUENCE_CODEC;
+      seqCodec = Flags.DEFAULT_SEQUENCE_CODEC;
     } else {
       seqCodec = params.getSettings().get("SequenceCodec");
     }
@@ -319,7 +329,7 @@ public class Flags {
 
   public static void dictionaryException() {
     System.err
-        .println("You need to specify the DictionaryPath in the parameters file to use the DictionaryFeatures!");
+        .println("You need to set the --dictPath option to the dictionaries directory to use the dictTag option!");
     System.exit(1);
   }
 

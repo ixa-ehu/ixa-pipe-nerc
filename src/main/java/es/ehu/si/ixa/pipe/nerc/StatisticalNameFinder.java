@@ -26,10 +26,9 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 import opennlp.tools.namefind.NameFinderME;
+import opennlp.tools.namefind.TokenNameFinder;
 import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.Span;
-import opennlp.tools.util.TrainingParameters;
-import es.ehu.si.ixa.pipe.nerc.train.Flags;
 
 /**
  * Named Entity Recognition module based on Apache OpenNLP Machine Learning API.
@@ -61,9 +60,9 @@ public class StatisticalNameFinder implements NameFinder {
    * @param properties the properties to be loaded
    * @param beamsize the beamsize for decoding
    */
-  public StatisticalNameFinder(final Properties props, final TrainingParameters params) {
-    String lang = Flags.getLanguage(params);
-    String model = Flags.getModel(params);
+  public StatisticalNameFinder(final Properties props) {
+    String lang = props.getProperty("language");
+    String model = props.getProperty("model");
     TokenNameFinderModel nerModel = loadModel(lang, model);
     nameFinder = new NameFinderME(nerModel);
   }
@@ -77,10 +76,10 @@ public class StatisticalNameFinder implements NameFinder {
    * @param beamsize the beam size for decoding
    * @param aNameFactory the name factory to construct Name objects
    */
-  public StatisticalNameFinder(final Properties props, final TrainingParameters params, final NameFactory aNameFactory) {
+  public StatisticalNameFinder(final Properties props, final NameFactory aNameFactory) {
 
-    String lang = Flags.getLanguage(params);
-    String model = Flags.getModel(params);
+    String lang = props.getProperty("language");
+    String model = props.getProperty("model");
     this.nameFactory = aNameFactory;
     TokenNameFinderModel nerModel = loadModel(lang, model);
     nameFinder = new NameFinderME(nerModel);

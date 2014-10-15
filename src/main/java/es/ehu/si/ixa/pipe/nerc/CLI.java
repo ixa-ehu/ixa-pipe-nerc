@@ -13,6 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  */
+
 package es.ehu.si.ixa.pipe.nerc;
 
 import ixa.kaflib.KAFDocument;
@@ -53,7 +54,7 @@ import es.ehu.si.ixa.pipe.nerc.train.Trainer;
  * tagger.
  * 
  * @author ragerri
- * @version 2014-06-26
+ * @version 2014-10-15
  * 
  */
 public class CLI {
@@ -92,19 +93,6 @@ public class CLI {
    * The parser that manages the evaluation sub-command.
    */
   private Subparser evalParser;
-
-  /**
-   * Default beam size for decoding.
-   */
-  public static final int DEFAULT_BEAM_SIZE = 3;
-  public static final String DEFAULT_EVALUATE_MODEL = "off";
-  public static final String DEFAULT_NE_TYPES = "off";
-  public static final String DEFAULT_FEATURES = "baseline";
-  public static final String DEFAULT_LEXER = "off";
-  public static final String DEFAULT_DICT_OPTION = "off";
-  public static final String DEFAULT_DICT_PATH = "off";
-  public static final String DEFAULT_OUTPUT_FORMAT="naf";
-  public static final String DEFAULT_SEQUENCE_CODEC = "BILOU";
 
   /**
    * Construct a CLI object with the three sub-parsers to manage the command
@@ -187,6 +175,8 @@ public class CLI {
     String model = parsedArguments.getString("model");
     String outputFormat = parsedArguments.getString("outputFormat");
     String lexer = parsedArguments.getString("lexer");
+    String dictTag = parsedArguments.getString("dictTag");
+    String dictPath = parsedArguments.getString("dictPath");
     // language parameter
     String lang = null;
     if (parsedArguments.getString("language") != null) {
@@ -199,12 +189,13 @@ public class CLI {
     } else {
       lang = kaf.getLang();
     }
-    Properties properties = setAnnotateProperties(model, lang, lexer);
+    Properties properties = setAnnotateProperties(model, lang, lexer, dictTag, dictPath);
     KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor(
         "entities", "ixa-pipe-nerc-" + lang + "-" + Files.getNameWithoutExtension(model), version);
     newLp.setBeginTimestamp();
     Annotate annotator = new Annotate(properties);
     annotator.annotateNEs(kaf);
+    newLp.setEndTimestamp();
     String kafToString = null;
     if (outputFormat.equalsIgnoreCase("conll03")) {
       kafToString = annotator.annotateNEsToCoNLL2003(kaf);
@@ -213,7 +204,6 @@ public class CLI {
     } else {
       kafToString = annotator.annotateNEsToKAF(kaf);
     }
-    newLp.setEndTimestamp();
     bwriter.write(kafToString);
     bwriter.close();
     breader.close();
@@ -260,9 +250,9 @@ public class CLI {
     } else {
       trainedModel = nercTrainer.train(params);
     }
-    CmdLineUtil.writeModel("name finder", new File(outModel), trainedModel);
-    System.out.println();
-    System.out.println("Wrote trained NERC model to " + outModel);
+    CmdLineUtil.writeModel("ixa-pipe-nerc model", new File(outModel), trainedModel);
+    System.err.println();
+    System.err.println("Wrote trained NERC model to " + outModel);
   }
 
   /**
@@ -312,16 +302,29 @@ public class CLI {
     annotateParser.addArgument("-l","--language")
         .required(false)
         .choices("de", "en", "es", "eu", "it", "nl")
-        .help("Choose language");
+        .help("Choose language; it defaults to the language value in incoming NAF file.\n");
     annotateParser.addArgument("-o","--outputFormat")
         .required(false)
         .choices("conll03", "conll02", "naf")
-        .setDefault(DEFAULT_OUTPUT_FORMAT)
+        .setDefault(Flags.DEFAULT_OUTPUT_FORMAT)
         .help("Choose output format; it defaults to NAF.\n");
     annotateParser.addArgument("--lexer")
         .choices("numeric")
-        .setDefault(DEFAULT_LEXER).required(false)
-        .help("Use lexer rules for NERC tagging\n");
+        .setDefault(Flags.DEFAULT_LEXER)
+        .required(false)
+        .help("Use lexer rules for NERC tagging; it defaults to false.\n");
+    annotateParser.addArgument("--dictTag")
+        .required(false)
+        .choices("tag", "post")
+        .setDefault(Flags.DEFAULT_DICT_OPTION)
+        .help("Choose to directly tag entities by dictionary look-up; if the 'tag' option is chosen, " +
+        		"only tags entities found in the dictionary; if 'post' option is chosen, it will " +
+        		"post-process the results of the statistical model.\n");
+    annotateParser.addArgument("--dictPath")
+        .required(false)
+        .setDefault(Flags.DEFAULT_DICT_PATH)
+        .help("Provide the path to the dictionaries for direct dictionary tagging; it ONLY WORKS if --dictTag " +
+        		"option is activated.\n");
   }
 
   /**
@@ -347,11 +350,22 @@ public class CLI {
         .choices("brief", "detailed", "error");
   }
 
-  private Properties setAnnotateProperties(String model, String language, String lexer) {
+  /**
+   * Set a Properties object with the CLI parameters.
+   * @param model the model parameter
+   * @param language language parameter
+   * @param lexer rule based parameter
+   * @param dictTag directly tag from a dictionary
+   * @param dictPath directory to the dictionaries
+   * @return the properties object
+   */
+  private Properties setAnnotateProperties(String model, String language, String lexer, String dictTag, String dictPath) {
     Properties annotateProperties = new Properties();
     annotateProperties.setProperty("model", model);
     annotateProperties.setProperty("language", language);
     annotateProperties.setProperty("ruleBasedOption", lexer);
+    annotateProperties.setProperty("dictTag", dictTag);
+    annotateProperties.setProperty("dictPath", dictPath);
     return annotateProperties;
   }
 
