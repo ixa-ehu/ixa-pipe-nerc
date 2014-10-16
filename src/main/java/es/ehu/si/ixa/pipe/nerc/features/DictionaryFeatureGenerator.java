@@ -13,6 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  */
+
 package es.ehu.si.ixa.pipe.nerc.features;
 
 import java.io.File;
@@ -25,28 +26,47 @@ import java.util.Map;
 
 import opennlp.tools.cmdline.CmdLineUtil;
 import opennlp.tools.util.InvalidFormatException;
+import opennlp.tools.util.Span;
 import opennlp.tools.util.featuregen.ArtifactToSerializerMapper;
 import opennlp.tools.util.featuregen.CustomFeatureGenerator;
 import opennlp.tools.util.featuregen.FeatureGeneratorResourceProvider;
 import opennlp.tools.util.model.ArtifactSerializer;
-import es.ehu.si.ixa.pipe.nerc.DictionaryNameFinder;
+import es.ehu.si.ixa.pipe.nerc.NameFinder;
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
 
 
 public class DictionaryFeatureGenerator extends CustomFeatureGenerator implements  ArtifactToSerializerMapper {
 
-  private InSpanGenerator isg;
+  private String[] currentSentence;
+  private Span[] currentNames;
   private Dictionary dictionary;
   private Map<String, String> attributes;
   
   public DictionaryFeatureGenerator() {
   }
   
-  public void setDictionary(String name, Dictionary dict) {
-    isg = new InSpanGenerator(name, new DictionaryNameFinder(dict));
-  }
   public void createFeatures(List<String> features, String[] tokens, int index, String[] previousOutcomes) {
-    isg.createFeatures(features, tokens, index, previousOutcomes);
+    
+    NameFinder finder = new DictionaryFeatureFinder(dictionary);
+    // cache results for sentence
+    if (currentSentence != tokens) {
+      currentSentence = tokens;
+      currentNames = finder.nercToSpans(tokens);
+    }
+    // iterate over names and check if a span is contained
+    for (Span currentName : currentNames) {
+      if (currentName.contains(index)) {
+        //features.add(currentName.getType().split(":prefix:")[1] + ":w=dic");
+        //features.add(currentName.getType().split(":prefix:")[1] + ":w=dic=" + tokens[index]);
+        //System.err.println(currentName.getType().split(":prefix:")[1]);
+        // found a span for the current token
+        features.add(attributes.get("dict") + ":w=dic");
+        features.add(attributes.get("dict") + ":w=dic=" + tokens[index]);
+        System.err.println(attributes.get("dict"));
+        // TODO: consider generation start and continuation features
+        break;
+      }
+    }
   }
   
   @Override
@@ -66,7 +86,6 @@ public class DictionaryFeatureGenerator extends CustomFeatureGenerator implement
     } catch (IOException e) {
       e.printStackTrace();
     }
-    setDictionary(properties.get("dict"), dictionary);
   }
 
   @Override
