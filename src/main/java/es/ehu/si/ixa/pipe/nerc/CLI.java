@@ -202,6 +202,7 @@ public class CLI {
     Properties properties = setAnnotateProperties(lexer);
     Annotate annotator = new Annotate(properties, params);
     annotator.annotateNEs(kaf);
+    newLp.setEndTimestamp();
     String outputFormatOption = InputOutputUtils.getOutputFormat(params);
     String kafToString = null;
     if (outputFormatOption.equalsIgnoreCase("conll03")) {
@@ -211,7 +212,6 @@ public class CLI {
     } else {
       kafToString = annotator.annotateNEsToKAF(kaf);
     }
-    newLp.setEndTimestamp();
     bwriter.write(kafToString);
     bwriter.close();
     breader.close();
