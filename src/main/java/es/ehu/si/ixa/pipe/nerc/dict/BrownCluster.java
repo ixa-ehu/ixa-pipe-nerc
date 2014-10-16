@@ -10,14 +10,11 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import opennlp.tools.util.InvalidFormatException;
 import opennlp.tools.util.model.ArtifactSerializer;
 import opennlp.tools.util.model.SerializableArtifact;
-
-import com.google.common.io.CharStreams;
 
 
 /**
@@ -59,13 +56,13 @@ public class BrownCluster implements SerializableArtifact {
   public BrownCluster(InputStream in) throws IOException {
 
     BufferedReader breader = new BufferedReader(new InputStreamReader(in, Charset.forName("UTF-8")));
-    List<String> fileLines = CharStreams.readLines(breader);
-    for (String line : fileLines) {
+    String line;
+    while ((line = breader.readLine()) != null) {
       String[] lineArray = line.split("\\t");
       if (lineArray.length == 3) {
         int freq = Integer.parseInt(lineArray[2]);
-        if (freq > 5 ) {
-          tokenToClusterMap.put(lineArray[1], lineArray[0]);
+          if (freq > 5 ) {
+            tokenToClusterMap.put(lineArray[1], lineArray[0]);
         }
       }
     }

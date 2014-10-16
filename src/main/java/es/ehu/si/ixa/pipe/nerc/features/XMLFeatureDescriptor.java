@@ -192,22 +192,23 @@ public class XMLFeatureDescriptor {
     }
     //Brown clustering features
     if (Flags.isBrownFeatures(params)) {
+      setWindow(params);
+      //previous 2 maps features
+      Element prev2MapFeature = new Element("custom");
+      prev2MapFeature.setAttribute("class", Prev2MapFeatureGenerator.class.getName());
+      generators.addContent(prev2MapFeature);
+      //previous map and token feature (in window)
+      Element prevMapTokenFeature = new Element("custom");
+      prevMapTokenFeature.setAttribute("class", PreviousMapTokenFeatureGenerator.class.getName());
+      Element prevMapTokenWindow = new Element("window");
+      prevMapTokenWindow.setAttribute("prevLength", Integer.toString(leftWindow));
+      prevMapTokenWindow.setAttribute("nextLength", Integer.toString(rightWindow));
+      prevMapTokenWindow.addContent(prevMapTokenFeature);
+      generators.addContent(prevMapTokenWindow);
+      //brown clustering features
       String brownClusterPath = Flags.getBrownFeatures(params);
       List<File> brownClusterFiles = Flags.getClusterLexiconFiles(brownClusterPath);
       for (File brownClusterFile : brownClusterFiles) {
-        setWindow(params);
-        //previous 2 maps features
-        Element prev2MapFeature = new Element("custom");
-        prev2MapFeature.setAttribute("class", Prev2MapFeatureGenerator.class.getName());
-        generators.addContent(prev2MapFeature);
-        //previous map and token feature (in window)
-        Element prevMapTokenFeature = new Element("custom");
-        prevMapTokenFeature.setAttribute("class", PreviousMapTokenFeatureGenerator.class.getName());
-        Element prevMapTokenWindow = new Element("window");
-        prevMapTokenWindow.setAttribute("prevLength", Integer.toString(leftWindow));
-        prevMapTokenWindow.setAttribute("nextLength", Integer.toString(rightWindow));
-        prevMapTokenWindow.addContent(prevMapTokenFeature);
-        generators.addContent(prevMapTokenWindow);
         //brown bigram class features
         Element brownBigramFeatures = new Element("custom");
         brownBigramFeatures.setAttribute("class", BrownBigramFeatureGenerator.class.getName());
@@ -233,14 +234,13 @@ public class XMLFeatureDescriptor {
         generators.addContent(brownTokenClassWindow);
       }
       System.err.println("-> Brown Cluster Features added!");
-      
     }
     //Clark clustering features
     if (Flags.isClarkFeatures(params)) {
+      setWindow(params);
       String clarkClusterPath = Flags.getClarkFeatures(params);
       List<File> clarkClusterFiles = Flags.getClusterLexiconFiles(clarkClusterPath);
       for (File clarkCluster: clarkClusterFiles) {
-        setWindow(params);
         Element clarkFeatures = new Element("custom");
         clarkFeatures.setAttribute("class", ClarkFeatureGenerator.class.getName());
         clarkFeatures.setAttribute("dict", clarkCluster.getCanonicalPath());
@@ -254,10 +254,10 @@ public class XMLFeatureDescriptor {
     }
     //word2vec clustering features
     if (Flags.isWord2VecClusterFeatures(params)) {
+      setWindow(params);
       String word2vecClusterPath = Flags.getWord2VecClusterFeatures(params);
       List<File> word2vecClusterFiles = Flags.getClusterLexiconFiles(word2vecClusterPath);
       for (File word2vecFile : word2vecClusterFiles) {
-        setWindow(params);
         Element word2vecClusterFeatures = new Element("custom");
         word2vecClusterFeatures.setAttribute("class", Word2VecClusterFeatureGenerator.class.getName());
         word2vecClusterFeatures.setAttribute("dict", word2vecFile.getCanonicalPath());

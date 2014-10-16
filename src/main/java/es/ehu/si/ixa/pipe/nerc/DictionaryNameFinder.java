@@ -98,9 +98,9 @@ public class DictionaryNameFinder implements NameFinder {
               lengthSearching);
 
           String entryForSearch = StringUtils.getStringFromTokens(tokensSearching).toLowerCase();
-          
-          if (dictionary.getDict().containsKey(entryForSearch)) {
-            nameFound = new Span(offsetFrom, offsetTo + 1, dictionary.lookup(entryForSearch));
+          String entryValue = dictionary.lookup(entryForSearch);
+          if (entryValue != null) {
+            nameFound = new Span(offsetFrom, offsetTo + 1, entryValue);
           }
         }
       }
@@ -138,9 +138,9 @@ public class DictionaryNameFinder implements NameFinder {
               lengthSearching);
 
           String entryForSearch = StringUtils.getStringFromTokens(tokensSearching);
-          
-          if (dictionary.getDict().containsKey(entryForSearch)) {
-            nameFound = new Span(offsetFrom, offsetTo + 1, dictionary.lookup(entryForSearch));
+          String entryValue = dictionary.lookup(entryForSearch);
+          if (entryValue != null) {
+            nameFound = new Span(offsetFrom, offsetTo + 1, entryValue);
           }
         }
       }
