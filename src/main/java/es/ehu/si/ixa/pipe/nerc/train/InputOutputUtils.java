@@ -16,13 +16,10 @@
 
 package es.ehu.si.ixa.pipe.nerc.train;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -33,13 +30,9 @@ import opennlp.tools.util.InputStreamFactory;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.TrainingParameters;
-import opennlp.tools.util.model.BaseModel;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
-
-import es.ehu.si.ixa.pipe.nerc.CLI;
-import es.ehu.si.ixa.pipe.nerc.features.XMLFeatureDescriptor;
 
 /**
  * Utility functions to read and save ObjectStreams.

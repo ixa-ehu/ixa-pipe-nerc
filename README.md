@@ -15,6 +15,15 @@ and install this repository instead of using the releases provided in
 [http://ixa2.si.ehu.es/ixa-pipes], please scroll down to the end of the document for
 the [installation instructions](#installation).
 
+**NOTICE!!**: We temporarily rely on Apache OpenNLP 1.6.0-SNAPSHOT version.
+Therefore, before installing/using this module as explained in this README,
+**please install Apache OpenNLP 1.6.0 like this**:
+
+````shell
+git clone https://github.com/apache/opennlp
+cd opennlp/opennlp
+mvn clean install
+````
 ## TABLE OF CONTENTS
 
 1. [Overview of ixa-pipe-nerc](#overview)
@@ -34,12 +43,19 @@ and [CoNLL 2003](http://www.clips.ua.ac.be/conll2003/ner/) for more information.
 + **ONTONOTES 4.0**: 18 Named Entity types: TIME, LAW, GPE, NORP, LANGUAGE,
 PERCENT, FACILITY, PRODUCT, ORDINAL, LOCATION, PERSON, WORK_OF_ART, MONEY, DATE, EVENT, QUANTITY, ORGANIZATION, CARDINAL.
 
-We provide very fast models trained on local features only, similar to those of Zhang and Johnson (2003) with several differences: We do not use POS
+The models are self-contained, you do not need to use the prop files to use
+them. You will find for each model a prop and a log file. The log file
+describes the training process that was performed. The prop file is used for training only. Please see the
+traininParams.prop template file to all available training options and
+documentation. 
+
+We provide fast models trained on local features only, similar to those of 
+Zhang and Johnson (2003) with several differences: We do not use POS
 tags, chunking or gazetteers in our baseline models but we do use
 bigrams, trigrams and character ngrams. We also provide some models with
-external knowledge (with the "dict" keyword in its properties file). 
-To avoid duplication of efforts, we use the machine
-learning API provided by the [Apache OpenNLP project](http://opennlp.apache.org).
+external knowledge, based on Brown and Clark clustering, and dictionaries. 
+To avoid duplication of efforts, we use and contribute to the machine learning API provided 
+by the [Apache OpenNLP project](http://opennlp.apache.org).
 
 **ixa-pipe-nerc models and resources**: 
 
@@ -50,22 +66,22 @@ learning API provided by the [Apache OpenNLP project](http://opennlp.apache.org)
 **A description of every feature is provided in the trainParams.prop properties
 file** distributed with ixa-pipe-nerc. As most functionality is configured in
 properties files, please do check this document. For each model distributed,
-there is a prop file which describes the training of the model.
+there is a prop file which describes the training of the model, as well as a
+log file which provides details about the evaluation and training process.
 
 ### Models
 
-We distribute the following models
+We distribute the following models in the [nerc-resources.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-resources.tgz) package:
 
 + **English Models**: we offer a variety of Perceptron based models (Collins 2002):
   
   + **CoNLL 2003 models**: We distribute models trained with local features
   with external knowledge. Furthermore, we also
-  distribute opennlp compatible models (check for "opennlp" in the prop
-  file). Each of the models improve in F1 but they get slower: 
-    + CoNLL 2003 local features: F1 84.52
-    + CoNLL 2003 Brown clusters as features: F1 88.72
-    + CoNLL 2003 Brown and Clark clusters as features: F1 89.63
-    + CoNLL 2003 Brown, Clark and dictionaries: F1 90.33
+  distribute opennlp compatible models (check for "opennlp" in the model name). 
+  Each of the models improve in F1 but they get slower: 
+    + CoNLL 2003 local features: F1 83.35
+    + CoNLL 2003 Brown and Clark clusters as features: F1 89.76
+    + CoNLL 2003 Brown, Clark and dictionaries: F1 90.37
  
   + **Ontonotes 4.0**: 
     + Trained on the **full corpus** with the **18 NE types**, suitable **for production use**.
@@ -117,7 +133,7 @@ parameter:
 ````shell
 java -jar target/ixa-pipe-nerc-$version.jar (tag|train|eval) -help
 ````
-**Every option for tagging, training and evaluation is well
+**Every option for training is well
 documented in the trainParams.prop properties file distributed with
 ixa-pipe-nerc**. Please do read that file!! 
 
@@ -129,7 +145,7 @@ package contains **every model and properties file** available.
 If you are in hurry, just execute: 
 
 ````shell
-cat file.txt | ixa-pipe-tok | ixa-pipe-pos | java -jar $PATH/target/ixa-pipe-nerc-$version.jar tag -p paramsFile.prop
+cat file.txt | ixa-pipe-tok | ixa-pipe-pos | java -jar $PATH/target/ixa-pipe-nerc-$version.jar tag -m model.bin
 ````
 
 If you want to know more, please follow reading.
@@ -144,17 +160,26 @@ You can get the necessary input for ixa-pipe-nerc by piping
 [ixa-pipe-pos](https://github.com/ixa-ehu/ixa-pipe-pos) as shown in the
 example. 
 
-There are several options to tag with ixa-pipe-nerc. In addition to passing the
-properties file via the -p parameter, there is a CLI swith to use rule based tagging:
+There are several options to tag with ixa-pipe-nerc: 
 
++ **model**: pass the model as a parameter.
++ **language**: pass the language as a parameter.
++ **outputFormat**: Output annotation in a format: available CoNLL03, CoNLL02,
+  OpenNLP native format and NAF. It defaults to NAF.
 + **lexer**: switches on the rule-based DFA for NERC tagging. Currently we only provide
   one option **numeric**, which identifies "numeric entities" such as DATE,
   TIME, MONEY and PERCENT for all the languages currently in ixa-pipe-nerc.
++ **dictTag**: directly tag named entities contained in a gazetteer.
+  + **tag**: with tag option, only dictionary entities are annotated.
+  + **post**: with post option, the output of the statistical model is
+    post-processed.
++ **dictPath**: the directory containing the gazetteers for the --dictTag
+  option.
 
 **Example**: 
 
 ````shell
-cat file.txt | ixa-pipe-tok | ixa-pipe-pos | java -jar $PATH/target/ixa-pipe-nerc-$version.jar tag -p nerc-resources/en/en-local-conll03-testa.prop
+cat file.txt | ixa-pipe-tok | ixa-pipe-pos | java -jar $PATH/target/ixa-pipe-nerc-$version.jar tag -m nerc-resources/en/en-local-conll03.bin
 ````
 
 ### Training
@@ -171,13 +196,25 @@ java -jar target/ixa.pipe.nerc-1.0.jar train -p trainParams.txt
 
 ### Evaluation
 
-As for the training option, the eval only requires to pass the appropriate
-properties file:  
+You can evaluate a trained model or a prediction data against a reference data
+or testset. 
+
++ **language**: provide the language.
++ **model**: if evaluating a model, pass the model.
++ **testset**: the testset or reference set.
++ **corpusFormat**: the format of the reference set and of the prediction set
+  if --prediction option is chosen.
++ **prediction**: evaluate against a  prediction corpus instead of against a
+  model.
++ **evalReport**: detail of the evaluation report
+  + **brief**: just the F1, precision and recall scores
+  + **detailed**, the F1, precision and recall per class
+  + **error**: the list of false positives and negatives
 
 **Example**:
 
 ````shell
-java -jar target/ixa.pipe.nerc-$version.jar eval -p nerc-resources/en/en-local-conll03-testa.prop
+java -jar target/ixa.pipe.nerc-$version.jar eval -m nerc-resources/en/en-local-conll03.bin -l en -t conll03.testb
 ````
 
 ## JAVADOC
@@ -275,11 +312,24 @@ git clone https://github.com/ixa-ehu/ixa-pipe-nerc
 
 ### 4. Compile
 
+Please remember this before compiling: 
+
+**NOTICE!!**: We temporarily rely on Apache OpenNLP 1.6.0-SNAPSHOT version.
+Therefore, before installing/using this module as explained in this README,
+**please install Apache OpenNLP 1.6.0 like this**:
+
+````shell
+git clone https://github.com/apache/opennlp
+cd opennlp/opennlp
+mvn clean install
+````
+
+Then you can just execute this command to compile ixa-pipe-nerc:
+
 ````shell
 cd ixa-pipe-nerc
 mvn clean package
 ````
-
 This step will create a directory called target/ which contains various directories and files.
 Most importantly, there you will find the module executable:
 
