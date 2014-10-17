@@ -41,7 +41,10 @@ CorpusFormat=conll03
 OutputModel=trainParams.bin
 
 # Named Entity types; if not active all ne types in the training corpus.
-# Otherwise, separate with comma, eg., location,organization,person,misc
+# Otherwise, separate with comma, eg., location,organization,person,misc.
+# NOTE: the name of the NE type needs to be exact, namely, if in the corpus
+# appears B-ORG, then in the parameter needs to appear ORG, not organization,
+# and so on.
 #Types=location,organization,person,misc
 
 # Beamsize 1 amounts to greedy search
@@ -49,7 +52,7 @@ Beamsize=3
 
 # Sequence codec used to code named entity spans: Choose between BIO and BILOU.
 # If commented out, it defaults to BILOU.
-SequenceCodec=BIO
+#SequenceCodec=BIO
 
 ##############
 ## FEATURES ##
@@ -112,20 +115,24 @@ CharNgramFeatures=no
 CharNgramFeaturesRange=2:5
 
 # DictionaryFeatures: add features if token found in some gazetteers. Comment
-# it out deactivate this feature.
+# it out deactivate this feature. Note that every file in the directory
+# provided as parameter will be taken to be a dictionary. The dictionary format
+# needs to be 'named entity\tabclass'.
 DictionaryFeatures=/home/ragerri/javacode/ixa-pipe-nerc/nerc-resources/en/dictionaries
 
 # BrownClusterFeatures: add features using Brown clusters
-# (http://metaoptimize.com/projects/wordreprs/). Comment it out to deactivate
-# this feature.
+# Comment it out to deactivate this feature. NOTE: you can add multiple
+# clustering lexicons by chaining them with a comma.
 BrownClusterFeatures=/home/ragerri/javacode/ixa-pipe-nerc/brown-rcv1.clean.tokenized-CoNLL03.txt-c1000-freq1.txt
 
 # ClarkClusterFeatures: add features using Clark (2003) clusters. If value is uncommented,
-# specify the location of the clustering lexicon in Clark format.
+# specify the location of the clustering lexicon in Clark format. NOTE: you can add multiple
+# clustering lexicons by chaining them with a comma.
 ClarkClusterFeatures=/home/ragerri/resources/reuters-rcv1/clark/reuters-rcv1.tok.punct.lower.300
 
 # Word2VecClusterFeatures: add features using word2vec clusters. If value is
-# yes, specify the location of the clustering lexicon in word2vec format.
+# yes, specify the location of the clustering lexicon in word2vec format. 
+# NOTE: you can add multiple clustering lexicons by chaining them with a comma.
 Word2VecClusterFeatures=/home/ragerri/clusters.large.txt
 
 ## END FEATURES ##
