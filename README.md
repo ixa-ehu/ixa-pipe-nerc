@@ -71,7 +71,7 @@ log file which provides details about the evaluation and training process.
 
 ### Models
 
-We distribute the following models
+We distribute the following models in the [nerc-resources.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-resources.tgz) package:
 
 + **English Models**: we offer a variety of Perceptron based models (Collins 2002):
   
