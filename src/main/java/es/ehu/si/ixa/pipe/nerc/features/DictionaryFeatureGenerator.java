@@ -13,35 +13,82 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  */
+
 package es.ehu.si.ixa.pipe.nerc.features;
 
-import es.ehu.si.ixa.pipe.nerc.DictionaryNameFinder;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import opennlp.tools.cmdline.CmdLineUtil;
+import opennlp.tools.util.InvalidFormatException;
+import opennlp.tools.util.Span;
+import opennlp.tools.util.featuregen.ArtifactToSerializerMapper;
+import opennlp.tools.util.featuregen.CustomFeatureGenerator;
+import opennlp.tools.util.featuregen.FeatureGeneratorResourceProvider;
+import opennlp.tools.util.model.ArtifactSerializer;
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
 
-import java.util.List;
 
+public class DictionaryFeatureGenerator extends CustomFeatureGenerator implements  ArtifactToSerializerMapper {
 
-public class DictionaryFeatureGenerator extends FeatureGeneratorAdapter {
-
-  private InSpanGenerator isg;
+  private String[] currentSentence;
+  private Span[] currentNames;
+  private Dictionary dictionary;
+  private Map<String, String> attributes;
   
-  public DictionaryFeatureGenerator(Dictionary dict) {
-    this("",dict);
-  }
-  public DictionaryFeatureGenerator(String prefix, Dictionary dict) {
-    setDictionary(prefix,dict);
+  public DictionaryFeatureGenerator() {
   }
   
-  public void setDictionary(Dictionary dict) {
-    setDictionary("",dict);
-  }
-  
-  public void setDictionary(String name, Dictionary dict) {
-    isg = new InSpanGenerator(name, new DictionaryNameFinder(dict));
-  }
-  
+  //TODO: consider generation start and continuation features
   public void createFeatures(List<String> features, String[] tokens, int index, String[] previousOutcomes) {
-    isg.createFeatures(features, tokens, index, previousOutcomes);
+    
+    DictionaryFeatureFinder finder = new DictionaryFeatureFinder(dictionary);
+    // cache results for sentence
+    if (currentSentence != tokens) {
+      currentSentence = tokens;
+      currentNames = finder.nercToSpans(tokens);
+    }
+    // iterate over names and check if a span is contained
+    for (int i = 0; i < currentNames.length; i++) {
+      if (currentNames[i].contains(index)) {
+        features.add(attributes.get("dict") + ":w=dict");
+        features.add(attributes.get("dict") + ":w=dict=" + tokens[index]);
+        break;
+      }
+    }
   }
+  
+  @Override
+  public void updateAdaptiveData(String[] tokens, String[] outcomes) {
+  }
+  @Override
+  public void clearAdaptiveData() {
+  }
+  @Override
+  public void init(Map<String, String> properties,
+      FeatureGeneratorResourceProvider resourceProvider)
+      throws InvalidFormatException {
+    this.attributes = properties;
+    InputStream inputStream = CmdLineUtil.openInFile(new File(properties.get("dict")));
+    try {
+      this.dictionary = new Dictionary.DictionarySerializer().create(inputStream);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  @Override
+  public Map<String, ArtifactSerializer<?>> getArtifactSerializerMapping() {
+    Map<String, ArtifactSerializer<?>> mapping = new HashMap<>();
+    mapping.put(attributes.get("dict"), new Dictionary.DictionarySerializer());
+    return Collections.unmodifiableMap(mapping);
+  }
+  
+  
   
 }

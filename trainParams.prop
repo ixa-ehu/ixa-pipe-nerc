@@ -1,0 +1,145 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License. You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Sample machine learning properties file
+
+Algorithm=PERCEPTRON
+Iterations=500
+Cutoff=0
+Threads=4
+
+##################################################
+#### Custom parameters added by ixa-pipe-nerc ####
+##################################################
+
+# Languages supported: de, en, es, it, nl
+Language=en
+
+# TrainingCorpus:
+TrainSet=/home/ragerri/experiments/nerc/conll03/eng.train
+DevSet=
+TestSet=/home/ragerri/experiments/nerc/conll03/eng.testb
+
+# CorpusFormat: conll02, conll03, germEvalOuter2014, germEvalInner2014, opennlp
+# CorpusFormat of the training corpus
+CorpusFormat=conll03
+
+# OutputModel: if commented out, ixa-pipe-nerc will save the model with the
+# name of this properties file
+OutputModel=trainParams.bin
+
+# Named Entity types; if not active all ne types in the training corpus.
+# Otherwise, separate with comma, eg., location,organization,person,misc.
+# NOTE: the name of the NE type needs to be exact, namely, if in the corpus
+# appears B-ORG, then in the parameter needs to appear ORG, not organization,
+# and so on.
+#Types=location,organization,person,misc
+
+# Beamsize 1 amounts to greedy search
+Beamsize=3
+
+# Sequence codec used to code named entity spans: Choose between BIO and BILOU.
+# If commented out, it defaults to BILOU.
+#SequenceCodec=BIO
+
+##############
+## FEATURES ##
+##############
+
+# Window: left and right window range from the current token. TokenFeatures
+# and TokenClassFeatures depend on the window range specified here. If
+# commented out, it will default to 2:2.
+Window=2:2
+
+# TokenFeatures: include current token (both in original and lowercase form)
+TokenFeatures=yes
+
+# TokenClassFeatures: include token shape features (capitalization, digits,
+# etc. see FastTokenClassFeatureGenerator class in ixa.pipe.nerc.train.features
+# for details
+TokenClassFeatures=yes
+
+# TokenPatternFeatures: Partitions tokens into sub-tokens based on character classes and generates
+# class features for each of the sub-tokens and combinations of those
+# sub-tokens.
+TokenPatternFeatures=yes
+
+# OutcomePriorFeatures: maps the underlying previous outcomes
+OutcomePriorFeatures=yes
+
+# PreviousMapFeatures: takes into account previous decisions and adds them as
+# features
+PreviousMapFeatures=yes
+
+# SentenceFeatures: add first and last words of sentence as features.
+SentenceFeatures=yes
+
+# PrefixFeatures: takes first 3rd and 4rd characters of current token as feature.
+PrefixFeatures=yes
+
+# SuffixFeatures: takes last 4 characters of current token as feature.
+SuffixFeatures=yes
+
+# BigramClassFeatures: adds bigram features based on tokens and their class
+# features.
+BigramClassFeatures=yes
+
+# TrigramClassFeatures: add trigram features based on tokens and their class
+# features.
+TrigramClassFeatures=no
+
+# FourgramClassFeatures: add fourgram features based on tokens and their
+# class features.
+FourgramClassFeatures=no
+
+# FivegramClassFeatures: add fivegram features based on tokens and their class
+# features.
+FivegramClassFeatures=no
+
+# CharNgramFeatures: min and maximum length for character ngrams of current
+# token. If value is yes, specify the desired range in CharNgramFeaturesRange.
+# If Range is commented out, it defaults to 2:5 when this feature is "yes".
+CharNgramFeatures=no
+CharNgramFeaturesRange=2:5
+
+# DictionaryFeatures: add features if token found in some gazetteers. Comment
+# it out deactivate this feature. Note that every file in the directory
+# provided as parameter will be taken to be a dictionary. The dictionary format
+# needs to be 'named entity\tabclass'.
+DictionaryFeatures=/home/ragerri/javacode/ixa-pipe-nerc/nerc-resources/en/dictionaries
+
+# BrownClusterFeatures: add features using Brown clusters
+# Comment it out to deactivate this feature. NOTE: you can add multiple
+# clustering lexicons by chaining them with a comma.
+BrownClusterFeatures=/home/ragerri/javacode/ixa-pipe-nerc/brown-rcv1.clean.tokenized-CoNLL03.txt-c1000-freq1.txt
+
+# ClarkClusterFeatures: add features using Clark (2003) clusters. If value is uncommented,
+# specify the location of the clustering lexicon in Clark format. NOTE: you can add multiple
+# clustering lexicons by chaining them with a comma.
+ClarkClusterFeatures=/home/ragerri/resources/reuters-rcv1/clark/reuters-rcv1.tok.punct.lower.300
+
+# Word2VecClusterFeatures: add features using word2vec clusters. If value is
+# yes, specify the location of the clustering lexicon in word2vec format. 
+# NOTE: you can add multiple clustering lexicons by chaining them with a comma.
+Word2VecClusterFeatures=/home/ragerri/clusters.large.txt
+
+## END FEATURES ##
+
+## Cross Evaluation: only for learning MaxEnt models using GISTrainer.
+## Cross Evaluation takes two values as arguments, namely, 50:100;
+## These values represent: 
+##    + The iteration to start the cross evaluation 
+##    + The range of iterations to perform each cross evaluation
+#CrossEval=1:10

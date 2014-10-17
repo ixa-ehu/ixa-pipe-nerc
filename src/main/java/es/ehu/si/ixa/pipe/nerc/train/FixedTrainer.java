@@ -16,33 +16,32 @@
 
 package es.ehu.si.ixa.pipe.nerc.train;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Properties;
+import java.util.Map;
 
+import opennlp.tools.cmdline.CmdLineUtil;
+import opennlp.tools.namefind.TokenNameFinderFactory;
+import opennlp.tools.namefind.TokenNameFinderModel;
+import opennlp.tools.util.InvalidFormatException;
+import opennlp.tools.util.SequenceCodec;
 import opennlp.tools.util.TrainingParameters;
-import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
+import opennlp.tools.util.model.ArtifactSerializer;
+import es.ehu.si.ixa.pipe.nerc.StringUtils;
+import es.ehu.si.ixa.pipe.nerc.dict.BrownCluster;
+import es.ehu.si.ixa.pipe.nerc.dict.ClarkCluster;
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
-import es.ehu.si.ixa.pipe.nerc.features.AdaptiveFeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.features.BigramClassFeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.features.CachedFeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.features.CharacterNgramFeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.features.DictionaryFeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.features.OutcomePriorFeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.features.Prefix34FeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.features.PreviousMapFeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.features.SentenceFeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.features.SuffixFeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.features.TokenClassFeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.features.TokenFeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.features.TrigramClassFeatureGenerator;
-import es.ehu.si.ixa.pipe.nerc.features.WindowFeatureGenerator;
+import es.ehu.si.ixa.pipe.nerc.dict.Word2VecCluster;
+import es.ehu.si.ixa.pipe.nerc.features.XMLFeatureDescriptor;
 
 /**
- * Training NER based on Apache OpenNLP Machine Learning API for English. This
- * class creates a featureset based on the features activated in the
- * trainParams.txt properties file:
+ * Training NER based on Apache OpenNLP Machine Learning API. This class creates
+ * a feature set based on the features activated in the trainParams.txt
+ * properties file:
  * <ol>
  * <li>Window: specify left and right window lengths.
  * <li>TokenFeatures: tokens as features in a window length.
@@ -54,239 +53,148 @@ import es.ehu.si.ixa.pipe.nerc.features.WindowFeatureGenerator;
  * <li>SuffixFeatures: last 4 characters in current token.
  * <li>BigramClassFeatures: bigrams of tokens and token class.
  * <li>TrigramClassFeatures: trigrams of token and token class.
+ * <li>FourgramClassFeatures: fourgrams of token and token class.
+ * <li>FivegramClassFeatures: fivegrams of token and token class.
  * <li>CharNgramFeatures: character ngram features of current token.
  * <li>DictionaryFeatures: check if current token appears in some gazetteer.
+ * <li>ClarkClusterFeatures: use the clustering class of a token as a feature.
+ * <li>BrownClusterFeatures: use brown clusters as features for each feature
+ * containing a token.
+ * <li>Word2VecClusterFeatures: use the word2vec clustering class of a token as
+ * a feature.
  * <ol>
  * 
  * @author ragerri
- * @version 2014-07-25
+ * @version 2014-10-13
  */
 public class FixedTrainer extends AbstractTrainer {
-
-  /**
-   * The {@link Dictionaries} contained in the given directory.
-   */
-  private static Dictionaries dictionaries;
-  /**
-   * A {@link Dictionary} object.
-   */
-  private static Dictionary dictionary;
-  /**
-   * The prefix to be used in the {@link DictionaryFeatureGenerator}.
-   */
-  private static String prefix;
-
+  
   /**
    * Construct a trainer based on features specified in the trainParams.txt
    * properties file.
    */
-  public FixedTrainer(final Properties props, final String trainData,
-      final String testData, final TrainingParameters params)
-      throws IOException {
+  public FixedTrainer(final String trainData, final String testData,
+      final TrainingParameters params) throws IOException {
     super(trainData, testData, params);
-    String dictPath = props.getProperty("dictPath");
-    if (dictionaries == null) {
-      dictionaries = new Dictionaries(dictPath);
-    }
-    setFeatures(createFeatureGenerator(params));
+    createTrainer(params);
   }
 
   /**
-   * Construct a baseline trainer with external resources such as dictionaries
-   * specified. Only for annotation.
+   * Create {@code TokenNameFinderFactory} with custom features.
    * 
-   * @param beamsize
-   *          the beamsize
+   * @param params
+   *          the parameter training file
+   * @throws IOException
    */
-  public FixedTrainer(Properties props, TrainingParameters params) {
-    super(params);
-    String dictPath = props.getProperty("dictPath");
-    if (dictionaries == null) {
-      dictionaries = new Dictionaries(dictPath);
-    }
-    setFeatures(createFeatureGenerator(params));
+  public void createTrainer(TrainingParameters params) throws IOException {
+    String seqCodec = getSequenceCodec();
+    SequenceCodec<String> sequenceCodec = TokenNameFinderFactory
+        .instantiateSequenceCodec(seqCodec);
+    String featureDescription = XMLFeatureDescriptor
+        .createXMLFeatureDescriptor(params);
+    System.err.println(featureDescription);
+    byte[] featureGeneratorBytes = featureDescription.getBytes(Charset
+        .forName("UTF-8"));
+    Map<String, Object> resources = loadResources(params, featureGeneratorBytes);
+    setNameClassifierFactory(TokenNameFinderFactory.create(
+        TokenNameFinderFactory.class.getName(), featureGeneratorBytes,
+        resources, sequenceCodec));
   }
 
   /**
-   * Construct a baseline trainer with only beamsize specified.
-   * Only for annotation.
-   * 
-   * @param beamsize
-   *          the beamsize
+   * Load the external resources such as gazetters and clustering lexicons.
+   * @param params the training parameters
+   * @param featureGenDescriptor the feature generator descriptor
+   * @return the map contanining and id and the resource
+   * @throws IOException 
    */
-  public FixedTrainer(TrainingParameters params) {
-    super(params);
-    setFeatures(createFeatureGenerator(params));
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer#createFeatureGenerator()
-   */
-  public final AdaptiveFeatureGenerator createFeatureGenerator(
-      TrainingParameters params) {
-    List<AdaptiveFeatureGenerator> featureList = createFeatureList(params);
-    AdaptiveFeatureGenerator[] featuresArray = featureList
-        .toArray(new AdaptiveFeatureGenerator[featureList.size()]);
-    return new CachedFeatureGenerator(featuresArray);
-  }
-
-  public static final List<AdaptiveFeatureGenerator> createFeatureList(
-      TrainingParameters params) {
-    List<AdaptiveFeatureGenerator> featureList = new ArrayList<AdaptiveFeatureGenerator>();
-    int leftWindow = getWindowRange(params).get(0);
-    int rightWindow = getWindowRange(params).get(1);
-    int minLength = getNgramRange(params).get(0);
-    int maxLength = getNgramRange(params).get(1);
+  public static Map<String, Object> loadResources(TrainingParameters params,
+      byte[] featureGenDescriptor) throws IOException {
+    String resourceId = null;
+    Map<String, Object> resources = new HashMap<String, Object>();
+    Map<String, ArtifactSerializer> artifactSerializers = TokenNameFinderModel.createArtifactSerializers();
     
-    if (params.getSettings().get("TokenFeatures").equalsIgnoreCase("yes")) {
-      addWindowTokenFeatures(leftWindow, rightWindow, featureList);
-      System.err.println("-> Token features added!");
-    } 
-    if (params.getSettings().get("TokenClassFeatures")
-        .equalsIgnoreCase("yes")) {
-      addWindowTokenClassFeatures(leftWindow, rightWindow, featureList);
-      System.err.println("-> Token Class features added!");
-    } 
-    if (params.getSettings().get("OutcomePriorFeatures")
-        .equalsIgnoreCase("yes")) {
-      addOutcomePriorFeatures(featureList);
-      System.err.println("-> Outcome prior features added!");
-    } 
-    if (params.getSettings().get("PreviousMapFeatures")
-        .equalsIgnoreCase("yes")) {
-      addPreviousMapFeatures(featureList);
-      System.err.println("-> Previous map features added!");
-    } 
-    if (params.getSettings().get("SentenceFeatures")
-        .equalsIgnoreCase("yes")) {
-      addSentenceFeatures(featureList);
-      System.err.println("-> Sentence features added!");
+    if (Flags.isBrownFeatures(params)) {
+      String brownClusterPath = Flags.getBrownFeatures(params);
+      List<File> brownClusterFiles = Flags.getClusterLexiconFiles(brownClusterPath);
+      for (File brownClusterFile : brownClusterFiles) {
+        resourceId = brownClusterFile.getCanonicalPath();
+        String brownFilePath = brownClusterFile.getCanonicalPath();
+        artifactSerializers.put(resourceId, new BrownCluster.BrownClusterSerializer());
+        loadResource(resourceId, artifactSerializers, brownFilePath, featureGenDescriptor, resources);
+      }
     }
-    if (params.getSettings().get("PrefixFeatures")
-        .equalsIgnoreCase("yes")) {
-      addPrefixFeatures(featureList);
-      System.err.println("-> Prefix features added!");
-    } 
-    if (params.getSettings().get("SuffixFeatures")
-        .equalsIgnoreCase("yes")) {
-      addSuffixFeatures(featureList);
-      System.err.println("-> Suffix features added!");
-    } 
-    if (params.getSettings().get("BigramClassFeatures")
-        .equalsIgnoreCase("yes")) {
-      addBigramClassFeatures(featureList);
-      System.err.println("-> Bigram class features added!");
-    } 
-    if (params.getSettings().get("TrigramClassFeatures")
-        .equalsIgnoreCase("yes")) {
-      addTrigramClassFeatures(featureList);
-      System.err.println("-> Trigram class features added!");
-    } 
-    if (params.getSettings().get("CharNgramFeatures")
-        .equalsIgnoreCase("yes")) {
-      addCharNgramFeatures(minLength, maxLength, featureList);
-      System.err.println("-> CharNgram features added!");
-    } 
-    if (params.getSettings().get("DictionaryFeatures")
-        .equalsIgnoreCase("yes")) {
-      addDictionaryFeatures(featureList);
-      System.err.println("-> Dictionary features added!");
+    if (Flags.isClarkFeatures(params)) {
+      String clarkClusterPath = Flags.getClarkFeatures(params);
+      List<File> clarkClusterFiles = Flags.getClusterLexiconFiles(clarkClusterPath);
+      for (File clarkClusterFile: clarkClusterFiles) {
+        resourceId = clarkClusterFile.getCanonicalPath();
+        String clarkFilePath = clarkClusterFile.getCanonicalPath();
+        artifactSerializers.put(resourceId, new ClarkCluster.ClarkClusterSerializer());
+        loadResource(resourceId, artifactSerializers, clarkFilePath, featureGenDescriptor, resources);
+      }
     }
-    return featureList;
-  }
-
-  public static void addWindowTokenFeatures(int leftWindow, int rightWindow,
-      List<AdaptiveFeatureGenerator> featureList) {
-    featureList.add(new WindowFeatureGenerator(new TokenFeatureGenerator(),
-        leftWindow, rightWindow));
-  }
-
-  public static void addWindowTokenClassFeatures(int leftWindow,
-      int rightWindow, List<AdaptiveFeatureGenerator> featureList) {
-    featureList.add(new WindowFeatureGenerator(new TokenClassFeatureGenerator(
-        true), leftWindow, rightWindow));
-  }
-
-  public static void addOutcomePriorFeatures(
-      List<AdaptiveFeatureGenerator> featureList) {
-    featureList.add(new OutcomePriorFeatureGenerator());
-  }
-
-  public static void addPreviousMapFeatures(
-      List<AdaptiveFeatureGenerator> featureList) {
-    featureList.add(new PreviousMapFeatureGenerator());
-  }
-
-  public static void addSentenceFeatures(
-      List<AdaptiveFeatureGenerator> featureList) {
-    featureList.add(new SentenceFeatureGenerator(true, false));
-  }
-
-  public static void addPrefixFeatures(
-      List<AdaptiveFeatureGenerator> featureList) {
-    featureList.add(new Prefix34FeatureGenerator());
-  }
-
-  public static void addSuffixFeatures(
-      List<AdaptiveFeatureGenerator> featureList) {
-    featureList.add(new SuffixFeatureGenerator());
-  }
-
-  public static void addBigramClassFeatures(
-      List<AdaptiveFeatureGenerator> featureList) {
-    featureList.add(new BigramClassFeatureGenerator());
-  }
-
-  public static void addTrigramClassFeatures(
-      List<AdaptiveFeatureGenerator> featureList) {
-    featureList.add(new TrigramClassFeatureGenerator());
-  }
-
-  public static void addCharNgramFeatures(int minLength, int maxLength,
-      List<AdaptiveFeatureGenerator> featureList) {
-    featureList.add(new CharacterNgramFeatureGenerator(minLength, maxLength));
+    if (Flags.isWord2VecClusterFeatures(params)) {
+      String word2vecClusterPath = Flags.getWord2VecClusterFeatures(params);
+      List<File> word2vecClusterFiles = Flags.getClusterLexiconFiles(word2vecClusterPath);
+      for (File word2vecClusterFile : word2vecClusterFiles) {
+        resourceId = word2vecClusterFile.getCanonicalPath();
+        String word2vecFilePath = word2vecClusterFile.getCanonicalPath();
+        artifactSerializers.put(resourceId, new Word2VecCluster.Word2VecClusterSerializer());
+        loadResource(resourceId, artifactSerializers, word2vecFilePath, featureGenDescriptor, resources);
+      }
+    }
+    if (Flags.isDictionaryFeatures(params)) {
+      String dictDir = Flags.getDictionaryFeatures(params);
+      List<File> fileList = StringUtils.getFilesInDir(new File(dictDir));
+      for (File dictFile : fileList) {
+        resourceId = dictFile.getCanonicalPath();
+        String dictionaryPath = dictFile.getCanonicalPath();
+        artifactSerializers.put(resourceId, new Dictionary.DictionarySerializer());
+        loadResource(resourceId, artifactSerializers, dictionaryPath, featureGenDescriptor, resources);
+      }
+    }
+    return resources;
   }
 
   /**
-   * Adds the dictionary features to the feature list.
-   * 
-   * @param featureList
-   *          the feature list containing the dictionary features
+   * Load a resource by resourceId. 
+   * @param resourceId the id of the resource
+   * @param artifactSerializers the serializers in which to put the resource
+   * @param resourcePath the canonical path of the resource
+   * @param featureGenDescriptor the feature descriptor
+   * @param resources the map in which to put the resource
    */
-  private static void addDictionaryFeatures(
-      final List<AdaptiveFeatureGenerator> featureList) {
-    for (int i = 0; i < dictionaries.getIgnoreCaseDictionaries().size(); i++) {
-      prefix = dictionaries.getDictNames().get(i);
-      dictionary = dictionaries.getIgnoreCaseDictionaries().get(i);
-      featureList.add(new DictionaryFeatureGenerator(prefix, dictionary));
+  public static void loadResource(String resourceId, Map<String, ArtifactSerializer> artifactSerializers, String resourcePath,
+      byte[] featureGenDescriptor, Map<String, Object> resources) {
+
+    File resourceFile = new File(resourcePath);
+    if (resourceFile != null) {
+      /*if (featureGenDescriptor != null) {
+        InputStream xmlDescriptorIn = new ByteArrayInputStream(
+            featureGenDescriptor);
+        try {
+          artifactSerializers.putAll(GeneratorFactory
+              .extractCustomArtifactSerializerMappings(xmlDescriptorIn));
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }*/
+      ArtifactSerializer<?> serializer = artifactSerializers.get(resourceId);
+      InputStream resourceIn = CmdLineUtil.openInFile(resourceFile);
+      try {
+        resources.put(resourceFile.getCanonicalPath(), serializer.create(resourceIn));
+      } catch (InvalidFormatException e) {
+        e.printStackTrace();
+      } catch (IOException e) {
+        e.printStackTrace();
+      } finally {
+        try {
+          resourceIn.close();
+        } catch (IOException e) {
+        }
+      }
     }
-  }
-
-  public static List<Integer> getWindowRange(TrainingParameters params) {
-    List<Integer> windowRange = new ArrayList<Integer>();
-    String windowParam = params.getSettings().get("Window");
-    String[] windowArray = windowParam.split("[ :-]");
-    if (windowArray.length == 2) {
-      windowRange.add(Integer.parseInt(windowArray[0]));
-      windowRange.add(Integer.parseInt(windowArray[1]));
-
-    }
-    return windowRange;
-  }
-
-  public static List<Integer> getNgramRange(TrainingParameters params) {
-    List<Integer> ngramRange = new ArrayList<Integer>();
-    String charngramParam = params.getSettings().get("CharNgramFeaturesRange");
-    String[] charngramArray = charngramParam.split("[ :-]");
-    if (charngramArray.length == 2) {
-      ngramRange.add(Integer.parseInt(charngramArray[0]));
-      ngramRange.add(Integer.parseInt(charngramArray[1]));
-
-    }
-    return ngramRange;
   }
 
 }

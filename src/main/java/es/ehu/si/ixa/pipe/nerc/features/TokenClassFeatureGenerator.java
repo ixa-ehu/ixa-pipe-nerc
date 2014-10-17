@@ -18,6 +18,7 @@ package es.ehu.si.ixa.pipe.nerc.features;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import opennlp.tools.util.featuregen.FeatureGeneratorAdapter;
 import opennlp.tools.util.featuregen.StringPattern;
 
 /**
@@ -45,9 +46,6 @@ import opennlp.tools.util.featuregen.StringPattern;
  */
 public class TokenClassFeatureGenerator extends FeatureGeneratorAdapter {
 
-  private static final String TOKEN_CLASS_PREFIX = "wc";
-  private static final String TOKEN_AND_CLASS_PREFIX = "w&c";
-
   private static Pattern capPeriod;
 
   static {
@@ -57,7 +55,7 @@ public class TokenClassFeatureGenerator extends FeatureGeneratorAdapter {
   private boolean generateWordAndClassFeature;
 
   public TokenClassFeatureGenerator() {
-    this(false);
+    this(true);
   }
 
   public TokenClassFeatureGenerator(boolean generateWordAndClassFeature) {
@@ -67,10 +65,10 @@ public class TokenClassFeatureGenerator extends FeatureGeneratorAdapter {
   public void createFeatures(List<String> features, String[] tokens, int index,
       String[] preds) {
     String wordClass = tokenShapeFeature(tokens[index]);
-    features.add(TOKEN_CLASS_PREFIX + "=" + wordClass);
+    features.add("wc=" + wordClass);
 
     if (generateWordAndClassFeature) {
-      features.add(TOKEN_AND_CLASS_PREFIX + "=" + tokens[index].toLowerCase()
+      features.add("w&c=" + tokens[index].toLowerCase()
           + "," + wordClass);
     }
   }
@@ -86,7 +84,8 @@ public class TokenClassFeatureGenerator extends FeatureGeneratorAdapter {
       feat = "2d";
     } else if (pattern.digits() == 4) {
       feat = "4d";
-    } else if (pattern.containsDigit()) {
+    }
+    else if (pattern.containsDigit()) {
       if (pattern.containsLetters()) {
         feat = "an";
       } else if (pattern.containsHyphen()) {

@@ -13,6 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  */
+
 package es.ehu.si.ixa.pipe.nerc.dict;
 
 import java.io.BufferedReader;
@@ -26,84 +27,76 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import opennlp.tools.util.InvalidFormatException;
 import opennlp.tools.util.model.ArtifactSerializer;
 import opennlp.tools.util.model.SerializableArtifact;
 
+
 /**
- * Dictionary class which creates a HashMap<String, String> from 
- * a tab separated file name\tclass\t.
+ * 
+ * Class to load a Clark cluster document: word\\s+word_class\\s+prob
+ * https://github.com/ninjin/clark_pos_induction
+ * 
+ * The file containing the clustering lexicon has to be passed as the 
+ * argument of the DistSim property.
  * 
  * @author ragerri
- * @version 2014-10-13
+ * @version 2014/07/29
  * 
  */
-public class Dictionary implements SerializableArtifact {
+public class ClarkCluster implements SerializableArtifact {
 
-  public static class DictionarySerializer implements ArtifactSerializer<Dictionary> {
+  public static class ClarkClusterSerializer implements ArtifactSerializer<ClarkCluster> {
 
-    public Dictionary create(InputStream in) throws IOException,
+    public ClarkCluster create(InputStream in) throws IOException,
         InvalidFormatException {
-      return new Dictionary(in);
+      return new ClarkCluster(in);
     }
 
-    public void serialize(Dictionary artifact, OutputStream out)
+    public void serialize(ClarkCluster artifact, OutputStream out)
         throws IOException {
       artifact.serialize(out);
     }
   }
   
-  private Map<String, String> dictionary = new HashMap<String, String>();
+  private Map<String, String> tokenToClusterMap = new HashMap<String, String>();
 
-  public Dictionary(InputStream in) throws IOException {
+  public ClarkCluster(InputStream in) throws IOException {
 
     BufferedReader breader = new BufferedReader(new InputStreamReader(in, Charset.forName("UTF-8")));
     String line;
     while ((line = breader.readLine()) != null) {
-      String[] lineArray = line.split("\t");
-      if (lineArray.length == 2) {
-        dictionary.put(lineArray[0].toLowerCase(), lineArray[1]);
+      String[] lineArray = line.split(" ");
+      if (lineArray.length == 3) {
+        tokenToClusterMap.put(lineArray[0].toLowerCase(), lineArray[1]);
       }
     }
+    /*List<String> fileLines = CharStreams.readLines(breader);
+    for (String line : fileLines) {
+      String[] lineArray = line.split(" ");
+      if (lineArray.length == 3) {
+        tokenToClusterMap.put(lineArray[0].toLowerCase(), lineArray[1]);
+      }
+    }*/
   }
 
-  /**
-   * Look up a string in the dictionary.
-   * @param string the string to be searched
-   * @return the string found
-   */
-  public String lookup(String string) {
-    return dictionary.get(string);
-  }
-  
-  /**
-   * Get the <key,value> size of the dictionary.
-   * @return maximum token count in the dictionary
-   */
-  public int getMaxTokenCount() {
-    return dictionary.size();
-  }
-  
-  /**
-   * Get the Map<String, String> dictionary.
-   * @return the dictionary map
-   */
-  public final Map<String, String> getDict() {
-    return dictionary;
+  public String lookupToken(String string) {
+    return tokenToClusterMap.get(string);
   }
 
   public void serialize(OutputStream out) throws IOException {
     Writer writer = new BufferedWriter(new OutputStreamWriter(out));
-    for (Entry<String, String> entry : dictionary.entrySet()) {
-        writer.write(entry.getKey() + " " + entry.getValue() + "\n");
+
+    for (Map.Entry<String, String> entry : tokenToClusterMap.entrySet()) {
+      writer.write(entry.getKey() + " " + entry.getValue() + "\n");
     }
+
     writer.flush();
   }
 
   public Class<?> getArtifactSerializerClass() {
-    return DictionarySerializer.class;
+    return ClarkClusterSerializer.class;
   }
-
 }
+

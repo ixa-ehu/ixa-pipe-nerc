@@ -1,28 +1,52 @@
 package es.ehu.si.ixa.pipe.nerc.features;
 
 import java.util.List;
+import java.util.Map;
 
-public class SentenceFeatureGenerator extends FeatureGeneratorAdapter {
+import opennlp.tools.util.featuregen.CustomFeatureGenerator;
+import opennlp.tools.util.featuregen.FeatureGeneratorResourceProvider;
 
- private final boolean isGenerateFirstWordFeature;
- private final boolean isGenerateLastWordFeature;
- 
- public SentenceFeatureGenerator(boolean isGenerateFirstWordFeature,
-     boolean isGenerateLastWordFeature) {
-   this.isGenerateFirstWordFeature = isGenerateFirstWordFeature;
-   this.isGenerateLastWordFeature = isGenerateLastWordFeature;
- }
- 
- public void createFeatures(List<String> features, String[] tokens, int index,
-     String[] previousOutcomes) {
+public class SentenceFeatureGenerator extends CustomFeatureGenerator {
 
-   if (isGenerateFirstWordFeature && index == 0) {
-     features.add("S=begin");
-   }
+  private Map<String, String> attributes;
 
-   if (isGenerateLastWordFeature && tokens.length == index + 1) {
-     features.add("S=end");
-   }
- }
+  public SentenceFeatureGenerator() {
+  }
+
+  public void createFeatures(List<String> features, String[] tokens, int index,
+      String[] previousOutcomes) {
+
+    if (attributes.get("begin").equalsIgnoreCase("true") && index == 0) {
+      features.add("S=begin");
+    }
+
+    if (attributes.get("end").equalsIgnoreCase("true") && tokens.length == index + 1) {
+      features.add("S=end");
+    }
+  }
+
+  public void init(Map<String, String> attributes, FeatureGeneratorResourceProvider resourceProvider) {
+    this.attributes = attributes;
+    setBeginSentenceAttribute(attributes);
+    setEndSentenceAttribute(attributes);
+  }
+
+  private void setBeginSentenceAttribute(Map<String, String> attributes) {
+    attributes.put("begin", "true");
+  }
+
+  private void setEndSentenceAttribute(Map<String, String> attributes) {
+    attributes.put("end", "false");
+  }
+
+  @Override
+  public void updateAdaptiveData(String[] tokens, String[] outcomes) {
+
+  }
+
+  @Override
+  public void clearAdaptiveData() {
+
+  }
 
 }

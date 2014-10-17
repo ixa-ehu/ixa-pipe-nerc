@@ -13,12 +13,12 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  */
+
 package es.ehu.si.ixa.pipe.nerc.train;
 
 
+import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.TrainingParameters;
-
-import es.ehu.si.ixa.pipe.nerc.features.AdaptiveFeatureGenerator;
 
 /**
  * This interface defines the feature creation, the training method and the
@@ -27,21 +27,14 @@ import es.ehu.si.ixa.pipe.nerc.features.AdaptiveFeatureGenerator;
  * @version 2014-07-11
  */
 public interface Trainer {
+ 
   /**
-   * Generates the adaptive features to train Named Entity taggers.
-   * Every class extending {@code AbstractNameFinderTrainer} needs to
-   * provide an implementation of this method.
-   * @return the adaptive features
-   */
-  AdaptiveFeatureGenerator createFeatureGenerator(TrainingParameters params);
-  
-  /**
-   * Generate {@link NameModel} models.
+   * Generate {@link TokenNameFinderModel} models.
    * @param params
    *          the training parameters file
    * @return the model
    */
-  NameModel train(TrainingParameters params);
+  TokenNameFinderModel train(TrainingParameters params);
 
   /**
    * Trains a model with cross evaluation. This only makes sense here
@@ -51,7 +44,7 @@ public interface Trainer {
    * @param evalRange the range at which the evaluation is performed
    * @return the model trained with the best parameters
    */
-  NameModel trainCrossEval(String devData,
+  TokenNameFinderModel trainCrossEval(String devData,
       TrainingParameters params, String[] evalRange);
 
 }

@@ -17,6 +17,8 @@ package es.ehu.si.ixa.pipe.nerc;
 
 import java.util.List;
 
+import es.ehu.si.ixa.pipe.nerc.Name;
+
 import opennlp.tools.util.Span;
 
 /**
@@ -44,7 +46,7 @@ public interface NameFinder {
    *          an array of tokenized text
    * @return an list of Spans of Named Entities
    */
-  List<Span> nercToSpans(String[] tokens);
+  Span[] nercToSpans(String[] tokens);
 
   /**
    * Create a list of {@link Name} objects from spans and tokens.

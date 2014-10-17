@@ -32,7 +32,7 @@ public class SpanUtils {
    *          the spans to be added to allSpans
    */
   public static final void concatenateSpans(final List<Span> allSpans,
-      final List<Span> neSpans) {
+      final Span[] neSpans) {
     for (Span span : neSpans) {
       allSpans.add(span);
     }
@@ -47,7 +47,7 @@ public class SpanUtils {
    *          the list of spans to do the post-processing
    */
   public static final void postProcessDuplicatedSpans(final List<Span> preList,
-      final List<Span> postList) {
+      final Span[] postList) {
     List<Span> duplicatedSpans = new ArrayList<Span>();
     for (Span span1 : preList) {
       for (Span span2 : postList) {

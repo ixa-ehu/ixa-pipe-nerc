@@ -35,25 +35,24 @@ public class NumericNameFinder implements NameFinder {
   }
 
   public List<Name> getNames(String[] tokens) {
-    List<Span> origSpans = nercToSpans(tokens);
-    Span[] neSpans = NameFinderME.dropOverlappingSpans(origSpans
-        .toArray(new Span[origSpans.size()]));
+    Span[] origSpans = nercToSpans(tokens);
+    Span[] neSpans = NameFinderME.dropOverlappingSpans(origSpans);
     List<Name> names = getNamesFromSpans(neSpans, tokens);
     return names;
   }
 
-  public List<Span> nercToSpans(final String[] tokens) {
+  public Span[] nercToSpans(final String[] tokens) {
     List<Span> neSpans = new ArrayList<Span>();
     List<Name> flexNameList = numericLexer.nameLex();
     for (Name name : flexNameList) {
       //System.err.println("numeric name: " + name.value());
       List<Integer> neIds = StringUtils.exactTokenFinderIgnoreCase(name.value(), tokens);
-      if (!neIds.isEmpty()) {
-        Span neSpan = new Span(neIds.get(0), neIds.get(1), name.getType());
+      for (int i = 0; i < neIds.size(); i += 2) {
+        Span neSpan = new Span(neIds.get(i), neIds.get(i+1), name.getType());
         neSpans.add(neSpan);
       }
     }
-    return neSpans;
+    return neSpans.toArray(new Span[neSpans.size()]);
   }
 
   public List<Name> getNamesFromSpans(Span[] neSpans, String[] tokens) {
