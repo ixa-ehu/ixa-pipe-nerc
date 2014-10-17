@@ -31,7 +31,6 @@ import opennlp.tools.util.featuregen.ArtifactToSerializerMapper;
 import opennlp.tools.util.featuregen.CustomFeatureGenerator;
 import opennlp.tools.util.featuregen.FeatureGeneratorResourceProvider;
 import opennlp.tools.util.model.ArtifactSerializer;
-import es.ehu.si.ixa.pipe.nerc.NameFinder;
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
 
 
@@ -45,28 +44,36 @@ public class DictionaryFeatureGenerator extends CustomFeatureGenerator implement
   public DictionaryFeatureGenerator() {
   }
   
+  //TODO: consider generation start and continuation features
   public void createFeatures(List<String> features, String[] tokens, int index, String[] previousOutcomes) {
     
-    NameFinder finder = new DictionaryFeatureFinder(dictionary);
+    DictionaryFeatureFinder finder = new DictionaryFeatureFinder(dictionary);
     // cache results for sentence
     if (currentSentence != tokens) {
       currentSentence = tokens;
       currentNames = finder.nercToSpans(tokens);
     }
     // iterate over names and check if a span is contained
-    for (Span currentName : currentNames) {
-      if (currentName.contains(index)) {
-        //features.add(currentName.getType().split(":prefix:")[1] + ":w=dic");
-        //features.add(currentName.getType().split(":prefix:")[1] + ":w=dic=" + tokens[index]);
-        //System.err.println(currentName.getType().split(":prefix:")[1]);
-        // found a span for the current token
-        features.add(attributes.get("dict") + ":w=dic");
-        features.add(attributes.get("dict") + ":w=dic=" + tokens[index]);
-        System.err.println(attributes.get("dict"));
-        // TODO: consider generation start and continuation features
+    for (int i = 0; i < currentNames.length; i++) {
+      if (currentNames[i].contains(index)) {
+        features.add(attributes.get("dict") + ":w=dict");
+        features.add(attributes.get("dict") + ":w=dict=" + tokens[index]);
         break;
+        //TODO generate similar features with one map or with many
+        //features.add(getDictPrefix(currentNames[i])+ ":w=dic");
+        //features.add(getDictPrefix(currentNames[i]) + ":w=dic=" + tokens[index]);
+        //System.err.println(currentNames[i].toString() + " " + getDictPrefix(currentNames[i]));
+        /*if (i > 0) {
+          if (currentNames[i].equals(currentNames[i - 1])) {
+            break;
+          }
+        }*/
       }
     }
+  }
+  
+  private String getDictPrefix(Span aSpan) {
+    return aSpan.getType().split(":prefix:")[1];
   }
   
   @Override

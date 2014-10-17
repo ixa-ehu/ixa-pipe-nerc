@@ -24,12 +24,15 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collection;
+import java.util.Map.Entry;
 
 import opennlp.tools.util.InvalidFormatException;
 import opennlp.tools.util.model.ArtifactSerializer;
 import opennlp.tools.util.model.SerializableArtifact;
+
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 
 /**
  * Dictionary class which creates a HashMap<String, String> from 
@@ -54,7 +57,7 @@ public class Dictionary implements SerializableArtifact {
     }
   }
   
-  private Map<String, String> dictionary = new HashMap<String, String>();
+  private Multimap<String, String> dictionary = ArrayListMultimap.create();
 
   public Dictionary(InputStream in) throws IOException {
 
@@ -73,7 +76,7 @@ public class Dictionary implements SerializableArtifact {
    * @param string the string to be searched
    * @return the string found
    */
-  public String lookup(String string) {
+  public Collection<String> lookup(String string) {
     return dictionary.get(string);
   }
   
@@ -89,15 +92,17 @@ public class Dictionary implements SerializableArtifact {
    * Get the Map<String, String> dictionary.
    * @return the dictionary map
    */
-  public final Map<String, String> getDict() {
+  public final Multimap<String, String> getDict() {
     return dictionary;
   }
 
   public void serialize(OutputStream out) throws IOException {
     Writer writer = new BufferedWriter(new OutputStreamWriter(out));
 
-    for (Map.Entry<String, String> entry : dictionary.entrySet()) {
-      writer.write(entry.getKey() + " " + entry.getValue() + "\n");
+    for (Entry<String, Collection<String>> entry : dictionary.asMap().entrySet()) {
+      for (String entryValue : entry.getValue()) {
+        writer.write(entry.getKey() + " " + entryValue + "\n");
+      }
     }
     writer.flush();
   }
