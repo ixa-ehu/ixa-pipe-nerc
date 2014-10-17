@@ -59,21 +59,8 @@ public class DictionaryFeatureGenerator extends CustomFeatureGenerator implement
         features.add(attributes.get("dict") + ":w=dict");
         features.add(attributes.get("dict") + ":w=dict=" + tokens[index]);
         break;
-        //TODO generate similar features with one map or with many
-        //features.add(getDictPrefix(currentNames[i])+ ":w=dic");
-        //features.add(getDictPrefix(currentNames[i]) + ":w=dic=" + tokens[index]);
-        //System.err.println(currentNames[i].toString() + " " + getDictPrefix(currentNames[i]));
-        /*if (i > 0) {
-          if (currentNames[i].equals(currentNames[i - 1])) {
-            break;
-          }
-        }*/
       }
     }
-  }
-  
-  private String getDictPrefix(Span aSpan) {
-    return aSpan.getType().split(":prefix:")[1];
   }
   
   @Override
