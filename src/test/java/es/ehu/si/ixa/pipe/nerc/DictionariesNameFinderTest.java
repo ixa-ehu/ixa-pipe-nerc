@@ -1,16 +1,15 @@
 package es.ehu.si.ixa.pipe.nerc;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.List;
 
 import opennlp.tools.util.Span;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
 
@@ -32,15 +31,15 @@ public class DictionariesNameFinderTest {
     
     @Test
     public void oneOccurrence() throws IOException {
-        List<Span> spans = finder.nercToSpansExact(new String[] {"Achilles"});
-        assertEquals(1, spans.size());
+        Span[] spans = finder.nercToSpansExact(new String[] {"Achilles"});
+        assertEquals(1, spans.length);
     }
 
     @Test
     public void twoOccurrences() throws IOException {
-        List<Span> spans = finder.nercToSpansExact(new String[] {
+        Span[] spans = finder.nercToSpansExact(new String[] {
                 "Achilles", "Apollo", "Zeus", "Achilles"});
-        assertEquals(2, spans.size());
+        assertEquals(2, spans.length);
     }
 
 }

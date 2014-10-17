@@ -3,14 +3,13 @@ package es.ehu.si.ixa.pipe.nerc.eval;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
+import opennlp.tools.namefind.NameSample;
+import opennlp.tools.namefind.TokenNameFinderEvaluator;
 import opennlp.tools.util.ObjectStream;
-import opennlp.tools.util.TrainingParameters;
 import opennlp.tools.util.eval.FMeasure;
-import es.ehu.si.ixa.pipe.nerc.formats.CorpusSample;
-import es.ehu.si.ixa.pipe.nerc.formats.CorpusSampleTypeFilter;
 import es.ehu.si.ixa.pipe.nerc.train.AbstractTrainer;
-import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
 
 /**
  * Evaluation class mostly using {@link TokenNameFinderEvaluator}.
@@ -23,44 +22,42 @@ public class CorpusEvaluate {
   /**
    * The reference corpus to evaluate against.
    */
-  private ObjectStream<CorpusSample> referenceSamples;
+  private ObjectStream<NameSample> referenceSamples;
   /**
    * The reference corpus to evaluate against.
    */
-  private ObjectStream<CorpusSample> predictionSamples;
+  private ObjectStream<NameSample> predictionSamples;
   /**
    * The FMeasure implementation.
    */
   private FMeasure fmeasure = new FMeasure();
+  
   /**
-   * Construct an evaluator.
-   *
-   * @param predictionData the reference data to evaluate against
-   * @param model the model to be evaluated
-   * @param features the features
-   * @param lang the language
-   * @param beamsize the beam size for decoding
-   * @param corpusFormat the format of the testData corpus
-   * @throws IOException if input data not available
+   * Construct an evaluator to compare a prediction data file wrt to a testset.
+   * The language, testset and corpusFormat of both the testset and prediction
+   * are read from the props file.
+   * @param predictionData the prediction data to be evaluated
+   * @param props the properties file
+   * @throws IOException exception
    */
-  public CorpusEvaluate(final String predictionData, final TrainingParameters params) throws IOException {
+  public CorpusEvaluate(final String predictionData, final Properties props) throws IOException {
 
-    String referenceData = InputOutputUtils.getDataSet("TestSet", params);
-    String lang = InputOutputUtils.getLanguage(params);
-    String corpusFormat = InputOutputUtils.getCorpusFormat(params);
-    referenceSamples = AbstractTrainer.getNameStream(referenceData, lang, corpusFormat);
+    String lang = props.getProperty("language");
+    String testSet = props.getProperty("testset");
+    String corpusFormat = props.getProperty("corpusFormat");
+    referenceSamples = AbstractTrainer.getNameStream(testSet, lang, corpusFormat);
     predictionSamples = AbstractTrainer.getNameStream(predictionData, lang, corpusFormat);
-    if (params.getSettings().get("Types") != null) {
-      String neTypes = params.getSettings().get("Types");
-      String[] neTypesArray = neTypes.split(",");
-      referenceSamples = new CorpusSampleTypeFilter(neTypesArray, referenceSamples);
-      predictionSamples = new CorpusSampleTypeFilter(neTypesArray, predictionSamples);
-    }
   }
   
-  public List<CorpusSample> readSamplesToList(ObjectStream<CorpusSample> samples) throws IOException {
-    CorpusSample sample;
-    List<CorpusSample> nameSampleList = new ArrayList<CorpusSample>();
+  /**
+   * Reads NameSamples to a list.
+   * @param samples the name samples
+   * @return the list
+   * @throws IOException the exception
+   */
+  public List<NameSample> readSamplesToList(ObjectStream<NameSample> samples) throws IOException {
+    NameSample sample;
+    List<NameSample> nameSampleList = new ArrayList<NameSample>();
     while ((sample = samples.read()) != null) {
       nameSampleList.add(sample);
     }
@@ -72,8 +69,8 @@ public class CorpusEvaluate {
    * @throws IOException if test corpus not loaded
    */
   public final void evaluate() throws IOException {
-    List<CorpusSample> refList = readSamplesToList(referenceSamples);
-    List<CorpusSample> predList = readSamplesToList(predictionSamples);
+    List<NameSample> refList = readSamplesToList(referenceSamples);
+    List<NameSample> predList = readSamplesToList(predictionSamples);
     for (int i = 0; i < refList.size(); ++i) {
       fmeasure.updateScores(refList.get(i).getNames(), predList.get(i).getNames());
     }

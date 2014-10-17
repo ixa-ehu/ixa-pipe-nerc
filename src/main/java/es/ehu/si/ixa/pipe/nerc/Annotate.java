@@ -31,17 +31,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import com.google.common.collect.Lists;
+
+import opennlp.tools.namefind.NameFinderME;
+import opennlp.tools.namefind.NameSample;
 import opennlp.tools.util.Span;
-import opennlp.tools.util.TrainingParameters;
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
-import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
-import es.ehu.si.ixa.pipe.nerc.train.NameClassifier;
+import es.ehu.si.ixa.pipe.nerc.train.Flags;
 
 /**
  * Annotation class of ixa-pipe-nerc.
  * 
  * @author ragerri
- * @version 2014/06/25
+ * @version 2014/10/15
  * 
  */
 public class Annotate {
@@ -53,7 +55,7 @@ public class Annotate {
   /**
    * The NameFinder to do the annotation. Usually the statistical.
    */
-  private NameFinder nameFinder;
+  private StatisticalNameFinder nameFinder;
   /**
    * The dictionaries.
    */
@@ -84,88 +86,89 @@ public class Annotate {
    */
   private boolean lexerFind;
 
-  /**
+  /** It manages the use of the three different name finders: {@code StatisticalNameFinder}, 
+   * {@code DictionariesNameFinder} and {@code NumericNameFinder}. In particular, if --dictTag
+   * option in CLI is off, statistical models are used (this is the default). If --dictTag is
+   * activated, it has two options, "tag" and "post": tag only tags with a gazetteer and "post" 
+   * post-processes the probabilistic annotation giving priority to the gazetteer. 
+   * Obviously, this option depends on the --dictPath parameter being correctly specified. Finally,
+   * --lexer numeric option annotates numeric entities (dates, percentages, and so on) via rules.
    * @param properties
    *          the properties
-   * @param beamsize
-   *          the beamsize for decoding
    * @throws IOException
    *           the io thrown
    */
-  public Annotate(final Properties properties, TrainingParameters params)
-      throws IOException {
+  public Annotate(final Properties properties) throws IOException {
 
     nameFactory = new NameFactory();
-    annotateOptions(properties, params);
+    annotateOptions(properties);
   }
 
   /**
-   * Generates the right options for dictionary-based NER tagging: Dictionary
-   * features by means of the {@link StatisticalNameFinder} or using the
-   * {@link DictionaryNameFinder} or a combination of those with the
-   * {@link NumericNameFinder}.
+   * Generates the right options for NERC tagging: using the
+   * {@link StatisticalNameFinder} or using the {@link DictionariesNameFinder}
+   * or a combination of those with the {@link NumericNameFinder}.
    * 
-   * @param lang
-   * @param model
-   * @param features
-   * @param beamsize
-   * @param dictOption
-   * @param dictPath
-   * @param ruleBasedOption
+   * @param properties
+   *          the parameters to choose the NameFinder are lexer, dictTag and
+   *          dictPath
    * @throws IOException
+   *           the io exception
    */
   // TODO surely we can simplify this?
-  private void annotateOptions(Properties properties,
-      TrainingParameters params) throws IOException {
-    
+  private void annotateOptions(Properties properties) throws IOException {
+
     String ruleBasedOption = properties.getProperty("ruleBasedOption");
-    String dictFeature = InputOutputUtils.getDictionaryFeatures(params);
-    String dictOption = InputOutputUtils.getDictOption(params);
-    
-    if (dictFeature.equals("yes")) {
-      if (!ruleBasedOption.equals(CLI.DEFAULT_LEXER)) {
+    String dictOption = properties.getProperty("dictTag");
+    String dictPath = properties.getProperty("dictPath");
+
+    if (!dictOption.equals(Flags.DEFAULT_DICT_OPTION)) {
+      if (dictPath.equals(Flags.DEFAULT_DICT_PATH)) {
+        Flags.dictionaryException();
+      }
+      if (!ruleBasedOption.equals(Flags.DEFAULT_LEXER)) {
         lexerFind = true;
       }
-      String dictPath = InputOutputUtils.getDictPath(params);
-      dictionaries = new Dictionaries(dictPath);
-      if (!dictOption.equals(CLI.DEFAULT_DICT_OPTION)) {
-        dictFinder = new DictionariesNameFinder(dictionaries, nameFactory);
+      if (!dictPath.equals(Flags.DEFAULT_DICT_PATH)) {
+        if (dictionaries == null) {
+          dictionaries = new Dictionaries(dictPath);
+          dictFinder = new DictionariesNameFinder(dictionaries, nameFactory);
+        }
         if (dictOption.equalsIgnoreCase("tag")) {
           dictTag = true;
           postProcess = false;
           statistical = false;
         } else if (dictOption.equalsIgnoreCase("post")) {
-          nameFinder = new StatisticalNameFinder(properties, params, nameFactory);
+          nameFinder = new StatisticalNameFinder(properties, nameFactory);
           statistical = true;
           postProcess = true;
           dictTag = false;
+        } else {
+          nameFinder = new StatisticalNameFinder(properties, nameFactory);
+          statistical = true;
+          dictTag = false;
+          postProcess = false;
         }
-      } else {
-        nameFinder = new StatisticalNameFinder(properties, params, nameFactory);
-        statistical = true;
-        dictTag = false;
-        postProcess = false;
       }
-    }
-    else if (!ruleBasedOption.equals(CLI.DEFAULT_LEXER)) {
+    } else if (!ruleBasedOption.equals(Flags.DEFAULT_LEXER)) {
       lexerFind = true;
       statistical = true;
       dictTag = false;
       postProcess = false;
-      nameFinder = new StatisticalNameFinder(properties, params, nameFactory);
-    }
-    else {
+      nameFinder = new StatisticalNameFinder(properties, nameFactory);
+    } else {
       lexerFind = false;
       statistical = true;
       dictTag = false;
       postProcess = false;
-      nameFinder = new StatisticalNameFinder(properties, params, nameFactory);
+      nameFinder = new StatisticalNameFinder(properties, nameFactory);
     }
   }
 
   /**
-   * Classify Named Entities creating the entities layer in the {@link KAFDocument} using
-   * statistical models, post-processing and/or dictionaries only.
+   * Classify Named Entities creating the entities layer in the
+   * {@link KAFDocument} using statistical models, post-processing and/or
+   * dictionaries only.
    * 
    * @param kaf
    *          the kaf document to be used for annotation
@@ -174,7 +177,7 @@ public class Annotate {
    */
   public final void annotateNEs(final KAFDocument kaf) throws IOException {
 
-    List<Span> allSpans = new ArrayList<Span>();
+    List<Span> allSpans = null;
     List<List<WF>> sentences = kaf.getSentences();
     for (List<WF> sentence : sentences) {
       String[] tokens = new String[sentence.size()];
@@ -184,25 +187,27 @@ public class Annotate {
         tokenIds[i] = sentence.get(i).getId();
       }
       if (statistical) {
-        allSpans = nameFinder.nercToSpans(tokens);
+        Span[] statSpans = nameFinder.nercToSpans(tokens);
+        allSpans = Lists.newArrayList(statSpans);
       }
       if (postProcess) {
-        List<Span> dictSpans = dictFinder.nercToSpansExact(tokens);
+        Span[] dictSpans = dictFinder.nercToSpansExact(tokens);
         SpanUtils.postProcessDuplicatedSpans(allSpans, dictSpans);
         SpanUtils.concatenateSpans(allSpans, dictSpans);
       }
       if (dictTag) {
-        allSpans = dictFinder.nercToSpansExact(tokens);
+        Span[] dictOnlySpans = dictFinder.nercToSpansExact(tokens);
+        allSpans = Lists.newArrayList(dictOnlySpans);
       }
       if (lexerFind) {
         String sentenceText = StringUtils.getStringFromTokens(tokens);
         StringReader stringReader = new StringReader(sentenceText);
         BufferedReader sentenceReader = new BufferedReader(stringReader);
         numericLexerFinder = new NumericNameFinder(sentenceReader, nameFactory);
-        List<Span> numericSpans = numericLexerFinder.nercToSpans(tokens);
+        Span[] numericSpans = numericLexerFinder.nercToSpans(tokens);
         SpanUtils.concatenateSpans(allSpans, numericSpans);
       }
-      Span[] allSpansArray = NameClassifier.dropOverlappingSpans(allSpans
+      Span[] allSpansArray = NameFinderME.dropOverlappingSpans(allSpans
           .toArray(new Span[allSpans.size()]));
       List<Name> names = new ArrayList<Name>();
       if (statistical) {
@@ -223,10 +228,12 @@ public class Annotate {
       }
     }
   }
-  
+
   /**
    * Output annotation as NAF.
-   * @param kaf the naf document
+   * 
+   * @param kaf
+   *          the naf document
    * @return the string containing the naf document
    */
   public final String annotateNEsToKAF(KAFDocument kaf) {
@@ -234,22 +241,73 @@ public class Annotate {
   }
   
   /**
+   * Output annotation in OpenNLP format.
+   * 
+   * @param kaf
+   *          the naf document
+   * @return the string containing the annotated document
+   */
+  public final String annotateNEsToOpenNLP(KAFDocument kaf) {
+    StringBuilder sb = new StringBuilder();
+    List<Span> allSpans = null;
+    List<List<WF>> sentences = kaf.getSentences();
+    for (List<WF> sentence : sentences) {
+      String[] tokens = new String[sentence.size()];
+      String[] tokenIds = new String[sentence.size()];
+      for (int i = 0; i < sentence.size(); i++) {
+        tokens[i] = sentence.get(i).getForm();
+        tokenIds[i] = sentence.get(i).getId();
+      }
+      if (statistical) {
+        Span[] statSpans = nameFinder.nercToSpans(tokens);
+        allSpans = Lists.newArrayList(statSpans);
+      }
+      if (postProcess) {
+        Span[] dictSpans = dictFinder.nercToSpansExact(tokens);
+        SpanUtils.postProcessDuplicatedSpans(allSpans, dictSpans);
+        SpanUtils.concatenateSpans(allSpans, dictSpans);
+      }
+      if (dictTag) {
+        Span[] dictOnlySpans = dictFinder.nercToSpansExact(tokens);
+        allSpans = Lists.newArrayList(dictOnlySpans);
+      }
+      if (lexerFind) {
+        String sentenceText = StringUtils.getStringFromTokens(tokens);
+        StringReader stringReader = new StringReader(sentenceText);
+        BufferedReader sentenceReader = new BufferedReader(stringReader);
+        numericLexerFinder = new NumericNameFinder(sentenceReader, nameFactory);
+        Span[] numericSpans = numericLexerFinder.nercToSpans(tokens);
+        SpanUtils.concatenateSpans(allSpans, numericSpans);
+      }
+      Span[] allSpansArray = NameFinderME.dropOverlappingSpans(allSpans
+          .toArray(new Span[allSpans.size()]));
+      NameSample nameSample = new NameSample(tokens, allSpansArray, false);
+      sb.append(nameSample.toString()).append("\n");
+    }
+    return sb.toString();
+  }
+
+  /**
    * Enumeration class for CoNLL 2003 BIO format
    */
   private static enum BIO {
-      BEGIN("B-"), IN("I-"), OUT("O");
-      String tag;
-      BIO(String tag) {
-          this.tag = tag;
-      }
-      public String toString() {
-          return this.tag;
-      }
+    BEGIN("B-"), IN("I-"), OUT("O");
+    String tag;
+
+    BIO(String tag) {
+      this.tag = tag;
+    }
+
+    public String toString() {
+      return this.tag;
+    }
   }
-  
+
   /**
    * Output Conll2003 format.
-   * @param kaf the kaf document
+   * 
+   * @param kaf
+   *          the kaf document
    * @return the annotated named entities in conll03 format
    */
   public String annotateNEsToCoNLL2003(KAFDocument kaf) {
@@ -260,29 +318,28 @@ public class Annotate {
       List<ixa.kaflib.Span<Term>> entitySpanList = ne.getSpans();
       for (ixa.kaflib.Span<Term> spanTerm : entitySpanList) {
         Term neTerm = spanTerm.getFirstTarget();
-        //create map from term Id to Entity span size
+        // create map from term Id to Entity span size
         entityToSpanSize.put(neTerm.getId(), spanTerm.size());
-        //create map from term Id to Entity type
+        // create map from term Id to Entity type
         entityToType.put(neTerm.getId(), ne.getType());
       }
     }
-    
+
     List<List<WF>> sentences = kaf.getSentences();
     StringBuilder sb = new StringBuilder();
     for (List<WF> sentence : sentences) {
-      int index = 1;
       int sentNumber = sentence.get(0).getSent();
       List<Term> sentenceTerms = kaf.getSentenceTerms(sentNumber);
       boolean previousIsEntity = false;
-      
+
       for (int i = 0; i < sentenceTerms.size(); i++) {
         Term thisTerm = sentenceTerms.get(i);
-        //if term is inside an entity span then annotate B-I entities
+        // if term is inside an entity span then annotate B-I entities
         if (entityToSpanSize.get(thisTerm.getId()) != null) {
           int neSpanSize = entityToSpanSize.get(thisTerm.getId());
           String neClass = entityToType.get(thisTerm.getId());
           String neType = this.convertToConLLTypes(neClass);
-          //if Entity span is multi token
+          // if Entity span is multi token
           if (neSpanSize > 1) {
             for (int j = 0; j < neSpanSize; j++) {
               thisTerm = sentenceTerms.get(i + j);
@@ -299,7 +356,6 @@ public class Annotate {
               }
               sb.append(neType);
               sb.append("\n");
-              index++;
             }
           } else {
             sb.append(thisTerm.getForm());
@@ -315,10 +371,9 @@ public class Annotate {
             }
             sb.append(neType);
             sb.append("\n");
-            index++;
           }
           previousIsEntity = true;
-          i += neSpanSize -1;
+          i += neSpanSize - 1;
         } else {
           sb.append(thisTerm.getForm());
           sb.append("\t");
@@ -328,18 +383,19 @@ public class Annotate {
           sb.append("\t");
           sb.append(BIO.OUT);
           sb.append("\n");
-          index++;
           previousIsEntity = false;
         }
       }
-      sb.append("\n");//end of sentence
+      sb.append("\n");// end of sentence
     }
     return sb.toString();
   }
-  
+
   /**
    * Output Conll2002 format.
-   * @param kaf the kaf document
+   * 
+   * @param kaf
+   *          the kaf document
    * @return the annotated named entities in conll03 format
    */
   public String annotateNEsToCoNLL2002(KAFDocument kaf) {
@@ -354,18 +410,17 @@ public class Annotate {
         entityToType.put(neTerm.getId(), ne.getType());
       }
     }
-    
+
     List<List<WF>> sentences = kaf.getSentences();
     StringBuilder sb = new StringBuilder();
     for (List<WF> sentence : sentences) {
-      int index = 1;
       int sentNumber = sentence.get(0).getSent();
       List<Term> sentenceTerms = kaf.getSentenceTerms(sentNumber);
       boolean previousIsEntity = false;
-      
+
       for (int i = 0; i < sentenceTerms.size(); i++) {
         Term thisTerm = sentenceTerms.get(i);
-        
+
         if (entityToSpanSize.get(thisTerm.getId()) != null) {
           int neSpanSize = entityToSpanSize.get(thisTerm.getId());
           String neClass = entityToType.get(thisTerm.getId());
@@ -386,7 +441,6 @@ public class Annotate {
               }
               sb.append(neType);
               sb.append("\n");
-              index++;
             }
           } else {
             sb.append(thisTerm.getForm());
@@ -398,10 +452,9 @@ public class Annotate {
             sb.append(BIO.BEGIN.toString());
             sb.append(neType);
             sb.append("\n");
-            index++;
           }
           previousIsEntity = true;
-          i += neSpanSize -1;
+          i += neSpanSize - 1;
         } else {
           sb.append(thisTerm.getForm());
           sb.append("\t");
@@ -411,48 +464,29 @@ public class Annotate {
           sb.append("\t");
           sb.append(BIO.OUT);
           sb.append("\n");
-          index++;
           previousIsEntity = false;
         }
       }
-      sb.append("\n");//end of sentence
+      sb.append("\n");// end of sentence
     }
     return sb.toString();
   }
 
   /**
    * Convert Entity class annotation to CoNLL formats.
-   * @param neType named entity class
+   * 
+   * @param neType
+   *          named entity class
    * @return the converted string
    */
   public String convertToConLLTypes(String neType) {
     String conllType = null;
-    if (neType.startsWith("PER") || 
-        neType.startsWith("ORG") || 
-        neType.startsWith("LOC") ||
-        neType.startsWith("GPE")) {
+    if (neType.startsWith("PER") || neType.startsWith("ORG")
+        || neType.startsWith("LOC") || neType.startsWith("GPE")) {
       conllType = neType.substring(0, 3);
     } else if (neType.equalsIgnoreCase("MISC")) {
       conllType = neType;
     }
     return conllType;
-  }
-
-  /**
-   * Construct a {@link DictionaryNameFinder} for each of the dictionaries in
-   * the directory provided.
-   * 
-   * @param dictPath
-   *          the directory containing the dictionaries
-   * @param nameFactory
-   *          the factory to construct the names
-   * @return
-   */
-  public final DictionariesNameFinder createDictNameFinder(
-      final String dictPath, final NameFactory nameFactory) {
-    Dictionaries dict = new Dictionaries(dictPath);
-    DictionariesNameFinder dictNameFinder = new DictionariesNameFinder(dict,
-        nameFactory);
-    return dictNameFinder;
   }
 }

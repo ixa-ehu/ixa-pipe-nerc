@@ -18,6 +18,7 @@ package es.ehu.si.ixa.pipe.nerc.features;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import opennlp.tools.util.featuregen.FeatureGeneratorAdapter;
 import opennlp.tools.util.featuregen.StringPattern;
 
 /**
@@ -54,7 +55,7 @@ public class TokenClassFeatureGenerator extends FeatureGeneratorAdapter {
   private boolean generateWordAndClassFeature;
 
   public TokenClassFeatureGenerator() {
-    this(false);
+    this(true);
   }
 
   public TokenClassFeatureGenerator(boolean generateWordAndClassFeature) {

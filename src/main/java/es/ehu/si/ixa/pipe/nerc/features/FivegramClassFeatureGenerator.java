@@ -2,6 +2,8 @@ package es.ehu.si.ixa.pipe.nerc.features;
 
 import java.util.List;
 
+import opennlp.tools.util.featuregen.FeatureGeneratorAdapter;
+
 /**
  * Adds fivegram features based on tokens and token class using
  * {@code TokenClassFeatureGenerator}.

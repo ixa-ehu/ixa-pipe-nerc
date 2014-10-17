@@ -21,17 +21,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
+import opennlp.tools.namefind.NameFinderME;
+import opennlp.tools.namefind.TokenNameFinder;
+import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.Span;
-import opennlp.tools.util.TrainingParameters;
-import es.ehu.si.ixa.pipe.nerc.train.FixedTrainer;
-import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
-import es.ehu.si.ixa.pipe.nerc.train.NameClassifier;
-import es.ehu.si.ixa.pipe.nerc.train.Trainer;
-import es.ehu.si.ixa.pipe.nerc.train.NameModel;
 
 /**
  * Named Entity Recognition module based on Apache OpenNLP Machine Learning API.
@@ -47,34 +45,27 @@ public class StatisticalNameFinder implements NameFinder {
    * The models to use for every language. The keys of the hash are the
    * language codes, the values the models.
    */
-  private static ConcurrentHashMap<String, NameModel> nercModels =
-      new ConcurrentHashMap<String, NameModel>();
+  private static ConcurrentHashMap<String, TokenNameFinderModel> nercModels =
+      new ConcurrentHashMap<String, TokenNameFinderModel>();
   /**
    * The name finder.
    */
-  private NameClassifier nameFinder;
+  private NameFinderME nameFinder;
   /**
    * The name factory.
    */
   private NameFactory nameFactory;
-  /**
-   * The trainer called to obtain the appropriate features.
-   */
-  private Trainer nameFinderTrainer;
 
   /**
    * Construct a probabilistic name finder specifying lang, model and beamsize.
    * @param properties the properties to be loaded
    * @param beamsize the beamsize for decoding
    */
-  public StatisticalNameFinder(final Properties props, final TrainingParameters params) {
-    String lang = InputOutputUtils.getLanguage(params);
-    String model = InputOutputUtils.getModel(params);
-    Integer beamsize = InputOutputUtils.getBeamsize(params);
-    NameModel nerModel = loadModel(lang, model);
-    nameFinderTrainer = new FixedTrainer(params);
-    nameFinder = new NameClassifier(nerModel,
-        nameFinderTrainer.createFeatureGenerator(params), beamsize);
+  public StatisticalNameFinder(final Properties props) {
+    String lang = props.getProperty("language");
+    String model = props.getProperty("model");
+    TokenNameFinderModel nerModel = loadModel(lang, model);
+    nameFinder = new NameFinderME(nerModel);
   }
 
   /**
@@ -86,16 +77,13 @@ public class StatisticalNameFinder implements NameFinder {
    * @param beamsize the beam size for decoding
    * @param aNameFactory the name factory to construct Name objects
    */
-  public StatisticalNameFinder(final Properties props, final TrainingParameters params, final NameFactory aNameFactory) {
+  public StatisticalNameFinder(final Properties props, final NameFactory aNameFactory) {
 
-    String lang = InputOutputUtils.getLanguage(params);
-    String model = InputOutputUtils.getModel(params);
-    Integer beamsize = InputOutputUtils.getBeamsize(params);
+    String lang = props.getProperty("language");
+    String model = props.getProperty("model");
     this.nameFactory = aNameFactory;
-    NameModel nerModel = loadModel(lang, model);
-    nameFinderTrainer = new FixedTrainer(params);
-    nameFinder = new NameClassifier(nerModel,
-        nameFinderTrainer.createFeatureGenerator(params), beamsize);
+    TokenNameFinderModel nerModel = loadModel(lang, model);
+    nameFinder = new NameFinderME(nerModel);
   }
 
   
@@ -112,9 +100,8 @@ public class StatisticalNameFinder implements NameFinder {
    * @return a List of names
    */
   public final List<Name> getNames(final String[] tokens) {
-    List<Span> origSpans = nercToSpans(tokens);
-    Span[] neSpans = NameClassifier.dropOverlappingSpans(origSpans
-        .toArray(new Span[origSpans.size()]));
+    Span[] origSpans = nercToSpans(tokens);
+    Span[] neSpans = NameFinderME.dropOverlappingSpans(origSpans);
     List<Name> names = getNamesFromSpans(neSpans, tokens);
     return names;
   }
@@ -133,11 +120,11 @@ public class StatisticalNameFinder implements NameFinder {
    *          an array of tokenized text
    * @return an list of {@link Span}s of Named Entities
    */
-  public final List<Span> nercToSpans(final String[] tokens) {
+  public final Span[] nercToSpans(final String[] tokens) {
     Span[] annotatedText = nameFinder.find(tokens);
     clearAdaptiveData();
     List<Span> probSpans = new ArrayList<Span>(Arrays.asList(annotatedText));
-    return probSpans;
+    return probSpans.toArray(new Span[probSpans.size()]);
   }
 
   /**
@@ -180,12 +167,13 @@ public class StatisticalNameFinder implements NameFinder {
    * @param model the model to be loaded
    * @return the model as a {@link TokenNameFinder} object
    */
-  public final NameModel loadModel(final String lang, final String model) {
+  public final TokenNameFinderModel loadModel(final String lang, final String model) {
     InputStream trainedModelInputStream = null;
+    long lStartTime = new Date().getTime();
     try {
       if (!nercModels.containsKey(lang)) {
         trainedModelInputStream = new FileInputStream(model);
-        nercModels.put(lang, new NameModel(trainedModelInputStream));
+        nercModels.put(lang, new TokenNameFinderModel(trainedModelInputStream));
       }
     } catch (IOException e) {
       e.printStackTrace();
@@ -198,6 +186,10 @@ public class StatisticalNameFinder implements NameFinder {
         }
       }
     }
+    long lEndTime = new Date().getTime();
+    long difference = lEndTime - lStartTime;
+    System.err.println("ixa-pipe-nerc model loaded in: " + difference
+        + " miliseconds ... [DONE]");
     return nercModels.get(lang);
   }
 }

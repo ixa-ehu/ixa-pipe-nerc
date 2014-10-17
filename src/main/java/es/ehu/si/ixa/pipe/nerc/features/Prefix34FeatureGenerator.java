@@ -18,6 +18,8 @@ package es.ehu.si.ixa.pipe.nerc.features;
 
 import java.util.List;
 
+import opennlp.tools.util.featuregen.FeatureGeneratorAdapter;
+
 	public class Prefix34FeatureGenerator extends FeatureGeneratorAdapter {
 
 	  private static final int PREFIX_LENGTH = 4;

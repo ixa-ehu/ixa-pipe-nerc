@@ -36,22 +36,23 @@ TestSet=/home/ragerri/experiments/nerc/conll03/eng.testb
 # CorpusFormat of the training corpus
 CorpusFormat=conll03
 
-# OutputFormat: conll02, conll03 or naf
-# Choose the format in which to print the ixa-pipe-nerc annotations. If not
-# specified, it defaults to naf.
-#OutputFormat=conll03
-
-
 # OutputModel: if commented out, ixa-pipe-nerc will save the model with the
 # name of this properties file
 OutputModel=trainParams.bin
 
 # Named Entity types; if not active all ne types in the training corpus.
-# Otherwise, separate with comma, eg., location,organization,person,misc
+# Otherwise, separate with comma, eg., location,organization,person,misc.
+# NOTE: the name of the NE type needs to be exact, namely, if in the corpus
+# appears B-ORG, then in the parameter needs to appear ORG, not organization,
+# and so on.
 #Types=location,organization,person,misc
 
 # Beamsize 1 amounts to greedy search
 Beamsize=3
+
+# Sequence codec used to code named entity spans: Choose between BIO and BILOU.
+# If commented out, it defaults to BILOU.
+#SequenceCodec=BIO
 
 ##############
 ## FEATURES ##
@@ -69,6 +70,11 @@ TokenFeatures=yes
 # etc. see FastTokenClassFeatureGenerator class in ixa.pipe.nerc.train.features
 # for details
 TokenClassFeatures=yes
+
+# TokenPatternFeatures: Partitions tokens into sub-tokens based on character classes and generates
+# class features for each of the sub-tokens and combinations of those
+# sub-tokens.
+TokenPatternFeatures=yes
 
 # OutcomePriorFeatures: maps the underlying previous outcomes
 OutcomePriorFeatures=yes
@@ -106,35 +112,28 @@ FivegramClassFeatures=no
 # token. If value is yes, specify the desired range in CharNgramFeaturesRange.
 # If Range is commented out, it defaults to 2:5 when this feature is "yes".
 CharNgramFeatures=no
-#CharNgramFeaturesRange=2:5
+CharNgramFeaturesRange=2:5
 
-# DirectDictionaryTagging: Use a gazetteer to directly annotate named entities. If off, only
-# statistical models are used (this is the default). If activated, it has two
-# options, "tag" and "post": tag only tags with a gazetteer and "post"
-# post-processes the probabilistic annotation giving priority to the
-# gazetteer. Obviously, this option depends on DictionaryPath being correctly
-# specified.
-#DirectDictionaryTagging=post
-
-# DictionaryFeatures: add features if token found in some gazetteers.
-DictionaryFeatures=no
-DictionaryPath=/home/ragerri/javacode/ixa-pipe-nerc/nerc-resources/en/dictionaries
+# DictionaryFeatures: add features if token found in some gazetteers. Comment
+# it out deactivate this feature. Note that every file in the directory
+# provided as parameter will be taken to be a dictionary. The dictionary format
+# needs to be 'named entity\tabclass'.
+DictionaryFeatures=/home/ragerri/javacode/ixa-pipe-nerc/nerc-resources/en/dictionaries
 
 # BrownClusterFeatures: add features using Brown clusters
-# (http://metaoptimize.com/projects/wordreprs/). If yes, specify the location
-# of the Brown clustering lexicon.
-BrownClusterFeatures=no
-BrownClusterPath=/home/ragerri/javacode/ixa-pipe-nerc/brown-rcv1.clean.tokenized-CoNLL03.txt-c1000-freq1.txt
+# Comment it out to deactivate this feature. NOTE: you can add multiple
+# clustering lexicons by chaining them with a comma.
+BrownClusterFeatures=/home/ragerri/javacode/ixa-pipe-nerc/brown-rcv1.clean.tokenized-CoNLL03.txt-c1000-freq1.txt
 
-# ClarkClusterFeatures: add features using Clark (2003) clusters. If value is yes,
-# specify the location of the clustering lexicon in Clark format.
-ClarkClusterFeatures=yes
-ClarkClusterPath=/home/ragerri/resources/reuters-rcv1/clark/reuters-rcv1.tok.punct.lower.300
+# ClarkClusterFeatures: add features using Clark (2003) clusters. If value is uncommented,
+# specify the location of the clustering lexicon in Clark format. NOTE: you can add multiple
+# clustering lexicons by chaining them with a comma.
+ClarkClusterFeatures=/home/ragerri/resources/reuters-rcv1/clark/reuters-rcv1.tok.punct.lower.300
 
 # Word2VecClusterFeatures: add features using word2vec clusters. If value is
-# yes, specify the location of the clustering lexicon in word2vec format.
-Word2VecClusterFeatures=no
-Word2VecClusterPath=/home/ragerri/clusters.large.txt
+# yes, specify the location of the clustering lexicon in word2vec format. 
+# NOTE: you can add multiple clustering lexicons by chaining them with a comma.
+Word2VecClusterFeatures=/home/ragerri/clusters.large.txt
 
 ## END FEATURES ##
 
@@ -144,4 +143,3 @@ Word2VecClusterPath=/home/ragerri/clusters.large.txt
 ##    + The iteration to start the cross evaluation 
 ##    + The range of iterations to perform each cross evaluation
 #CrossEval=1:10
-

@@ -5,18 +5,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
+import opennlp.tools.cmdline.namefind.NameEvaluationErrorListener;
+import opennlp.tools.cmdline.namefind.TokenNameFinderDetailedFMeasureListener;
+import opennlp.tools.namefind.NameFinderME;
+import opennlp.tools.namefind.NameSample;
+import opennlp.tools.namefind.TokenNameFinderEvaluationMonitor;
+import opennlp.tools.namefind.TokenNameFinderEvaluator;
+import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.ObjectStream;
-import opennlp.tools.util.TrainingParameters;
 import opennlp.tools.util.eval.EvaluationMonitor;
-import es.ehu.si.ixa.pipe.nerc.formats.CorpusSample;
-import es.ehu.si.ixa.pipe.nerc.formats.CorpusSampleTypeFilter;
 import es.ehu.si.ixa.pipe.nerc.train.AbstractTrainer;
-import es.ehu.si.ixa.pipe.nerc.train.FixedTrainer;
-import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
-import es.ehu.si.ixa.pipe.nerc.train.NameClassifier;
-import es.ehu.si.ixa.pipe.nerc.train.Trainer;
-import es.ehu.si.ixa.pipe.nerc.train.NameModel;
 
 /**
  * Evaluation class mostly using {@link TokenNameFinderEvaluator}.
@@ -29,50 +30,39 @@ public class Evaluate {
   /**
    * The reference corpus to evaluate against.
    */
-  private ObjectStream<CorpusSample> testSamples;
-  /**
-   * Static instance of {@link TokenNameFinderModel}.
-   */
-  private static NameModel nercModel;
-  /**
-   * The name finder trainer to use for appropriate features.
-   */
-  private Trainer nameFinderTrainer;
+  private ObjectStream<NameSample> testSamples;
   /**
    * An instance of the probabilistic {@link NameFinderME}.
    */
-  private NameClassifier nameFinder;
+  private NameFinderME nameFinder;
+  /**
+   * The models to use for every language. The keys of the hash are the
+   * language codes, the values the models.
+   */
+  private static ConcurrentHashMap<String, TokenNameFinderModel> nercModels =
+      new ConcurrentHashMap<String, TokenNameFinderModel>();
  
   /**
-   * Construct an evaluator.
-   *
-   * @param testData the reference data to evaluate against
-   * @param model the model to be evaluated
-   * @param features the features
-   * @param lang the language
-   * @param beamsize the beam size for decoding
-   * @param corpusFormat the format of the testData corpus
-   * @throws IOException if input data not available
+   * Construct an evaluator. It takes from the properties a model,
+   * a testset and the format of the testset. Every other parameter
+   * set in the training, e.g., beamsize, decoding, etc., is serialized
+   * in the model.
+   * @param props the properties parameter
+   * @throws IOException the io exception
    */
-  public Evaluate(final TrainingParameters params) throws IOException {
+  public Evaluate(final Properties props) throws IOException {
     
-    String testSet = InputOutputUtils.getDataSet("TestSet", params);
-    String model = InputOutputUtils.getModel(params);
-    String lang = InputOutputUtils.getLanguage(params);
-    String corpusFormat = InputOutputUtils.getCorpusFormat(params);
-    Integer beamsize = InputOutputUtils.getBeamsize(params);
+    String lang = props.getProperty("language");
+    String model = props.getProperty("model");
+    String testSet = props.getProperty("testset");
+    String corpusFormat = props.getProperty("corpusFormat");
     
     testSamples = AbstractTrainer.getNameStream(testSet, lang, corpusFormat);
-    if (params.getSettings().get("Types") != null) {
-      String neTypes = params.getSettings().get("Types");
-      String[] neTypesArray = neTypes.split(",");
-      testSamples = new CorpusSampleTypeFilter(neTypesArray, testSamples);
-    }
     InputStream trainedModelInputStream = null;
     try {
-      if (nercModel == null) {
+      if (!nercModels.containsKey(lang)) {
         trainedModelInputStream = new FileInputStream(model);
-        nercModel = new NameModel(trainedModelInputStream);
+        nercModels.put(lang, new TokenNameFinderModel(trainedModelInputStream));
       }
     } catch (IOException e) {
       e.printStackTrace();
@@ -85,8 +75,7 @@ public class Evaluate {
         }
       }
     }
-    nameFinderTrainer = new FixedTrainer(params);
-    nameFinder = new NameClassifier(nercModel, nameFinderTrainer.createFeatureGenerator(params), beamsize);
+    nameFinder = new NameFinderME(nercModels.get(lang));
   }
 
   /**
@@ -94,7 +83,7 @@ public class Evaluate {
    * @throws IOException if test corpus not loaded
    */
   public final void evaluate() throws IOException {
-    NameFinderEvaluator evaluator = new NameFinderEvaluator(nameFinder);
+    TokenNameFinderEvaluator evaluator = new TokenNameFinderEvaluator(nameFinder);
     evaluator.evaluate(testSamples);
     System.out.println(evaluator.getFMeasure());
   }
@@ -105,11 +94,11 @@ public class Evaluate {
    * @throws IOException if test corpus not loaded
    */
   public final void detailEvaluate() throws IOException {
-    List<EvaluationMonitor<CorpusSample>> listeners = new LinkedList<EvaluationMonitor<CorpusSample>>();
-    NameFinderDetailedFMeasureListener detailedFListener = new NameFinderDetailedFMeasureListener();
+    List<EvaluationMonitor<NameSample>> listeners = new LinkedList<EvaluationMonitor<NameSample>>();
+    TokenNameFinderDetailedFMeasureListener detailedFListener = new TokenNameFinderDetailedFMeasureListener();
     listeners.add(detailedFListener);
-    NameFinderEvaluator evaluator = new NameFinderEvaluator(nameFinder,
-        listeners.toArray(new NameFinderEvaluationMonitor[listeners.size()]));
+    TokenNameFinderEvaluator evaluator = new TokenNameFinderEvaluator(nameFinder,
+        listeners.toArray(new TokenNameFinderEvaluationMonitor[listeners.size()]));
     evaluator.evaluate(testSamples);
     System.out.println(detailedFListener.toString());
   }
@@ -118,10 +107,10 @@ public class Evaluate {
    * @throws IOException if test corpus not loaded
    */
   public final void evalError() throws IOException {
-    List<EvaluationMonitor<CorpusSample>> listeners = new LinkedList<EvaluationMonitor<CorpusSample>>();
+    List<EvaluationMonitor<NameSample>> listeners = new LinkedList<EvaluationMonitor<NameSample>>();
     listeners.add(new NameEvaluationErrorListener());
-    NameFinderEvaluator evaluator = new NameFinderEvaluator(nameFinder,
-        listeners.toArray(new NameFinderEvaluationMonitor[listeners.size()]));
+    TokenNameFinderEvaluator evaluator = new TokenNameFinderEvaluator(nameFinder,
+        listeners.toArray(new TokenNameFinderEvaluationMonitor[listeners.size()]));
     evaluator.evaluate(testSamples);
     System.out.println(evaluator.getFMeasure());
   }

@@ -13,12 +13,14 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  */
+
 package es.ehu.si.ixa.pipe.nerc;
 
 import ixa.kaflib.KAFDocument;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -32,6 +34,8 @@ import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 import net.sourceforge.argparse4j.inf.Subparsers;
+import opennlp.tools.cmdline.CmdLineUtil;
+import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.TrainingParameters;
 
 import org.jdom2.JDOMException;
@@ -41,8 +45,8 @@ import com.google.common.io.Files;
 import es.ehu.si.ixa.pipe.nerc.eval.CorpusEvaluate;
 import es.ehu.si.ixa.pipe.nerc.eval.Evaluate;
 import es.ehu.si.ixa.pipe.nerc.train.FixedTrainer;
+import es.ehu.si.ixa.pipe.nerc.train.Flags;
 import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
-import es.ehu.si.ixa.pipe.nerc.train.NameModel;
 import es.ehu.si.ixa.pipe.nerc.train.Trainer;
 
 /**
@@ -50,7 +54,7 @@ import es.ehu.si.ixa.pipe.nerc.train.Trainer;
  * tagger.
  * 
  * @author ragerri
- * @version 2014-06-26
+ * @version 2014-10-15
  * 
  */
 public class CLI {
@@ -89,18 +93,6 @@ public class CLI {
    * The parser that manages the evaluation sub-command.
    */
   private Subparser evalParser;
-
-  /**
-   * Default beam size for decoding.
-   */
-  public static final int DEFAULT_BEAM_SIZE = 3;
-  public static final String DEFAULT_EVALUATE_MODEL = "off";
-  public static final String DEFAULT_NE_TYPES = "off";
-  public static final String DEFAULT_FEATURES = "baseline";
-  public static final String DEFAULT_LEXER = "off";
-  public static final String DEFAULT_DICT_OPTION = "off";
-  public static final String DEFAULT_DICT_PATH = "off";
-  public static final String DEFAULT_OUTPUT_FORMAT="naf";
 
   /**
    * Construct a CLI object with the three sub-parsers to manage the command
@@ -179,36 +171,38 @@ public class CLI {
         outputStream, "UTF-8"));
     // read KAF document from inputstream
     KAFDocument kaf = KAFDocument.createFromStream(breader);
-    // load properties parameters file
-    String paramFile = parsedArguments.getString("params");
-    TrainingParameters params = InputOutputUtils
-        .loadTrainingParameters(paramFile);
+    // load parameters into a properties
+    String model = parsedArguments.getString("model");
+    String outputFormat = parsedArguments.getString("outputFormat");
+    String lexer = parsedArguments.getString("lexer");
+    String dictTag = parsedArguments.getString("dictTag");
+    String dictPath = parsedArguments.getString("dictPath");
     // language parameter
     String lang = null;
-    if (params.getSettings().get("Language") != null) {
-      lang = params.getSettings().get("Language");
+    if (parsedArguments.getString("language") != null) {
+      lang = parsedArguments.getString("language");
       if (!kaf.getLang().equalsIgnoreCase(lang)) {
         System.err
-            .println("Lang parameter in NAF and parameters file do not match!!");
+            .println("Language parameter in NAF and CLI do not match!!");
         System.exit(1);
       }
     } else {
-      params.getSettings().put("Language", kaf.getLang());
+      lang = kaf.getLang();
     }
-    String lexer = parsedArguments.getString("lexer");
+    Properties properties = setAnnotateProperties(model, lang, lexer, dictTag, dictPath);
     KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor(
-        "entities", "ixa-pipe-nerc-" + lang + "-" + paramFile, version);
+        "entities", "ixa-pipe-nerc-" + lang + "-" + Files.getNameWithoutExtension(model), version);
     newLp.setBeginTimestamp();
-    Properties properties = setAnnotateProperties(lexer);
-    Annotate annotator = new Annotate(properties, params);
+    Annotate annotator = new Annotate(properties);
     annotator.annotateNEs(kaf);
     newLp.setEndTimestamp();
-    String outputFormatOption = InputOutputUtils.getOutputFormat(params);
     String kafToString = null;
-    if (outputFormatOption.equalsIgnoreCase("conll03")) {
+    if (outputFormat.equalsIgnoreCase("conll03")) {
       kafToString = annotator.annotateNEsToCoNLL2003(kaf);
-    } else if (outputFormatOption.equalsIgnoreCase("conll02")) {
+    } else if (outputFormat.equalsIgnoreCase("conll02")) {
       kafToString = annotator.annotateNEsToCoNLL2002(kaf);
+    } else if (outputFormat.equalsIgnoreCase("opennlp")) {
+      kafToString = annotator.annotateNEsToOpenNLP(kaf);
     } else {
       kafToString = annotator.annotateNEsToKAF(kaf);
     }
@@ -235,32 +229,32 @@ public class CLI {
       params.put("OutputModel", outModel);
     }
     else {
-      outModel = InputOutputUtils.getModel(params);
+      outModel = Flags.getModel(params);
     }
-    String trainSet = InputOutputUtils.getDataSet("TrainSet", params);
-    String testSet = InputOutputUtils.getDataSet("TestSet", params);
+    String trainSet = Flags.getDataSet("TrainSet", params);
+    String testSet = Flags.getDataSet("TestSet", params);
     Trainer nercTrainer = new FixedTrainer(trainSet, testSet, params);
-    NameModel trainedModel = null;
+    TokenNameFinderModel trainedModel = null;
     // check if CrossEval
     if (params.getSettings().get("CrossEval") != null) {
       String evalParam = params.getSettings().get("CrossEval");
       String[] evalRange = evalParam.split("[ :-]");
       if (evalRange.length != 2) {
-        InputOutputUtils.devSetException();
+        Flags.devSetException();
       } else {
         if (params.getSettings().get("DevSet") != null) {
           String devSet = params.getSettings().get("DevSet");
           trainedModel = nercTrainer.trainCrossEval(devSet, params, evalRange);
         } else {
-          InputOutputUtils.devSetException();
+          Flags.devSetException();
         }
       }
     } else {
       trainedModel = nercTrainer.train(params);
     }
-    InputOutputUtils.saveModel(trainedModel, outModel);
-    System.out.println();
-    System.out.println("Wrote trained NERC model to " + outModel);
+    CmdLineUtil.writeModel("ixa-pipe-nerc ", new File(outModel), trainedModel);
+    System.err.println();
+    System.err.println("Wrote trained NERC model to " + outModel);
   }
 
   /**
@@ -271,13 +265,14 @@ public class CLI {
    */
   public final void eval() throws IOException {
 
-    String predFile = parsedArguments.getString("prediction");
-    // load training parameters file
-    String paramFile = parsedArguments.getString("params");
-    TrainingParameters params = InputOutputUtils
-        .loadTrainingParameters(paramFile);
+    String lang = parsedArguments.getString("language");
+    String model = parsedArguments.getString("model");
+    String testset = parsedArguments.getString("testset");
+    String corpusFormat = parsedArguments.getString("corpusFormat");
+    Properties props = setEvalProperties(lang, model, testset, corpusFormat);
+    
     if (parsedArguments.getString("prediction") == null) {
-      Evaluate evaluator = new Evaluate(params);
+      Evaluate evaluator = new Evaluate(props);
       if (parsedArguments.getString("evalReport") != null) {
         if (parsedArguments.getString("evalReport").equalsIgnoreCase("brief")) {
           evaluator.evaluate();
@@ -292,7 +287,8 @@ public class CLI {
         evaluator.detailEvaluate();
       }
     } else if (parsedArguments.getString("prediction") != null) {
-      CorpusEvaluate corpusEvaluator = new CorpusEvaluate(predFile, params);
+      String predFile = parsedArguments.getString("prediction");
+      CorpusEvaluate corpusEvaluator = new CorpusEvaluate(predFile, props);
       corpusEvaluator.evaluate();
     } else {
       System.err
@@ -304,11 +300,36 @@ public class CLI {
    * Create the available parameters for NER tagging.
    */
   private void loadAnnotateParameters() {
-    annotateParser.addArgument("-p", "--params").required(true)
-        .help("Load the parameters file\n");
-    annotateParser.addArgument("--lexer").choices("numeric")
-        .setDefault(DEFAULT_LEXER).required(false)
-        .help("Use lexer rules for NERC tagging\n");
+    
+    annotateParser.addArgument("-m", "--model")
+        .required(true)
+        .help("Pass the model to do the tagging as a parameter.\n");
+    annotateParser.addArgument("-l","--language")
+        .required(false)
+        .choices("de", "en", "es", "eu", "it", "nl")
+        .help("Choose language; it defaults to the language value in incoming NAF file.\n");
+    annotateParser.addArgument("-o","--outputFormat")
+        .required(false)
+        .choices("conll03", "conll02", "naf", "opennlp")
+        .setDefault(Flags.DEFAULT_OUTPUT_FORMAT)
+        .help("Choose output format; it defaults to NAF.\n");
+    annotateParser.addArgument("--lexer")
+        .choices("numeric")
+        .setDefault(Flags.DEFAULT_LEXER)
+        .required(false)
+        .help("Use lexer rules for NERC tagging; it defaults to false.\n");
+    annotateParser.addArgument("--dictTag")
+        .required(false)
+        .choices("tag", "post")
+        .setDefault(Flags.DEFAULT_DICT_OPTION)
+        .help("Choose to directly tag entities by dictionary look-up; if the 'tag' option is chosen, " +
+        		"only tags entities found in the dictionary; if 'post' option is chosen, it will " +
+        		"post-process the results of the statistical model.\n");
+    annotateParser.addArgument("--dictPath")
+        .required(false)
+        .setDefault(Flags.DEFAULT_DICT_PATH)
+        .help("Provide the path to the dictionaries for direct dictionary tagging; it ONLY WORKS if --dictTag " +
+        		"option is activated.\n");
   }
 
   /**
@@ -323,21 +344,66 @@ public class CLI {
    * Create the parameters available for evaluation.
    */
   private void loadEvalParameters() {
-    evalParser.addArgument("-p", "--params").required(true)
-        .help("Load the parameters file\n");
+    evalParser.addArgument("-l", "--language")
+        .required(true)
+        .choices("de", "en", "es", "eu", "it", "nl")
+        .help("Choose language.\n");
+    evalParser.addArgument("-m", "--model")
+        .required(false)
+        .setDefault(Flags.DEFAULT_EVALUATE_MODEL)
+        .help("Pass the model to evaluate as a parameter.\n");
+    evalParser.addArgument("-t", "--testset")
+        .required(true)
+        .help("The test or reference corpus.\n");
+    evalParser.addArgument("-f","--corpusFormat")
+        .required(false)
+        .choices("conll03", "conll02", "opennlp")
+        .setDefault(Flags.DEFAULT_EVAL_FORMAT)
+        .help("Choose format of reference corpus; it defaults to opennlp format.\n");
     evalParser
         .addArgument("--prediction")
         .required(false)
         .help(
-            "Use this parameter to evaluate one prediction corpus against a reference corpus\n");
-    evalParser.addArgument("--evalReport").required(false)
-        .choices("brief", "detailed", "error");
+            "Use this parameter to evaluate one prediction corpus against the reference corpus.\n");
+    evalParser.addArgument("--evalReport")
+        .required(false)
+        .choices("brief", "detailed", "error")
+        .help("Choose level of detail of evaluation report; it defaults to detailed evaluation.\n");
   }
 
-  private Properties setAnnotateProperties(String ruleBasedOption) {
+  /**
+   * Set a Properties object with the CLI parameters for annotation.
+   * @param model the model parameter
+   * @param language language parameter
+   * @param lexer rule based parameter
+   * @param dictTag directly tag from a dictionary
+   * @param dictPath directory to the dictionaries
+   * @return the properties object
+   */
+  private Properties setAnnotateProperties(String model, String language, String lexer, String dictTag, String dictPath) {
     Properties annotateProperties = new Properties();
-    annotateProperties.setProperty("ruleBasedOption", ruleBasedOption);
+    annotateProperties.setProperty("model", model);
+    annotateProperties.setProperty("language", language);
+    annotateProperties.setProperty("ruleBasedOption", lexer);
+    annotateProperties.setProperty("dictTag", dictTag);
+    annotateProperties.setProperty("dictPath", dictPath);
     return annotateProperties;
+  }
+  
+  /**
+   * Set a Properties object with the CLI parameters for evaluation.
+   * @param model the model parameter
+   * @param testset the reference set
+   * @param corpusFormat the format of the testset
+   * @return the properties object
+   */
+  private Properties setEvalProperties(String language, String model, String testset, String corpusFormat) {
+    Properties evalProperties = new Properties();
+    evalProperties.setProperty("language", language);
+    evalProperties.setProperty("model", model);
+    evalProperties.setProperty("testset", testset);
+    evalProperties.setProperty("corpusFormat", corpusFormat);
+    return evalProperties;
   }
 
 }

@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+import opennlp.tools.namefind.NameSample;
 import opennlp.tools.util.InvalidFormatException;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
@@ -45,7 +46,7 @@ import opennlp.tools.util.StringUtil;
  * <b>Note:</b> Do not use this class, internal use only!
  */
 
-public class GermEval2014OuterNameStream implements ObjectStream<CorpusSample> {
+public class GermEval2014OuterNameStream implements ObjectStream<NameSample> {
 
   public static final String DOCSTART = "#";
   private final ObjectStream<String> lineStream;
@@ -76,7 +77,7 @@ public class GermEval2014OuterNameStream implements ObjectStream<CorpusSample> {
     }
   }
 
-  public CorpusSample read() throws IOException {
+  public NameSample read() throws IOException {
 
     List<String> tokens = new ArrayList<String>();
     List<String> neTypes = new ArrayList<String>();
@@ -131,7 +132,7 @@ public class GermEval2014OuterNameStream implements ObjectStream<CorpusSample> {
       if (beginIndex != -1)
         names.add(extract(beginIndex, endIndex, neTypes.get(beginIndex)));
 
-      return new CorpusSample(tokens.toArray(new String[tokens.size()]),
+      return new NameSample(tokens.toArray(new String[tokens.size()]),
           names.toArray(new Span[names.size()]), isClearAdaptiveData);
     } else if (line != null) {
       // Just filter out empty events, if two lines in a row are empty
