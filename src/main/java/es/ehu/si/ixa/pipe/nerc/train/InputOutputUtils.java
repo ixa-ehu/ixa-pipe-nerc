@@ -46,6 +46,19 @@ public final class InputOutputUtils {
   private InputOutputUtils() {
 
   }
+  
+  /**
+   * Get an input stream from a resource.
+   *
+   * @param resource
+   *          the name of the resource
+   * @return the inputstream of the dictionary
+   */
+  public static final InputStream getDictionaryResource(final String resource) {
+    InputStream dict = null;
+      dict = InputOutputUtils.class.getClassLoader().getResourceAsStream(resource);
+    return dict;
+  }
 
   /**
    * Check input file integrity.

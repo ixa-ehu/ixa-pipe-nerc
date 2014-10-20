@@ -170,20 +170,10 @@ public class FixedTrainer extends AbstractTrainer {
 
     File resourceFile = new File(resourcePath);
     if (resourceFile != null) {
-      /*if (featureGenDescriptor != null) {
-        InputStream xmlDescriptorIn = new ByteArrayInputStream(
-            featureGenDescriptor);
-        try {
-          artifactSerializers.putAll(GeneratorFactory
-              .extractCustomArtifactSerializerMappings(xmlDescriptorIn));
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-      }*/
       ArtifactSerializer<?> serializer = artifactSerializers.get(resourceId);
       InputStream resourceIn = CmdLineUtil.openInFile(resourceFile);
       try {
-        resources.put(resourceFile.getCanonicalPath(), serializer.create(resourceIn));
+        resources.put(resourceFile.getName(), serializer.create(resourceIn));
       } catch (InvalidFormatException e) {
         e.printStackTrace();
       } catch (IOException e) {
