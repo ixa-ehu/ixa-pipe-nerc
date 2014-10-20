@@ -15,6 +15,7 @@ import opennlp.tools.util.featuregen.CustomFeatureGenerator;
 import opennlp.tools.util.featuregen.FeatureGeneratorResourceProvider;
 import opennlp.tools.util.model.ArtifactSerializer;
 import es.ehu.si.ixa.pipe.nerc.dict.ClarkCluster;
+import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
 
 
 public class ClarkFeatureGenerator extends CustomFeatureGenerator implements ArtifactToSerializerMapper {
@@ -58,7 +59,7 @@ public class ClarkFeatureGenerator extends CustomFeatureGenerator implements Art
       FeatureGeneratorResourceProvider resourceProvider)
       throws InvalidFormatException {
     this.attributes = properties;
-    InputStream inputStream = CmdLineUtil.openInFile(new File(properties.get("dict")));
+    InputStream inputStream = InputOutputUtils.getDictionaryResource("en/clark/" + properties.get("dict"));
     try {
       this.clarkCluster = new ClarkCluster.ClarkClusterSerializer().create(inputStream);
     } catch (IOException e) {
