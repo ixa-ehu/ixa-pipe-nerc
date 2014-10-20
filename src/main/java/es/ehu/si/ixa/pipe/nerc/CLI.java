@@ -191,7 +191,7 @@ public class CLI {
     }
     Properties properties = setAnnotateProperties(model, lang, lexer, dictTag, dictPath);
     KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor(
-        "entities", "ixa-pipe-nerc-" + lang + "-" + Files.getNameWithoutExtension(model), version);
+        "entities", "ixa-pipe-nerc-" + Files.getNameWithoutExtension(model), version);
     newLp.setBeginTimestamp();
     Annotate annotator = new Annotate(properties);
     annotator.annotateNEs(kaf);

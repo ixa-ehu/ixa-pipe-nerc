@@ -55,7 +55,7 @@ public class BrownBigramFeatureGenerator extends CustomFeatureGenerator implemen
       FeatureGeneratorResourceProvider resourceProvider)
       throws InvalidFormatException {
     this.attributes = properties;
-    InputStream inputStream = InputOutputUtils.getDictionaryResource("en/brown/" + properties.get("dict"));
+    InputStream inputStream = InputOutputUtils.getDictionaryResource(properties.get("dict"));
     try {
       this.brownLexicon = new BrownCluster.BrownClusterSerializer().create(inputStream);
     } catch (IOException e) {

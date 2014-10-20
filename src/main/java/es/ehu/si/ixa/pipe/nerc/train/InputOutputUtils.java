@@ -20,6 +20,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -55,11 +57,16 @@ public final class InputOutputUtils {
    * @return the inputstream of the dictionary
    */
   public static final InputStream getDictionaryResource(final String resource) {
+    
+    Path resourcePath = Paths.get(resource);
+    String normalizedPath = resourcePath.toString();
+    String dictPath = normalizedPath.split("src/main/resources/")[1];
     InputStream dictInputStream = null;
-      dictInputStream = InputOutputUtils.class.getClassLoader().getResourceAsStream(resource);
-      if (dictInputStream == null) {
-        dictInputStream = InputOutputUtils.class.getClassLoader().getResourceAsStream(resource.replaceAll("\\\\", "/"));
-      }
+    dictInputStream = InputOutputUtils.class.getClassLoader().getResourceAsStream(dictPath);
+    if (dictInputStream == null) {
+      dictPath = normalizedPath.split("src\\\\main\\\\resources\\\\")[1];
+      dictInputStream = InputOutputUtils.class.getClassLoader().getResourceAsStream(dictPath);
+    }
     return dictInputStream;
   }
 

@@ -181,7 +181,7 @@ public class XMLFeatureDescriptor {
       for (File dictFile : fileList) {
         Element dictFeatures = new Element("custom");
         dictFeatures.setAttribute("class", DictionaryFeatureGenerator.class.getName());
-        dictFeatures.setAttribute("dict", dictFile.getName());
+        dictFeatures.setAttribute("dict", dictFile.getCanonicalPath());
         Element dictWindow = new Element("window");
         dictWindow.setAttribute("prevLength", Integer.toString(leftWindow));
         dictWindow.setAttribute("nextLength", Integer.toString(rightWindow));
@@ -212,12 +212,12 @@ public class XMLFeatureDescriptor {
         //brown bigram class features
         Element brownBigramFeatures = new Element("custom");
         brownBigramFeatures.setAttribute("class", BrownBigramFeatureGenerator.class.getName());
-        brownBigramFeatures.setAttribute("dict", brownClusterFile.getName());
+        brownBigramFeatures.setAttribute("dict", brownClusterFile.getCanonicalPath());
         generators.addContent(brownBigramFeatures);
         //brown token feature
         Element brownTokenFeature = new Element("custom");
         brownTokenFeature.setAttribute("class", BrownTokenFeatureGenerator.class.getName());
-        brownTokenFeature.setAttribute("dict", brownClusterFile.getName());
+        brownTokenFeature.setAttribute("dict", brownClusterFile.getCanonicalPath());
         Element brownTokenWindow = new Element("window");
         brownTokenWindow.setAttribute("prevLength", Integer.toString(leftWindow));
         brownTokenWindow.setAttribute("nextLength", Integer.toString(rightWindow));
@@ -226,7 +226,7 @@ public class XMLFeatureDescriptor {
         //brown token class feature
         Element brownTokenClassFeature = new Element("custom");
         brownTokenClassFeature.setAttribute("class", BrownTokenClassFeatureGenerator.class.getName());
-        brownTokenClassFeature.setAttribute("dict", brownClusterFile.getName());
+        brownTokenClassFeature.setAttribute("dict", brownClusterFile.getCanonicalPath());
         Element brownTokenClassWindow = new Element("window");
         brownTokenClassWindow.setAttribute("prevLength", Integer.toString(leftWindow));
         brownTokenClassWindow.setAttribute("nextLength", Integer.toString(rightWindow));
@@ -243,7 +243,7 @@ public class XMLFeatureDescriptor {
       for (File clarkCluster: clarkClusterFiles) {
         Element clarkFeatures = new Element("custom");
         clarkFeatures.setAttribute("class", ClarkFeatureGenerator.class.getName());
-        clarkFeatures.setAttribute("dict", clarkCluster.getName());
+        clarkFeatures.setAttribute("dict", clarkCluster.getCanonicalPath());
         Element clarkWindow = new Element("window");
         clarkWindow.setAttribute("prevLength", Integer.toString(leftWindow));
         clarkWindow.setAttribute("nextLength", Integer.toString(rightWindow));
@@ -260,7 +260,7 @@ public class XMLFeatureDescriptor {
       for (File word2vecFile : word2vecClusterFiles) {
         Element word2vecClusterFeatures = new Element("custom");
         word2vecClusterFeatures.setAttribute("class", Word2VecClusterFeatureGenerator.class.getName());
-        word2vecClusterFeatures.setAttribute("dict", word2vecFile.getName());
+        word2vecClusterFeatures.setAttribute("dict", word2vecFile.getCanonicalPath());
         Element word2vecClusterWindow = new Element("window");
         word2vecClusterWindow.setAttribute("prevLength", Integer.toString(leftWindow));
         word2vecClusterWindow.setAttribute("nextLength", Integer.toString(rightWindow));

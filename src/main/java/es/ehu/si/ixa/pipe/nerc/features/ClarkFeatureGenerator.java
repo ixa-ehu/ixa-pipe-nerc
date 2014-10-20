@@ -57,7 +57,7 @@ public class ClarkFeatureGenerator extends CustomFeatureGenerator implements Art
       FeatureGeneratorResourceProvider resourceProvider)
       throws InvalidFormatException {
     this.attributes = properties;
-    InputStream inputStream = InputOutputUtils.getDictionaryResource("en/clark/" + properties.get("dict"));
+    InputStream inputStream = InputOutputUtils.getDictionaryResource(properties.get("dict"));
     try {
       this.clarkCluster = new ClarkCluster.ClarkClusterSerializer().create(inputStream);
     } catch (IOException e) {

@@ -73,7 +73,7 @@ public class DictionaryFeatureGenerator extends CustomFeatureGenerator implement
       FeatureGeneratorResourceProvider resourceProvider)
       throws InvalidFormatException {
     this.attributes = properties;
-    InputStream inputStream = InputOutputUtils.getDictionaryResource("en/dictionaries/" + properties.get("dict"));
+    InputStream inputStream = InputOutputUtils.getDictionaryResource(properties.get("dict"));
     try {
       this.dictionary = new Dictionary.DictionarySerializer().create(inputStream);
     } catch (IOException e) {

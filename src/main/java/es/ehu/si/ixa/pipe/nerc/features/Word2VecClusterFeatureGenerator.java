@@ -58,7 +58,7 @@ public class Word2VecClusterFeatureGenerator extends CustomFeatureGenerator impl
       FeatureGeneratorResourceProvider resourceProvider)
       throws InvalidFormatException {
     this.attributes = properties;
-    InputStream inputStream = InputOutputUtils.getDictionaryResource("en/word2vec/" + properties.get("dict"));
+    InputStream inputStream = InputOutputUtils.getDictionaryResource(properties.get("dict"));
     try {
       this.word2vecCluster = new Word2VecCluster.Word2VecClusterSerializer().create(inputStream);
     } catch (IOException e) {
