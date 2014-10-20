@@ -1,6 +1,5 @@
 package es.ehu.si.ixa.pipe.nerc.features;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
@@ -8,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import opennlp.tools.cmdline.CmdLineUtil;
 import opennlp.tools.util.InvalidFormatException;
 import opennlp.tools.util.featuregen.ArtifactToSerializerMapper;
 import opennlp.tools.util.featuregen.CustomFeatureGenerator;
@@ -70,7 +68,7 @@ public class ClarkFeatureGenerator extends CustomFeatureGenerator implements Art
   @Override
   public Map<String, ArtifactSerializer<?>> getArtifactSerializerMapping() {
     Map<String, ArtifactSerializer<?>> mapping = new HashMap<>();
-    mapping.put("clarkcluster", new ClarkCluster.ClarkClusterSerializer());
+    mapping.put(attributes.get("dict"), new ClarkCluster.ClarkClusterSerializer());
     return Collections.unmodifiableMap(mapping);
   }
   

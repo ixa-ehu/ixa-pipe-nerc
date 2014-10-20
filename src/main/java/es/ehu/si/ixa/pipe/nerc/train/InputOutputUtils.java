@@ -51,13 +51,16 @@ public final class InputOutputUtils {
    * Get an input stream from a resource.
    *
    * @param resource
-   *          the name of the resource
+   *          the name of the resource (absolute path with no starting /)
    * @return the inputstream of the dictionary
    */
   public static final InputStream getDictionaryResource(final String resource) {
-    InputStream dict = null;
-      dict = InputOutputUtils.class.getClassLoader().getResourceAsStream(resource);
-    return dict;
+    InputStream dictInputStream = null;
+      dictInputStream = InputOutputUtils.class.getClassLoader().getResourceAsStream(resource);
+      if (dictInputStream == null) {
+        dictInputStream = InputOutputUtils.class.getClassLoader().getResourceAsStream(resource.replaceAll("\\\\", "/"));
+      }
+    return dictInputStream;
   }
 
   /**
