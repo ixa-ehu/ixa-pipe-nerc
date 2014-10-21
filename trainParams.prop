@@ -19,10 +19,10 @@
 Algorithm=PERCEPTRON
 Iterations=500
 Cutoff=0
-Threads=4
 
 ## IF MAXENT_QN is chosen, activate these parameters ##
 
+Threads=4
 # Costs for L1- and L2-regularization. These parameters must be larger or
 # equal to zero. The higher they are, the more penalty will be imposed to 
 # avoid overfitting. The parameters can be set as follows:
@@ -68,7 +68,7 @@ OutputModel=trainParams.bin
 #Types=location,organization,person,misc
 
 # Beamsize 1 amounts to greedy search
-Beamsize=3
+BeamSize=3
 
 # Sequence codec used to code named entity spans: Choose between BIO and BILOU.
 # If commented out, it defaults to BILOU.
@@ -156,10 +156,3 @@ ClarkClusterFeatures=/home/ragerri/resources/reuters-rcv1/clark/reuters-rcv1.tok
 Word2VecClusterFeatures=/home/ragerri/clusters.large.txt
 
 ## END FEATURES ##
-
-## Cross Evaluation: only for learning MaxEnt models using GISTrainer.
-## Cross Evaluation takes two values as arguments, namely, 50:100;
-## These values represent: 
-##    + The iteration to start the cross evaluation 
-##    + The range of iterations to perform each cross evaluation
-#CrossEval=1:10
