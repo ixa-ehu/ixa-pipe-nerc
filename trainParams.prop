@@ -52,7 +52,7 @@ TrainSet=/home/ragerri/experiments/nerc/conll03/eng.train
 DevSet=
 TestSet=/home/ragerri/experiments/nerc/conll03/eng.testb
 
-# CorpusFormat: conll02, conll03, germEvalOuter2014, germEvalInner2014, opennlp
+# CorpusFormat: conll02, conll03, evalita, germEvalOuter2014, germEvalInner2014, opennlp
 # CorpusFormat of the training corpus
 CorpusFormat=conll03
 
