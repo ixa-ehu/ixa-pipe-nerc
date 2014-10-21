@@ -57,6 +57,17 @@ external knowledge, based on Brown and Clark clustering, and dictionaries.
 To avoid duplication of efforts, we use and contribute to the machine learning API provided 
 by the [Apache OpenNLP project](http://opennlp.apache.org).
 
+
+### Features
+
+**A description of every feature is provided in the trainParams.prop properties
+file** distributed with ixa-pipe-nerc. As most functionality is configured in
+properties files, please do check this document. For each model distributed,
+there is a prop file which describes the training of the model, as well as a
+log file which provides details about the evaluation and training process.
+
+### Models
+
 **ixa-pipe-nerc models and resources**: 
 
   + The [nerc-resources-$version.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-resources-1.3.0.tgz)
@@ -70,18 +81,7 @@ ixa-pipe-nerc/src/main/resources directory before compilation. The
 nerc-models-$version.tgz package contains the models which can be called via
 the --model parameter in the tag CLI.
 
-### Features
-
-**A description of every feature is provided in the trainParams.prop properties
-file** distributed with ixa-pipe-nerc. As most functionality is configured in
-properties files, please do check this document. For each model distributed,
-there is a prop file which describes the training of the model, as well as a
-log file which provides details about the evaluation and training process.
-
-### Models
-
-We distribute the following models in the [nerc-resources.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-resources-1.3.0.tgz)
-package. All models are trained with the averaged Perceptron algorithm as
+All models are trained with the averaged Perceptron algorithm as
 described in (Collins 2002):
 
 + **English Models**: 
