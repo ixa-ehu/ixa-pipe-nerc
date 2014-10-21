@@ -16,8 +16,10 @@
 
 package es.ehu.si.ixa.pipe.nerc.train;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -50,7 +52,10 @@ public final class InputOutputUtils {
   }
   
   /**
-   * Get an input stream from a resource.
+   * Get an input stream from a resource name. This could be either an
+   * absolute path pointing to a resource in the classpath or a file
+   * or a directory in the file system. If found in the classpath
+   * that will be loaded first.
    *
    * @param resource
    *          the name of the resource (absolute path with no starting /)
@@ -58,14 +63,36 @@ public final class InputOutputUtils {
    */
   public static final InputStream getDictionaryResource(final String resource) {
     
+    InputStream dictInputStream;
     Path resourcePath = Paths.get(resource);
     String normalizedPath = resourcePath.toString();
-    String dictPath = normalizedPath.split("src/main/resources/")[1];
-    InputStream dictInputStream = null;
-    dictInputStream = InputOutputUtils.class.getClassLoader().getResourceAsStream(dictPath);
+    dictInputStream = getStreamFromClassPath(normalizedPath);
     if (dictInputStream == null) {
-      dictPath = normalizedPath.split("src\\\\main\\\\resources\\\\")[1];
-      dictInputStream = InputOutputUtils.class.getClassLoader().getResourceAsStream(dictPath);
+      try {
+        dictInputStream = new FileInputStream(normalizedPath);
+      } catch (FileNotFoundException e) {
+        e.printStackTrace();
+      }
+    }
+    return new BufferedInputStream(dictInputStream);
+  }
+
+  /**
+   * Load a resource from the classpath.
+   * 
+   * @param normalizedPath the path normalized using {@code Paths} functions.
+   * @return the input stream of the resource
+   */
+  private static InputStream getStreamFromClassPath(String normalizedPath) {
+    InputStream dictInputStream = null;
+    String[] dictPaths = normalizedPath.split("src/main/resources");
+    if (dictPaths.length == 2) {
+      dictInputStream = InputOutputUtils.class.getClassLoader().getResourceAsStream(dictPaths[1]);
+    } else {
+      String[] windowsPaths = normalizedPath.split("src\\\\main\\\\resources\\\\");
+      if (windowsPaths.length == 2) {
+        dictInputStream = InputOutputUtils.class.getClassLoader().getResourceAsStream(windowsPaths[1]);
+      }
     }
     return dictInputStream;
   }
