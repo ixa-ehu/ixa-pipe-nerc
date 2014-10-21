@@ -27,6 +27,7 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import opennlp.tools.util.InvalidFormatException;
 import opennlp.tools.util.model.ArtifactSerializer;
@@ -48,6 +49,8 @@ import opennlp.tools.util.model.SerializableArtifact;
  */
 public class Word2VecCluster implements SerializableArtifact {
 
+  private static final Pattern spacePattern = Pattern.compile(" ");
+  
   public static class Word2VecClusterSerializer implements ArtifactSerializer<Word2VecCluster> {
 
     public Word2VecCluster create(InputStream in) throws IOException,
@@ -68,7 +71,7 @@ public class Word2VecCluster implements SerializableArtifact {
     BufferedReader breader = new BufferedReader(new InputStreamReader(in, Charset.forName("UTF-8")));
     String line;
     while ((line = breader.readLine()) != null) {
-      String[] lineArray = line.split(" ");
+      String[] lineArray = spacePattern.split(line);
       if (lineArray.length == 2) {
         tokenToClusterMap.put(lineArray[0].toLowerCase(), lineArray[1]);
       }

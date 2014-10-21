@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
@@ -40,6 +41,8 @@ import es.ehu.si.ixa.pipe.nerc.StringUtils;
  * 
  */
 public class Dictionaries {
+  
+  private static final Pattern tabPattern = Pattern.compile("\\t");
 
   public static boolean DEBUG = false;
   /**
@@ -125,7 +128,7 @@ public class Dictionaries {
 
       List<String> fileLines = Files.readLines(fileList.get(i), Charsets.UTF_8);
       for (String line : fileLines) {
-        String[] lineArray = line.split("\t");
+        String[] lineArray = tabPattern.split(line);
         if (lineArray.length == 2) {
           dictionaries.get(i).put(lineArray[0], lineArray[1]);
           if ((!line.equalsIgnoreCase("in")) && (!line.equalsIgnoreCase("on"))

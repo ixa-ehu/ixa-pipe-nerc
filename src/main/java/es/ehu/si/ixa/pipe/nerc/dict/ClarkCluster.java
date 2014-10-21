@@ -27,6 +27,7 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import opennlp.tools.util.InvalidFormatException;
 import opennlp.tools.util.model.ArtifactSerializer;
@@ -47,6 +48,8 @@ import opennlp.tools.util.model.SerializableArtifact;
  */
 public class ClarkCluster implements SerializableArtifact {
 
+  private static final Pattern spacePattern = Pattern.compile(" ");
+  
   public static class ClarkClusterSerializer implements ArtifactSerializer<ClarkCluster> {
 
     public ClarkCluster create(InputStream in) throws IOException,
@@ -67,7 +70,7 @@ public class ClarkCluster implements SerializableArtifact {
     BufferedReader breader = new BufferedReader(new InputStreamReader(in, Charset.forName("UTF-8")));
     String line;
     while ((line = breader.readLine()) != null) {
-      String[] lineArray = line.split(" ");
+      String[] lineArray = spacePattern.split(line);
       if (lineArray.length == 3) {
         tokenToClusterMap.put(lineArray[0].toLowerCase(), lineArray[1]);
       }
