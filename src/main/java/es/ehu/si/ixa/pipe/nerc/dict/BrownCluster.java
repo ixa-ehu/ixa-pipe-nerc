@@ -11,6 +11,7 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import opennlp.tools.util.InvalidFormatException;
 import opennlp.tools.util.model.ArtifactSerializer;
@@ -31,6 +32,7 @@ import opennlp.tools.util.model.SerializableArtifact;
  */
 public class BrownCluster implements SerializableArtifact {
   
+  private static final Pattern tabPattern = Pattern.compile("\\t");
 
   public static class BrownClusterSerializer implements ArtifactSerializer<BrownCluster> {
 
@@ -58,7 +60,7 @@ public class BrownCluster implements SerializableArtifact {
     BufferedReader breader = new BufferedReader(new InputStreamReader(in, Charset.forName("UTF-8")));
     String line;
     while ((line = breader.readLine()) != null) {
-      String[] lineArray = line.split("\\t");
+      String[] lineArray = tabPattern.split(line);
       if (lineArray.length == 3) {
         int freq = Integer.parseInt(lineArray[2]);
           if (freq > 5 ) {

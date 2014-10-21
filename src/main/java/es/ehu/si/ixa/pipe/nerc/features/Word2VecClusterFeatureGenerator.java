@@ -1,18 +1,17 @@
 package es.ehu.si.ixa.pipe.nerc.features;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
-import opennlp.tools.cmdline.CmdLineUtil;
 import opennlp.tools.util.InvalidFormatException;
 import opennlp.tools.util.featuregen.ArtifactToSerializerMapper;
 import opennlp.tools.util.featuregen.CustomFeatureGenerator;
 import opennlp.tools.util.featuregen.FeatureGeneratorResourceProvider;
 import opennlp.tools.util.model.ArtifactSerializer;
 import es.ehu.si.ixa.pipe.nerc.dict.Word2VecCluster;
+import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
 
 public class Word2VecClusterFeatureGenerator extends CustomFeatureGenerator implements ArtifactToSerializerMapper {
   
@@ -59,7 +58,7 @@ public class Word2VecClusterFeatureGenerator extends CustomFeatureGenerator impl
       FeatureGeneratorResourceProvider resourceProvider)
       throws InvalidFormatException {
     this.attributes = properties;
-    InputStream inputStream = CmdLineUtil.openInFile(new File(properties.get("dict")));
+    InputStream inputStream = InputOutputUtils.getDictionaryResource(properties.get("dict"));
     try {
       this.word2vecCluster = new Word2VecCluster.Word2VecClusterSerializer().create(inputStream);
     } catch (IOException e) {

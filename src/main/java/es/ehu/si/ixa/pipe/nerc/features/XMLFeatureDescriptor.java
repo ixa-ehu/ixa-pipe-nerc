@@ -243,7 +243,7 @@ public class XMLFeatureDescriptor {
       for (File clarkCluster: clarkClusterFiles) {
         Element clarkFeatures = new Element("custom");
         clarkFeatures.setAttribute("class", ClarkFeatureGenerator.class.getName());
-        clarkFeatures.setAttribute("dict", clarkCluster.getName());
+        clarkFeatures.setAttribute("dict", clarkCluster.getCanonicalPath());
         Element clarkWindow = new Element("window");
         clarkWindow.setAttribute("prevLength", Integer.toString(leftWindow));
         clarkWindow.setAttribute("nextLength", Integer.toString(rightWindow));

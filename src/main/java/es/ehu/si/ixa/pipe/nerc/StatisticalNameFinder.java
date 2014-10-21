@@ -18,7 +18,6 @@ package es.ehu.si.ixa.pipe.nerc;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -168,23 +167,11 @@ public class StatisticalNameFinder implements NameFinder {
    * @return the model as a {@link TokenNameFinder} object
    */
   public final TokenNameFinderModel loadModel(final String lang, final String model) {
-    InputStream trainedModelInputStream = null;
     long lStartTime = new Date().getTime();
     try {
-      if (!nercModels.containsKey(lang)) {
-        trainedModelInputStream = new FileInputStream(model);
-        nercModels.put(lang, new TokenNameFinderModel(trainedModelInputStream));
-      }
+      nercModels.putIfAbsent(lang, new TokenNameFinderModel(new FileInputStream(model)));
     } catch (IOException e) {
       e.printStackTrace();
-    } finally {
-      if (trainedModelInputStream != null) {
-        try {
-          trainedModelInputStream.close();
-        } catch (IOException e) {
-          System.err.println("Could not load model!");
-        }
-      }
     }
     long lEndTime = new Date().getTime();
     long difference = lEndTime - lStartTime;

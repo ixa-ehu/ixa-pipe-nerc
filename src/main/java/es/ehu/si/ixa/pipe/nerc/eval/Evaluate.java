@@ -2,7 +2,6 @@ package es.ehu.si.ixa.pipe.nerc.eval;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
@@ -58,23 +57,7 @@ public class Evaluate {
     String corpusFormat = props.getProperty("corpusFormat");
     
     testSamples = AbstractTrainer.getNameStream(testSet, lang, corpusFormat);
-    InputStream trainedModelInputStream = null;
-    try {
-      if (!nercModels.containsKey(lang)) {
-        trainedModelInputStream = new FileInputStream(model);
-        nercModels.put(lang, new TokenNameFinderModel(trainedModelInputStream));
-      }
-    } catch (IOException e) {
-      e.printStackTrace();
-    } finally {
-      if (trainedModelInputStream != null) {
-        try {
-          trainedModelInputStream.close();
-        } catch (IOException e) {
-          System.err.println("Could not load model!");
-        }
-      }
-    }
+    nercModels.putIfAbsent(lang, new TokenNameFinderModel(new FileInputStream(model)));
     nameFinder = new NameFinderME(nercModels.get(lang));
   }
 

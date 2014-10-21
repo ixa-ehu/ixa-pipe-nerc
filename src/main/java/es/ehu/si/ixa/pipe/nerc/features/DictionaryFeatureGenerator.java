@@ -16,7 +16,6 @@
 
 package es.ehu.si.ixa.pipe.nerc.features;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
@@ -24,7 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import opennlp.tools.cmdline.CmdLineUtil;
 import opennlp.tools.util.InvalidFormatException;
 import opennlp.tools.util.Span;
 import opennlp.tools.util.featuregen.ArtifactToSerializerMapper;
@@ -32,6 +30,7 @@ import opennlp.tools.util.featuregen.CustomFeatureGenerator;
 import opennlp.tools.util.featuregen.FeatureGeneratorResourceProvider;
 import opennlp.tools.util.model.ArtifactSerializer;
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
+import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
 
 
 public class DictionaryFeatureGenerator extends CustomFeatureGenerator implements  ArtifactToSerializerMapper {
@@ -74,7 +73,7 @@ public class DictionaryFeatureGenerator extends CustomFeatureGenerator implement
       FeatureGeneratorResourceProvider resourceProvider)
       throws InvalidFormatException {
     this.attributes = properties;
-    InputStream inputStream = CmdLineUtil.openInFile(new File(properties.get("dict")));
+    InputStream inputStream = InputOutputUtils.getDictionaryResource(properties.get("dict"));
     try {
       this.dictionary = new Dictionary.DictionarySerializer().create(inputStream);
     } catch (IOException e) {
