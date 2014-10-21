@@ -173,7 +173,7 @@ public class FixedTrainer extends AbstractTrainer {
       ArtifactSerializer<?> serializer = artifactSerializers.get(resourceId);
       InputStream resourceIn = CmdLineUtil.openInFile(resourceFile);
       try {
-        resources.put(resourceFile.getName(), serializer.create(resourceIn));
+        resources.put(resourceFile.getCanonicalPath(), serializer.create(resourceIn));
       } catch (InvalidFormatException e) {
         e.printStackTrace();
       } catch (IOException e) {
