@@ -57,6 +57,17 @@ external knowledge, based on Brown and Clark clustering, and dictionaries.
 To avoid duplication of efforts, we use and contribute to the machine learning API provided 
 by the [Apache OpenNLP project](http://opennlp.apache.org).
 
+
+### Features
+
+**A description of every feature is provided in the trainParams.prop properties
+file** distributed with ixa-pipe-nerc. As most functionality is configured in
+properties files, please do check this document. For each model distributed,
+there is a prop file which describes the training of the model, as well as a
+log file which provides details about the evaluation and training process.
+
+### Models
+
 **ixa-pipe-nerc models and resources**: 
 
   + The [nerc-resources-$version.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-resources-1.3.0.tgz)
@@ -70,18 +81,7 @@ ixa-pipe-nerc/src/main/resources directory before compilation. The
 nerc-models-$version.tgz package contains the models which can be called via
 the --model parameter in the tag CLI.
 
-### Features
-
-**A description of every feature is provided in the trainParams.prop properties
-file** distributed with ixa-pipe-nerc. As most functionality is configured in
-properties files, please do check this document. For each model distributed,
-there is a prop file which describes the training of the model, as well as a
-log file which provides details about the evaluation and training process.
-
-### Models
-
-We distribute the following models in the [nerc-resources.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-resources-1.3.0.tgz)
-package. All models are trained with the averaged Perceptron algorithm as
+All models are trained with the averaged Perceptron algorithm as
 described in (Collins 2002):
 
 + **English Models**: 
@@ -125,8 +125,7 @@ parameter:
 ````shell
 java -jar target/ixa-pipe-nerc-$version.jar (tag|train|eval) -help
 ````
-**Every option for training is well
-documented in the trainParams.prop properties file distributed with
+**Every option for training is documented in the trainParams.prop properties file distributed with
 ixa-pipe-nerc**. Please do read that file!! 
 
 ### Tagging 
@@ -180,8 +179,13 @@ template trainParams.prop file.
 **Example**:
 
 ````shell
-java -jar target/ixa.pipe.nerc-1.0.jar train -p trainParams.txt
+java -jar target/ixa.pipe.nerc-1.0.jar train -p trainParams.prop
 ````
+**Training with Features using External Resources**: For training with dictionary or clustering
+based features (Brown, Clark and Word2Vec) you need to pass the lexicon as
+value of the respective feature in the prop file. Note that for later use of
+the model, the lexicon required needs to either be in the classpath (e.g., copied
+to ixa-pipe-nerc/src/main/resources) or accessible in the filesystem.
 
 ### Evaluation
 
@@ -203,7 +207,7 @@ or testset.
 **Example**:
 
 ````shell
-java -jar target/ixa.pipe.nerc-$version.jar eval -m nerc-resources/en/en-local-conll03.bin -l en -t conll03.testb
+java -jar target/ixa.pipe.nerc-$version.jar eval -m nerc-models-$version/en/en-local-conll03.bin -l en -t conll03.testb
 ````
 
 ## JAVADOC

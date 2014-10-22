@@ -36,16 +36,5 @@ public interface Trainer {
    */
   TokenNameFinderModel train(TrainingParameters params);
 
-  /**
-   * Trains a model with cross evaluation. This only makes sense here
-   * using {@code GISTrainer} optimization.
-   * @param devData the development data
-   * @param params the parameters
-   * @param evalRange the range at which the evaluation is performed
-   * @return the model trained with the best parameters
-   */
-  TokenNameFinderModel trainCrossEval(String devData,
-      TrainingParameters params, String[] evalRange);
-
 }
 
