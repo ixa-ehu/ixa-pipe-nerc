@@ -299,7 +299,7 @@ public abstract class AbstractTrainer implements Trainer {
       else if (aLang.equalsIgnoreCase("nl")) {
         samples = new Conll02NameSampleStream(Conll02NameSampleStream.LANGUAGE.NL, nameStream, types);
       }
-    } else if (aLang.equalsIgnoreCase("it")) {
+    } else if (aCorpusFormat.equalsIgnoreCase("evalita")) {
       ObjectStream<String> nameStream = InputOutputUtils.readInputData(inputData);
       samples = new EvalitaNameSampleStream(EvalitaNameSampleStream.LANGUAGE.IT, nameStream, types);
     } else if (aCorpusFormat.equalsIgnoreCase("germEvalOuter2014")) {

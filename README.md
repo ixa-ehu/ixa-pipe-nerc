@@ -43,23 +43,32 @@ and [CoNLL 2003](http://www.clips.ua.ac.be/conll2003/ner/) for more information.
 + **ONTONOTES 4.0**: 18 Named Entity types: TIME, LAW, GPE, NORP, LANGUAGE,
 PERCENT, FACILITY, PRODUCT, ORDINAL, LOCATION, PERSON, WORK_OF_ART, MONEY, DATE, EVENT, QUANTITY, ORGANIZATION, CARDINAL.
 
-The models are self-contained, you do not need to use the prop files to use
-them. You will find for each model a prop and a log file. The log file
+The models are self-contained (as long as you place and uncompress the
+nerc-resources-$version.tgz in the src/main/resources directory), that is, the
+prop files are not needed to use them. You will find for each model a prop and a log file. The log file
 describes the training process that was performed. The prop file is used for training only. Please see the
 traininParams.prop template file to all available training options and
 documentation. 
 
-We provide fast models trained on local features only, similar to those of 
-Zhang and Johnson (2003) with several differences: We do not use POS
+We provide fast models trained on local features only: We do not use POS
 tags, chunking or gazetteers in our baseline models but we do use
-bigrams, trigrams and character ngrams. We also provide some models with
+bigrams, trigrams and character ngrams. For English we also provide some models with
 external knowledge, based on Brown and Clark clustering, and dictionaries. 
 To avoid duplication of efforts, we use and contribute to the machine learning API provided 
 by the [Apache OpenNLP project](http://opennlp.apache.org).
 
 **ixa-pipe-nerc models and resources**: 
 
-  + The [nerc-resources.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-resources.tgz) package, which contains **every model and resource** available.
+  + The [nerc-resources-$version.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-resources-1.3.0.tgz)
+  package, which contains **every resource** required to run the English models
+  trained with clustering and dictionary features.
+  + The [nerc-models-$version.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-models-1.3.0.tgz)
+  package, containing **every pre-trained** model. 
+
+The nerc-resources-$version.tgz package needs to be downloaded and untar in the
+ixa-pipe-nerc/src/main/resources directory before compilation. The
+nerc-models-$version.tgz package contains the models which can be called via
+the --model parameter in the tag CLI.
 
 ### Features
 
@@ -71,50 +80,33 @@ log file which provides details about the evaluation and training process.
 
 ### Models
 
-We distribute the following models in the [nerc-resources.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-resources.tgz) package:
+We distribute the following models in the [nerc-resources.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-resources-1.3.0.tgz)
+package. All models are trained with the averaged Perceptron algorithm as
+described in (Collins 2002):
 
-+ **English Models**: we offer a variety of Perceptron based models (Collins 2002):
++ **English Models**: 
   
   + **CoNLL 2003 models**: We distribute models trained with local features
   with external knowledge. Furthermore, we also
-  distribute opennlp compatible models (check for "opennlp" in the model name). 
+  distribute opennlp compatible models (look for "opennlp" in the model name). 
   Each of the models improve in F1 but they get slower: 
     + CoNLL 2003 local features: F1 83.35
     + CoNLL 2003 Brown and Clark clusters as features: F1 89.76
     + CoNLL 2003 Brown, Clark and dictionaries: F1 90.37
  
-  + **Ontonotes 4.0**: 
-    + Trained on the **full corpus** with the **18 NE types**, suitable **for production use**.
-    + **Using 5K sentences at random for testset** from the corpus and leaving the rest (90K
-      aprox) for training.
-      + Ontonotes CoNLL 4 NE types with local features: F1 86.21
-      + Ontonotes 3 NE types with local features: F1 89.41
++ **Spanish Models**: 
 
-+ **Spanish Models**: we obtained better results overall with Maximum Entropy
-  models (Ratnapharki 1999). The best results are obtained when a c0 (cutoff 0)
-  is used, but those models are slower for production than when a c4 (cutoff 4)
-  is used. Therefore, we provide both types for opennlp and local features
-
-  + CoNLL 2002 opennlp cutoff 0: F1 80.01
-  + CoNLL 2002 opennlp cutoff 4: F1 77.85
-  + CoNLL 2002 local features cutoff 0: F1 80.25
-  + CoNLL 2002 local features cuttoff 4: F1 79.73
+  + CoNLL 2002 local features: F1 79.50
 
 + **Dutch Models**: 
-  + CoNLL 2002 local features: F1 79.40
+  + CoNLL 2002 local features: F1 78.10
 
-+ **German Models**: We distribute the following CoNLL02 models:
-  + CoNLL 2003 local features: F1 71.93
++ **German Models**: 
+  + CoNLL 2003 local features: F1 70.07
 
-+ **Italian Models**: Currently we distribute models trained with Evalita07 and Evalita09: 
-  + Evalita07 local features: F1 70.79
-  + Evalita09 local features: F1 74.97
-
-**Summarizing**, and even though the best way of knowing which model to use is
-to try them, for production use, we recommend using: 
-  + English CoNLL 03 with dict features or if speed is required English CoNLL
-  2003 with local features.
-  + Spanish local features with cutoff 4 model.
++ **Italian Models**: 
+  + Evalita07 local features: F1 71.18
+  + Evalita09 local features: F1 74.20
 
 ## USAGE
 
@@ -136,9 +128,6 @@ java -jar target/ixa-pipe-nerc-$version.jar (tag|train|eval) -help
 **Every option for training is well
 documented in the trainParams.prop properties file distributed with
 ixa-pipe-nerc**. Please do read that file!! 
-
-Also remember that the [nerc-resources.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-resources.tgz)
-package contains **every model and properties file** available. 
 
 ### Tagging 
 
@@ -322,6 +311,14 @@ Therefore, before installing/using this module as explained in this README,
 git clone https://github.com/apache/opennlp
 cd opennlp/opennlp
 mvn clean install
+````
+
+Get the resources to run the clustering and dictionary-based models:
+
+````shell
+cd ixa-pipe-nerc/src/main/resources/
+wget -c http://ixa2.si.ehu.es/ixa-pipes/models/nerc-resources-$version.tgz
+tar xvzf nerc-resources-$version.tgz
 ````
 
 Then you can just execute this command to compile ixa-pipe-nerc:
