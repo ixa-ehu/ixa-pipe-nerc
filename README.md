@@ -125,8 +125,7 @@ parameter:
 ````shell
 java -jar target/ixa-pipe-nerc-$version.jar (tag|train|eval) -help
 ````
-**Every option for training is well
-documented in the trainParams.prop properties file distributed with
+**Every option for training is documented in the trainParams.prop properties file distributed with
 ixa-pipe-nerc**. Please do read that file!! 
 
 ### Tagging 
