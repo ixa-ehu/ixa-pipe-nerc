@@ -180,8 +180,13 @@ template trainParams.prop file.
 **Example**:
 
 ````shell
-java -jar target/ixa.pipe.nerc-1.0.jar train -p trainParams.txt
+java -jar target/ixa.pipe.nerc-1.0.jar train -p trainParams.prop
 ````
+**Training with Features using External Resources**: For training with dictionary or clustering
+based features (Brown, Clark and Word2Vec) you need to pass the lexicion as
+value of the respective feature in the prop file. Note that for later use of
+the model, the lexicon required needs to either be in the classpath (e.g., copied
+to ixa-pipe-nerc/src/main/resources) or accessible in the filesystem.
 
 ### Evaluation
 
@@ -203,7 +208,7 @@ or testset.
 **Example**:
 
 ````shell
-java -jar target/ixa.pipe.nerc-$version.jar eval -m nerc-resources/en/en-local-conll03.bin -l en -t conll03.testb
+java -jar target/ixa.pipe.nerc-$version.jar eval -m nerc-models-$version/en/en-local-conll03.bin -l en -t conll03.testb
 ````
 
 ## JAVADOC
