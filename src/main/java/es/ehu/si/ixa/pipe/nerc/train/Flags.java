@@ -84,7 +84,7 @@ public class Flags {
 
   public static Integer getBeamsize(TrainingParameters params) {
     Integer beamsize = null;
-    if (params.getSettings().get("Beamsize") == null) {
+    if (params.getSettings().get("BeamSize") == null) {
       beamsize = Flags.DEFAULT_BEAM_SIZE;
     } else {
       beamsize = Integer.parseInt(params.getSettings().get("Beamsize"));

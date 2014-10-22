@@ -231,9 +231,7 @@ public class CLI {
     else {
       outModel = Flags.getModel(params);
     }
-    String trainSet = Flags.getDataSet("TrainSet", params);
-    String testSet = Flags.getDataSet("TestSet", params);
-    Trainer nercTrainer = new FixedTrainer(trainSet, testSet, params);
+    Trainer nercTrainer = new FixedTrainer(params);
     TokenNameFinderModel trainedModel = nercTrainer.train(params);
     CmdLineUtil.writeModel("ixa-pipe-nerc ", new File(outModel), trainedModel);
     System.err.println();

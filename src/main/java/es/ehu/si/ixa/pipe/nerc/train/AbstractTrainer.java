@@ -50,23 +50,23 @@ public abstract class AbstractTrainer implements Trainer {
   /**
    * String holding the training data.
    */
-  protected String trainData;
+  private String trainData;
   /**
    * String holding the testData.
    */
-  protected String testData;
+  private String testData;
   /**
    * ObjectStream of the training data.
    */
-  protected ObjectStream<NameSample> trainSamples;
+  private ObjectStream<NameSample> trainSamples;
   /**
    * ObjectStream of the test data.
    */
-  protected ObjectStream<NameSample> testSamples;
+  private ObjectStream<NameSample> testSamples;
   /**
    * beamsize value needs to be established in any class extending this one.
    */
-  protected int beamSize;
+  private int beamSize;
   /**
    * The sequence encoding of the named entity spans, e.g., BIO or BILOU.
    */
@@ -74,7 +74,7 @@ public abstract class AbstractTrainer implements Trainer {
   /**
    * The corpus format: conll02, conll03, germEvalOuter2014, germEvalInner2014 and opennlp.
    */
-  protected String corpusFormat;
+  private String corpusFormat;
   /**
    * The named entity types.
    */
@@ -94,13 +94,12 @@ public abstract class AbstractTrainer implements Trainer {
    * @throws IOException
    *           io exception
    */
-  public AbstractTrainer(final String aTrainData,
-      final String aTestData, final TrainingParameters params) throws IOException {
+  public AbstractTrainer(final TrainingParameters params) throws IOException {
     
     this.lang = Flags.getLanguage(params);
     this.corpusFormat = Flags.getCorpusFormat(params);
-    this.trainData = aTrainData;
-    this.testData = aTestData;
+    this.trainData = params.getSettings().get("TrainSet");
+    this.testData = params.getSettings().get("TestSet");
     trainSamples = getNameStream(trainData, lang, corpusFormat);
     testSamples = getNameStream(testData, lang, corpusFormat);
     this.beamSize = Flags.getBeamsize(params);
@@ -204,8 +203,9 @@ public abstract class AbstractTrainer implements Trainer {
     return nameClassifierFactory;
   }
   
-  public final void setNameClassifierFactory(TokenNameFinderFactory aFactory) {
-    this.nameClassifierFactory = aFactory;
+  public final TokenNameFinderFactory setNameClassifierFactory(TokenNameFinderFactory tokenNameFinderFactory) {
+    this.nameClassifierFactory = tokenNameFinderFactory;
+    return nameClassifierFactory;
   }
   
   /**
@@ -246,6 +246,10 @@ public abstract class AbstractTrainer implements Trainer {
    */
   public final void setSequenceCodec(final String aSeqCodec) {
     this.sequenceCodec = aSeqCodec;
+  }
+  
+  public final int getBeamSize() {
+    return beamSize;
   }
 
 }

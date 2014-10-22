@@ -14,6 +14,7 @@ import org.jdom2.output.XMLOutputter;
 
 import es.ehu.si.ixa.pipe.nerc.StringUtils;
 import es.ehu.si.ixa.pipe.nerc.train.Flags;
+import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
 
 public class XMLFeatureDescriptor {
 
@@ -243,7 +244,7 @@ public class XMLFeatureDescriptor {
       for (File clarkCluster: clarkClusterFiles) {
         Element clarkFeatures = new Element("custom");
         clarkFeatures.setAttribute("class", ClarkFeatureGenerator.class.getName());
-        clarkFeatures.setAttribute("dict", clarkCluster.getCanonicalPath());
+        clarkFeatures.setAttribute("dict", InputOutputUtils.normalizeLexiconName(clarkCluster.getCanonicalPath()));
         Element clarkWindow = new Element("window");
         clarkWindow.setAttribute("prevLength", Integer.toString(leftWindow));
         clarkWindow.setAttribute("nextLength", Integer.toString(rightWindow));

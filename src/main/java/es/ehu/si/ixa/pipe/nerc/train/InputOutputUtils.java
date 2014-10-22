@@ -51,6 +51,11 @@ public final class InputOutputUtils {
 
   }
   
+  public static final String normalizeLexiconName(String resource) {
+    resource = resource.replaceAll("[^\\p{L}]", "");
+    return resource;
+  }
+  
   /**
    * Get an input stream from a resource name. This could be either an
    * absolute path pointing to a resource in the classpath or a file

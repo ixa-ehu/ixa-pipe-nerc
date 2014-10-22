@@ -1,7 +1,5 @@
 package es.ehu.si.ixa.pipe.nerc.features;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -13,7 +11,6 @@ import opennlp.tools.util.featuregen.CustomFeatureGenerator;
 import opennlp.tools.util.featuregen.FeatureGeneratorResourceProvider;
 import opennlp.tools.util.model.ArtifactSerializer;
 import es.ehu.si.ixa.pipe.nerc.dict.ClarkCluster;
-import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
 
 
 public class ClarkFeatureGenerator extends CustomFeatureGenerator implements ArtifactToSerializerMapper {
@@ -21,7 +18,7 @@ public class ClarkFeatureGenerator extends CustomFeatureGenerator implements Art
   
   private ClarkCluster clarkCluster;
   public static String unknownClarkClass = "noclarkclass";
-  private Map<String, String> attributes;
+  public String resourceId;
 
   public ClarkFeatureGenerator() {
   }
@@ -30,7 +27,7 @@ public class ClarkFeatureGenerator extends CustomFeatureGenerator implements Art
       String[] preds) {
     
       String wordClass = getWordClass(tokens[index].toLowerCase());
-      features.add(attributes.get("dict") + "=" + wordClass);
+      features.add(resourceId + "=" + wordClass);
     }
   
   public String getWordClass(String token) {
@@ -56,19 +53,19 @@ public class ClarkFeatureGenerator extends CustomFeatureGenerator implements Art
   public void init(Map<String, String> properties,
       FeatureGeneratorResourceProvider resourceProvider)
       throws InvalidFormatException {
-    this.attributes = properties;
-    InputStream inputStream = InputOutputUtils.getDictionaryResource(properties.get("dict"));
-    try {
-      this.clarkCluster = new ClarkCluster.ClarkClusterSerializer().create(inputStream);
-    } catch (IOException e) {
-      e.printStackTrace();
+    this.resourceId = properties.get("dict");
+    System.err.println("trace 4 " + resourceId);
+    Object dictResource = resourceProvider.getResource(resourceId);
+    if (!(dictResource instanceof ClarkCluster)) {
+      throw new InvalidFormatException("Not a ClarkCluster resource for key: " + properties.get("dict"));
     }
+    this.clarkCluster = (ClarkCluster) dictResource;
   }
 
   @Override
   public Map<String, ArtifactSerializer<?>> getArtifactSerializerMapping() {
     Map<String, ArtifactSerializer<?>> mapping = new HashMap<>();
-    mapping.put(attributes.get("dict"), new ClarkCluster.ClarkClusterSerializer());
+    mapping.put("homeragerrijavacodeixapipenercnercresourcesenclarkreutersrcvtokpunctlower", new ClarkCluster.ClarkClusterSerializer());
     return Collections.unmodifiableMap(mapping);
   }
   
