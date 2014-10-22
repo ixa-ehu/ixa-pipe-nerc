@@ -183,7 +183,7 @@ template trainParams.prop file.
 java -jar target/ixa.pipe.nerc-1.0.jar train -p trainParams.prop
 ````
 **Training with Features using External Resources**: For training with dictionary or clustering
-based features (Brown, Clark and Word2Vec) you need to pass the lexicion as
+based features (Brown, Clark and Word2Vec) you need to pass the lexicon as
 value of the respective feature in the prop file. Note that for later use of
 the model, the lexicon required needs to either be in the classpath (e.g., copied
 to ixa-pipe-nerc/src/main/resources) or accessible in the filesystem.
