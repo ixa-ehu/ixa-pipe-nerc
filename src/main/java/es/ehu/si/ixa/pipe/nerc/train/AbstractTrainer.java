@@ -16,13 +16,7 @@
 
 package es.ehu.si.ixa.pipe.nerc.train;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 
 import opennlp.tools.formats.Conll02NameSampleStream;
 import opennlp.tools.formats.Conll03NameSampleStream;
@@ -38,10 +32,6 @@ import opennlp.tools.namefind.TokenNameFinderFactory;
 import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.TrainingParameters;
-
-import com.google.common.base.Charsets;
-import com.google.common.io.Files;
-
 import es.ehu.si.ixa.pipe.nerc.formats.GermEval2014InnerNameStream;
 import es.ehu.si.ixa.pipe.nerc.formats.GermEval2014OuterNameStream;
 
@@ -150,121 +140,6 @@ public abstract class AbstractTrainer implements Trainer {
     }
     System.out.println("Final Result: \n" + nerEvaluator.getFMeasure());
     return trainedModel;
-  }
-
-  /*
-   * (non-Javadoc)
-   * @see
-   * es.ehu.si.ixa.pipe.nerc.train.NameFinderTrainer#trainCrossEval(java.lang
-   * .String, java.lang.String, opennlp.tools.util.TrainingParameters,
-   * java.lang.String[])
-   */
-  public TokenNameFinderModel trainCrossEval(final String devData,
-      final TrainingParameters params, final String[] evalRange) {
-
-    // get best parameters from cross evaluation
-    List<Integer> bestParams = null;
-    try {
-      bestParams = crossEval(devData, params, evalRange);
-    } catch (IOException e) {
-      System.err.println("IO error while loading training and test sets!");
-      e.printStackTrace();
-      System.exit(1);
-    }
-    TrainingParameters crossEvalParams = new TrainingParameters();
-    crossEvalParams.put(TrainingParameters.ALGORITHM_PARAM, params.algorithm());
-    crossEvalParams.put(TrainingParameters.ITERATIONS_PARAM,
-        Integer.toString(bestParams.get(0)));
-    crossEvalParams.put(TrainingParameters.CUTOFF_PARAM,
-        Integer.toString(bestParams.get(1)));
-
-    // use best parameters to train model
-    TokenNameFinderModel trainedModel = train(crossEvalParams);
-    return trainedModel;
-  }
-
-  /**
-   * Cross evaluation method by iterations and cutoff. This only really makes
-   * sense for GIS optimization {@code GISTrainer}.
-   * @param devData
-   *          the development data to do the optimization
-   * @param params
-   *          the parameters
-   * @param evalRange
-   *          the range at which perform the evaluation
-   * @return the best parameters, iteration and cutoff
-   * @throws IOException
-   *           the io exception
-   */
-  private List<Integer> crossEval(final String devData,
-      final TrainingParameters params, final String[] evalRange)
-      throws IOException {
-
-    System.err.println("Cross Evaluation:");
-    // lists to store best parameters
-    List<List<Integer>> allParams = new ArrayList<List<Integer>>();
-    List<Integer> finalParams = new ArrayList<Integer>();
-
-    // F:<iterations,cutoff> Map
-    Map<List<Integer>, Double> results = new LinkedHashMap<List<Integer>, Double>();
-    // maximum iterations and cutoff
-    Integer cutoffParam = Integer.valueOf(params.getSettings().get(
-        TrainingParameters.CUTOFF_PARAM));
-    List<Integer> cutoffList = new ArrayList<Integer>(Collections.nCopies(
-        cutoffParam, 0));
-    Integer iterParam = Integer.valueOf(params.getSettings().get(
-        TrainingParameters.ITERATIONS_PARAM));
-    List<Integer> iterList = new ArrayList<Integer>(Collections.nCopies(
-        iterParam, 0));
-
-    for (int cuttOff = 0; cuttOff < cutoffList.size() + 1; cuttOff++) {
-      int start = Integer.valueOf(evalRange[0]);
-      int iterRange = Integer.valueOf(evalRange[1]);
-      for (int iteration = start + start; iteration < iterList.size() + start; iteration += iterRange) {
-        // reading data for training and test
-        ObjectStream<NameSample> aTrainSamples = getNameStream(trainData, lang,
-            corpusFormat);
-        ObjectStream<NameSample> devSamples = getNameStream(devData, lang,
-            corpusFormat);
-
-        // dynamic creation of parameters
-        params.put(TrainingParameters.ITERATIONS_PARAM,
-            Integer.toString(iteration));
-        params.put(TrainingParameters.CUTOFF_PARAM, Integer.toString(cuttOff));
-        System.err.println("Trying with " + iteration + " iterations...");
-
-        // training model
-        TokenNameFinderModel trainedModel = NameFinderME.train(lang, null,
-            aTrainSamples, params, getNameClassifierFactory());
-        // evaluate model
-        NameFinderME nerClassifier = new NameFinderME(trainedModel);
-        TokenNameFinderEvaluator nerEvaluator = new TokenNameFinderEvaluator(nerClassifier);
-        nerEvaluator.evaluate(devSamples);
-        double result = nerEvaluator.getFMeasure().getFMeasure();
-        double precision = nerEvaluator.getFMeasure().getPrecisionScore();
-        double recall = nerEvaluator.getFMeasure().getRecallScore();
-        StringBuilder sb = new StringBuilder();
-        sb.append("Iterations: ").append(iteration).append(" cutoff: ")
-            .append(cuttOff).append(" ").append("PRF: ").append(precision)
-            .append(" ").append(recall).append(" ").append(result).append("\n");
-        Files.append( sb.toString(), new File("ner-results.txt"), Charsets.UTF_8);
-        List<Integer> bestParams = new ArrayList<Integer>();
-        bestParams.add(iteration);
-        bestParams.add(cuttOff);
-        results.put(bestParams, result);
-        System.out.println();
-        System.out.println("Iterations: " + iteration + " cutoff: " + cuttOff);
-        System.out.println(nerEvaluator.getFMeasure());
-      }
-    }
-    // print F1 results by iteration
-    System.err.println();
-    InputOutputUtils.printIterationResults(results);
-    InputOutputUtils.getBestIterations(results, allParams);
-    finalParams = allParams.get(0);
-    System.err.println("Final Params " + finalParams.get(0) + " "
-        + finalParams.get(1));
-    return finalParams;
   }
 
   /**

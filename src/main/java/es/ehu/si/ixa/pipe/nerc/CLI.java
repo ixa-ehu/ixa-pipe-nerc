@@ -234,24 +234,7 @@ public class CLI {
     String trainSet = Flags.getDataSet("TrainSet", params);
     String testSet = Flags.getDataSet("TestSet", params);
     Trainer nercTrainer = new FixedTrainer(trainSet, testSet, params);
-    TokenNameFinderModel trainedModel = null;
-    // check if CrossEval
-    if (params.getSettings().get("CrossEval") != null) {
-      String evalParam = params.getSettings().get("CrossEval");
-      String[] evalRange = evalParam.split("[ :-]");
-      if (evalRange.length != 2) {
-        Flags.devSetException();
-      } else {
-        if (params.getSettings().get("DevSet") != null) {
-          String devSet = params.getSettings().get("DevSet");
-          trainedModel = nercTrainer.trainCrossEval(devSet, params, evalRange);
-        } else {
-          Flags.devSetException();
-        }
-      }
-    } else {
-      trainedModel = nercTrainer.train(params);
-    }
+    TokenNameFinderModel trainedModel = nercTrainer.train(params);
     CmdLineUtil.writeModel("ixa-pipe-nerc ", new File(outModel), trainedModel);
     System.err.println();
     System.err.println("Wrote trained NERC model to " + outModel);
