@@ -35,7 +35,6 @@ import opennlp.tools.util.featuregen.GeneratorFactory;
 import opennlp.tools.util.model.ArtifactSerializer;
 import es.ehu.si.ixa.pipe.nerc.StringUtils;
 import es.ehu.si.ixa.pipe.nerc.dict.BrownCluster;
-import es.ehu.si.ixa.pipe.nerc.dict.ClarkCluster;
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
 import es.ehu.si.ixa.pipe.nerc.dict.Word2VecCluster;
 import es.ehu.si.ixa.pipe.nerc.features.XMLFeatureDescriptor;
@@ -154,8 +153,7 @@ public class FixedTrainer extends AbstractTrainer {
   }
 
   /**
-   * Load a resource by resourceId. 
-   * @param resourceId the id of the resource
+   * Load a resource by resourceId.
    * @param artifactSerializers the serializers in which to put the resource
    * @param resourcePath the canonical path of the resource
    * @param featureGenDescriptor the feature descriptor
