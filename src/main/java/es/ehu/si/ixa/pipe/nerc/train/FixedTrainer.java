@@ -16,7 +16,6 @@
 
 package es.ehu.si.ixa.pipe.nerc.train;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,10 +30,10 @@ import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.InvalidFormatException;
 import opennlp.tools.util.SequenceCodec;
 import opennlp.tools.util.TrainingParameters;
-import opennlp.tools.util.featuregen.GeneratorFactory;
 import opennlp.tools.util.model.ArtifactSerializer;
 import es.ehu.si.ixa.pipe.nerc.StringUtils;
 import es.ehu.si.ixa.pipe.nerc.dict.BrownCluster;
+import es.ehu.si.ixa.pipe.nerc.dict.ClarkCluster;
 import es.ehu.si.ixa.pipe.nerc.dict.Dictionary;
 import es.ehu.si.ixa.pipe.nerc.dict.Word2VecCluster;
 import es.ehu.si.ixa.pipe.nerc.features.XMLFeatureDescriptor;
@@ -112,41 +111,47 @@ public class FixedTrainer extends AbstractTrainer {
       byte[] featureGenDescriptor) throws IOException {
     String resourceId = null;
     Map<String, Object> resources = new HashMap<String, Object>();
+    @SuppressWarnings("rawtypes")
     Map<String, ArtifactSerializer> artifactSerializers = TokenNameFinderModel.createArtifactSerializers();
     
     if (Flags.isBrownFeatures(params)) {
       String brownClusterPath = Flags.getBrownFeatures(params);
+      String serializerId = "brownserializer";
       List<File> brownClusterFiles = Flags.getClusterLexiconFiles(brownClusterPath);
       for (File brownClusterFile : brownClusterFiles) {
         String brownFilePath = brownClusterFile.getCanonicalPath();
         artifactSerializers.put(resourceId, new BrownCluster.BrownClusterSerializer());
-        loadResource(artifactSerializers, brownFilePath, featureGenDescriptor, resources);
+        loadResource(serializerId, artifactSerializers, brownFilePath, featureGenDescriptor, resources);
       }
     }
     if (Flags.isClarkFeatures(params)) {
       String clarkClusterPath = Flags.getClarkFeatures(params);
+      String serializerId = "clarkserializer";
       List<File> clarkClusterFiles = Flags.getClusterLexiconFiles(clarkClusterPath);
       for (File clarkClusterFile: clarkClusterFiles) {
         String clarkFilePath = clarkClusterFile.getCanonicalPath();
-        loadResource(artifactSerializers, clarkFilePath, featureGenDescriptor, resources);
+        artifactSerializers.put(serializerId, new ClarkCluster.ClarkClusterSerializer());
+        loadResource(serializerId, artifactSerializers, clarkFilePath, featureGenDescriptor, resources);
       }
     }
     if (Flags.isWord2VecClusterFeatures(params)) {
       String word2vecClusterPath = Flags.getWord2VecClusterFeatures(params);
+      String serializerId = "word2vecserializer";
       List<File> word2vecClusterFiles = Flags.getClusterLexiconFiles(word2vecClusterPath);
       for (File word2vecClusterFile : word2vecClusterFiles) {
         String word2vecFilePath = word2vecClusterFile.getCanonicalPath();
         artifactSerializers.put(resourceId, new Word2VecCluster.Word2VecClusterSerializer());
-        loadResource(artifactSerializers, word2vecFilePath, featureGenDescriptor, resources);
+        loadResource(serializerId, artifactSerializers, word2vecFilePath, featureGenDescriptor, resources);
       }
     }
     if (Flags.isDictionaryFeatures(params)) {
       String dictDir = Flags.getDictionaryFeatures(params);
+      String serializerId = "dictionaryserializer";
       List<File> fileList = StringUtils.getFilesInDir(new File(dictDir));
       for (File dictFile : fileList) {
         String dictionaryPath = dictFile.getCanonicalPath();
         artifactSerializers.put(resourceId, new Dictionary.DictionarySerializer());
-        loadResource(artifactSerializers, dictionaryPath, featureGenDescriptor, resources);
+        loadResource(serializerId, artifactSerializers, dictionaryPath, featureGenDescriptor, resources);
       }
     }
     return resources;
@@ -159,24 +164,15 @@ public class FixedTrainer extends AbstractTrainer {
    * @param featureGenDescriptor the feature descriptor
    * @param resources the map in which to put the resource
    */
-  public static void loadResource(Map<String, ArtifactSerializer> artifactSerializers, String resourcePath,
+  public static void loadResource(String serializerId, @SuppressWarnings("rawtypes") Map<String, ArtifactSerializer> artifactSerializers, String resourcePath,
       byte[] featureGenDescriptor, Map<String, Object> resources) {
     System.err.println("trace 8 " + artifactSerializers);
 
     File resourceFile = new File(resourcePath);
     if (resourceFile != null) {
-      if (featureGenDescriptor != null) {
-        InputStream xmlDescriptor = new ByteArrayInputStream(featureGenDescriptor);
-        try {
-          artifactSerializers.putAll(GeneratorFactory.extractCustomArtifactSerializerMappings(xmlDescriptor));
-        } catch (IOException e) {
-          // TODO: Improve error handling!
-          e.printStackTrace();
-        }
-      }
       System.err.println("trace 9 " + artifactSerializers);
       String resourceId = InputOutputUtils.normalizeLexiconName(resourcePath);
-      ArtifactSerializer<?> serializer = artifactSerializers.get(resourceId);
+      ArtifactSerializer<?> serializer = artifactSerializers.get(serializerId);
       InputStream resourceIn = CmdLineUtil.openInFile(resourceFile);
       try {
         resources.put(resourceId, serializer.create(resourceIn));

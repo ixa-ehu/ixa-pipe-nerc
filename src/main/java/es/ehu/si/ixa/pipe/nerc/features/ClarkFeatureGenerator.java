@@ -17,17 +17,26 @@ public class ClarkFeatureGenerator extends CustomFeatureGenerator implements Art
 
   
   private ClarkCluster clarkCluster;
+  private Map<String, String> attributes;
   public static String unknownClarkClass = "noclarkclass";
-  public String resourceId;
 
   public ClarkFeatureGenerator() {
   }
+  
+  public ClarkFeatureGenerator(Map<String, String> properties, FeatureGeneratorResourceProvider resourceProvider) {
+    try {
+      init(properties, resourceProvider);
+    } catch (InvalidFormatException e) {
+      e.printStackTrace();
+    }
+  }
+  
   
   public void createFeatures(List<String> features, String[] tokens, int index,
       String[] preds) {
     
       String wordClass = getWordClass(tokens[index].toLowerCase());
-      features.add(resourceId + "=" + wordClass);
+      features.add(attributes.get("dict") + "=" + wordClass);
     }
   
   public String getWordClass(String token) {
@@ -53,19 +62,18 @@ public class ClarkFeatureGenerator extends CustomFeatureGenerator implements Art
   public void init(Map<String, String> properties,
       FeatureGeneratorResourceProvider resourceProvider)
       throws InvalidFormatException {
-    this.resourceId = properties.get("dict");
-    System.err.println("trace 4 " + resourceId);
-    Object dictResource = resourceProvider.getResource(resourceId);
+    Object dictResource = resourceProvider.getResource(properties.get("dict"));
     if (!(dictResource instanceof ClarkCluster)) {
       throw new InvalidFormatException("Not a ClarkCluster resource for key: " + properties.get("dict"));
     }
     this.clarkCluster = (ClarkCluster) dictResource;
+    this.attributes = properties;
   }
 
   @Override
   public Map<String, ArtifactSerializer<?>> getArtifactSerializerMapping() {
     Map<String, ArtifactSerializer<?>> mapping = new HashMap<>();
-    mapping.put("homeragerrijavacodeixapipenercnercresourcesenclarkreutersrcvtokpunctlower", new ClarkCluster.ClarkClusterSerializer());
+    mapping.put("clarkserializer", new ClarkCluster.ClarkClusterSerializer());
     return Collections.unmodifiableMap(mapping);
   }
   

@@ -75,13 +75,6 @@ public class ClarkCluster implements SerializableArtifact {
         tokenToClusterMap.put(lineArray[0].toLowerCase(), lineArray[1]);
       }
     }
-    /*List<String> fileLines = CharStreams.readLines(breader);
-    for (String line : fileLines) {
-      String[] lineArray = line.split(" ");
-      if (lineArray.length == 3) {
-        tokenToClusterMap.put(lineArray[0].toLowerCase(), lineArray[1]);
-      }
-    }*/
   }
 
   public String lookupToken(String string) {
