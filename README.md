@@ -70,13 +70,13 @@ log file which provides details about the evaluation and training process.
 
 **ixa-pipe-nerc models and resources**: 
 
-  + The [nerc-resources-$version.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-resources-1.3.0.tgz)
-  package, which contains **every resource** required to run the English models
-  trained with clustering and dictionary features.
-  + The [nerc-models-$version.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-models-1.3.0.tgz)
+  + The [nerc-resources.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-resources.tgz)
+  package, which contains **every resource** required to train the English models
+  with clustering and dictionary features.
+  + The [nerc-models-$version.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-models-1.3.1.tgz)
   package, containing **every pre-trained** model. 
 
-The nerc-resources-$version.tgz package needs to be downloaded and untar in the
+The nerc-resources.tgz package needs to be downloaded and untar in the
 ixa-pipe-nerc/src/main/resources directory before compilation. The
 nerc-models-$version.tgz package contains the models which can be called via
 the --model parameter in the tag CLI.
@@ -167,7 +167,7 @@ There are several options to tag with ixa-pipe-nerc:
 **Example**: 
 
 ````shell
-cat file.txt | ixa-pipe-tok | ixa-pipe-pos | java -jar $PATH/target/ixa-pipe-nerc-$version.jar tag -m nerc-resources/en/en-local-conll03.bin
+cat file.txt | ixa-pipe-tok | ixa-pipe-pos | java -jar $PATH/target/ixa-pipe-nerc-$version.jar tag -m nerc-models-$version/en/en-local-conll03.bin
 ````
 
 ### Training
@@ -183,9 +183,8 @@ java -jar target/ixa.pipe.nerc-1.0.jar train -p trainParams.prop
 ````
 **Training with Features using External Resources**: For training with dictionary or clustering
 based features (Brown, Clark and Word2Vec) you need to pass the lexicon as
-value of the respective feature in the prop file. Note that for later use of
-the model, the lexicon required needs to either be in the classpath (e.g., copied
-to ixa-pipe-nerc/src/main/resources) or accessible in the filesystem.
+value of the respective feature in the prop file. This is only for training, as
+for tagging or evaluation the model is serialized with all resources included.
 
 ### Evaluation
 
@@ -316,15 +315,6 @@ git clone https://github.com/apache/opennlp
 cd opennlp/opennlp
 mvn clean install
 ````
-
-Get the resources to run the clustering and dictionary-based models:
-
-````shell
-cd ixa-pipe-nerc/src/main/resources/
-wget -c http://ixa2.si.ehu.es/ixa-pipes/models/nerc-resources-$version.tgz
-tar xvzf nerc-resources-$version.tgz
-````
-
 Then you can just execute this command to compile ixa-pipe-nerc:
 
 ````shell
