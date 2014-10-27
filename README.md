@@ -43,9 +43,8 @@ and [CoNLL 2003](http://www.clips.ua.ac.be/conll2003/ner/) for more information.
 + **ONTONOTES 4.0**: 18 Named Entity types: TIME, LAW, GPE, NORP, LANGUAGE,
 PERCENT, FACILITY, PRODUCT, ORDINAL, LOCATION, PERSON, WORK_OF_ART, MONEY, DATE, EVENT, QUANTITY, ORGANIZATION, CARDINAL.
 
-The models are self-contained (as long as you place and uncompress the
-nerc-resources-$version.tgz in the src/main/resources directory), that is, the
-prop files are not needed to use them. You will find for each model a prop and a log file. The log file
+The models are self-contained, that is, the prop files are not needed to use them. 
+You will find for each model a prop and a log file. The log file
 describes the training process that was performed. The prop file is used for training only. Please see the
 traininParams.prop template file to all available training options and
 documentation. 
@@ -53,15 +52,14 @@ documentation.
 We provide fast models trained on local features only: We do not use POS
 tags, chunking or gazetteers in our baseline models but we do use
 bigrams, trigrams and character ngrams. For English we also provide some models with
-external knowledge, based on Brown and Clark clustering, and dictionaries. 
+external knowledge, based on Brown and Clark and Word2Vec clustering, and dictionaries. 
 To avoid duplication of efforts, we use and contribute to the machine learning API provided 
 by the [Apache OpenNLP project](http://opennlp.apache.org).
-
 
 ### Features
 
 **A description of every feature is provided in the trainParams.prop properties
-file** distributed with ixa-pipe-nerc. As most functionality is configured in
+file** distributed with ixa-pipe-nerc. As the training functionality is configured in
 properties files, please do check this document. For each model distributed,
 there is a prop file which describes the training of the model, as well as a
 log file which provides details about the evaluation and training process.
@@ -75,11 +73,6 @@ log file which provides details about the evaluation and training process.
   with clustering and dictionary features.
   + The [nerc-models-$version.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-models-1.3.1.tgz)
   package, containing **every pre-trained** model. 
-
-The nerc-resources.tgz package needs to be downloaded and untar in the
-ixa-pipe-nerc/src/main/resources directory before compilation. The
-nerc-models-$version.tgz package contains the models which can be called via
-the --model parameter in the tag CLI.
 
 All models are trained with the averaged Perceptron algorithm as
 described in (Collins 2002):
