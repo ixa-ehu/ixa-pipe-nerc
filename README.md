@@ -85,7 +85,7 @@ described in (Collins 2002):
   Each of the models improve in F1 but they get slower: 
     + CoNLL 2003 local features: F1 83.35
     + CoNLL 2003 Brown and Clark clusters as features: F1 89.76
-    + CoNLL 2003 Brown, Clark and dictionaries: F1 90.37
+    + CoNLL 2003 Brown, Clark and dictionaries: F1 90.29
  
 + **Spanish Models**: 
 
