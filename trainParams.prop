@@ -49,7 +49,6 @@ Language=en
 
 # TrainingCorpus:
 TrainSet=/home/ragerri/experiments/nerc/conll03/eng.train
-DevSet=
 TestSet=/home/ragerri/experiments/nerc/conll03/eng.testb
 
 # CorpusFormat: conll02, conll03, evalita, germEvalOuter2014, germEvalInner2014, opennlp
