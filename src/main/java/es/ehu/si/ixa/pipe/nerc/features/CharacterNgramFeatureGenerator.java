@@ -50,17 +50,7 @@ public class CharacterNgramFeatureGenerator extends CustomFeatureGenerator {
       FeatureGeneratorResourceProvider resourceProvider)
       throws InvalidFormatException {
     this.attributes = properties;
-    setMinLength(properties);
-    setMaxLength(properties);
     
-  }
-  
-  private void setMinLength(Map<String, String> properties) {
-    properties.put("minLength", Integer.toString(XMLFeatureDescriptor.getLeftWindow()));
-  }
-  
-  private void setMaxLength(Map<String, String> properties) {
-    properties.put("maxLength", Integer.toString(XMLFeatureDescriptor.getRightWindow()));
   }
 }
 

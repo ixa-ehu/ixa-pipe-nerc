@@ -12,35 +12,24 @@ import opennlp.tools.util.featuregen.FeatureGeneratorResourceProvider;
 import opennlp.tools.util.model.ArtifactSerializer;
 import es.ehu.si.ixa.pipe.nerc.dict.ClarkCluster;
 
-
 public class ClarkFeatureGenerator extends CustomFeatureGenerator implements ArtifactToSerializerMapper {
 
-  
   private ClarkCluster clarkCluster;
   private Map<String, String> attributes;
   public static String unknownClarkClass = "noclarkclass";
 
+  
   public ClarkFeatureGenerator() {
   }
   
-  public ClarkFeatureGenerator(Map<String, String> properties, FeatureGeneratorResourceProvider resourceProvider) {
-    try {
-      init(properties, resourceProvider);
-    } catch (InvalidFormatException e) {
-      e.printStackTrace();
-    }
-  }
-  
-  
   public void createFeatures(List<String> features, String[] tokens, int index,
       String[] preds) {
-    
-      String wordClass = getWordClass(tokens[index].toLowerCase());
-      features.add(attributes.get("dict") + "=" + wordClass);
-    }
-  
+
+    String wordClass = getWordClass(tokens[index].toLowerCase());
+    features.add(attributes.get("dict") + "=" + wordClass);
+  }
+
   public String getWordClass(String token) {
-    
     String distSim = clarkCluster.lookupToken(token);
     if (distSim == null) {
       distSim = unknownClarkClass;

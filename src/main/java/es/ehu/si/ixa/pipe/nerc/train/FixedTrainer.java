@@ -109,7 +109,6 @@ public class FixedTrainer extends AbstractTrainer {
    */
   public static Map<String, Object> loadResources(TrainingParameters params,
       byte[] featureGenDescriptor) throws IOException {
-    String resourceId = null;
     Map<String, Object> resources = new HashMap<String, Object>();
     @SuppressWarnings("rawtypes")
     Map<String, ArtifactSerializer> artifactSerializers = TokenNameFinderModel.createArtifactSerializers();
@@ -120,7 +119,7 @@ public class FixedTrainer extends AbstractTrainer {
       List<File> brownClusterFiles = Flags.getClusterLexiconFiles(brownClusterPath);
       for (File brownClusterFile : brownClusterFiles) {
         String brownFilePath = brownClusterFile.getCanonicalPath();
-        artifactSerializers.put(resourceId, new BrownCluster.BrownClusterSerializer());
+        artifactSerializers.put(serializerId, new BrownCluster.BrownClusterSerializer());
         loadResource(serializerId, artifactSerializers, brownFilePath, featureGenDescriptor, resources);
       }
     }
@@ -140,7 +139,7 @@ public class FixedTrainer extends AbstractTrainer {
       List<File> word2vecClusterFiles = Flags.getClusterLexiconFiles(word2vecClusterPath);
       for (File word2vecClusterFile : word2vecClusterFiles) {
         String word2vecFilePath = word2vecClusterFile.getCanonicalPath();
-        artifactSerializers.put(resourceId, new Word2VecCluster.Word2VecClusterSerializer());
+        artifactSerializers.put(serializerId, new Word2VecCluster.Word2VecClusterSerializer());
         loadResource(serializerId, artifactSerializers, word2vecFilePath, featureGenDescriptor, resources);
       }
     }
@@ -150,7 +149,7 @@ public class FixedTrainer extends AbstractTrainer {
       List<File> fileList = StringUtils.getFilesInDir(new File(dictDir));
       for (File dictFile : fileList) {
         String dictionaryPath = dictFile.getCanonicalPath();
-        artifactSerializers.put(resourceId, new Dictionary.DictionarySerializer());
+        artifactSerializers.put(serializerId, new Dictionary.DictionarySerializer());
         loadResource(serializerId, artifactSerializers, dictionaryPath, featureGenDescriptor, resources);
       }
     }
@@ -166,11 +165,9 @@ public class FixedTrainer extends AbstractTrainer {
    */
   public static void loadResource(String serializerId, @SuppressWarnings("rawtypes") Map<String, ArtifactSerializer> artifactSerializers, String resourcePath,
       byte[] featureGenDescriptor, Map<String, Object> resources) {
-    System.err.println("trace 8 " + artifactSerializers);
 
     File resourceFile = new File(resourcePath);
     if (resourceFile != null) {
-      System.err.println("trace 9 " + artifactSerializers);
       String resourceId = InputOutputUtils.normalizeLexiconName(resourcePath);
       ArtifactSerializer<?> serializer = artifactSerializers.get(serializerId);
       InputStream resourceIn = CmdLineUtil.openInFile(resourceFile);

@@ -81,6 +81,10 @@ public class Word2VecCluster implements SerializableArtifact {
   public String lookupToken(String string) {
     return tokenToClusterMap.get(string);
   }
+  
+  public Map<String, String> getMap() {
+    return tokenToClusterMap;
+  }
 
   public void serialize(OutputStream out) throws IOException {
     Writer writer = new BufferedWriter(new OutputStreamWriter(out));

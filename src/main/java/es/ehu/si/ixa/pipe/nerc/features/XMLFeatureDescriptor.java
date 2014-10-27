@@ -16,9 +16,13 @@ import es.ehu.si.ixa.pipe.nerc.StringUtils;
 import es.ehu.si.ixa.pipe.nerc.train.Flags;
 import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
 
-public class XMLFeatureDescriptor {
-
-
+/**
+ * Class to automatically generate the feature descriptor from the trainParameters.prop file.
+ * @author ragerri
+ * @version 2014-10-27
+ */
+public final class XMLFeatureDescriptor {
+  
   /**
    * The leftWindow length.
    */
@@ -35,6 +39,7 @@ public class XMLFeatureDescriptor {
    * The maximum character ngram to be applied to a token.
    */
   private static int maxCharNgram = -1;
+  
   /**
    * This class is not to be instantiated.
    */
@@ -169,8 +174,11 @@ public class XMLFeatureDescriptor {
       System.err.println("-> Fivegram Class Features added!");
     }
     if (Flags.isCharNgramClassFeature(params)) {
+      setNgramRange(params);
       Element charngramFeature = new Element("custom");
       charngramFeature.setAttribute("class", CharacterNgramFeatureGenerator.class.getName());
+      charngramFeature.setAttribute("minLength", Integer.toString(minCharNgram));
+      charngramFeature.setAttribute("maxLength",Integer.toString(maxCharNgram));
       generators.addContent(charngramFeature);
       System.err.println("-> CharNgram Class Features added!");
     }
@@ -182,7 +190,7 @@ public class XMLFeatureDescriptor {
       for (File dictFile : fileList) {
         Element dictFeatures = new Element("custom");
         dictFeatures.setAttribute("class", DictionaryFeatureGenerator.class.getName());
-        dictFeatures.setAttribute("dict", dictFile.getCanonicalPath());
+        dictFeatures.setAttribute("dict", InputOutputUtils.normalizeLexiconName(dictFile.getCanonicalPath()));
         Element dictWindow = new Element("window");
         dictWindow.setAttribute("prevLength", Integer.toString(leftWindow));
         dictWindow.setAttribute("nextLength", Integer.toString(rightWindow));
@@ -213,12 +221,12 @@ public class XMLFeatureDescriptor {
         //brown bigram class features
         Element brownBigramFeatures = new Element("custom");
         brownBigramFeatures.setAttribute("class", BrownBigramFeatureGenerator.class.getName());
-        brownBigramFeatures.setAttribute("dict", brownClusterFile.getCanonicalPath());
+        brownBigramFeatures.setAttribute("dict", InputOutputUtils.normalizeLexiconName(brownClusterFile.getCanonicalPath()));
         generators.addContent(brownBigramFeatures);
         //brown token feature
         Element brownTokenFeature = new Element("custom");
         brownTokenFeature.setAttribute("class", BrownTokenFeatureGenerator.class.getName());
-        brownTokenFeature.setAttribute("dict", brownClusterFile.getCanonicalPath());
+        brownTokenFeature.setAttribute("dict", InputOutputUtils.normalizeLexiconName(brownClusterFile.getCanonicalPath()));
         Element brownTokenWindow = new Element("window");
         brownTokenWindow.setAttribute("prevLength", Integer.toString(leftWindow));
         brownTokenWindow.setAttribute("nextLength", Integer.toString(rightWindow));
@@ -227,7 +235,7 @@ public class XMLFeatureDescriptor {
         //brown token class feature
         Element brownTokenClassFeature = new Element("custom");
         brownTokenClassFeature.setAttribute("class", BrownTokenClassFeatureGenerator.class.getName());
-        brownTokenClassFeature.setAttribute("dict", brownClusterFile.getCanonicalPath());
+        brownTokenClassFeature.setAttribute("dict", InputOutputUtils.normalizeLexiconName(brownClusterFile.getCanonicalPath()));
         Element brownTokenClassWindow = new Element("window");
         brownTokenClassWindow.setAttribute("prevLength", Integer.toString(leftWindow));
         brownTokenClassWindow.setAttribute("nextLength", Integer.toString(rightWindow));
@@ -261,7 +269,7 @@ public class XMLFeatureDescriptor {
       for (File word2vecFile : word2vecClusterFiles) {
         Element word2vecClusterFeatures = new Element("custom");
         word2vecClusterFeatures.setAttribute("class", Word2VecClusterFeatureGenerator.class.getName());
-        word2vecClusterFeatures.setAttribute("dict", word2vecFile.getCanonicalPath());
+        word2vecClusterFeatures.setAttribute("dict", InputOutputUtils.normalizeLexiconName(word2vecFile.getCanonicalPath()));
         Element word2vecClusterWindow = new Element("window");
         word2vecClusterWindow.setAttribute("prevLength", Integer.toString(leftWindow));
         word2vecClusterWindow.setAttribute("nextLength", Integer.toString(rightWindow));

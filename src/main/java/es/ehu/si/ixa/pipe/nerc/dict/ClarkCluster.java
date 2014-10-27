@@ -74,11 +74,18 @@ public class ClarkCluster implements SerializableArtifact {
       if (lineArray.length == 3) {
         tokenToClusterMap.put(lineArray[0].toLowerCase(), lineArray[1]);
       }
+      else if (lineArray.length == 2) {
+        tokenToClusterMap.put(lineArray[0].toLowerCase(), lineArray[1]);
+      }
     }
   }
 
   public String lookupToken(String string) {
     return tokenToClusterMap.get(string);
+  }
+  
+  public Map<String, String> getMap() {
+    return tokenToClusterMap;
   }
 
   public void serialize(OutputStream out) throws IOException {

@@ -233,9 +233,7 @@ public class CLI {
     }
     Trainer nercTrainer = new FixedTrainer(params);
     TokenNameFinderModel trainedModel = nercTrainer.train(params);
-    CmdLineUtil.writeModel("ixa-pipe-nerc ", new File(outModel), trainedModel);
-    System.err.println();
-    System.err.println("Wrote trained NERC model to " + outModel);
+    CmdLineUtil.writeModel("ixa-pipe-nerc", new File(outModel), trainedModel);
   }
 
   /**

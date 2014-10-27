@@ -32,7 +32,7 @@ import opennlp.tools.util.model.SerializableArtifact;
  */
 public class BrownCluster implements SerializableArtifact {
   
-  private static final Pattern tabPattern = Pattern.compile("\\t");
+  private static final Pattern tabPattern = Pattern.compile("\t");
 
   public static class BrownClusterSerializer implements ArtifactSerializer<BrownCluster> {
 
@@ -67,6 +67,9 @@ public class BrownCluster implements SerializableArtifact {
             tokenToClusterMap.put(lineArray[1], lineArray[0]);
         }
       }
+      else if (lineArray.length == 2) {
+        tokenToClusterMap.put(lineArray[0], lineArray[1]);
+      }
     }
   }
 
@@ -83,7 +86,7 @@ public class BrownCluster implements SerializableArtifact {
     Writer writer = new BufferedWriter(new OutputStreamWriter(out));
 
     for (Map.Entry<String, String> entry : tokenToClusterMap.entrySet()) {
-      writer.write(entry.getKey() + " " + entry.getValue() + "\n");
+      writer.write(entry.getKey() + "\t" + entry.getValue() + "\n");
     }
 
     writer.flush();

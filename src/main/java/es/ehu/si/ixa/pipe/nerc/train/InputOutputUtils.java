@@ -51,8 +51,13 @@ public final class InputOutputUtils {
 
   }
   
+  /**
+   * Remove punctuation.
+   * @param resource the dictionary path
+   * @return the dictionary path without punctuation
+   */
   public static final String normalizeLexiconName(String resource) {
-    resource = resource.replaceAll("[^\\p{L}]", "");
+    resource = resource.replaceAll("\\p{P}", "");
     return resource;
   }
   

@@ -43,7 +43,7 @@ import opennlp.tools.util.model.SerializableArtifact;
  */
 public class Dictionary implements SerializableArtifact {
   
-  private static final Pattern tabPattern = Pattern.compile("\\t");
+  private static final Pattern tabPattern = Pattern.compile("\t");
 
   public static class DictionarySerializer implements ArtifactSerializer<Dictionary> {
 
@@ -100,7 +100,7 @@ public class Dictionary implements SerializableArtifact {
   public void serialize(OutputStream out) throws IOException {
     Writer writer = new BufferedWriter(new OutputStreamWriter(out));
     for (Entry<String, String> entry : dictionary.entrySet()) {
-        writer.write(entry.getKey() + " " + entry.getValue() + "\n");
+        writer.write(entry.getKey() + "\t" + entry.getValue() + "\n");
     }
     writer.flush();
   }
