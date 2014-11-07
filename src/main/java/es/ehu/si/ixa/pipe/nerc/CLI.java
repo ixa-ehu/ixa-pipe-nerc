@@ -248,7 +248,8 @@ public class CLI {
     String model = parsedArguments.getString("model");
     String testset = parsedArguments.getString("testset");
     String corpusFormat = parsedArguments.getString("corpusFormat");
-    Properties props = setEvalProperties(lang, model, testset, corpusFormat);
+    String netypes = parsedArguments.getString("types");
+    Properties props = setEvalProperties(lang, model, testset, corpusFormat, netypes);
     
     if (parsedArguments.getString("prediction") == null) {
       Evaluate evaluator = new Evaluate(props);
@@ -348,6 +349,12 @@ public class CLI {
         .required(false)
         .choices("brief", "detailed", "error")
         .help("Choose level of detail of evaluation report; it defaults to detailed evaluation.\n");
+    evalParser.addArgument("--types")
+        .required(false)
+        .setDefault(Flags.DEFAULT_NE_TYPES)
+        .help("Choose which Named Entity types are used for evaluation; the argument must be a comma separated" +
+        		" string; e.g., 'person,organization'.\n");
+            
   }
 
   /**
@@ -374,14 +381,16 @@ public class CLI {
    * @param model the model parameter
    * @param testset the reference set
    * @param corpusFormat the format of the testset
+   * @param netypes the ne types to use in the evaluation
    * @return the properties object
    */
-  private Properties setEvalProperties(String language, String model, String testset, String corpusFormat) {
+  private Properties setEvalProperties(String language, String model, String testset, String corpusFormat, String netypes) {
     Properties evalProperties = new Properties();
     evalProperties.setProperty("language", language);
     evalProperties.setProperty("model", model);
     evalProperties.setProperty("testset", testset);
     evalProperties.setProperty("corpusFormat", corpusFormat);
+    evalProperties.setProperty("types", netypes);
     return evalProperties;
   }
 

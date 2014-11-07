@@ -11,12 +11,14 @@ import opennlp.tools.cmdline.namefind.NameEvaluationErrorListener;
 import opennlp.tools.cmdline.namefind.TokenNameFinderDetailedFMeasureListener;
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.NameSample;
+import opennlp.tools.namefind.NameSampleTypeFilter;
 import opennlp.tools.namefind.TokenNameFinderEvaluationMonitor;
 import opennlp.tools.namefind.TokenNameFinderEvaluator;
 import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.eval.EvaluationMonitor;
 import es.ehu.si.ixa.pipe.nerc.train.AbstractTrainer;
+import es.ehu.si.ixa.pipe.nerc.train.Flags;
 
 /**
  * Evaluation class mostly using {@link TokenNameFinderEvaluator}.
@@ -55,8 +57,13 @@ public class Evaluate {
     String model = props.getProperty("model");
     String testSet = props.getProperty("testset");
     String corpusFormat = props.getProperty("corpusFormat");
+    String netypes = props.getProperty("types");
     
     testSamples = AbstractTrainer.getNameStream(testSet, lang, corpusFormat);
+    if (netypes != Flags.DEFAULT_NE_TYPES) {
+      String[] neTypes = netypes.split(",");
+      testSamples = new NameSampleTypeFilter(neTypes, testSamples);
+    }
     nercModels.putIfAbsent(lang, new TokenNameFinderModel(new FileInputStream(model)));
     nameFinder = new NameFinderME(nercModels.get(lang));
   }
