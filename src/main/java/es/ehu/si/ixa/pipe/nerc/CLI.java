@@ -43,6 +43,7 @@ import org.jdom2.JDOMException;
 import com.google.common.io.Files;
 
 import es.ehu.si.ixa.pipe.nerc.eval.CorpusEvaluate;
+import es.ehu.si.ixa.pipe.nerc.eval.CrossValidator;
 import es.ehu.si.ixa.pipe.nerc.eval.Evaluate;
 import es.ehu.si.ixa.pipe.nerc.train.FixedTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.Flags;
@@ -93,6 +94,10 @@ public class CLI {
    * The parser that manages the evaluation sub-command.
    */
   private Subparser evalParser;
+  /**
+   * The parser that manages the cross validation sub-command.
+   */
+  private Subparser crossValidateParser;
 
   /**
    * Construct a CLI object with the three sub-parsers to manage the command
@@ -105,6 +110,8 @@ public class CLI {
     loadTrainingParameters();
     evalParser = subParsers.addParser("eval").help("Evaluation CLI");
     loadEvalParameters();
+    crossValidateParser = subParsers.addParser("cross").help("Cross validation CLI");
+    loadCrossValidateParameters();
   }
 
   /**
@@ -143,11 +150,13 @@ public class CLI {
         eval();
       } else if (args[0].equals("train")) {
         train();
+      } else if (args[0].equals("cross")) {
+        crossValidate();
       }
     } catch (ArgumentParserException e) {
       argParser.handleError(e);
       System.out.println("Run java -jar target/ixa-pipe-nerc-" + version
-          + ".jar (tag|train|eval) -help for details");
+          + ".jar (tag|train|eval|cross) -help for details");
       System.exit(1);
     }
   }
@@ -274,6 +283,22 @@ public class CLI {
           .println("Provide either a model or a predictionFile to perform evaluation!");
     }
   }
+  
+  /**
+   * Main access to the cross validation.
+   * 
+   * @throws IOException
+   *           input output exception if problems with corpora
+   */
+  public final void crossValidate() throws IOException {
+
+    String paramFile = parsedArguments.getString("params");
+    TrainingParameters params = InputOutputUtils
+        .loadTrainingParameters(paramFile);
+    CrossValidator crossValidator = new CrossValidator(params);
+    crossValidator.crossValidate(params);
+  }
+
 
   /**
    * Create the available parameters for NER tagging.
@@ -348,6 +373,14 @@ public class CLI {
         .required(false)
         .choices("brief", "detailed", "error")
         .help("Choose level of detail of evaluation report; it defaults to detailed evaluation.\n");
+  }
+  
+  /**
+   * Create the main parameters available for training NERC models.
+   */
+  private void loadCrossValidateParameters() {
+    crossValidateParser.addArgument("-p", "--params").required(true)
+        .help("Load the Cross validation parameters file\n");
   }
 
   /**

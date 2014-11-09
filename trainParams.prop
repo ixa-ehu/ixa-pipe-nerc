@@ -69,6 +69,12 @@ OutputModel=trainParams.bin
 # Beamsize 1 amounts to greedy search
 BeamSize=3
 
+# Cross Validation Folds; if commented out it defaults to 10 cross validation
+# folds.
+Folds=5
+# Evaluation type: choose between 'detailed' and 'error; only for cross-validation.
+EvaluationType=detailed
+
 # Sequence codec used to code named entity spans: Choose between BIO and BILOU.
 # If commented out, it defaults to BILOU.
 #SequenceCodec=BIO
