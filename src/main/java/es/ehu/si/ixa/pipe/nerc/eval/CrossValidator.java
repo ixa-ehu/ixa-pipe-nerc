@@ -139,26 +139,31 @@ public class CrossValidator {
   }
   
   public final void crossValidate(final TrainingParameters params) {
-    if (getNameClassifierFactory() == null) {
+    if (nameClassifierFactory == null) {
       throw new IllegalStateException(
           "Classes derived from AbstractNameFinderTrainer must create and fill the AdaptiveFeatureGenerator features!");
     }
-    TokenNameFinderCrossValidator validator;
+    TokenNameFinderCrossValidator validator = null;
     try {
       validator = new TokenNameFinderCrossValidator(lang,
           null, params, nameClassifierFactory,
           listeners.toArray(new TokenNameFinderEvaluationMonitor[listeners.size()]));
       validator.evaluate(trainSamples, folds);
-      if (detailedFListener == null) {
-        System.out.println(validator.getFMeasure());
-      } else {
-        System.out.println(detailedFListener.toString());
-      }
-      
     } catch (IOException e) {
-      System.err.println("IO error while loading traing and test sets!");
+      System.err.println("IO error while loading training set!");
       e.printStackTrace();
       System.exit(1);
+    } finally {
+      try {
+        trainSamples.close();
+      } catch (IOException e) {
+        System.err.println("IO error with the train samples!");
+      }
+    }
+    if (detailedFListener == null) {
+      System.out.println(validator.getFMeasure());
+    } else {
+      System.out.println(detailedFListener.toString());
     }
   }
 
@@ -213,39 +218,7 @@ public class CrossValidator {
       System.exit(1);
     }
     return samples;
-  }
- 
-  /**
-   * Get the features which are implemented in each of the trainers extending
-   * this class.
-   * @return the features
-   */
-  public final TokenNameFinderFactory getNameClassifierFactory() {
-    return nameClassifierFactory;
-  }
-  
-  public final TokenNameFinderFactory setNameClassifierFactory(TokenNameFinderFactory tokenNameFinderFactory) {
-    this.nameClassifierFactory = tokenNameFinderFactory;
-    return nameClassifierFactory;
-  }
-  
-  /**
-   * Get the language.
-   * @return the language
-   */
-  public final String getLanguage() {
-    return lang;
-  }
-
-  /**
-   * Set the language.
-   * @param aLang
-   *          the language
-   */
-  public final void setLanguage(final String aLang) {
-    this.lang = aLang;
-  }
-  
+  }  
   /**
    * Get the Sequence codec.
    * @return the sequence codec
