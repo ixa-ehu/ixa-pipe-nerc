@@ -12,29 +12,24 @@ import opennlp.tools.util.featuregen.FeatureGeneratorResourceProvider;
 import opennlp.tools.util.model.ArtifactSerializer;
 import es.ehu.si.ixa.pipe.nerc.dict.BrownCluster;
 
-public class BrownBigramFeatureGenerator extends CustomFeatureGenerator implements ArtifactToSerializerMapper {
+public class BrownTrigramFeatureGenerator extends CustomFeatureGenerator implements ArtifactToSerializerMapper {
   
   private BrownCluster brownLexicon;
   private Map<String, String> attributes;
   
-  public BrownBigramFeatureGenerator() {
+  public BrownTrigramFeatureGenerator() {
   }
 
   public void createFeatures(List<String> features, String[] tokens, int index,
       String[] previousOutcomes) {
     
     List<String> wordClasses = BrownTokenClasses.getWordClasses(tokens[index], brownLexicon);
-    if (index > 0) {
+    if (index > 1) {
       List<String> prevWordClasses = BrownTokenClasses.getWordClasses(tokens[index - 1], brownLexicon);
-      for (int i = 0; i < wordClasses.size() && i < prevWordClasses.size(); i++)
-      features.add("p" + attributes.get("dict") + "," + attributes.get("dict")+ "=" + prevWordClasses.get(i) + "," + wordClasses.get(i));
-    }
-    //this is a bug, but it seems to work better
-    if (index + 1 > tokens.length) {
-      List<String> nextWordClasses = BrownTokenClasses.getWordClasses(tokens[index + 1], brownLexicon);
-      for (int i = 0; i < wordClasses.size() && i < nextWordClasses.size(); i++) {
-        features.add(attributes.get("dict") + "," + "n" + attributes.get("dict") + "=" + wordClasses.get(i) + "," + nextWordClasses.get(i));
-      }
+      List<String> prevprevWordClasses = BrownTokenClasses.getWordClasses(tokens[index - 2], brownLexicon);
+      for (int i = 0; i < wordClasses.size() && i < prevWordClasses.size() && i < prevprevWordClasses.size(); i++)
+      features.add("pp" + attributes.get("dict") + "p" + attributes.get("dict") + "," + attributes.get("dict")+ "=" + prevprevWordClasses.get(i) + "," + prevWordClasses.get(i) + "," + wordClasses.get(i));
+      
     }
   }
 
@@ -71,3 +66,4 @@ public class BrownBigramFeatureGenerator extends CustomFeatureGenerator implemen
   
 
 }
+
