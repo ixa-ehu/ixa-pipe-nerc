@@ -185,7 +185,7 @@ public abstract class AbstractTrainer implements Trainer {
           .readInputData(inputData);
       samples = new GermEval2014InnerNameStream(nameStream);
     } else if (aCorpusFormat.equalsIgnoreCase("opennlp")) {
-      ObjectStream<String> nameStream = InputOutputUtils.readInputData(inputData);
+      ObjectStream<String> nameStream = InputOutputUtils.readFileIntoMarkableStreamFactory(inputData);
       samples = new NameSampleDataStream(nameStream);
     } else {
       System.err.println("Test set corpus format not valid!!");
