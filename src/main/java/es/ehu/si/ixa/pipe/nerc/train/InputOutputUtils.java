@@ -190,26 +190,6 @@ public final class InputOutputUtils {
   }
 
   /**
-   * Read the an inputstream into an {@code ObjectStream}.
-   * 
-   * @param infile
-   *          the string pointing to the file
-   * @return the object stream
-   * @throws IOException
-   *           throw exception if error occurs
-   */
-  public static ObjectStream<String> readInputData(final String infile)
-      throws IOException {
-
-    InputStreamFactory inputStreamFactory = new DefaultInputStreamFactory(
-        new FileInputStream(infile));
-    ObjectStream<String> lineStream = new PlainTextByLineStream(
-        inputStreamFactory, "UTF-8");
-    return lineStream;
-
-  }
-  
-  /**
    * Read the file into an {@code ObjectStream}.
    * 
    * @param infile

@@ -16,14 +16,12 @@
 
 package es.ehu.si.ixa.pipe.nerc.eval;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import opennlp.tools.cmdline.CmdLineUtil;
 import opennlp.tools.cmdline.namefind.NameEvaluationErrorListener;
 import opennlp.tools.cmdline.namefind.TokenNameFinderDetailedFMeasureListener;
 import opennlp.tools.formats.Conll02NameSampleStream;
@@ -37,9 +35,7 @@ import opennlp.tools.namefind.NameSampleTypeFilter;
 import opennlp.tools.namefind.TokenNameFinderCrossValidator;
 import opennlp.tools.namefind.TokenNameFinderEvaluationMonitor;
 import opennlp.tools.namefind.TokenNameFinderFactory;
-import opennlp.tools.util.InputStreamFactory;
 import opennlp.tools.util.ObjectStream;
-import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.SequenceCodec;
 import opennlp.tools.util.TrainingParameters;
 import opennlp.tools.util.eval.EvaluationMonitor;
@@ -187,7 +183,7 @@ public class CrossValidator {
       final String aLang, final String aCorpusFormat) throws IOException {
     ObjectStream<NameSample> samples = null;
     if (aCorpusFormat.equalsIgnoreCase("conll03")) {
-      ObjectStream<String> nameStream = InputOutputUtils.readInputData(inputData);
+      ObjectStream<String> nameStream = InputOutputUtils.readFileIntoMarkableStreamFactory(inputData);
       if (aLang.equalsIgnoreCase("en")) {
         samples = new Conll03NameSampleStream(Conll03NameSampleStream.LANGUAGE.EN, nameStream, types);
       }
@@ -196,7 +192,7 @@ public class CrossValidator {
       } 
     } else if (aCorpusFormat.equalsIgnoreCase("conll02")) {
       ObjectStream<String> nameStream = InputOutputUtils
-          .readInputData(inputData);
+          .readFileIntoMarkableStreamFactory(inputData);
       if (aLang.equalsIgnoreCase("es")) {
         samples = new Conll02NameSampleStream(Conll02NameSampleStream.LANGUAGE.ES, nameStream, types);
       }
@@ -204,21 +200,20 @@ public class CrossValidator {
         samples = new Conll02NameSampleStream(Conll02NameSampleStream.LANGUAGE.NL, nameStream, types);
       }
     } else if (aCorpusFormat.equalsIgnoreCase("evalita")) {
-      ObjectStream<String> nameStream = InputOutputUtils.readInputData(inputData);
+      ObjectStream<String> nameStream = InputOutputUtils.readFileIntoMarkableStreamFactory(inputData);
       samples = new EvalitaNameSampleStream(EvalitaNameSampleStream.LANGUAGE.IT, nameStream, types);
     } else if (aCorpusFormat.equalsIgnoreCase("germEvalOuter2014")) {
       ObjectStream<String> nameStream = InputOutputUtils
-          .readInputData(inputData);
+          .readFileIntoMarkableStreamFactory(inputData);
       samples = new GermEval2014OuterNameStream(nameStream);
     } else if (aCorpusFormat.equalsIgnoreCase("germEvalInner2014")) {
-      ObjectStream<String> nameStream = InputOutputUtils
-          .readInputData(inputData);
+      ObjectStream<String> nameStream = InputOutputUtils.readFileIntoMarkableStreamFactory(inputData);
       samples = new GermEval2014InnerNameStream(nameStream);
     } else if (aCorpusFormat.equalsIgnoreCase("opennlp")) {
       ObjectStream<String> nameStream = InputOutputUtils.readFileIntoMarkableStreamFactory(inputData);
       samples = new NameSampleDataStream(nameStream);
     } else {
-      System.err.println("Test set corpus format not valid!!");
+      System.err.println("Input data format not valid!!");
       System.exit(1);
     }
     return samples;
