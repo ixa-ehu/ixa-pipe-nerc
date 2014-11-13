@@ -24,7 +24,9 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
@@ -44,6 +46,7 @@ import opennlp.tools.util.model.SerializableArtifact;
 public class Dictionary implements SerializableArtifact {
   
   private static final Pattern tabPattern = Pattern.compile("\t");
+  private static final Set<String> stopWords = new HashSet<String>(Arrays.asList("am", "in", "on", "or", "us"));
 
   public static class DictionarySerializer implements ArtifactSerializer<Dictionary> {
 
@@ -66,8 +69,14 @@ public class Dictionary implements SerializableArtifact {
     String line;
     while ((line = breader.readLine()) != null) {
       String[] lineArray = tabPattern.split(line);
-      if (lineArray.length == 2) {
-        dictionary.put(lineArray[0].toLowerCase(), lineArray[1]);
+      if (lineArray.length == 3) {
+    	if (!stopWords.contains(lineArray[0])) {
+    	  dictionary.put(lineArray[0].toLowerCase(), lineArray[1]);
+    	}
+        dictionary.put(lineArray[0], lineArray[1]);
+      }
+      else if (lineArray.length == 2) {
+    	  dictionary.put(lineArray[0], lineArray[1]);
       }
     }
   }
