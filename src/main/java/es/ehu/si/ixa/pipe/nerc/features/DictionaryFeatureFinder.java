@@ -71,7 +71,7 @@ public class DictionaryFeatureFinder {
 
           String entryForSearch = StringUtils.getStringFromTokens(
               tokensSearching);
-          String entryValue = dictionary.lookup(entryForSearch);
+          String entryValue = dictionary.lookup(entryForSearch.toLowerCase());
           if (entryValue != null) {
             nameFound = new Span(offsetFrom, offsetTo + 1, entryValue);
           }
