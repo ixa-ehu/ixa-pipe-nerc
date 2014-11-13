@@ -47,7 +47,9 @@ import opennlp.tools.util.model.SerializableArtifact;
 public class Dictionary implements SerializableArtifact {
   
   private static final Pattern tabPattern = Pattern.compile("\t");
-  private static final Set<String> stopWords = new HashSet<String>(Arrays.asList("am", "in", "on", "or", "us"));
+  private static final Set<String> stopWords = new HashSet<String>(Arrays.asList("am", "in", "on", "or", "us","a", "an", "the", "of", "at",
+      "on", "upon", "in", "to", "from", "out", "as", "so", "such", "or", "and", "those", "this", "these", "that",
+      "for", ",", "is", "was", "am", "are", "'s", "been", "were"));
 
   public static class DictionarySerializer implements ArtifactSerializer<Dictionary> {
 
@@ -70,13 +72,10 @@ public class Dictionary implements SerializableArtifact {
     String line;
     while ((line = breader.readLine()) != null) {
       String[] lineArray = tabPattern.split(line);
-      if (lineArray.length == 3) {
+      if (lineArray.length == 2) {
     	if (!stopWords.contains(lineArray[0])) {
     	  dictionary.put(lineArray[0].toLowerCase(), lineArray[1]);
     	}
-      }
-      else if (lineArray.length == 2) {
-    	  dictionary.put(lineArray[0], lineArray[1]);
       }
     }
   }
