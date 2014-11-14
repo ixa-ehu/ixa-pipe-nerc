@@ -48,6 +48,7 @@ import es.ehu.si.ixa.pipe.nerc.train.FixedTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.Flags;
 import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
 import es.ehu.si.ixa.pipe.nerc.train.Trainer;
+import es.ehu.si.ixa.pipe.tok.CLI;
 
 /**
  * Main class of ixa-pipe-nerc, the ixa pipes (ixa2.si.ehu.es/ixa-pipes) NERC
@@ -65,6 +66,11 @@ public class CLI {
    */
   private final String version = CLI.class.getPackage()
       .getImplementationVersion();
+  /**
+   * Get the git commit of the ixa-pipe-nerc compiled by looking at the MANIFEST
+   * file.
+   */
+  private final String commit = CLI.class.getPackage().getSpecificationVersion();
   /**
    * Name space of the arguments provided at the CLI.
    */
@@ -191,7 +197,7 @@ public class CLI {
     }
     Properties properties = setAnnotateProperties(model, lang, lexer, dictTag, dictPath);
     KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor(
-        "entities", "ixa-pipe-nerc-" + Files.getNameWithoutExtension(model), version);
+        "entities", "ixa-pipe-nerc-" + Files.getNameWithoutExtension(model), version +  "-" + commit);
     newLp.setBeginTimestamp();
     Annotate annotator = new Annotate(properties);
     annotator.annotateNEs(kaf);
