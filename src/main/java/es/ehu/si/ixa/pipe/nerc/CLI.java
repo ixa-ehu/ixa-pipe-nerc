@@ -66,6 +66,10 @@ public class CLI {
    */
   private final String version = CLI.class.getPackage()
       .getImplementationVersion();
+  /**
+   * Get dynamically the commit of ixa-pipe-nerc in the current compilation by
+   * looking at the MANIFEST file.
+   */
   private final String commit = CLI.class.getPackage()
       .getSpecificationVersion();
   /**
