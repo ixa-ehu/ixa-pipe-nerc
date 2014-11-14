@@ -227,6 +227,7 @@ public class Annotate {
         neEntity.setType(name.getType());
       }
     }
+    nameFinder.getNameFinder().clearAdaptiveData();
   }
 
   /**
@@ -281,8 +282,8 @@ public class Annotate {
       }
       Span[] allSpansArray = NameFinderME.dropOverlappingSpans(allSpans
           .toArray(new Span[allSpans.size()]));
-      NameSample nameSample = new NameSample(tokens, allSpansArray, false);
-      sb.append(nameSample.toString()).append("\n");
+      NameSample nameSample = new NameSample(tokens, allSpansArray, true);
+      sb.append(nameSample.toString());
     }
     return sb.toString();
   }

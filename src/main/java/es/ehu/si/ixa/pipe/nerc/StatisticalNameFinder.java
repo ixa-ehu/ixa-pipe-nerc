@@ -121,7 +121,6 @@ public class StatisticalNameFinder implements NameFinder {
    */
   public final Span[] nercToSpans(final String[] tokens) {
     Span[] annotatedText = nameFinder.find(tokens);
-    clearAdaptiveData();
     List<Span> probSpans = new ArrayList<Span>(Arrays.asList(annotatedText));
     return probSpans.toArray(new Span[probSpans.size()]);
   }
@@ -156,6 +155,10 @@ public class StatisticalNameFinder implements NameFinder {
    */
   public final void clearAdaptiveData() {
     nameFinder.clearAdaptiveData();
+  }
+  
+  public NameFinderME getNameFinder() {
+    return nameFinder;
   }
 
   /**
