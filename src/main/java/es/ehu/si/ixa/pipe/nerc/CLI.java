@@ -66,6 +66,8 @@ public class CLI {
    */
   private final String version = CLI.class.getPackage()
       .getImplementationVersion();
+  private final String commit = CLI.class.getPackage()
+      .getSpecificationVersion();
   /**
    * Name space of the arguments provided at the CLI.
    */
@@ -112,7 +114,7 @@ public class CLI {
     loadEvalParameters();
     crossValidateParser = subParsers.addParser("cross").help("Cross validation CLI");
     loadCrossValidateParameters();
-  }
+    }
 
   /**
    * Main entry point of ixa-pipe-nerc.
@@ -184,6 +186,7 @@ public class CLI {
     String model = parsedArguments.getString("model");
     String outputFormat = parsedArguments.getString("outputFormat");
     String lexer = parsedArguments.getString("lexer");
+    String oepc = parsedArguments.getString("oepc");
     String dictTag = parsedArguments.getString("dictTag");
     String dictPath = parsedArguments.getString("dictPath");
     // language parameter
@@ -198,9 +201,9 @@ public class CLI {
     } else {
       lang = kaf.getLang();
     }
-    Properties properties = setAnnotateProperties(model, lang, lexer, dictTag, dictPath);
+    Properties properties = setAnnotateProperties(model, lang, lexer, oepc, dictTag, dictPath);
     KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor(
-        "entities", "ixa-pipe-nerc-" + Files.getNameWithoutExtension(model), version);
+        "entities", "ixa-pipe-nerc-" + Files.getNameWithoutExtension(model), version + "-" + commit);
     newLp.setBeginTimestamp();
     Annotate annotator = new Annotate(properties);
     annotator.annotateNEs(kaf);
@@ -322,6 +325,9 @@ public class CLI {
         .setDefault(Flags.DEFAULT_LEXER)
         .required(false)
         .help("Use lexer rules for NERC tagging; it defaults to false.\n");
+    annotateParser.addArgument("--oepc")
+        .setDefault(Flags.DEFAULT_DICT_OPTION)
+        .help("Post post-process the statistical model annotation with the One Entity per Class hypothesis.\n");
     annotateParser.addArgument("--dictTag")
         .required(false)
         .choices("tag", "post")
@@ -392,11 +398,12 @@ public class CLI {
    * @param dictPath directory to the dictionaries
    * @return the properties object
    */
-  private Properties setAnnotateProperties(String model, String language, String lexer, String dictTag, String dictPath) {
+  private Properties setAnnotateProperties(String model, String language, String lexer, String oepc, String dictTag, String dictPath) {
     Properties annotateProperties = new Properties();
     annotateProperties.setProperty("model", model);
     annotateProperties.setProperty("language", language);
     annotateProperties.setProperty("ruleBasedOption", lexer);
+    annotateProperties.setProperty("oepc", oepc);
     annotateProperties.setProperty("dictTag", dictTag);
     annotateProperties.setProperty("dictPath", dictPath);
     return annotateProperties;
