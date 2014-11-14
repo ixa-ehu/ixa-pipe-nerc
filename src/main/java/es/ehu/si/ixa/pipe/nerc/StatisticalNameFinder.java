@@ -156,10 +156,6 @@ public class StatisticalNameFinder implements NameFinder {
   public final void clearAdaptiveData() {
     nameFinder.clearAdaptiveData();
   }
-  
-  public NameFinderME getNameFinder() {
-    return nameFinder;
-  }
 
   /**
    * Loads statically the probabilistic model. Every instance of this finder
