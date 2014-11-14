@@ -48,7 +48,6 @@ import es.ehu.si.ixa.pipe.nerc.train.FixedTrainer;
 import es.ehu.si.ixa.pipe.nerc.train.Flags;
 import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
 import es.ehu.si.ixa.pipe.nerc.train.Trainer;
-import es.ehu.si.ixa.pipe.tok.CLI;
 
 /**
  * Main class of ixa-pipe-nerc, the ixa pipes (ixa2.si.ehu.es/ixa-pipes) NERC
