@@ -31,7 +31,7 @@ import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.Span;
 
 /**
- * Named Entity Recognition module based on Apache OpenNLP Machine Learning API.
+ * Statistical Named Entity Recognition based on Apache OpenNLP Machine Learning API.
  *
  * @author ragerri
  * @version 2014-04-04
@@ -165,7 +165,7 @@ public class StatisticalNameFinder implements NameFinder {
    * @param model the model to be loaded
    * @return the model as a {@link TokenNameFinder} object
    */
-  public final TokenNameFinderModel loadModel(final String lang, final String model) {
+  private final TokenNameFinderModel loadModel(final String lang, final String model) {
     long lStartTime = new Date().getTime();
     try {
       nercModels.putIfAbsent(lang, new TokenNameFinderModel(new FileInputStream(model)));

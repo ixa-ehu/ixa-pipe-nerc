@@ -14,26 +14,37 @@
    limitations under the License.
  */
 
-package es.ehu.si.ixa.pipe.nerc.train;
+package es.ehu.si.ixa.pipe.nerc.eval;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
+import opennlp.tools.cmdline.namefind.NameEvaluationErrorListener;
+import opennlp.tools.cmdline.namefind.TokenNameFinderDetailedFMeasureListener;
 import opennlp.tools.formats.Conll02NameSampleStream;
 import opennlp.tools.formats.Conll03NameSampleStream;
 import opennlp.tools.formats.EvalitaNameSampleStream;
 import opennlp.tools.namefind.BilouCodec;
 import opennlp.tools.namefind.BioCodec;
-import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.NameSample;
 import opennlp.tools.namefind.NameSampleDataStream;
 import opennlp.tools.namefind.NameSampleTypeFilter;
-import opennlp.tools.namefind.TokenNameFinderEvaluator;
+import opennlp.tools.namefind.TokenNameFinderCrossValidator;
+import opennlp.tools.namefind.TokenNameFinderEvaluationMonitor;
 import opennlp.tools.namefind.TokenNameFinderFactory;
-import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.ObjectStream;
+import opennlp.tools.util.SequenceCodec;
 import opennlp.tools.util.TrainingParameters;
+import opennlp.tools.util.eval.EvaluationMonitor;
+import es.ehu.si.ixa.pipe.nerc.features.XMLFeatureDescriptor;
 import es.ehu.si.ixa.pipe.nerc.formats.GermEval2014InnerNameStream;
 import es.ehu.si.ixa.pipe.nerc.formats.GermEval2014OuterNameStream;
+import es.ehu.si.ixa.pipe.nerc.train.FixedTrainer;
+import es.ehu.si.ixa.pipe.nerc.train.Flags;
+import es.ehu.si.ixa.pipe.nerc.train.InputOutputUtils;
 
 /**
  * Abstract class for common training functionalities. Every other trainer class
@@ -41,7 +52,7 @@ import es.ehu.si.ixa.pipe.nerc.formats.GermEval2014OuterNameStream;
  * @author ragerri
  * @version 2014-04-17
  */
-public abstract class AbstractTrainer implements Trainer {
+public class CrossValidator {
   
   /**
    * The language.
@@ -52,25 +63,21 @@ public abstract class AbstractTrainer implements Trainer {
    */
   private String trainData;
   /**
-   * String holding the testData.
-   */
-  private String testData;
-  /**
    * ObjectStream of the training data.
    */
   private ObjectStream<NameSample> trainSamples;
-  /**
-   * ObjectStream of the test data.
-   */
-  private ObjectStream<NameSample> testSamples;
   /**
    * beamsize value needs to be established in any class extending this one.
    */
   private int beamSize;
   /**
+   * The folds valute for cross validation.
+   */
+  private int folds;
+  /**
    * The sequence encoding of the named entity spans, e.g., BIO or BILOU.
    */
-  private String sequenceCodec;
+  private SequenceCodec<String> sequenceCodec;
   /**
    * The corpus format: conll02, conll03, germEvalOuter2014, germEvalInner2014 and opennlp.
    */
@@ -83,62 +90,81 @@ public abstract class AbstractTrainer implements Trainer {
    * features needs to be implemented by any class extending this one.
    */
   private TokenNameFinderFactory nameClassifierFactory;
-
   /**
-   * Construct a trainer with training and test data, and with options for
-   * language, beamsize for decoding, sequence codec and corpus format (conll or opennlp).
-   * @param aTrainData
-   *          the training data
-   * @param aTestData
-   *          the test data
-   * @throws IOException
-   *           io exception
+   * The evaluation listeners.
    */
-  public AbstractTrainer(final TrainingParameters params) throws IOException {
+  private List<EvaluationMonitor<NameSample>> listeners = new LinkedList<EvaluationMonitor<NameSample>>();
+  TokenNameFinderDetailedFMeasureListener detailedFListener;
+
+  
+  public CrossValidator(final TrainingParameters params) throws IOException {
     
     this.lang = Flags.getLanguage(params);
     this.corpusFormat = Flags.getCorpusFormat(params);
     this.trainData = params.getSettings().get("TrainSet");
-    this.testData = params.getSettings().get("TestSet");
     trainSamples = getNameStream(trainData, lang, corpusFormat);
-    testSamples = getNameStream(testData, lang, corpusFormat);
     this.beamSize = Flags.getBeamsize(params);
-    this.sequenceCodec = Flags.getSequenceCodec(params);
+    this.folds = Flags.getFolds(params);
+    this.sequenceCodec =  TokenNameFinderFactory.instantiateSequenceCodec(getSequenceCodec(Flags.getSequenceCodec(params)));
     if (params.getSettings().get("Types") != null) {
       String netypes = params.getSettings().get("Types");
       String[] neTypes = netypes.split(",");
       trainSamples = new NameSampleTypeFilter(neTypes, trainSamples);
-      testSamples = new NameSampleTypeFilter(neTypes, testSamples);
       types = neTypes.length;
     }
+    createNameFactory(params);
+    getEvalListeners(params);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * es.ehu.si.ixa.pipe.nerc.train.Trainer#train(opennlp.tools.util
-   * .TrainingParameters)
-   */
-  public final TokenNameFinderModel train(final TrainingParameters params) {
-    if (getNameClassifierFactory() == null) {
+  private void createNameFactory(TrainingParameters params) throws IOException {
+    String featureDescription = XMLFeatureDescriptor
+        .createXMLFeatureDescriptor(params);
+    System.err.println(featureDescription);
+    byte[] featureGeneratorBytes = featureDescription.getBytes(Charset
+        .forName("UTF-8"));
+    Map<String, Object> resources = FixedTrainer.loadResources(params, featureGeneratorBytes);
+    this.nameClassifierFactory = TokenNameFinderFactory.create(
+        TokenNameFinderFactory.class.getName(), featureGeneratorBytes,
+        resources, sequenceCodec);
+  }
+  
+  private void getEvalListeners(TrainingParameters params) {
+    if (params.getSettings().get("EvaluationType").equalsIgnoreCase("error")) {
+      listeners.add(new NameEvaluationErrorListener());
+    }
+    if (params.getSettings().get("EvaluationType").equalsIgnoreCase("detailed")) {
+      detailedFListener = new TokenNameFinderDetailedFMeasureListener();
+      listeners.add(detailedFListener);
+    }
+  }
+  
+  public final void crossValidate(final TrainingParameters params) {
+    if (nameClassifierFactory == null) {
       throw new IllegalStateException(
           "Classes derived from AbstractNameFinderTrainer must create and fill the AdaptiveFeatureGenerator features!");
     }
-    TokenNameFinderModel trainedModel = null;
-    TokenNameFinderEvaluator nerEvaluator = null;
+    TokenNameFinderCrossValidator validator = null;
     try {
-      trainedModel = NameFinderME.train(lang, null, trainSamples, params,
-          nameClassifierFactory);
-      NameFinderME nerTagger = new NameFinderME(trainedModel);
-      nerEvaluator = new TokenNameFinderEvaluator(nerTagger);
-      nerEvaluator.evaluate(testSamples);
+      validator = new TokenNameFinderCrossValidator(lang,
+          null, params, nameClassifierFactory,
+          listeners.toArray(new TokenNameFinderEvaluationMonitor[listeners.size()]));
+      validator.evaluate(trainSamples, folds);
     } catch (IOException e) {
-      System.err.println("IO error while loading traing and test sets!");
+      System.err.println("IO error while loading training set!");
       e.printStackTrace();
       System.exit(1);
+    } finally {
+      try {
+        trainSamples.close();
+      } catch (IOException e) {
+        System.err.println("IO error with the train samples!");
+      }
     }
-    System.out.println("Final Result: \n" + nerEvaluator.getFMeasure());
-    return trainedModel;
+    if (detailedFListener == null) {
+      System.out.println(validator.getFMeasure());
+    } else {
+      System.out.println(detailedFListener.toString());
+    }
   }
 
   /**
@@ -181,71 +207,30 @@ public abstract class AbstractTrainer implements Trainer {
           .readFileIntoMarkableStreamFactory(inputData);
       samples = new GermEval2014OuterNameStream(nameStream);
     } else if (aCorpusFormat.equalsIgnoreCase("germEvalInner2014")) {
-      ObjectStream<String> nameStream = InputOutputUtils
-          .readFileIntoMarkableStreamFactory(inputData);
+      ObjectStream<String> nameStream = InputOutputUtils.readFileIntoMarkableStreamFactory(inputData);
       samples = new GermEval2014InnerNameStream(nameStream);
     } else if (aCorpusFormat.equalsIgnoreCase("opennlp")) {
       ObjectStream<String> nameStream = InputOutputUtils.readFileIntoMarkableStreamFactory(inputData);
       samples = new NameSampleDataStream(nameStream);
     } else {
-      System.err.println("Test set corpus format not valid!!");
+      System.err.println("Input data format not valid!!");
       System.exit(1);
     }
     return samples;
-  }
- 
-  /**
-   * Get the features which are implemented in each of the trainers extending
-   * this class.
-   * @return the features
-   */
-  public final TokenNameFinderFactory getNameClassifierFactory() {
-    return nameClassifierFactory;
-  }
-  
-  public final TokenNameFinderFactory setNameClassifierFactory(TokenNameFinderFactory tokenNameFinderFactory) {
-    this.nameClassifierFactory = tokenNameFinderFactory;
-    return nameClassifierFactory;
-  }
-  
-  /**
-   * Get the language.
-   * @return the language
-   */
-  public final String getLanguage() {
-    return lang;
-  }
-
-  /**
-   * Set the language.
-   * @param aLang
-   *          the language
-   */
-  public final void setLanguage(final String aLang) {
-    this.lang = aLang;
-  }
-  
+  }  
   /**
    * Get the Sequence codec.
    * @return the sequence codec
    */
-  public final String getSequenceCodec() {
+  public final String getSequenceCodec(String seqCodecOption) {
     String seqCodec = null;
-    if ("BIO".equals(sequenceCodec)) {
+    if ("BIO".equals(seqCodecOption)) {
       seqCodec = BioCodec.class.getName();
     }
-    else if ("BILOU".equals(sequenceCodec)) {
+    else if ("BILOU".equals(seqCodecOption)) {
       seqCodec = BilouCodec.class.getName();
     }
     return seqCodec;
-  }
-  
-  /**
-   * Set the sequence codec.
-   * @param aSeqCodec the sequence codec to be set
-   */
-  public final void setSequenceCodec(final String aSeqCodec) {
-    this.sequenceCodec = aSeqCodec;
   }
   
   public final int getBeamSize() {
@@ -253,3 +238,4 @@ public abstract class AbstractTrainer implements Trainer {
   }
 
 }
+

@@ -16,6 +16,7 @@ public class Flags {
    * Default beam size for decoding.
    */
   public static final int DEFAULT_BEAM_SIZE = 3;
+  public static final int DEFAULT_FOLDS_VALUE = 10;
   public static final String DEFAULT_EVALUATE_MODEL = "off";
   public static final String DEFAULT_NE_TYPES = "off";
   public static final String DEFAULT_LEXER = "off";
@@ -88,6 +89,16 @@ public class Flags {
       beamsize = Flags.DEFAULT_BEAM_SIZE;
     } else {
       beamsize = Integer.parseInt(params.getSettings().get("BeamSize"));
+    }
+    return beamsize;
+  }
+  
+  public static Integer getFolds(TrainingParameters params) {
+    Integer beamsize = null;
+    if (params.getSettings().get("Folds") == null) {
+      beamsize = Flags.DEFAULT_FOLDS_VALUE;
+    } else {
+      beamsize = Integer.parseInt(params.getSettings().get("Folds"));
     }
     return beamsize;
   }

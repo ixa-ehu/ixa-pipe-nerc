@@ -73,6 +73,10 @@ public class Annotate {
    */
   private boolean statistical;
   /**
+   * Activates the One Entity per Class post-processing option.
+   */
+  private boolean oepc;
+  /**
    * Activates post processing of statistical name finder with dictionary name
    * finders.
    */
@@ -91,8 +95,9 @@ public class Annotate {
    * option in CLI is off, statistical models are used (this is the default). If --dictTag is
    * activated, it has two options, "tag" and "post": tag only tags with a gazetteer and "post" 
    * post-processes the probabilistic annotation giving priority to the gazetteer. 
-   * Obviously, this option depends on the --dictPath parameter being correctly specified. Finally,
+   * Obviously, this option depends on the --dictPath parameter being correctly specified. The
    * --lexer numeric option annotates numeric entities (dates, percentages, and so on) via rules.
+   * Finally, the oepc option post-process the output using the one entity per class hypothesis.
    * @param properties
    *          the properties
    * @throws IOException
@@ -279,6 +284,9 @@ public class Annotate {
         numericLexerFinder = new NumericNameFinder(sentenceReader, nameFactory);
         Span[] numericSpans = numericLexerFinder.nercToSpans(tokens);
         SpanUtils.concatenateSpans(allSpans, numericSpans);
+      }
+      if (oepc) {
+        
       }
       Span[] allSpansArray = NameFinderME.dropOverlappingSpans(allSpans
           .toArray(new Span[allSpans.size()]));

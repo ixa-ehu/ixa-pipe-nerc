@@ -28,9 +28,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import opennlp.tools.cmdline.CmdLineUtil;
 import opennlp.tools.cmdline.TerminateToolException;
 import opennlp.tools.ml.TrainerFactory;
 import opennlp.tools.util.InputStreamFactory;
+import opennlp.tools.util.MarkableFileInputStreamFactory;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.TrainingParameters;
@@ -196,16 +198,26 @@ public final class InputOutputUtils {
    * @throws IOException
    *           throw exception if error occurs
    */
-  public static ObjectStream<String> readInputData(final String infile)
-      throws IOException {
+  public static ObjectStream<String> readFileIntoMarkableStreamFactory(final String infile) {
 
-    InputStreamFactory inputStreamFactory = new DefaultInputStreamFactory(
-        new FileInputStream(infile));
-    ObjectStream<String> lineStream = new PlainTextByLineStream(
-        inputStreamFactory, "UTF-8");
+    InputStreamFactory inputStreamFactory = null;
+    try {
+      inputStreamFactory = new MarkableFileInputStreamFactory(
+          new File(infile));
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    }
+    ObjectStream<String> lineStream = null;
+    try {
+      lineStream = new PlainTextByLineStream(
+          (inputStreamFactory), "UTF-8");
+    } catch (IOException e) {
+      CmdLineUtil.handleCreateObjectStreamError(e);
+    }
     return lineStream;
 
   }
+
 
   public static void printIterationResults(Map<List<Integer>, Double> results)
       throws IOException {

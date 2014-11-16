@@ -223,6 +223,11 @@ public final class XMLFeatureDescriptor {
         brownBigramFeatures.setAttribute("class", BrownBigramFeatureGenerator.class.getName());
         brownBigramFeatures.setAttribute("dict", InputOutputUtils.normalizeLexiconName(brownClusterFile.getCanonicalPath()));
         generators.addContent(brownBigramFeatures);
+        // brown trigram features
+        //Element brownTrigramFeatures = new Element("custom");
+        //brownTrigramFeatures.setAttribute("class",BrownTrigramFeatureGenerator.class.getName());
+        //brownTrigramFeatures.setAttribute("dict", InputOutputUtils.normalizeLexiconName(brownClusterFile.getCanonicalPath()));
+        //generators.addContent(brownTrigramFeatures);
         //brown token feature
         Element brownTokenFeature = new Element("custom");
         brownTokenFeature.setAttribute("class", BrownTokenFeatureGenerator.class.getName());

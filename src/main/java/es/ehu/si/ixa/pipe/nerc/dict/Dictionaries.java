@@ -42,7 +42,7 @@ import es.ehu.si.ixa.pipe.nerc.StringUtils;
  */
 public class Dictionaries {
   
-  private static final Pattern tabPattern = Pattern.compile("\\t");
+  private static final Pattern tabPattern = Pattern.compile("\t");
 
   public static boolean DEBUG = false;
   /**

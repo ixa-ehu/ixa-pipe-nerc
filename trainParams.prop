@@ -19,10 +19,9 @@
 Algorithm=PERCEPTRON
 Iterations=500
 Cutoff=0
+Threads=4
 
 ## IF MAXENT_QN is chosen, activate these parameters ##
-
-Threads=4
 # Costs for L1- and L2-regularization. These parameters must be larger or
 # equal to zero. The higher they are, the more penalty will be imposed to 
 # avoid overfitting. The parameters can be set as follows:
@@ -42,9 +41,9 @@ MaxFctEval=30000
 
 ##################################################
 #### Custom parameters added by ixa-pipe-nerc ####
-##################################################
+################################################## 
 
-# Languages supported: de, en, es, it, nl
+# Languages supported: de, en, es, it, nl 
 Language=en
 
 # TrainingCorpus:
@@ -73,9 +72,9 @@ BeamSize=3
 # If commented out, it defaults to BILOU.
 #SequenceCodec=BIO
 
-##############
-## FEATURES ##
-##############
+##################
+#### FEATURES ####
+##################
 
 # Window: left and right window range from the current token. TokenFeatures
 # and TokenClassFeatures depend on the window range specified here. If
@@ -154,4 +153,14 @@ ClarkClusterFeatures=/home/ragerri/resources/reuters-rcv1/clark/reuters-rcv1.tok
 # NOTE: you can add multiple clustering lexicons by chaining them with a comma.
 Word2VecClusterFeatures=/home/ragerri/clusters.large.txt
 
-## END FEATURES ##
+#####################################
+#### CROSS VALIDATION PARAMETERS ####
+#####################################
+
+# Cross Validation Folds; if commented out it defaults to 10 cross validation
+# folds.
+Folds=5
+# Evaluation type: choose between 'detailed' and 'error; only for cross-validation.
+# It defaults to detailed evaluation.
+EvaluationType=detailed
+
