@@ -4,7 +4,7 @@
 	<groupId>es.ehu.si</groupId>
 	<artifactId>ixa-pipe-nerc</artifactId>
 	<packaging>jar</packaging>
-	<version>1.3.2</version>
+	<version>1.3.3</version>
 	<name>ixa-pipe-nerc</name>
 	<description>NERC tagger of ixa pipes (ixa2.si.ehu.es/ixa-pipes).</description>
 	<developers>
