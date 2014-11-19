@@ -11,7 +11,8 @@ import opennlp.tools.util.Span;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import es.ehu.si.ixa.pipe.nerc.dict.Dictionaries;
+import es.ehu.si.ixa.ixa.pipe.nerc.DictionariesNameFinder;
+import es.ehu.si.ixa.ixa.pipe.nerc.dict.Dictionaries;
 
 public class DictionariesNameFinderTest {
 
