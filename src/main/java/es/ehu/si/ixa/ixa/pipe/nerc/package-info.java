@@ -6,6 +6,6 @@
  * <li>Using Regular Expressions
  * </ol>
  * All these three methods correspond to the implementations of
- * the {@link NameFinder} interface
+ * the {@code NameFinder} interface
  */
 package es.ehu.si.ixa.ixa.pipe.nerc;

@@ -63,10 +63,8 @@ public class DictionariesNameFinder implements NameFinder {
    * Construct a DictionaryNameFinder using one dictionary and one named entity
    * class.
    * 
-   * @param aDict
-   *          the dictionary
-   * @param aType
-   *          the named entity class
+   * @param aDictionaries
+   *          the dictionaries
    */
   public DictionariesNameFinder(final Dictionaries aDictionaries) {
     this.dictionaries = aDictionaries;
@@ -76,10 +74,8 @@ public class DictionariesNameFinder implements NameFinder {
    * Construct a DictionariesNameFinder with a dictionary, a type and a name
    * factory.
    * 
-   * @param aDict
-   *          the dictionary
-   * @param aType
-   *          the named entity class
+   * @param aDictionaries
+   *          the dictionaries
    * @param aNameFactory
    *          the factory
    */

@@ -29,6 +29,7 @@
 		<maven>3.0</maven>
 	</prerequisites>
 	<url>http://ixa2.si.ehu.es/ixa-pipes</url>
+	
 	<dependencies>
 		<dependency>
 			<groupId>com.github.ixa-ehu</groupId>

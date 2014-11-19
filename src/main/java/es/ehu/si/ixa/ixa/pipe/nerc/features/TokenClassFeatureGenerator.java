@@ -39,10 +39,6 @@ import opennlp.tools.util.featuregen.StringPattern;
  * <li>ic - initial capital letter</li>
  * <li>other - other</li>
  * </ul>
- * 
- * @param token
- *          A token or word.
- * @return The class name that the specified token belongs in.
  */
 public class TokenClassFeatureGenerator extends FeatureGeneratorAdapter {
 

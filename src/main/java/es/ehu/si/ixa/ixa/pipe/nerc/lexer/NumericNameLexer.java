@@ -36,7 +36,7 @@ import es.ehu.si.ixa.ixa.pipe.nerc.NameFactory;
  *  <li> Currency expressions.
  *  </ol>
  *
- * For more CLI options, please check {@link CLI} javadoc and README file.
+ * For more CLI options, please check {@code CLI} javadoc and README file.
  * @author ragerri
  * @version 2014-05-14
  * @param <T> the object

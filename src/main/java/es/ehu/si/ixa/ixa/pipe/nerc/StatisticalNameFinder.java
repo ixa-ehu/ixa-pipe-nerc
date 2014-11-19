@@ -57,8 +57,7 @@ public class StatisticalNameFinder implements NameFinder {
 
   /**
    * Construct a probabilistic name finder specifying lang, model and beamsize.
-   * @param properties the properties to be loaded
-   * @param beamsize the beamsize for decoding
+   * @param props the properties to be loaded
    */
   public StatisticalNameFinder(final Properties props) {
     String lang = props.getProperty("language");
@@ -72,8 +71,7 @@ public class StatisticalNameFinder implements NameFinder {
    * a name factory, the model, the features and the beam size for
    * decoding.
    *
-   * @param properties the properties
-   * @param beamsize the beam size for decoding
+   * @param props the properties
    * @param aNameFactory the name factory to construct Name objects
    */
   public StatisticalNameFinder(final Properties props, final NameFactory aNameFactory) {

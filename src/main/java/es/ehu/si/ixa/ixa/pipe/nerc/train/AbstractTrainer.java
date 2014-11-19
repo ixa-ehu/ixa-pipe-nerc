@@ -87,10 +87,7 @@ public abstract class AbstractTrainer implements Trainer {
   /**
    * Construct a trainer with training and test data, and with options for
    * language, beamsize for decoding, sequence codec and corpus format (conll or opennlp).
-   * @param aTrainData
-   *          the training data
-   * @param aTestData
-   *          the test data
+   * @param params the training parameters
    * @throws IOException
    *           io exception
    */
