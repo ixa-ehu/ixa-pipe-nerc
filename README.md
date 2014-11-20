@@ -63,6 +63,9 @@ log file which provides details about the evaluation and training process.
   package, which contains **every resource** required to train the English models
   with clustering and dictionary features.
   + The [nerc-models-$version.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-models-1.3.1.tgz)
+  + The
+  [en-best-conll03.bin](http://ixa2.si.ehu.es/ixa-pipes/models/en-best-conll03.bin)
+  package, containing **every pre-trained** model. 
   package, containing **every pre-trained** model. 
 
 All models are trained with the averaged Perceptron algorithm as
