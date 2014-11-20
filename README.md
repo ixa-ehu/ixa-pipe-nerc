@@ -15,15 +15,6 @@ and install this repository instead of using the releases provided in
 [http://ixa2.si.ehu.es/ixa-pipes], please scroll down to the end of the document for
 the [installation instructions](#installation).
 
-**NOTICE!!**: We temporarily rely on Apache OpenNLP 1.6.0-SNAPSHOT version.
-Therefore, before installing/using this module as explained in this README,
-**please install Apache OpenNLP 1.6.0 like this**:
-
-````shell
-git clone https://github.com/apache/opennlp
-cd opennlp/opennlp
-mvn clean install
-````
 ## TABLE OF CONTENTS
 
 1. [Overview of ixa-pipe-nerc](#overview)
