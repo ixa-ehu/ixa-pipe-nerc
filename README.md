@@ -195,14 +195,11 @@ java -jar target/ixa.pipe.nerc-$version.jar eval -m nerc-models-$version/en/en-l
 
 ## JAVADOC
 
-It is possible to generate the javadoc of the module by executing:
+The javadoc of the module is located here:
 
 ````shell
-cd ixa-pipe-nerc/
-mvn javadoc:jar
+ixa-pipe-nerc/target/ixa-pipe-nerc-1.3.3-javadoc.jar
 ````
-
-Which will create a jar file core/target/ixa-pipe-nerc-$version-javadoc.jar
 
 ## Module contents
 
@@ -288,18 +285,7 @@ git clone https://github.com/ixa-ehu/ixa-pipe-nerc
 
 ### 4. Compile
 
-Please remember this before compiling: 
-
-**NOTICE!!**: We temporarily rely on Apache OpenNLP 1.6.0-SNAPSHOT version.
-Therefore, before installing/using this module as explained in this README,
-**please install Apache OpenNLP 1.6.0 like this**:
-
-````shell
-git clone https://github.com/apache/opennlp
-cd opennlp/opennlp
-mvn clean install
-````
-Then you can just execute this command to compile ixa-pipe-nerc:
+Execute this command to compile ixa-pipe-nerc:
 
 ````shell
 cd ixa-pipe-nerc
