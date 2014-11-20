@@ -147,9 +147,6 @@
   </build>
   <repositories>
     <repository>
-      <snapshots>
-        <updatePolicy>always</updatePolicy>
-      </snapshots>
       <id>apache opennlp snapshots</id>
       <url>https://repository.apache.org/content/repositories/snapshots/</url>
     </repository>
