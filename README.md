@@ -27,7 +27,7 @@ for easy access to its API.
   + [NERC tagging](#tagging)
   + [Training your own models](#training)
   + [Evaluation](#evaluation)
-3. [Maven Dependency ixa-pipe-nerc](#api)
+3. [API via Maven Dependency](#api)
 4. [Git installation](#installation)
 
 ## OVERVIEW
@@ -64,11 +64,11 @@ log file which provides details about the evaluation and training process.
 
 **ixa-pipe-nerc models and resources**: 
 
+  + **Latest models**: [nerc-models-latest.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-models-1.3.3.tgz)
+  + Release 3.2 models: [nerc-models-$version.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-models-1.3.2.tgz)
   + The [nerc-resources.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-resources.tgz)
   package, which contains **every resource** required to train the English models
   with clustering and dictionary features.
-  + **Latest models**:[nerc-models-latest.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-models-1.3.3.tgz)
-  + Release 3.2 models: [nerc-models-$version.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-models-1.3.2.tgz)
 
 All models are trained with the averaged Perceptron algorithm as
 described in (Collins 2002):
@@ -88,14 +88,14 @@ described in (Collins 2002):
   + CoNLL 2002 local features: F1 79.50
 
 + **Dutch Models**: 
-  + CoNLL 2002 local features: F1 78.10
+  + CoNLL 2002 local features: F1 78.13
 
 + **German Models**: 
-  + CoNLL 2003 local features: F1 70.07
+  + CoNLL 2003 local features: F1 71.62
 
 + **Italian Models**: 
-  + Evalita07 local features: F1 71.18
-  + Evalita09 local features: F1 74.20
+  + Evalita07 local features: F1 70.93
+  + Evalita09 local features: F1 74.43
 
 ## CLI-USAGE
 
