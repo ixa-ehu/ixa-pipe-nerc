@@ -15,15 +15,20 @@ and install this repository instead of using the releases provided in
 [http://ixa2.si.ehu.es/ixa-pipes], please scroll down to the end of the document for
 the [installation instructions](#installation).
 
+**NOTICE!!**: ixa-pipe-nerc is now in [Maven Central](http://search.maven.org/)
+for easy access to its API.
+
 ## TABLE OF CONTENTS
 
 1. [Overview of ixa-pipe-nerc](#overview)
   + [Available features](#features)
   + [List of distributed models](#models)
-2. [Usage of ixa-pipe-nerc](#usage)
+2. [Usage of ixa-pipe-nerc](#cli-usage)
   + [NERC tagging](#tagging)
   + [Training your own models](#training)
   + [Evaluation](#evaluation)
+3. [Maven Dependency ixa-pipe-nerc](#api)
+4. [Git installation](#installation)
 
 ## OVERVIEW
 
@@ -62,11 +67,8 @@ log file which provides details about the evaluation and training process.
   + The [nerc-resources.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-resources.tgz)
   package, which contains **every resource** required to train the English models
   with clustering and dictionary features.
-  + The [nerc-models-$version.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-models-1.3.1.tgz)
-  + The
-  [en-best-conll03.bin](http://ixa2.si.ehu.es/ixa-pipes/models/en-best-conll03.bin)
-  package, containing **every pre-trained** model. 
-  package, containing **every pre-trained** model. 
+  + **Latest models**:[nerc-models-latest.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-models-1.3.3.tgz)
+  + Release 3.2 models: [nerc-models-$version.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-models-11..3.2.tgz)
 
 All models are trained with the averaged Perceptron algorithm as
 described in (Collins 2002):
@@ -95,9 +97,9 @@ described in (Collins 2002):
   + Evalita07 local features: F1 71.18
   + Evalita09 local features: F1 74.20
 
-## USAGE
+## CLI-USAGE
 
-ixa-pipe-nerc provides 3 basic functionalities:
+ixa-pipe-nerc provides 3 command-line basic functionalities:
 
 1. **tag**: reads a NAF document containing *wf* and *term* elements and tags named
    entities.
@@ -196,12 +198,25 @@ or testset.
 java -jar target/ixa.pipe.nerc-$version.jar eval -m nerc-models-$version/en/en-local-conll03.bin -l en -t conll03.testb
 ````
 
+## API
+
+The easiest way to use ixa-pipe-nerc programatically is via Apache Maven. Add
+this dependency to your pom.xml:
+
+````shell
+<dependency>
+  <groupId>es.ehu.si.ixa</grouId>
+  <artifactId>ixa.pipe.nerc</artifactId>
+  <version>1.3.3</version>
+</dependency>
+````
+
 ## JAVADOC
 
 The javadoc of the module is located here:
 
 ````shell
-ixa-pipe-nerc/target/ixa-pipe-nerc-1.3.3-javadoc.jar
+ixa-pipe-nerc/target/ixa-pipe-nerc-$version-javadoc.jar
 ````
 
 ## Module contents
