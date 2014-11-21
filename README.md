@@ -68,7 +68,7 @@ log file which provides details about the evaluation and training process.
   package, which contains **every resource** required to train the English models
   with clustering and dictionary features.
   + **Latest models**:[nerc-models-latest.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-models-1.3.3.tgz)
-  + Release 3.2 models: [nerc-models-$version.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-models-11..3.2.tgz)
+  + Release 3.2 models: [nerc-models-$version.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-models-1.3.2.tgz)
 
 All models are trained with the averaged Perceptron algorithm as
 described in (Collins 2002):
