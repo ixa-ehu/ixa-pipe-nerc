@@ -31,9 +31,15 @@ import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.Span;
 import opennlp.tools.util.StringUtil;
 
+/**
+ * 4 fields tabulated format: word\tlemma\tpos\tner\n
+ * 
+ * @author ragerri
+ * @version 2014-11-24
+ *
+ */
 public class TabulatedFormat implements ObjectStream<NameSample> {
 
-  public static final String DOCSTART = "#";
   private final ObjectStream<String> lineStream;
 
   /**
@@ -74,7 +80,7 @@ public class TabulatedFormat implements ObjectStream<NameSample> {
     String line;
     while ((line = lineStream.read()) != null && !StringUtil.isEmpty(line)) {
         isClearAdaptiveData = true;
-      String fields[] = line.split(" ");
+      String fields[] = line.split("\t");
       if (fields.length == 3) {
         tokens.add(fields[0]);
         neTypes.add(fields[2]);

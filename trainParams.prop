@@ -50,7 +50,7 @@ Language=en
 TrainSet=/home/ragerri/experiments/nerc/conll03/eng.train
 TestSet=/home/ragerri/experiments/nerc/conll03/eng.testb
 
-# CorpusFormat: conll02, conll03, evalita, germEvalOuter2014, germEvalInner2014, opennlp
+# CorpusFormat: conll02, conll03, evalita, germEvalOuter2014, germEvalInner2014, opennlp, tabulated
 # CorpusFormat of the training corpus
 CorpusFormat=conll03
 
