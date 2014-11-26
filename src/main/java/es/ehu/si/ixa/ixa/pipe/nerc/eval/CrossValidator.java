@@ -72,7 +72,7 @@ public class CrossValidator {
    */
   private int beamSize;
   /**
-   * The folds valute for cross validation.
+   * The folds value for cross validation.
    */
   private int folds;
   /**
