@@ -17,14 +17,13 @@
 package es.ehu.si.ixa.ixa.pipe.nerc.formats;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import opennlp.tools.namefind.NameSample;
+import opennlp.tools.util.InputStreamFactory;
 import opennlp.tools.util.InvalidFormatException;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
@@ -65,8 +64,9 @@ public class GermEval2014OuterNameStream implements ObjectStream<NameSample> {
    * @param in
    *          an input stream to read data
    *           the input stream exception
+   * @throws IOException 
    */
-  public GermEval2014OuterNameStream(InputStream in) {
+  public GermEval2014OuterNameStream(InputStreamFactory in) throws IOException {
 
     try {
       this.lineStream = new PlainTextByLineStream(in, "UTF-8");
