@@ -17,14 +17,13 @@
 package es.ehu.si.ixa.ixa.pipe.nerc.formats;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import opennlp.tools.namefind.NameSample;
+import opennlp.tools.util.InputStreamFactory;
 import opennlp.tools.util.InvalidFormatException;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
@@ -36,7 +35,7 @@ import opennlp.tools.util.StringUtil;
  * 
  * @author ragerri
  * @version 2014-11-24
- *
+ * 
  */
 public class TabulatedFormat implements ObjectStream<NameSample> {
 
@@ -59,7 +58,7 @@ public class TabulatedFormat implements ObjectStream<NameSample> {
    * @throws IOException
    *           the input stream exception
    */
-  public TabulatedFormat(InputStream in) {
+  public TabulatedFormat(InputStreamFactory in) throws IOException {
 
     try {
       this.lineStream = new PlainTextByLineStream(in, "UTF-8");
@@ -79,7 +78,7 @@ public class TabulatedFormat implements ObjectStream<NameSample> {
     // Empty line indicates end of sentence
     String line;
     while ((line = lineStream.read()) != null && !StringUtil.isEmpty(line)) {
-        isClearAdaptiveData = true;
+      isClearAdaptiveData = true;
       String fields[] = line.split("\t");
       if (fields.length == 3) {
         tokens.add(fields[0]);
@@ -148,4 +147,3 @@ public class TabulatedFormat implements ObjectStream<NameSample> {
     lineStream.close();
   }
 }
-
