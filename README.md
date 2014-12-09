@@ -205,9 +205,9 @@ this dependency to your pom.xml:
 
 ````shell
 <dependency>
-  <groupId>es.ehu.si.ixa</grouId>
-  <artifactId>ixa.pipe.nerc</artifactId>
-  <version>1.3.3</version>
+    <groupId>es.ehu.si.ixa</groupId>
+    <artifactId>ixa-pipe-nerc</artifactId>
+    <version>1.3.3</version>
 </dependency>
 ````
 
