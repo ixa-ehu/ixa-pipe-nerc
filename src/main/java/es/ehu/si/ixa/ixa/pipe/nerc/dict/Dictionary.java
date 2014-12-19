@@ -24,12 +24,9 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 import opennlp.tools.util.InvalidFormatException;
@@ -71,6 +68,8 @@ public class Dictionary implements SerializableArtifact {
       String[] lineArray = tabPattern.split(line);
       if (lineArray.length == 2) {
         dictionary.put(lineArray[0].toLowerCase(), lineArray[1]);
+      } else {
+        System.err.println(lineArray[0] + " is not well formed!");
       }
     }
   }
