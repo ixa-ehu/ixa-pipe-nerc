@@ -370,7 +370,7 @@ public class CLI {
         .help("The test or reference corpus.\n");
     evalParser.addArgument("-f","--corpusFormat")
         .required(false)
-        .choices("conll03", "conll02", "opennlp")
+        .choices("conll03", "conll02", "opennlp", "tabulated")
         .setDefault(Flags.DEFAULT_EVAL_FORMAT)
         .help("Choose format of reference corpus; it defaults to opennlp format.\n");
     evalParser

@@ -80,9 +80,9 @@ public class TabulatedFormat implements ObjectStream<NameSample> {
     while ((line = lineStream.read()) != null && !StringUtil.isEmpty(line)) {
       isClearAdaptiveData = true;
       String fields[] = line.split("\t");
-      if (fields.length == 3) {
+      if (fields.length == 2) {
         tokens.add(fields[0]);
-        neTypes.add(fields[2]);
+        neTypes.add(fields[1]);
       } else {
         throw new IOException(
             "Expected four fields per line in training data, got "
