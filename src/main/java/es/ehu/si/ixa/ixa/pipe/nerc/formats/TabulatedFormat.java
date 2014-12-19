@@ -107,7 +107,7 @@ public class TabulatedFormat implements ObjectStream<NameSample> {
           endIndex = i + 1;
         } else if (neTag.startsWith("I-")) {
           endIndex++;
-        } else if (neTag.equals("0")) {
+        } else if (neTag.equals("O")) {
           if (beginIndex != -1) {
             names.add(extract(beginIndex, endIndex, neTypes.get(beginIndex)));
             beginIndex = -1;
