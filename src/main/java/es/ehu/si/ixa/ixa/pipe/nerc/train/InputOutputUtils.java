@@ -24,9 +24,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 import opennlp.tools.cmdline.CmdLineUtil;
 import opennlp.tools.cmdline.TerminateToolException;
@@ -36,9 +33,6 @@ import opennlp.tools.util.MarkableFileInputStreamFactory;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.TrainingParameters;
-
-import com.google.common.base.Charsets;
-import com.google.common.io.Files;
 
 /**
  * Utility functions to read and save ObjectStreams.
@@ -215,40 +209,5 @@ public final class InputOutputUtils {
       CmdLineUtil.handleCreateObjectStreamError(e);
     }
     return lineStream;
-
-  }
-
-
-  public static void printIterationResults(Map<List<Integer>, Double> results)
-      throws IOException {
-    for (Map.Entry<List<Integer>, Double> result : results.entrySet()) {
-      Double value = result.getValue();
-      List<Integer> key = result.getKey();
-      System.out.print("Parameters: ");
-      for (Integer s : key) {
-        System.out.print(s + " ");
-      }
-      System.out.println("Value: " + value);
-    }
-  }
-
-  public static List<List<Integer>> getBestIterations(
-      Map<List<Integer>, Double> results, List<List<Integer>> allParams)
-      throws IOException {
-    StringBuffer sb = new StringBuffer();
-    Double bestResult = (Collections.max(results.values()));
-    for (Map.Entry<List<Integer>, Double> result1 : results.entrySet()) {
-      if (result1.getValue().compareTo(bestResult) == 0) {
-        allParams.add(result1.getKey());
-        sb.append("Best results: ").append(result1.getKey()).append(" ")
-            .append(result1.getValue()).append("\n");
-        System.out.println("Results: " + result1.getKey() + " "
-            + result1.getValue());
-      }
-    }
-    Files.write(sb.toString(), new File("best-results.txt"), Charsets.UTF_8);
-    System.out.println("Best F via cross evaluation: " + bestResult);
-    System.out.println("All Params " + allParams.size());
-    return allParams;
   }
 }
