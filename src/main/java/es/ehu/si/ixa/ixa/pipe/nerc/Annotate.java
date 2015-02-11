@@ -55,7 +55,6 @@ public class Annotate {
   /**
    * The NameFinder to do the annotation. Usually the statistical.
    */
-  private NameFinderME statFinder;
   private StatisticalNameFinder nameFinder;
   /**
    * The dictionaries.
@@ -193,9 +192,7 @@ public class Annotate {
         tokenIds[i] = sentence.get(i).getId();
       }
       if (statistical) {
-        statFinder.clearAdaptiveData();
-        //Span[] statSpans = nameFinder.nercToSpans(tokens);
-        Span[] statSpans = statFinder.find(tokens);
+        Span[] statSpans = nameFinder.nercToSpans(tokens);
         allSpans = Lists.newArrayList(statSpans);
       }
       if (postProcess) {
@@ -235,6 +232,7 @@ public class Annotate {
         neEntity.setType(name.getType());
       }
     }
+    nameFinder.clearAdaptiveData();
   }
 
   /**
