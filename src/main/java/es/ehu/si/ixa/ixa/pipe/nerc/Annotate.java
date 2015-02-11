@@ -231,8 +231,8 @@ public class Annotate {
         Entity neEntity = kaf.newEntity(references);
         neEntity.setType(name.getType());
       }
+      nameFinder.clearAdaptiveData();
     }
-    nameFinder.clearAdaptiveData();
   }
 
   /**
