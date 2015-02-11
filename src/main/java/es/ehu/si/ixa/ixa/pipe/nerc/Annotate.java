@@ -192,8 +192,8 @@ public class Annotate {
         tokenIds[i] = sentence.get(i).getId();
       }
       if (statistical) {
-        Span[] statSpans = nameFinder.nercToSpans(tokens);
         nameFinder.clearAdaptiveData();
+        Span[] statSpans = nameFinder.nercToSpans(tokens);
         allSpans = Lists.newArrayList(statSpans);
       }
       if (postProcess) {
@@ -232,7 +232,6 @@ public class Annotate {
         Entity neEntity = kaf.newEntity(references);
         neEntity.setType(name.getType());
       }
-      nameFinder.clearAdaptiveData();
     }
   }
 
@@ -266,6 +265,7 @@ public class Annotate {
         tokenIds[i] = sentence.get(i).getId();
       }
       if (statistical) {
+        nameFinder.clearAdaptiveData();
         Span[] statSpans = nameFinder.nercToSpans(tokens);
         allSpans = Lists.newArrayList(statSpans);
       }
@@ -293,7 +293,6 @@ public class Annotate {
           .toArray(new Span[allSpans.size()]));
       NameSample nameSample = new NameSample(tokens, allSpansArray, false);
       sb.append(nameSample.toString()).append("\n");
-      nameFinder.clearAdaptiveData();
     }
     return sb.toString();
   }
