@@ -360,6 +360,7 @@ public class Annotate {
               sb.append(thisTerm.getMorphofeat());
               sb.append("\t");
               if (j == 0 && previousIsEntity) {
+                //TODO add type as a condition to add BEGIN
                 sb.append(BIO.BEGIN.toString());
               } else {
                 sb.append(BIO.IN.toString());
@@ -374,6 +375,7 @@ public class Annotate {
             sb.append("\t");
             sb.append(thisTerm.getMorphofeat());
             sb.append("\t");
+            //TODO add type as a condition to add BEGIN
             if (previousIsEntity) {
               sb.append(BIO.BEGIN.toString());
             } else {
@@ -426,7 +428,6 @@ public class Annotate {
     for (List<WF> sentence : sentences) {
       int sentNumber = sentence.get(0).getSent();
       List<Term> sentenceTerms = kaf.getSentenceTerms(sentNumber);
-      boolean previousIsEntity = false;
 
       for (int i = 0; i < sentenceTerms.size(); i++) {
         Term thisTerm = sentenceTerms.get(i);
@@ -444,7 +445,7 @@ public class Annotate {
               sb.append("\t");
               sb.append(thisTerm.getMorphofeat());
               sb.append("\t");
-              if (j == 0 || previousIsEntity) {
+              if (j == 0) {
                 sb.append(BIO.BEGIN.toString());
               } else {
                 sb.append(BIO.IN.toString());
@@ -463,7 +464,6 @@ public class Annotate {
             sb.append(neType);
             sb.append("\n");
           }
-          previousIsEntity = true;
           i += neSpanSize - 1;
         } else {
           sb.append(thisTerm.getForm());
@@ -474,7 +474,6 @@ public class Annotate {
           sb.append("\t");
           sb.append(BIO.OUT);
           sb.append("\n");
-          previousIsEntity = false;
         }
       }
       sb.append("\n");// end of sentence

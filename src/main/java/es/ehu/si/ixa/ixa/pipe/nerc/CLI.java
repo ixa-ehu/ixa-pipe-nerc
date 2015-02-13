@@ -42,7 +42,6 @@ import org.jdom2.JDOMException;
 
 import com.google.common.io.Files;
 
-import es.ehu.si.ixa.ixa.pipe.nerc.eval.CorpusEvaluate;
 import es.ehu.si.ixa.ixa.pipe.nerc.eval.CrossValidator;
 import es.ehu.si.ixa.ixa.pipe.nerc.eval.Evaluate;
 import es.ehu.si.ixa.ixa.pipe.nerc.train.FixedTrainer;
@@ -189,7 +188,6 @@ public class CLI {
     String model = parsedArguments.getString("model");
     String outputFormat = parsedArguments.getString("outputFormat");
     String lexer = parsedArguments.getString("lexer");
-    String oepc = parsedArguments.getString("oepc");
     String dictTag = parsedArguments.getString("dictTag");
     String dictPath = parsedArguments.getString("dictPath");
     // language parameter
@@ -204,7 +202,7 @@ public class CLI {
     } else {
       lang = kaf.getLang();
     }
-    Properties properties = setAnnotateProperties(model, lang, lexer, oepc, dictTag, dictPath);
+    Properties properties = setAnnotateProperties(model, lang, lexer, dictTag, dictPath);
     KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor(
         "entities", "ixa-pipe-nerc-" + Files.getNameWithoutExtension(model), version + "-" + commit);
     newLp.setBeginTimestamp();
@@ -266,7 +264,6 @@ public class CLI {
     String netypes = parsedArguments.getString("types");
     Properties props = setEvalProperties(lang, model, testset, corpusFormat, netypes);
     
-    if (parsedArguments.getString("prediction") == null) {
       Evaluate evaluator = new Evaluate(props);
       if (parsedArguments.getString("evalReport") != null) {
         if (parsedArguments.getString("evalReport").equalsIgnoreCase("brief")) {
@@ -281,14 +278,6 @@ public class CLI {
       } else {
         evaluator.detailEvaluate();
       }
-    } else if (parsedArguments.getString("prediction") != null) {
-      String predFile = parsedArguments.getString("prediction");
-      CorpusEvaluate corpusEvaluator = new CorpusEvaluate(predFile, props);
-      corpusEvaluator.evaluate();
-    } else {
-      System.err
-          .println("Provide either a model or a prediction file to perform evaluation!");
-    }
   }
   
   /**
@@ -328,9 +317,6 @@ public class CLI {
         .setDefault(Flags.DEFAULT_LEXER)
         .required(false)
         .help("Use lexer rules for NERC tagging; it defaults to false.\n");
-    annotateParser.addArgument("--oepc")
-        .setDefault(Flags.DEFAULT_DICT_OPTION)
-        .help("Post post-process the statistical model annotation with the One Entity per Class hypothesis.\n");
     annotateParser.addArgument("--dictTag")
         .required(false)
         .choices("tag", "post")
@@ -373,11 +359,6 @@ public class CLI {
         .choices("conll03", "conll02", "opennlp", "tabulated")
         .setDefault(Flags.DEFAULT_EVAL_FORMAT)
         .help("Choose format of reference corpus; it defaults to opennlp format.\n");
-    evalParser
-        .addArgument("--prediction")
-        .required(false)
-        .help(
-            "Use this parameter to evaluate one prediction corpus against the reference corpus.\n");
     evalParser.addArgument("--evalReport")
         .required(false)
         .choices("brief", "detailed", "error")
@@ -407,12 +388,11 @@ public class CLI {
    * @param dictPath directory to the dictionaries
    * @return the properties object
    */
-  private Properties setAnnotateProperties(String model, String language, String lexer, String oepc, String dictTag, String dictPath) {
+  private Properties setAnnotateProperties(String model, String language, String lexer, String dictTag, String dictPath) {
     Properties annotateProperties = new Properties();
     annotateProperties.setProperty("model", model);
     annotateProperties.setProperty("language", language);
     annotateProperties.setProperty("ruleBasedOption", lexer);
-    annotateProperties.setProperty("oepc", oepc);
     annotateProperties.setProperty("dictTag", dictTag);
     annotateProperties.setProperty("dictPath", dictPath);
     return annotateProperties;
