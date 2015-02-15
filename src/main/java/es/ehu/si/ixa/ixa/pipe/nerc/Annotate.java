@@ -169,6 +169,10 @@ public class Annotate {
       nameFinder = new StatisticalNameFinder(properties, nameFactory);
     }
   }
+  
+  public StatisticalNameFinder getStatisticalNameFinder() {
+    return nameFinder;
+  }
 
   /**
    * Classify Named Entities creating the entities layer in the
@@ -265,7 +269,6 @@ public class Annotate {
         tokenIds[i] = sentence.get(i).getId();
       }
       if (statistical) {
-        nameFinder.clearAdaptiveData();
         Span[] statSpans = nameFinder.nercToSpans(tokens);
         allSpans = Lists.newArrayList(statSpans);
       }
@@ -294,6 +297,7 @@ public class Annotate {
       NameSample nameSample = new NameSample(tokens, allSpansArray, false);
       sb.append(nameSample.toString()).append("\n");
     }
+    nameFinder.clearAdaptiveData();
     return sb.toString();
   }
 
