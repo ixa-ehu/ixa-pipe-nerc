@@ -90,6 +90,8 @@ public class GermEval2014InnerNameStream implements ObjectStream<NameSample> {
       if (line.startsWith(DOCSTART)) {
         isClearAdaptiveData = true;
         continue;
+      } else {
+        isClearAdaptiveData = true;
       }
       String fields[] = line.split("\t");
       if (fields.length == 4) {

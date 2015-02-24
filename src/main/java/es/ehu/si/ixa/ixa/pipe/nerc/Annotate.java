@@ -501,10 +501,16 @@ public class Annotate {
    */
   public String convertToConLLTypes(String neType) {
     String conllType = null;
-    if (neType.startsWith("PER") || neType.startsWith("ORG")
-        || neType.startsWith("LOC") || neType.startsWith("GPE")) {
+    if (neType.equalsIgnoreCase("PERSON") || neType.equalsIgnoreCase("ORGANIZATION")
+        || neType.equalsIgnoreCase("LOCATION") || neType.equalsIgnoreCase("GPE")
+        || neType.equalsIgnoreCase("OTH") || neType.equalsIgnoreCase("LOC")
+        || neType.equalsIgnoreCase("ORG") || neType.equalsIgnoreCase("PER")) {
       conllType = neType.substring(0, 3);
-    } else if (neType.equalsIgnoreCase("MISC")) {
+    } else if (neType.equalsIgnoreCase("MISC") || neType.equalsIgnoreCase("LOCderiv")
+        || neType.equalsIgnoreCase("LOCpart") || neType.equalsIgnoreCase("ORGderiv")
+        || neType.equalsIgnoreCase("ORGpart") || neType.equalsIgnoreCase("PERderiv")
+        || neType.equalsIgnoreCase("PERpart") || neType.equalsIgnoreCase("OTHderiv")
+        || neType.equalsIgnoreCase("OTHpart")) {
       conllType = neType;
     }
     return conllType;
