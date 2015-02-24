@@ -73,10 +73,6 @@ public class Annotate {
    */
   private boolean statistical;
   /**
-   * Activates the One Entity per Class post-processing option.
-   */
-  private boolean oepc;
-  /**
    * Activates post processing of statistical name finder with dictionary name
    * finders.
    */
@@ -291,9 +287,6 @@ public class Annotate {
         numericLexerFinder = new NumericNameFinder(sentenceReader, nameFactory);
         Span[] numericSpans = numericLexerFinder.nercToSpans(tokens);
         SpanUtils.concatenateSpans(allSpans, numericSpans);
-      }
-      if (oepc) {
-        
       }
       Span[] allSpansArray = NameFinderME.dropOverlappingSpans(allSpans
           .toArray(new Span[allSpans.size()]));

@@ -22,6 +22,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
+import opennlp.tools.formats.Conll02NameSampleStream;
 import opennlp.tools.namefind.NameSample;
 import opennlp.tools.util.InputStreamFactory;
 import opennlp.tools.util.InvalidFormatException;
@@ -78,7 +79,17 @@ public class TabulatedFormat implements ObjectStream<NameSample> {
     // Empty line indicates end of sentence
     String line;
     while ((line = lineStream.read()) != null && !StringUtil.isEmpty(line)) {
-      isClearAdaptiveData = true;
+      if (line.startsWith(Conll02NameSampleStream.DOCSTART)) {
+        isClearAdaptiveData = true;
+        String emptyLine = lineStream.read();
+
+        if (!StringUtil.isEmpty(emptyLine))
+          throw new IOException("Empty line after -DOCSTART- not empty: '" + emptyLine +"'!");
+
+        continue;
+      } else {
+        isClearAdaptiveData = true;
+      }
       String fields[] = line.split("\t");
       if (fields.length == 4) {
         tokens.add(fields[0]);
