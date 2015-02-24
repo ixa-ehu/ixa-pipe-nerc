@@ -42,7 +42,6 @@ import opennlp.tools.util.eval.EvaluationMonitor;
 import es.ehu.si.ixa.ixa.pipe.nerc.features.XMLFeatureDescriptor;
 import es.ehu.si.ixa.ixa.pipe.nerc.formats.GermEval2014InnerNameStream;
 import es.ehu.si.ixa.ixa.pipe.nerc.formats.GermEval2014OuterNameStream;
-import es.ehu.si.ixa.ixa.pipe.nerc.formats.TabulatedFormat;
 import es.ehu.si.ixa.ixa.pipe.nerc.train.FixedTrainer;
 import es.ehu.si.ixa.ixa.pipe.nerc.train.Flags;
 import es.ehu.si.ixa.ixa.pipe.nerc.train.InputOutputUtils;
@@ -210,10 +209,6 @@ public class CrossValidator {
     } else if (aCorpusFormat.equalsIgnoreCase("germEvalInner2014")) {
       ObjectStream<String> nameStream = InputOutputUtils.readFileIntoMarkableStreamFactory(inputData);
       samples = new GermEval2014InnerNameStream(nameStream);
-    } else if (aCorpusFormat.equalsIgnoreCase("tabulated")) {
-      ObjectStream<String> nameStream = InputOutputUtils
-          .readFileIntoMarkableStreamFactory(inputData);
-      samples = new TabulatedFormat(nameStream);
     } else if (aCorpusFormat.equalsIgnoreCase("opennlp")) {
       ObjectStream<String> nameStream = InputOutputUtils.readFileIntoMarkableStreamFactory(inputData);
       samples = new NameSampleDataStream(nameStream);

@@ -34,7 +34,6 @@ import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.TrainingParameters;
 import es.ehu.si.ixa.ixa.pipe.nerc.formats.GermEval2014InnerNameStream;
 import es.ehu.si.ixa.ixa.pipe.nerc.formats.GermEval2014OuterNameStream;
-import es.ehu.si.ixa.ixa.pipe.nerc.formats.TabulatedFormat;
 
 /**
  * Abstract class for common training functionalities. Every other trainer class
@@ -182,10 +181,6 @@ public abstract class AbstractTrainer implements Trainer {
       ObjectStream<String> nameStream = InputOutputUtils
           .readFileIntoMarkableStreamFactory(inputData);
       samples = new GermEval2014InnerNameStream(nameStream);
-    } else if (aCorpusFormat.equalsIgnoreCase("tabulated")) {
-      ObjectStream<String> nameStream = InputOutputUtils
-          .readFileIntoMarkableStreamFactory(inputData);
-      samples = new TabulatedFormat(nameStream);
     } else if (aCorpusFormat.equalsIgnoreCase("opennlp")) {
       ObjectStream<String> nameStream = InputOutputUtils.readFileIntoMarkableStreamFactory(inputData);
       samples = new NameSampleDataStream(nameStream);

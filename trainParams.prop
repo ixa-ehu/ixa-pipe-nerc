@@ -15,29 +15,10 @@
 
 # Sample machine learning properties file
 
-# Choose between PERCEPTRON or MAXENT_QN
 Algorithm=PERCEPTRON
 Iterations=500
 Cutoff=0
 Threads=4
-
-## IF MAXENT_QN is chosen, activate these parameters ##
-# Costs for L1- and L2-regularization. These parameters must be larger or
-# equal to zero. The higher they are, the more penalty will be imposed to 
-# avoid overfitting. The parameters can be set as follows:
-#    if L1Cost = 0 and L2Cost = 0, no regularization will be used,
-#    if L1Cost > 0 and L2Cost = 0, L1 will be used,
-#    if L1Cost = 0 and L2Cost > 0, L2 will be used,
-#    if both paramters are set to be larger than 0, Elastic Net 
-#       (i.e. L1 and L2 combined) will be used.
-L1Cost=0.1
-L2Cost=0.1
-
-# Number of Hessian updates to store
-NumOfUpdates=15
-
-# Maximum number of objective function's evaluations
-MaxFctEval=30000
 
 ##################################################
 #### Custom parameters added by ixa-pipe-nerc ####
@@ -50,7 +31,7 @@ Language=en
 TrainSet=/home/ragerri/experiments/nerc/conll03/eng.train
 TestSet=/home/ragerri/experiments/nerc/conll03/eng.testb
 
-# CorpusFormat: conll02, conll03, evalita, germEvalOuter2014, germEvalInner2014, opennlp, tabulated
+# CorpusFormat: conll02, conll03, evalita, germEvalOuter2014, germEvalInner2014, opennlp
 # CorpusFormat of the training corpus
 CorpusFormat=conll03
 
