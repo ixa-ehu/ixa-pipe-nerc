@@ -127,6 +127,26 @@ public class Flags {
     }
     return seqCodec;
   }
+  
+  public static String getClearTrainingFeatures(TrainingParameters params) {
+    String clearFeatures = null;
+    if (params.getSettings().get("ClearTrainingFeatures") == null) {
+      clearFeatures = Flags.DEFAULT_FEATURE_FLAG;
+    } else {
+      clearFeatures = params.getSettings().get("ClearTrainingFeatures");
+    }
+    return clearFeatures;
+  }
+  
+  public static String getClearEvaluationFeatures(TrainingParameters params) {
+    String clearFeatures = null;
+    if (params.getSettings().get("ClearEvaluationFeatures") == null) {
+      clearFeatures = Flags.DEFAULT_FEATURE_FLAG;
+    } else {
+      clearFeatures = params.getSettings().get("ClearEvaluationFeatures");
+    }
+    return clearFeatures;
+  }
 
   public static String getWindow(TrainingParameters params) {
     String windowFlag = null;

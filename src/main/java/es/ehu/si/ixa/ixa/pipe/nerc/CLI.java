@@ -50,8 +50,8 @@ import es.ehu.si.ixa.ixa.pipe.nerc.train.InputOutputUtils;
 import es.ehu.si.ixa.ixa.pipe.nerc.train.Trainer;
 
 /**
- * Main class of ixa-pipe-nerc, the ixa pipes (ixa2.si.ehu.es/ixa-pipes) NERC
- * tagger.
+ * Main class of ixa-pipe-nerc, the ixa pipes (ixa2.si.ehu.es/ixa-pipes) sequence
+ * labeller.
  * 
  * @author ragerri
  * @version 2014-10-15
@@ -262,7 +262,8 @@ public class CLI {
     String testset = parsedArguments.getString("testset");
     String corpusFormat = parsedArguments.getString("corpusFormat");
     String netypes = parsedArguments.getString("types");
-    Properties props = setEvalProperties(lang, model, testset, corpusFormat, netypes);
+    String clearFeatures = parsedArguments.getString("clearFeatures");
+    Properties props = setEvalProperties(lang, model, testset, corpusFormat, netypes, clearFeatures);
     
       Evaluate evaluator = new Evaluate(props);
       if (parsedArguments.getString("evalReport") != null) {
@@ -354,6 +355,11 @@ public class CLI {
     evalParser.addArgument("-t", "--testset")
         .required(true)
         .help("The test or reference corpus.\n");
+    evalParser.addArgument("--clearFeatures")
+        .required(false)
+        .choices("yes","no")
+        .setDefault(Flags.DEFAULT_FEATURE_FLAG)
+        .help("Reset the adaptive features; defaults to 'no'.\n");
     evalParser.addArgument("-f","--corpusFormat")
         .required(false)
         .choices("conll02", "conll03", "opennlp")
@@ -406,13 +412,14 @@ public class CLI {
    * @param netypes the ne types to use in the evaluation
    * @return the properties object
    */
-  private Properties setEvalProperties(String language, String model, String testset, String corpusFormat, String netypes) {
+  private Properties setEvalProperties(String language, String model, String testset, String corpusFormat, String netypes, String clearFeatures) {
     Properties evalProperties = new Properties();
     evalProperties.setProperty("language", language);
     evalProperties.setProperty("model", model);
     evalProperties.setProperty("testset", testset);
     evalProperties.setProperty("corpusFormat", corpusFormat);
     evalProperties.setProperty("types", netypes);
+    evalProperties.setProperty("clearFeatures", clearFeatures);
     return evalProperties;
   }
 

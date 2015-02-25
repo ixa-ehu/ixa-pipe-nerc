@@ -27,6 +27,14 @@ Threads=4
 # Languages supported: de, en, es, eu, it, nl
 Language=en
 
+# ClearAdaptiveFeatures: ONLY WORKS with CONLL formats!!
+# Specify if adaptive features
+# are to be cleared when no -DOCSTART- mark is available
+# in the training and/or evaluation data. If commented out
+# both values default to 'no'
+ClearTrainingFeatures=yes
+ClearEvaluationFeatures=no
+
 # TrainingCorpus:
 TrainSet=/home/ragerri/experiments/nerc/conll03/eng.train
 TestSet=/home/ragerri/experiments/nerc/conll03/eng.testb

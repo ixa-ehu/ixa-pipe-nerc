@@ -61,6 +61,10 @@ public abstract class AbstractTrainer implements Trainer {
    */
   private ObjectStream<NameSample> testSamples;
   /**
+   * The corpus format: conll02, conll03 and opennlp.
+   */
+  private String corpusFormat;
+  /**
    * beamsize value needs to be established in any class extending this one.
    */
   private int beamSize;
@@ -69,9 +73,13 @@ public abstract class AbstractTrainer implements Trainer {
    */
   private String sequenceCodec;
   /**
-   * The corpus format: conll02, conll03 and opennlp.
+   * Reset the adaptive features every newline in the training data.
    */
-  private String corpusFormat;
+  private String clearTrainingFeatures;
+  /**
+   * Reset the adaptive features every newline in the testing data.
+   */
+  private String clearEvaluationFeatures;
   /**
    * features needs to be implemented by any class extending this one.
    */
@@ -87,11 +95,13 @@ public abstract class AbstractTrainer implements Trainer {
   public AbstractTrainer(final TrainingParameters params) throws IOException {
     
     this.lang = Flags.getLanguage(params);
+    this.clearTrainingFeatures = Flags.getClearTrainingFeatures(params);
+    this.clearEvaluationFeatures = Flags.getClearEvaluationFeatures(params);
     this.corpusFormat = Flags.getCorpusFormat(params);
     this.trainData = params.getSettings().get("TrainSet");
     this.testData = params.getSettings().get("TestSet");
-    trainSamples = getNameStream(trainData, lang, corpusFormat);
-    testSamples = getNameStream(testData, lang, corpusFormat);
+    trainSamples = getNameStream(trainData, clearTrainingFeatures, corpusFormat);
+    testSamples = getNameStream(testData, clearEvaluationFeatures, corpusFormat);
     this.beamSize = Flags.getBeamsize(params);
     this.sequenceCodec = Flags.getSequenceCodec(params);
     if (params.getSettings().get("Types") != null) {
@@ -143,14 +153,14 @@ public abstract class AbstractTrainer implements Trainer {
    *           the io exception
    */
   public static ObjectStream<NameSample> getNameStream(final String inputData,
-      final String aLang, final String aCorpusFormat) throws IOException {
+      final String clearFeatures, final String aCorpusFormat) throws IOException {
     ObjectStream<NameSample> samples = null;
     if (aCorpusFormat.equalsIgnoreCase("conll03")) {
       ObjectStream<String> nameStream = InputOutputUtils.readFileIntoMarkableStreamFactory(inputData);
-      samples = new CoNLL03Format(aLang, nameStream);
+      samples = new CoNLL03Format(clearFeatures, nameStream);
     } else if (aCorpusFormat.equalsIgnoreCase("conll02")) {
       ObjectStream<String> nameStream = InputOutputUtils.readFileIntoMarkableStreamFactory(inputData);
-      samples = new CoNLL02Format(aLang, nameStream);
+      samples = new CoNLL02Format(clearFeatures, nameStream);
     } else if (aCorpusFormat.equalsIgnoreCase("opennlp")) {
       ObjectStream<String> nameStream = InputOutputUtils.readFileIntoMarkableStreamFactory(inputData);
       samples = new NameSampleDataStream(nameStream);

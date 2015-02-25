@@ -22,6 +22,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
+import es.ehu.si.ixa.ixa.pipe.nerc.train.Flags;
+
 import opennlp.tools.namefind.NameSample;
 import opennlp.tools.util.InputStreamFactory;
 import opennlp.tools.util.InvalidFormatException;
@@ -36,9 +38,9 @@ import opennlp.tools.util.StringUtil;
  * 
  * We clear adaptive features by language following these conventions:
  * <li>
- * <ol> CoNLL 2002: We do not reset adaptive features.
+ * <ol> CoNLL 2002: We do not reset any adaptive features.
  * <ol> GermEval 2014: reset after every newline.
- * <ol> Egunkaria (Basque): reset every newline.
+ * <ol> Egunkaria (Basque): reset for training do not reset for testing.
  * <ol> Evalita 2009: reset every newline.
  * </li> 
  * 
@@ -53,35 +55,33 @@ public class CoNLL02Format implements ObjectStream<NameSample> {
    */
   private final ObjectStream<String> lineStream;
   /**
-   * The language.
+   * Whether the adaptive features are to be reset or not.
    */
-  private final String lang;
+  private String clearFeatures;
 
   /**
    * Construct a Name Stream from a language and a {@code ObjectStream}.
    * 
-   * @param aLang
-   *          the language
+   * @param clearFeatures reset the adaptive features
    * @param lineStream
    *          the stream
    */
-  public CoNLL02Format(String aLang, ObjectStream<String> lineStream) {
-    this.lang = aLang;
+  public CoNLL02Format(String clearFeatures, ObjectStream<String> lineStream) {
+    this.clearFeatures = clearFeatures;
     this.lineStream = lineStream;
   }
 
   /**
    * Construct a Name Stream from a language and an input stream.
    * 
-   * @param aLang
-   *          the language
+   * @param clearFeatures reset the adaptive features
    * @param in
    *          an input stream to read data
    * @throws IOException
    *           the input stream exception
    */
-  public CoNLL02Format(String aLang, InputStreamFactory in) throws IOException {
-    this.lang = aLang;
+  public CoNLL02Format(String clearFeatures, InputStreamFactory in) throws IOException {
+    this.clearFeatures = clearFeatures;
     try {
       this.lineStream = new PlainTextByLineStream(in, "UTF-8");
       System.setOut(new PrintStream(System.out, true, "UTF-8"));
@@ -95,8 +95,8 @@ public class CoNLL02Format implements ObjectStream<NameSample> {
 
     List<String> tokens = new ArrayList<String>();
     List<String> neTypes = new ArrayList<String>();
-    boolean isClearAdaptiveData = false;
 
+    boolean isClearAdaptiveData = false;
     // Empty line indicates end of sentence
     String line;
     while ((line = lineStream.read()) != null && !StringUtil.isEmpty(line)) {
@@ -110,10 +110,8 @@ public class CoNLL02Format implements ObjectStream<NameSample> {
                 + fields.length + " for line '" + line + "'!");
       }
     }
-    // for corpus with no document marks, we clear the adaptive data every
-    // newline; we follow conll conventions wrt to languages
-    if (lang.equalsIgnoreCase("de") || lang.equalsIgnoreCase("eu")
-        || lang.equalsIgnoreCase("it")) {
+    
+    if (!clearFeatures.equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG)) {
       isClearAdaptiveData = true;
     }
     if (tokens.size() > 0) {

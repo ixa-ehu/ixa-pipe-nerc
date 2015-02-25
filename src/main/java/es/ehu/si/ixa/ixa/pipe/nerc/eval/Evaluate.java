@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Rodrigo Agerri
+ * Copyright 2015 Rodrigo Agerri
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ import es.ehu.si.ixa.ixa.pipe.nerc.train.Flags;
  * Evaluation class mostly using {@link TokenNameFinderEvaluator}.
  *
  * @author ragerri
- * @version 2013-04-04
+ * @version 2015-02-24
  */
 public class Evaluate {
 
@@ -69,12 +69,13 @@ public class Evaluate {
   public Evaluate(final Properties props) throws IOException {
     
     String lang = props.getProperty("language");
+    String clearFeatures = props.getProperty("clearFeatures");
     String model = props.getProperty("model");
     String testSet = props.getProperty("testset");
     String corpusFormat = props.getProperty("corpusFormat");
     String netypes = props.getProperty("types");
     
-    testSamples = AbstractTrainer.getNameStream(testSet, lang, corpusFormat);
+    testSamples = AbstractTrainer.getNameStream(testSet, clearFeatures, corpusFormat);
     if (netypes != Flags.DEFAULT_NE_TYPES) {
       String[] neTypes = netypes.split(",");
       testSamples = new NameSampleTypeFilter(neTypes, testSamples);
