@@ -49,10 +49,6 @@ import es.ehu.si.ixa.ixa.pipe.nerc.train.Flags;
 public class Annotate {
 
   /**
-   * The language.
-   */
-  private String lang;
-  /**
    * The name factory.
    */
   private NameFactory nameFactory;
@@ -89,6 +85,10 @@ public class Annotate {
    * Activates name finding using {@code NameFinderLexer}s.
    */
   private boolean lexerFind;
+  /**
+   * Clear features after every sentence.
+   */
+  private String clearFeatures;
 
   /** It manages the use of the three different name finders: {@code StatisticalNameFinder}, 
    * {@code DictionariesNameFinder} and {@code NumericNameFinder}. In particular, if --dictTag
@@ -105,7 +105,7 @@ public class Annotate {
    */
   public Annotate(final Properties properties) throws IOException {
 
-    this.lang = properties.getProperty("language");
+    this.clearFeatures = properties.getProperty("clearFeatures");
     nameFactory = new NameFactory();
     annotateOptions(properties);
   }
@@ -194,6 +194,7 @@ public class Annotate {
     List<Span> allSpans = null;
     List<List<WF>> sentences = kaf.getSentences();
     for (List<WF> sentence : sentences) {
+      //process each sentence
       String[] tokens = new String[sentence.size()];
       String[] tokenIds = new String[sentence.size()];
       for (int i = 0; i < sentence.size(); i++) {
@@ -244,6 +245,10 @@ public class Annotate {
         Entity neEntity = kaf.newEntity(references);
         neEntity.setType(name.getType());
       }
+      if (!clearFeatures.equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG)) {
+        nameFinder.clearAdaptiveData();
+      }
+      //end of sentence
     }
     nameFinder.clearAdaptiveData();
   }
@@ -371,7 +376,6 @@ public class Annotate {
               sb.append(thisTerm.getMorphofeat());
               sb.append("\t");
               if (j == 0 && previousIsEntity && previousType.equalsIgnoreCase(neType)) {
-                //TODO add type as a condition to add BEGIN
                 sb.append(BIO.BEGIN.toString());
               } else {
                 sb.append(BIO.IN.toString());
@@ -387,7 +391,6 @@ public class Annotate {
             sb.append("\t");
             sb.append(thisTerm.getMorphofeat());
             sb.append("\t");
-            //TODO add type as a condition to add BEGIN
             if (previousIsEntity && previousType.equalsIgnoreCase(neType)) {
               sb.append(BIO.BEGIN.toString());
             } else {

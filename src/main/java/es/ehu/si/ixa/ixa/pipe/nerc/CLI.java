@@ -190,6 +190,7 @@ public class CLI {
     String lexer = parsedArguments.getString("lexer");
     String dictTag = parsedArguments.getString("dictTag");
     String dictPath = parsedArguments.getString("dictPath");
+    String clearFeatures = parsedArguments.getString("clearFeatures");
     // language parameter
     String lang = null;
     if (parsedArguments.getString("language") != null) {
@@ -202,7 +203,7 @@ public class CLI {
     } else {
       lang = kaf.getLang();
     }
-    Properties properties = setAnnotateProperties(model, lang, lexer, dictTag, dictPath);
+    Properties properties = setAnnotateProperties(model, lang, lexer, dictTag, dictPath, clearFeatures);
     KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor(
         "entities", "ixa-pipe-nerc-" + Files.getNameWithoutExtension(model), version + "-" + commit);
     newLp.setBeginTimestamp();
@@ -304,6 +305,11 @@ public class CLI {
     annotateParser.addArgument("-m", "--model")
         .required(true)
         .help("Pass the model to do the tagging as a parameter.\n");
+    annotateParser.addArgument("--clearFeatures")
+        .required(false)
+        .choices("yes","no")
+        .setDefault(Flags.DEFAULT_FEATURE_FLAG)
+        .help("Reset the adaptive features every sentence; defaults to 'no'.\n");
     annotateParser.addArgument("-l","--language")
         .required(false)
         .choices("de", "en", "es", "eu", "it", "nl")
@@ -394,13 +400,14 @@ public class CLI {
    * @param dictPath directory to the dictionaries
    * @return the properties object
    */
-  private Properties setAnnotateProperties(String model, String language, String lexer, String dictTag, String dictPath) {
+  private Properties setAnnotateProperties(String model, String language, String lexer, String dictTag, String dictPath, String clearFeatures) {
     Properties annotateProperties = new Properties();
     annotateProperties.setProperty("model", model);
     annotateProperties.setProperty("language", language);
     annotateProperties.setProperty("ruleBasedOption", lexer);
     annotateProperties.setProperty("dictTag", dictTag);
     annotateProperties.setProperty("dictPath", dictPath);
+    annotateProperties.setProperty("clearFeatures", clearFeatures);
     return annotateProperties;
   }
   
