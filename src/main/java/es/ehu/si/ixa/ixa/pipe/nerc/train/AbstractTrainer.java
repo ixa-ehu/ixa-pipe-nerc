@@ -18,9 +18,6 @@ package es.ehu.si.ixa.ixa.pipe.nerc.train;
 
 import java.io.IOException;
 
-import opennlp.tools.formats.Conll02NameSampleStream;
-import opennlp.tools.formats.Conll03NameSampleStream;
-import opennlp.tools.formats.EvalitaNameSampleStream;
 import opennlp.tools.namefind.BilouCodec;
 import opennlp.tools.namefind.BioCodec;
 import opennlp.tools.namefind.NameFinderME;
@@ -32,8 +29,8 @@ import opennlp.tools.namefind.TokenNameFinderFactory;
 import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.TrainingParameters;
-import es.ehu.si.ixa.ixa.pipe.nerc.formats.GermEval2014InnerNameStream;
-import es.ehu.si.ixa.ixa.pipe.nerc.formats.GermEval2014OuterNameStream;
+import es.ehu.si.ixa.ixa.pipe.nerc.formats.CoNLL02Format;
+import es.ehu.si.ixa.ixa.pipe.nerc.formats.CoNLL03Format;
 
 /**
  * Abstract class for common training functionalities. Every other trainer class
@@ -72,13 +69,9 @@ public abstract class AbstractTrainer implements Trainer {
    */
   private String sequenceCodec;
   /**
-   * The corpus format: conll02, conll03, germEvalOuter2014, germEvalInner2014 and opennlp.
+   * The corpus format: conll02, conll03 and opennlp.
    */
   private String corpusFormat;
-  /**
-   * The named entity types.
-   */
-  private static int types;
   /**
    * features needs to be implemented by any class extending this one.
    */
@@ -106,7 +99,6 @@ public abstract class AbstractTrainer implements Trainer {
       String[] neTypes = netypes.split(",");
       trainSamples = new NameSampleTypeFilter(neTypes, trainSamples);
       testSamples = new NameSampleTypeFilter(neTypes, testSamples);
-      types = neTypes.length;
     }
   }
 
@@ -155,32 +147,10 @@ public abstract class AbstractTrainer implements Trainer {
     ObjectStream<NameSample> samples = null;
     if (aCorpusFormat.equalsIgnoreCase("conll03")) {
       ObjectStream<String> nameStream = InputOutputUtils.readFileIntoMarkableStreamFactory(inputData);
-      if (aLang.equalsIgnoreCase("en")) {
-        samples = new Conll03NameSampleStream(Conll03NameSampleStream.LANGUAGE.EN, nameStream, types);
-      }
-      else if (aLang.equalsIgnoreCase("de")) {
-        samples = new Conll03NameSampleStream(Conll03NameSampleStream.LANGUAGE.DE, nameStream, types);
-      } 
+      samples = new CoNLL03Format(aLang, nameStream);
     } else if (aCorpusFormat.equalsIgnoreCase("conll02")) {
-      ObjectStream<String> nameStream = InputOutputUtils
-          .readFileIntoMarkableStreamFactory(inputData);
-      if (aLang.equalsIgnoreCase("es")) {
-        samples = new Conll02NameSampleStream(Conll02NameSampleStream.LANGUAGE.ES, nameStream, types);
-      }
-      else if (aLang.equalsIgnoreCase("nl")) {
-        samples = new Conll02NameSampleStream(Conll02NameSampleStream.LANGUAGE.NL, nameStream, types);
-      }
-    } else if (aCorpusFormat.equalsIgnoreCase("evalita")) {
       ObjectStream<String> nameStream = InputOutputUtils.readFileIntoMarkableStreamFactory(inputData);
-      samples = new EvalitaNameSampleStream(EvalitaNameSampleStream.LANGUAGE.IT, nameStream, types);
-    } else if (aCorpusFormat.equalsIgnoreCase("germEvalOuter2014")) {
-      ObjectStream<String> nameStream = InputOutputUtils
-          .readFileIntoMarkableStreamFactory(inputData);
-      samples = new GermEval2014OuterNameStream(nameStream);
-    } else if (aCorpusFormat.equalsIgnoreCase("germEvalInner2014")) {
-      ObjectStream<String> nameStream = InputOutputUtils
-          .readFileIntoMarkableStreamFactory(inputData);
-      samples = new GermEval2014InnerNameStream(nameStream);
+      samples = new CoNLL02Format(aLang, nameStream);
     } else if (aCorpusFormat.equalsIgnoreCase("opennlp")) {
       ObjectStream<String> nameStream = InputOutputUtils.readFileIntoMarkableStreamFactory(inputData);
       samples = new NameSampleDataStream(nameStream);

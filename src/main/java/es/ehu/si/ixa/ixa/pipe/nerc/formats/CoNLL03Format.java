@@ -1,5 +1,5 @@
 /*
- *  Copyright 2014 Rodrigo Agerri
+ *  Copyright 2015 Rodrigo Agerri
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -31,43 +31,29 @@ import opennlp.tools.util.Span;
 import opennlp.tools.util.StringUtil;
 
 /**
- * Parser for the GermEval 2014 shared task.
- * <p>
- * The data has a #document url tag to mark article boundaries, adaptive data
- * in the feature generators will be cleared before every article.<br>
- * <p>
- * The data contains four named entity types: Person, Organization, Location and
- * Misc.<br>
- * <p>
- * Data can be found on this web site:<br>
- * https://sites.google.com/site/germeval2014ner/
- * <p>
- * <b>Note:</b> Do not use this class, internal use only!
+ * 2 fields CoNLL 2003 tabulated format: word\tabclass\n 
+ * I- start chunk
+ * B- begin chunk when next to same class entity
+ * O- outside chunk
+ * 
+ * @author ragerri
+ * @version 2015-02-24
+ * 
  */
+public class CoNLL03Format implements ObjectStream<NameSample>{
 
-public class GermEval2014OuterNameStream implements ObjectStream<NameSample> {
-
-  public static final String DOCSTART = "#";
+  public static final String DOCSTART = "-DOCSTART-";
   private final ObjectStream<String> lineStream;
+  private final String lang;
 
-  /**
-   * Construct a Name Stream from a language and a {@code ObjectStream}.
-   * 
-   * @param lineStream
-   */
-  public GermEval2014OuterNameStream(ObjectStream<String> lineStream) {
+  public CoNLL03Format(String aLang, ObjectStream<String> lineStream) {
+    this.lang = aLang;
     this.lineStream = lineStream;
   }
 
-  /**
-   * Construct a Name Stream from a language and an input stream.
-   * @param in
-   *          an input stream to read data
-   *           the input stream exception
-   * @throws IOException 
-   */
-  public GermEval2014OuterNameStream(InputStreamFactory in) throws IOException {
+  public CoNLL03Format(String aLang, InputStreamFactory in) throws IOException {
 
+    this.lang = aLang;
     try {
       this.lineStream = new PlainTextByLineStream(in, "UTF-8");
       System.setOut(new PrintStream(System.out, true, "UTF-8"));
@@ -86,65 +72,93 @@ public class GermEval2014OuterNameStream implements ObjectStream<NameSample> {
     // Empty line indicates end of sentence
     String line;
     while ((line = lineStream.read()) != null && !StringUtil.isEmpty(line)) {
-      if (line.startsWith(DOCSTART)) {
+      //clear adaptive data if document mark appears; following
+      //CoNLL conventions this only applies to german and english
+      //in this format.
+      if ((lang.equalsIgnoreCase("en") || lang.equalsIgnoreCase("de")) 
+          && line.startsWith("-DOCSTART-")) {
         isClearAdaptiveData = true;
+        String emptyLine = lineStream.read();
+        if (!StringUtil.isEmpty(emptyLine))
+          throw new IOException("Empty line after -DOCSTART- not empty: '" + emptyLine +"'!");
         continue;
-      } else {
-        isClearAdaptiveData = true;
       }
+      
       String fields[] = line.split("\t");
-      if (fields.length == 4) {
-        tokens.add(fields[1]);
-        neTypes.add(fields[2]);
+      if (fields.length == 2) {
+        tokens.add(fields[0]);
+        neTypes.add(fields[1]);
       } else {
         throw new IOException(
-            "Expected four fields per line in training data, got "
+            "Expected two fields per line in training data, got "
                 + fields.length + " for line '" + line + "'!");
       }
     }
 
     if (tokens.size() > 0) {
+
       // convert name tags into spans
       List<Span> names = new ArrayList<Span>();
+
       int beginIndex = -1;
       int endIndex = -1;
       for (int i = 0; i < neTypes.size(); i++) {
+        
         String neTag = neTypes.get(i);
-        if (neTag.startsWith("B-")) {
+        if (neTag.equals("O")) {
+          // O means we don't have anything this round.
           if (beginIndex != -1) {
             names.add(extract(beginIndex, endIndex, neTypes.get(beginIndex)));
             beginIndex = -1;
             endIndex = -1;
+          }
+        }
+        else if (neTag.startsWith("B-")) {
+          // B- prefix means we have two same entities of the same class next to each other
+          if (beginIndex != -1) {
+            names.add(extract(beginIndex, endIndex, neTypes.get(beginIndex)));
           }
           beginIndex = i;
           endIndex = i + 1;
-        } else if (neTag.startsWith("I-")) {
-          endIndex++;
-        } else if (neTag.equals("O")) {
-          if (beginIndex != -1) {
-            names.add(extract(beginIndex, endIndex, neTypes.get(beginIndex)));
-            beginIndex = -1;
-            endIndex = -1;
+        }
+        else if (neTag.startsWith("I-")) {
+          // I- starts or continues a current name entity
+          if (beginIndex == -1) {
+            beginIndex = i;
+            endIndex = i + 1;
           }
-        } else {
+          else if (!neTag.endsWith(neTypes.get(beginIndex).substring(1))) {
+            // we have a new tag type following a tagged word series
+            // also may not have the same I- starting the previous!
+            names.add(extract(beginIndex, endIndex, neTypes.get(beginIndex)));
+            beginIndex = i;
+            endIndex = i + 1;
+          }
+          else {
+            endIndex ++;
+          }
+        }
+        else {
           throw new IOException("Invalid tag: " + neTag);
         }
       }
+
       // if one span remains, create it here
       if (beginIndex != -1)
         names.add(extract(beginIndex, endIndex, neTypes.get(beginIndex)));
 
-      return new NameSample(tokens.toArray(new String[tokens.size()]),
-          names.toArray(new Span[names.size()]), isClearAdaptiveData);
-    } else if (line != null) {
+      return new NameSample(tokens.toArray(new String[tokens.size()]), names.toArray(new Span[names.size()]), isClearAdaptiveData);
+    }
+    else if (line != null) {
       // Just filter out empty events, if two lines in a row are empty
       return read();
-    } else {
+    }
+    else {
       // source stream is not returning anymore lines
       return null;
     }
   }
-
+  
   static final Span extract(int begin, int end, String beginTag)
       throws InvalidFormatException {
 
@@ -159,4 +173,5 @@ public class GermEval2014OuterNameStream implements ObjectStream<NameSample> {
   public void close() throws IOException {
     lineStream.close();
   }
+
 }

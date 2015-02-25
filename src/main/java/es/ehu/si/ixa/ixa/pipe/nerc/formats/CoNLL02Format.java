@@ -1,5 +1,5 @@
 /*
- *  Copyright 2014 Rodrigo Agerri
+ *  Copyright 2015 Rodrigo Agerri
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -31,44 +31,57 @@ import opennlp.tools.util.Span;
 import opennlp.tools.util.StringUtil;
 
 /**
- * Parser for the GermEval 2014 shared task.
- * <p>
- * The data has a #document url tag to mark article boundaries, adaptive data
- * in the feature generators will be cleared before every article.<br>
- * <p>
- * The data contains four named entity types: Person, Organization, Location and
- * Misc.<br>
- * <p>
- * Data can be found on this web site:<br>
- * https://sites.google.com/site/germeval2014ner/
- * <p>
- * <b>Note:</b> Do not use this class, internal use only!
+ * 2 fields CoNLL 2002 tabulated format: word\tabclass\n B- start chunk I-
+ * inside chunk O- outside chunk.
+ * 
+ * We clear adaptive features by language following these conventions:
+ * <li>
+ * <ol> CoNLL 2002: We do not reset adaptive features.
+ * <ol> GermEval 2014: reset after every newline.
+ * <ol> Egunkaria (Basque): reset every newline.
+ * <ol> Evalita 2009: reset every newline.
+ * </li> 
+ * 
+ * @author ragerri
+ * @version 2015-02-24
+ * 
  */
+public class CoNLL02Format implements ObjectStream<NameSample> {
 
-public class GermEval2014InnerNameStream implements ObjectStream<NameSample> {
-
-  public static final String DOCSTART = "#";
+  /**
+   * The stream.
+   */
   private final ObjectStream<String> lineStream;
+  /**
+   * The language.
+   */
+  private final String lang;
 
   /**
    * Construct a Name Stream from a language and a {@code ObjectStream}.
    * 
+   * @param aLang
+   *          the language
    * @param lineStream
+   *          the stream
    */
-  public GermEval2014InnerNameStream(ObjectStream<String> lineStream) {
+  public CoNLL02Format(String aLang, ObjectStream<String> lineStream) {
+    this.lang = aLang;
     this.lineStream = lineStream;
   }
 
   /**
    * Construct a Name Stream from a language and an input stream.
    * 
+   * @param aLang
+   *          the language
    * @param in
    *          an input stream to read data
    * @throws IOException
    *           the input stream exception
    */
-  public GermEval2014InnerNameStream(InputStreamFactory in) throws IOException {
-
+  public CoNLL02Format(String aLang, InputStreamFactory in) throws IOException {
+    this.lang = aLang;
     try {
       this.lineStream = new PlainTextByLineStream(in, "UTF-8");
       System.setOut(new PrintStream(System.out, true, "UTF-8"));
@@ -87,23 +100,22 @@ public class GermEval2014InnerNameStream implements ObjectStream<NameSample> {
     // Empty line indicates end of sentence
     String line;
     while ((line = lineStream.read()) != null && !StringUtil.isEmpty(line)) {
-      if (line.startsWith(DOCSTART)) {
-        isClearAdaptiveData = true;
-        continue;
-      } else {
-        isClearAdaptiveData = true;
-      }
       String fields[] = line.split("\t");
-      if (fields.length == 4) {
-        tokens.add(fields[1]);
-        neTypes.add(fields[3]);
+      if (fields.length == 2) {
+        tokens.add(fields[0]);
+        neTypes.add(fields[1]);
       } else {
         throw new IOException(
-            "Expected four fields per line in training data, got "
+            "Expected two fields per line in training data, got "
                 + fields.length + " for line '" + line + "'!");
       }
     }
-
+    // for corpus with no document marks, we clear the adaptive data every
+    // newline; we follow conll conventions wrt to languages
+    if (lang.equalsIgnoreCase("de") || lang.equalsIgnoreCase("eu")
+        || lang.equalsIgnoreCase("it")) {
+      isClearAdaptiveData = true;
+    }
     if (tokens.size() > 0) {
       // convert name tags into spans
       List<Span> names = new ArrayList<Span>();

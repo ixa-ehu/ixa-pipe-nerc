@@ -49,6 +49,10 @@ import es.ehu.si.ixa.ixa.pipe.nerc.train.Flags;
 public class Annotate {
 
   /**
+   * The language.
+   */
+  private String lang;
+  /**
    * The name factory.
    */
   private NameFactory nameFactory;
@@ -101,6 +105,7 @@ public class Annotate {
    */
   public Annotate(final Properties properties) throws IOException {
 
+    this.lang = properties.getProperty("language");
     nameFactory = new NameFactory();
     annotateOptions(properties);
   }
@@ -166,6 +171,10 @@ public class Annotate {
     }
   }
   
+  /**
+   * Get the statistical namefinder.
+   * @return the statistical namefinder
+   */
   public StatisticalNameFinder getStatisticalNameFinder() {
     return nameFinder;
   }
@@ -192,6 +201,7 @@ public class Annotate {
         tokenIds[i] = sentence.get(i).getId();
       }
       if (statistical) {
+        //TODO manage this properly
         if (tokens[0].startsWith("-DOCSTART-")) {
           nameFinder.clearAdaptiveData();
         }

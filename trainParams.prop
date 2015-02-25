@@ -22,16 +22,16 @@ Threads=4
 
 ##################################################
 #### Custom parameters added by ixa-pipe-nerc ####
-################################################## 
+##################################################
 
-# Languages supported: de, en, es, eu, it, nl 
+# Languages supported: de, en, es, eu, it, nl
 Language=en
 
 # TrainingCorpus:
 TrainSet=/home/ragerri/experiments/nerc/conll03/eng.train
 TestSet=/home/ragerri/experiments/nerc/conll03/eng.testb
 
-# CorpusFormat: conll02, conll03, evalita, germEvalOuter2014, germEvalInner2014, opennlp
+# CorpusFormat: conll02, conll03, opennlp
 # CorpusFormat of the training corpus
 CorpusFormat=conll03
 
@@ -130,7 +130,7 @@ BrownClusterFeatures=/home/ragerri/javacode/ixa-pipe-nerc/brown-rcv1.clean.token
 ClarkClusterFeatures=/home/ragerri/resources/reuters-rcv1/clark/reuters-rcv1.tok.punct.lower.300
 
 # Word2VecClusterFeatures: add features using word2vec clusters. If value is
-# yes, specify the location of the clustering lexicon in word2vec format. 
+# yes, specify the location of the clustering lexicon in word2vec format.
 # NOTE: you can add multiple clustering lexicons by chaining them with a comma.
 Word2VecClusterFeatures=/home/ragerri/clusters.large.txt
 
@@ -141,7 +141,7 @@ Word2VecClusterFeatures=/home/ragerri/clusters.large.txt
 # Cross Validation Folds; if commented out it defaults to 10 cross validation
 # folds.
 Folds=5
-# Evaluation type: choose between 'detailed' and 'error; only for cross-validation.
+# Evaluation type: choose between 'detailed' and 'error'; only for cross-validation.
 # It defaults to detailed evaluation.
 EvaluationType=detailed
 
