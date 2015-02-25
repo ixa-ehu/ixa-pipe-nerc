@@ -6,7 +6,7 @@
 	<packaging>jar</packaging>
 	<version>1.3.4</version>
 	<name>ixa-pipe-nerc</name>
-	<description>Sequence labeller of ixa pipes (ixa2.si.ehu.es/ixa-pipes).</description>
+	<description>ixa pipes sequence labeler (ixa2.si.ehu.es/ixa-pipes).</description>
 	<licenses>
 		<license>
 			<name>Apache License, Version 2.0</name>

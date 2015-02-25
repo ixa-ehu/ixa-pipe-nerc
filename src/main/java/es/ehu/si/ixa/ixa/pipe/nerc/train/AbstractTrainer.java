@@ -144,8 +144,7 @@ public abstract class AbstractTrainer implements Trainer {
    * Getting the stream with the right corpus format.
    * @param inputData
    *          the input data
-   * @param aLang
-   *          the language
+   * @param clearFeatures clear the features
    * @param aCorpusFormat
    *          the corpus format
    * @return the stream from the several corpus formats
