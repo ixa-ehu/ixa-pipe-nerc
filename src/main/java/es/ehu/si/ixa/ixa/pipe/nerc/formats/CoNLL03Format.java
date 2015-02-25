@@ -22,6 +22,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
+import es.ehu.si.ixa.ixa.pipe.nerc.train.Flags;
+
 import opennlp.tools.namefind.NameSample;
 import opennlp.tools.util.InputStreamFactory;
 import opennlp.tools.util.InvalidFormatException;
@@ -42,18 +44,38 @@ import opennlp.tools.util.StringUtil;
  */
 public class CoNLL03Format implements ObjectStream<NameSample>{
 
+  /**
+   * The doc mark present in CoNLL 2003 datasets.
+   */
   public static final String DOCSTART = "-DOCSTART-";
+  /**
+   * The line stream.
+   */
   private final ObjectStream<String> lineStream;
-  private final String lang;
+  /**
+   * Clear adaptive features.
+   */
+  private final String clearFeatures;
 
-  public CoNLL03Format(String aLang, ObjectStream<String> lineStream) {
-    this.lang = aLang;
+  /**
+   * Construct a CoNLL03Format formatter.
+   * @param resetFeatures clear adaptive features
+   * @param lineStream the stream
+   */
+  public CoNLL03Format(String resetFeatures, ObjectStream<String> lineStream) {
+    this.clearFeatures = resetFeatures;
     this.lineStream = lineStream;
   }
 
-  public CoNLL03Format(String aLang, InputStreamFactory in) throws IOException {
+  /**
+   * Construct a CoNLL03 formatter.
+   * @param resetFeatures the features to be reset
+   * @param in inputstream factory
+   * @throws IOException the io exception
+   */
+  public CoNLL03Format(String resetFeatures, InputStreamFactory in) throws IOException {
 
-    this.lang = aLang;
+    this.clearFeatures = resetFeatures;
     try {
       this.lineStream = new PlainTextByLineStream(in, "UTF-8");
       System.setOut(new PrintStream(System.out, true, "UTF-8"));
@@ -72,10 +94,9 @@ public class CoNLL03Format implements ObjectStream<NameSample>{
     // Empty line indicates end of sentence
     String line;
     while ((line = lineStream.read()) != null && !StringUtil.isEmpty(line)) {
-      //clear adaptive data if document mark appears; following
-      //CoNLL conventions this only applies to german and english
-      //in this format.
-      if ((lang.equalsIgnoreCase("en") || lang.equalsIgnoreCase("de")) 
+      //clear adaptive data if document mark appears following
+      //CoNLL03 conventions
+      if (!clearFeatures.equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG) 
           && line.startsWith("-DOCSTART-")) {
         isClearAdaptiveData = true;
         String emptyLine = lineStream.read();
@@ -83,7 +104,6 @@ public class CoNLL03Format implements ObjectStream<NameSample>{
           throw new IOException("Empty line after -DOCSTART- not empty: '" + emptyLine +"'!");
         continue;
       }
-      
       String fields[] = line.split("\t");
       if (fields.length == 2) {
         tokens.add(fields[0]);
@@ -96,14 +116,12 @@ public class CoNLL03Format implements ObjectStream<NameSample>{
     }
 
     if (tokens.size() > 0) {
-
       // convert name tags into spans
       List<Span> names = new ArrayList<Span>();
 
       int beginIndex = -1;
       int endIndex = -1;
       for (int i = 0; i < neTypes.size(); i++) {
-        
         String neTag = neTypes.get(i);
         if (neTag.equals("O")) {
           // O means we don't have anything this round.

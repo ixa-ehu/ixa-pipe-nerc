@@ -36,13 +36,17 @@ import opennlp.tools.util.StringUtil;
  * 2 fields CoNLL 2002 tabulated format: word\tabclass\n B- start chunk I-
  * inside chunk O- outside chunk.
  * 
- * We clear adaptive features by language following these conventions:
- * <li>
- * <ol> CoNLL 2002: We do not reset any adaptive features.
- * <ol> GermEval 2014: reset after every newline.
- * <ol> Egunkaria (Basque): reset for training do not reset for testing.
- * <ol> Evalita 2009: reset every newline.
- * </li> 
+ * We clear adaptive features by language following these conventions: <li>
+ * <ol>
+ * Dutch CoNLL 2002: Reset for training and do not reset for testing.
+ * <ol>
+ * Spanish CoNLL 2002: do not reset.
+ * <ol>
+ * GermEval 2014: reset after every newline.
+ * <ol>
+ * Egunkaria (Basque): reset for training do not reset for testing.
+ * <ol>
+ * Evalita 2009: do not reset.</li>
  * 
  * @author ragerri
  * @version 2015-02-24
@@ -62,7 +66,8 @@ public class CoNLL02Format implements ObjectStream<NameSample> {
   /**
    * Construct a Name Stream from a language and a {@code ObjectStream}.
    * 
-   * @param clearFeatures reset the adaptive features
+   * @param clearFeatures
+   *          reset the adaptive features
    * @param lineStream
    *          the stream
    */
@@ -74,13 +79,15 @@ public class CoNLL02Format implements ObjectStream<NameSample> {
   /**
    * Construct a Name Stream from a language and an input stream.
    * 
-   * @param clearFeatures reset the adaptive features
+   * @param clearFeatures
+   *          reset the adaptive features
    * @param in
    *          an input stream to read data
    * @throws IOException
    *           the input stream exception
    */
-  public CoNLL02Format(String clearFeatures, InputStreamFactory in) throws IOException {
+  public CoNLL02Format(String clearFeatures, InputStreamFactory in)
+      throws IOException {
     this.clearFeatures = clearFeatures;
     try {
       this.lineStream = new PlainTextByLineStream(in, "UTF-8");
@@ -110,7 +117,6 @@ public class CoNLL02Format implements ObjectStream<NameSample> {
                 + fields.length + " for line '" + line + "'!");
       }
     }
-    
     if (!clearFeatures.equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG)) {
       isClearAdaptiveData = true;
     }
