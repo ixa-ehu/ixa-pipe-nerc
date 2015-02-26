@@ -27,7 +27,6 @@ import opennlp.tools.cmdline.namefind.TokenNameFinderDetailedFMeasureListener;
 import opennlp.tools.namefind.BilouCodec;
 import opennlp.tools.namefind.BioCodec;
 import opennlp.tools.namefind.NameSample;
-import opennlp.tools.namefind.NameSampleDataStream;
 import opennlp.tools.namefind.NameSampleTypeFilter;
 import opennlp.tools.namefind.TokenNameFinderCrossValidator;
 import opennlp.tools.namefind.TokenNameFinderEvaluationMonitor;
@@ -37,11 +36,9 @@ import opennlp.tools.util.SequenceCodec;
 import opennlp.tools.util.TrainingParameters;
 import opennlp.tools.util.eval.EvaluationMonitor;
 import es.ehu.si.ixa.ixa.pipe.nerc.features.XMLFeatureDescriptor;
-import es.ehu.si.ixa.ixa.pipe.nerc.formats.CoNLL02Format;
-import es.ehu.si.ixa.ixa.pipe.nerc.formats.CoNLL03Format;
+import es.ehu.si.ixa.ixa.pipe.nerc.train.AbstractTrainer;
 import es.ehu.si.ixa.ixa.pipe.nerc.train.FixedTrainer;
 import es.ehu.si.ixa.ixa.pipe.nerc.train.Flags;
-import es.ehu.si.ixa.ixa.pipe.nerc.train.InputOutputUtils;
 
 /**
  * Abstract class for common training functionalities. Every other trainer class
@@ -93,9 +90,10 @@ public class CrossValidator {
   public CrossValidator(final TrainingParameters params) throws IOException {
     
     this.lang = Flags.getLanguage(params);
+    String clearFeatures = Flags.getClearTrainingFeatures(params);
     this.corpusFormat = Flags.getCorpusFormat(params);
     this.trainData = params.getSettings().get("TrainSet");
-    trainSamples = getNameStream(trainData, lang, corpusFormat);
+    trainSamples = AbstractTrainer.getNameStream(trainData, clearFeatures, corpusFormat);
     this.beamSize = Flags.getBeamsize(params);
     this.folds = Flags.getFolds(params);
     this.sequenceCodec =  TokenNameFinderFactory.instantiateSequenceCodec(getSequenceCodec(Flags.getSequenceCodec(params)));
@@ -157,37 +155,6 @@ public class CrossValidator {
     } else {
       System.out.println(detailedFListener.toString());
     }
-  }
-
-  /**
-   * Getting the stream with the right corpus format.
-   * @param inputData
-   *          the input data
-   * @param aLang
-   *          the language
-   * @param aCorpusFormat
-   *          the corpus format
-   * @return the stream from the several corpus formats
-   * @throws IOException
-   *           the io exception
-   */
-  public static ObjectStream<NameSample> getNameStream(final String inputData,
-      final String aLang, final String aCorpusFormat) throws IOException {
-    ObjectStream<NameSample> samples = null;
-    if (aCorpusFormat.equalsIgnoreCase("conll03")) {
-      ObjectStream<String> nameStream = InputOutputUtils.readFileIntoMarkableStreamFactory(inputData);
-      samples = new CoNLL03Format(aLang, nameStream);
-    } else if (aCorpusFormat.equalsIgnoreCase("conll02")) {
-      ObjectStream<String> nameStream = InputOutputUtils.readFileIntoMarkableStreamFactory(inputData);
-      samples = new CoNLL02Format(aLang, nameStream);
-    } else if (aCorpusFormat.equalsIgnoreCase("opennlp")) {
-      ObjectStream<String> nameStream = InputOutputUtils.readFileIntoMarkableStreamFactory(inputData);
-      samples = new NameSampleDataStream(nameStream);
-    } else {
-      System.err.println("Test set corpus format not valid!!");
-      System.exit(1);
-    }
-    return samples;
   }
   
   /**

@@ -1,5 +1,5 @@
 /*
- *  Copyright 2014 Rodrigo Agerri
+ *  Copyright 2015 Rodrigo Agerri
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -309,7 +309,8 @@ public class CLI {
         .required(false)
         .choices("yes","no")
         .setDefault(Flags.DEFAULT_FEATURE_FLAG)
-        .help("Reset the adaptive features every sentence; defaults to 'no'.\n");
+        .help("Reset the adaptive features every sentence; defaults to 'no'; if -DOCSTART- marks" +
+        		" are present, leave this parameter in its default.\n");
     annotateParser.addArgument("-l","--language")
         .required(false)
         .choices("de", "en", "es", "eu", "it", "nl")

@@ -1,5 +1,5 @@
 /*
- *  Copyright 2014 Rodrigo Agerri
+ *  Copyright 2015 Rodrigo Agerri
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ import es.ehu.si.ixa.ixa.pipe.nerc.train.Flags;
  * Annotation class of ixa-pipe-nerc.
  * 
  * @author ragerri
- * @version 2014/10/15
+ * @version 2015-02-25
  * 
  */
 public class Annotate {
@@ -283,6 +283,9 @@ public class Annotate {
         tokenIds[i] = sentence.get(i).getId();
       }
       if (statistical) {
+        if (tokens[0].startsWith("-DOCSTART-")) {
+          nameFinder.clearAdaptiveData();
+        }
         Span[] statSpans = nameFinder.nercToSpans(tokens);
         allSpans = Lists.newArrayList(statSpans);
       }
@@ -303,9 +306,13 @@ public class Annotate {
         Span[] numericSpans = numericLexerFinder.nercToSpans(tokens);
         SpanUtils.concatenateSpans(allSpans, numericSpans);
       }
+      boolean isClearAdaptiveData = false;
+      if (!clearFeatures.equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG)) {
+        isClearAdaptiveData = true;
+      }
       Span[] allSpansArray = NameFinderME.dropOverlappingSpans(allSpans
           .toArray(new Span[allSpans.size()]));
-      NameSample nameSample = new NameSample(tokens, allSpansArray, false);
+      NameSample nameSample = new NameSample(tokens, allSpansArray, isClearAdaptiveData);
       sb.append(nameSample.toString()).append("\n");
     }
     nameFinder.clearAdaptiveData();

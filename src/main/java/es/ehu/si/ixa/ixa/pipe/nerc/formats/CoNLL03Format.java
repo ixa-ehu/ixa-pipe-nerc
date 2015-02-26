@@ -38,6 +38,9 @@ import opennlp.tools.util.StringUtil;
  * B- begin chunk when next to same class entity
  * O- outside chunk
  * 
+ * Adaptive Features for German and English CoNLL 2003 get cleared
+ * when a "-DOCSTART-" mark appears.
+ * 
  * @author ragerri
  * @version 2015-02-24
  * 

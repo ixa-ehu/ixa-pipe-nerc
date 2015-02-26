@@ -1,5 +1,5 @@
 /*
- *  Copyright 2014 Rodrigo Agerri
+ *  Copyright 2015 Rodrigo Agerri
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import es.ehu.si.ixa.ixa.pipe.nerc.formats.CoNLL03Format;
  * Abstract class for common training functionalities. Every other trainer class
  * needs to extend this class.
  * @author ragerri
- * @version 2014-04-17
+ * @version 2015-02-25
  */
 public abstract class AbstractTrainer implements Trainer {
   
