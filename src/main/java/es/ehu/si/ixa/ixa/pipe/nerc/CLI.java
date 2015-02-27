@@ -51,10 +51,10 @@ import es.ehu.si.ixa.ixa.pipe.nerc.train.Trainer;
 
 /**
  * Main class of ixa-pipe-nerc, the ixa pipes (ixa2.si.ehu.es/ixa-pipes) sequence
- * labeller.
+ * labeler.
  * 
  * @author ragerri
- * @version 2014-10-15
+ * @version 2015-02-26
  * 
  */
 public class CLI {
@@ -80,7 +80,7 @@ public class CLI {
   private ArgumentParser argParser = ArgumentParsers.newArgumentParser(
       "ixa-pipe-nerc-" + version + ".jar").description(
       "ixa-pipe-nerc-" + version
-          + " is a multilingual NERC module developed by IXA NLP Group.\n");
+          + " is a multilingual sequence labeler module developed by IXA NLP Group.\n");
   /**
    * Sub parser instance.
    */
@@ -310,7 +310,7 @@ public class CLI {
         .choices("yes","no")
         .setDefault(Flags.DEFAULT_FEATURE_FLAG)
         .help("Reset the adaptive features every sentence; defaults to 'no'; if -DOCSTART- marks" +
-        		" are present, leave this parameter in its default.\n");
+        		" are present, leave the default.\n");
     annotateParser.addArgument("-l","--language")
         .required(false)
         .choices("de", "en", "es", "eu", "it", "nl")
