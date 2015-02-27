@@ -515,9 +515,7 @@ public class Annotate {
   public String convertToConLLTypes(String neType) {
     String conllType = null;
     if (neType.equalsIgnoreCase("PERSON") || neType.equalsIgnoreCase("ORGANIZATION")
-        || neType.equalsIgnoreCase("LOCATION") || neType.equalsIgnoreCase("GPE")
-        || neType.equalsIgnoreCase("OTH") || neType.equalsIgnoreCase("LOC")
-        || neType.equalsIgnoreCase("ORG") || neType.equalsIgnoreCase("PER")) {
+        || neType.equalsIgnoreCase("LOCATION") || neType.length() == 3) {
       conllType = neType.substring(0, 3);
     } else if (neType.equalsIgnoreCase("MISC") || neType.equalsIgnoreCase("LOCderiv")
         || neType.equalsIgnoreCase("LOCpart") || neType.equalsIgnoreCase("ORGderiv")
