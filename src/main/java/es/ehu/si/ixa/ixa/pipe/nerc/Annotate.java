@@ -362,8 +362,8 @@ public class Annotate {
     for (List<WF> sentence : sentences) {
       int sentNumber = sentence.get(0).getSent();
       List<Term> sentenceTerms = kaf.getSentenceTerms(sentNumber);
-      boolean previousIsEntity = false;
       String previousType = null;
+      boolean previousIsEntity = false;
 
       for (int i = 0; i < sentenceTerms.size(); i++) {
         Term thisTerm = sentenceTerms.get(i);
@@ -517,11 +517,7 @@ public class Annotate {
     if (neType.equalsIgnoreCase("PERSON") || neType.equalsIgnoreCase("ORGANIZATION")
         || neType.equalsIgnoreCase("LOCATION") || neType.length() == 3) {
       conllType = neType.substring(0, 3);
-    } else if (neType.equalsIgnoreCase("MISC") || neType.equalsIgnoreCase("LOCderiv")
-        || neType.equalsIgnoreCase("LOCpart") || neType.equalsIgnoreCase("ORGderiv")
-        || neType.equalsIgnoreCase("ORGpart") || neType.equalsIgnoreCase("PERderiv")
-        || neType.equalsIgnoreCase("PERpart") || neType.equalsIgnoreCase("OTHderiv")
-        || neType.equalsIgnoreCase("OTHpart")) {
+    } else {
       conllType = neType;
     }
     return conllType;
