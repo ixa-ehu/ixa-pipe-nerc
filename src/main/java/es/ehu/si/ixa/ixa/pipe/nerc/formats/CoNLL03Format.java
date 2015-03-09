@@ -22,8 +22,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import es.ehu.si.ixa.ixa.pipe.nerc.train.Flags;
-
 import opennlp.tools.namefind.NameSample;
 import opennlp.tools.util.InputStreamFactory;
 import opennlp.tools.util.InvalidFormatException;
@@ -37,9 +35,6 @@ import opennlp.tools.util.StringUtil;
  * I- start chunk
  * B- begin chunk when next to same class entity
  * O- outside chunk
- * 
- * Adaptive Features for German and English CoNLL 2003 get cleared
- * when a "-DOCSTART-" mark appears.
  * 
  * @author ragerri
  * @version 2015-02-24
@@ -99,7 +94,7 @@ public class CoNLL03Format implements ObjectStream<NameSample>{
     while ((line = lineStream.read()) != null && !StringUtil.isEmpty(line)) {
       //clear adaptive data if document mark appears following
       //CoNLL03 conventions
-      if (!clearFeatures.equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG) 
+      if (clearFeatures.equalsIgnoreCase("docstart") 
           && line.startsWith("-DOCSTART-")) {
         isClearAdaptiveData = true;
         String emptyLine = lineStream.read();
@@ -116,6 +111,10 @@ public class CoNLL03Format implements ObjectStream<NameSample>{
             "Expected two fields per line in training data, got "
                 + fields.length + " for line '" + line + "'!");
       }
+    }
+    // if no -DOCSTART- mark, check if we need to clear features every sentence
+    if (clearFeatures.equalsIgnoreCase("yes")) {
+      isClearAdaptiveData = true;
     }
 
     if (tokens.size() > 0) {

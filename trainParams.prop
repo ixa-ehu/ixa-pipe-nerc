@@ -28,10 +28,12 @@ Threads=4
 Language=en
 
 # ClearAdaptiveFeatures: ONLY WORKS with CONLL formats!!
-# Specify if adaptive features
-# are to be cleared when no -DOCSTART- mark is available
-# in the training and/or evaluation data. If commented out
-# both values default to 'no'
+# Specify if adaptive features be cleared in the training and/or evaluation data.
+# Options are: 'yes', 'no','docstart'. The first two will reset the
+# features every sentence whereas the 'docstart' option will look for -DOCSTART-
+# marks in the data to clear the adaptive features.
+# Crossvalidation only works if ClearTrainingFeatures is set to 'yes'.
+# If commented out both values default to 'no'
 ClearTrainingFeatures=yes
 ClearEvaluationFeatures=no
 

@@ -307,10 +307,10 @@ public class CLI {
         .help("Pass the model to do the tagging as a parameter.\n");
     annotateParser.addArgument("--clearFeatures")
         .required(false)
-        .choices("yes","no")
+        .choices("yes", "no", "docstart")
         .setDefault(Flags.DEFAULT_FEATURE_FLAG)
         .help("Reset the adaptive features every sentence; defaults to 'no'; if -DOCSTART- marks" +
-        		" are present, leave the default.\n");
+        		" are present, choose 'docstart'.\n");
     annotateParser.addArgument("-l","--language")
         .required(false)
         .choices("de", "en", "es", "eu", "it", "nl")
@@ -364,14 +364,14 @@ public class CLI {
         .help("The test or reference corpus.\n");
     evalParser.addArgument("--clearFeatures")
         .required(false)
-        .choices("yes","no")
+        .choices("yes", "no", "docstart")
         .setDefault(Flags.DEFAULT_FEATURE_FLAG)
         .help("Reset the adaptive features; defaults to 'no'.\n");
     evalParser.addArgument("-f","--corpusFormat")
         .required(false)
         .choices("conll02", "conll03", "opennlp")
         .setDefault(Flags.DEFAULT_EVAL_FORMAT)
-        .help("Choose format of reference corpus; it defaults to opennlp format.\n");
+        .help("Choose format of reference corpus; it defaults to conll02 format.\n");
     evalParser.addArgument("--evalReport")
         .required(false)
         .choices("brief", "detailed", "error")

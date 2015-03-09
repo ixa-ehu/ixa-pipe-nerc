@@ -22,8 +22,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import es.ehu.si.ixa.ixa.pipe.nerc.train.Flags;
-
 import opennlp.tools.namefind.NameSample;
 import opennlp.tools.util.InputStreamFactory;
 import opennlp.tools.util.InvalidFormatException;
@@ -35,18 +33,6 @@ import opennlp.tools.util.StringUtil;
 /**
  * 2 fields CoNLL 2002 tabulated format: word\tabclass\n B- start chunk I-
  * inside chunk O- outside chunk.
- * 
- * We clear adaptive features by language following these conventions: <li>
- * <ol>
- * Dutch CoNLL 2002: Reset for training and do not reset for testing.
- * <ol>
- * Spanish CoNLL 2002: do not reset.
- * <ol>
- * GermEval 2014: reset after every newline.
- * <ol>
- * Egunkaria (Basque): reset for training do not reset for testing.
- * <ol>
- * Evalita 2009: do not reset.</li>
  * 
  * @author ragerri
  * @version 2015-02-24
@@ -107,6 +93,16 @@ public class CoNLL02Format implements ObjectStream<NameSample> {
     // Empty line indicates end of sentence
     String line;
     while ((line = lineStream.read()) != null && !StringUtil.isEmpty(line)) {
+      //clear adaptive data if document mark appears following
+      //CoNLL03 conventions
+      if (clearFeatures.equalsIgnoreCase("docstart") 
+          && line.startsWith("-DOCSTART-")) {
+        isClearAdaptiveData = true;
+        String emptyLine = lineStream.read();
+        if (!StringUtil.isEmpty(emptyLine))
+          throw new IOException("Empty line after -DOCSTART- not empty: '" + emptyLine +"'!");
+        continue;
+      }
       String fields[] = line.split("\t");
       if (fields.length == 2) {
         tokens.add(fields[0]);
@@ -117,7 +113,8 @@ public class CoNLL02Format implements ObjectStream<NameSample> {
                 + fields.length + " for line '" + line + "'!");
       }
     }
-    if (!clearFeatures.equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG)) {
+    // check if we need to clear features every sentence
+    if (clearFeatures.equalsIgnoreCase("yes")) {
       isClearAdaptiveData = true;
     }
     if (tokens.size() > 0) {

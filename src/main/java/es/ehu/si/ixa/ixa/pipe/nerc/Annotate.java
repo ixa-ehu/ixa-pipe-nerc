@@ -86,7 +86,7 @@ public class Annotate {
    */
   private boolean lexerFind;
   /**
-   * Clear features after every sentence.
+   * Clear features after every sentence or when a -DOCSTART- mark appears.
    */
   private String clearFeatures;
 
@@ -245,10 +245,9 @@ public class Annotate {
         Entity neEntity = kaf.newEntity(references);
         neEntity.setType(name.getType());
       }
-      if (!clearFeatures.equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG)) {
+      if (clearFeatures.equalsIgnoreCase("yes")) {
         nameFinder.clearAdaptiveData();
       }
-      //end of sentence
     }
     nameFinder.clearAdaptiveData();
   }
@@ -307,7 +306,7 @@ public class Annotate {
         SpanUtils.concatenateSpans(allSpans, numericSpans);
       }
       boolean isClearAdaptiveData = false;
-      if (!clearFeatures.equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG)) {
+      if (clearFeatures.equalsIgnoreCase("yes")) {
         isClearAdaptiveData = true;
       }
       Span[] allSpansArray = NameFinderME.dropOverlappingSpans(allSpans

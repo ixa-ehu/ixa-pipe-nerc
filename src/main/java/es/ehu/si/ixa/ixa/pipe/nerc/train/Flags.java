@@ -39,7 +39,7 @@ public class Flags {
   public static final String DEFAULT_DICT_PATH = "off";
   public static final String DEFAULT_OUTPUT_FORMAT="naf";
   public static final String DEFAULT_SEQUENCE_CODEC = "BILOU";
-  public static final String DEFAULT_EVAL_FORMAT = "opennlp";
+  public static final String DEFAULT_EVAL_FORMAT = "conll02";
 
   private Flags() {
     
