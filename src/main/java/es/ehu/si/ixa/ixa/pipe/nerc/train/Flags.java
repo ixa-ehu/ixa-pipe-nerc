@@ -338,6 +338,16 @@ public class Flags {
     return brownFlag;
   }
   
+  public static String getPOSFeatures(TrainingParameters params) {
+    String posFlag = null;
+    if (params.getSettings().get("POSFeatures") != null) {
+      posFlag = params.getSettings().get("POSFeatures");
+    } else {
+      posFlag = Flags.DEFAULT_FEATURE_FLAG;
+    }
+    return posFlag;
+  }
+  
   /**
    * Get a parameter in trainParams.prop file consisting of a list of
    * clustering lexicons separated by comma "," and return a list of
@@ -395,6 +405,16 @@ public class Flags {
     System.err
         .println("You need to specify the DictionaryFeatures in the parameters file to use the DictionaryPath!");
     System.exit(1);
+  }
+  
+  /**
+   * @param params
+   * @return whether the word2vecClusterfeatures are activated or not
+   */
+  public static boolean isPOSFeatures(TrainingParameters params) {
+    String posFeatures = getPOSFeatures(params);
+    return !posFeatures
+        .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
   }
 
   /**

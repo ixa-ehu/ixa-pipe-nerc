@@ -298,6 +298,20 @@ public final class XMLFeatureDescriptor {
       }
       System.err.println("-> Word2Vec Clusters Features added!");
     }
+    //POS features
+    if (Flags.isPOSFeatures(params)) {
+      setWindow(params);
+      String posModelPath = Flags.getPOSFeatures(params);
+      Element posFeatureElement = new Element("custom");
+      posFeatureElement.setAttribute("class", POSFeatureGenerator.class.getName());
+      posFeatureElement.setAttribute("model", InputOutputUtils.normalizeLexiconName(posModelPath));
+      Element posWindow = new Element("window");
+      posWindow.setAttribute("prevLength", Integer.toString(leftWindow));
+      posWindow.setAttribute("nextLength", Integer.toString(rightWindow));
+      posWindow.addContent(posFeatureElement);
+      generators.addContent(posWindow);
+      System.err.println("-> POS Features added!");
+    }
     
     aggGenerators.addContent(cached);
     cached.addContent(generators);
