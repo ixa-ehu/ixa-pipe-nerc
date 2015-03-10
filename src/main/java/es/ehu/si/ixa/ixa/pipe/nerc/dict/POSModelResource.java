@@ -16,18 +16,12 @@
 
 package es.ehu.si.ixa.ixa.pipe.nerc.dict;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.regex.Pattern;
 
 import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTaggerME;
@@ -38,15 +32,12 @@ import opennlp.tools.util.model.SerializableArtifact;
 
 
 /**
- * 
- * Class to load a Word2Vec cluster document: word\\s+word_class
- * http://code.google.com/p/word2vec/
- * 
- * The file containing the clustering lexicon has to be passed as the 
- * argument of the Word2VecCluster property.
- * 
+ * This class loads the pos tagger model required for
+ * the POS FeatureGenerators. It also provides the serializer
+ * required to add it as a resource to the ixa-pipe-nerc
+ * model.
  * @author ragerri
- * @version 2014/07/29
+ * @version 2015-10-03
  * 
  */
 public class POSModelResource implements SerializableArtifact {
@@ -64,19 +55,40 @@ public class POSModelResource implements SerializableArtifact {
     }
   }
   
+  /**
+   * The POS model.
+   */
   private POSModel posModel;
+  /**
+   * The POS tagger.
+   */
   private POSTaggerME posTagger;
   
+  /**
+   * Construct the POSModelResource from the inputstream.
+   * @param in the input stream
+   * @throws IOException io exception
+   */
   public POSModelResource(InputStream in) throws IOException {
     posModel = new POSModel(in);
     posTagger = new POSTaggerME(posModel);
   }
   
+  /**
+   * POS tag the current sentence.
+   * @param tokens the current sentence
+   * @return the array containing the pos tags
+   */
   public String[] posTag(String[] tokens) {
     String[] posTags = posTagger.tag(tokens);
     return posTags;
   }
   
+  /**
+   * Serialize the POS model into the NERC model.
+   * @param out the output stream
+   * @throws IOException io exception
+   */
   public void serialize(OutputStream out) throws IOException {
     Writer writer = new BufferedWriter(new OutputStreamWriter(out));
     posModel.serialize(out);

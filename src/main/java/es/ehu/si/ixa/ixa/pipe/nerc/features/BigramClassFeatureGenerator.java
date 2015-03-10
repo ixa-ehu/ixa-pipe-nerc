@@ -36,7 +36,7 @@ public class BigramClassFeatureGenerator extends FeatureGeneratorAdapter {
     }
     if (index + 1 < tokens.length) {
       features.add("w,nw=" + tokens[index] + "," + tokens[index + 1]);
-      String nwc = TokenClassFeatureGenerator.tokenShapeFeature(tokens[index + 1]); 
+      String nwc = TokenClassFeatureGenerator.tokenShapeFeature(tokens[index + 1]);
       features.add("wc,nc=" + wc + "," + nwc);
     }
   } 

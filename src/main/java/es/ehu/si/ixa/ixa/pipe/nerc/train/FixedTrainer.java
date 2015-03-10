@@ -63,10 +63,13 @@ import es.ehu.si.ixa.ixa.pipe.nerc.features.XMLFeatureDescriptor;
  * containing a token.
  * <li>Word2VecClusterFeatures: use the word2vec clustering class of a token as
  * a feature.
+ * <li>POSFeatures: use the pos tags in a window as features.
+ * <li>POSBigramFeatures: use bigrams of pos tags as features.
+ * <li>POSTrigramFeatures: use trigrams of pos tags as features.
  * <ol>
  * 
  * @author ragerri
- * @version 2014-10-13
+ * @version 2015-03-10
  */
 public class FixedTrainer extends AbstractTrainer {
   
@@ -144,12 +147,6 @@ public class FixedTrainer extends AbstractTrainer {
         loadResource(serializerId, artifactSerializers, word2vecFilePath, featureGenDescriptor, resources);
       }
     }
-    if (Flags.isPOSFeatures(params)) {
-      String posModelPath = Flags.getPOSFeatures(params);
-      String serializerId = "postagserializer";
-      artifactSerializers.put(serializerId, new POSModelResource.POSModelResourceSerializer());
-      loadResource(serializerId, artifactSerializers, posModelPath, featureGenDescriptor, resources);
-    }
     if (Flags.isDictionaryFeatures(params)) {
       String dictDir = Flags.getDictionaryFeatures(params);
       String serializerId = "dictionaryserializer";
@@ -159,6 +156,24 @@ public class FixedTrainer extends AbstractTrainer {
         artifactSerializers.put(serializerId, new Dictionary.DictionarySerializer());
         loadResource(serializerId, artifactSerializers, dictionaryPath, featureGenDescriptor, resources);
       }
+    }
+    if (Flags.isPOSFeatures(params)) {
+      String posModelPath = Flags.getPOSFeatures(params);
+      String serializerId = "postagserializer";
+      artifactSerializers.put(serializerId, new POSModelResource.POSModelResourceSerializer());
+      loadResource(serializerId, artifactSerializers, posModelPath, featureGenDescriptor, resources);
+    }
+    if (Flags.isPOSBigramFeatures(params)) {
+      String posModelPath = Flags.getPOSBigramFeatures(params);
+      String serializerId = "postagserializer";
+      artifactSerializers.put(serializerId, new POSModelResource.POSModelResourceSerializer());
+      loadResource(serializerId, artifactSerializers, posModelPath, featureGenDescriptor, resources);
+    }
+    if (Flags.isPOSTrigramFeatures(params)) {
+      String posModelPath = Flags.getPOSTrigramFeatures(params);
+      String serializerId = "postagserializer";
+      artifactSerializers.put(serializerId, new POSModelResource.POSModelResourceSerializer());
+      loadResource(serializerId, artifactSerializers, posModelPath, featureGenDescriptor, resources);
     }
     return resources;
   }

@@ -143,10 +143,30 @@ ClarkClusterFeatures=/home/ragerri/resources/reuters-rcv1/clark/reuters-rcv1.tok
 # NOTE: you can add multiple clustering lexicons by chaining them with a comma.
 Word2VecClusterFeatures=/home/ragerri/clusters.large.txt
 
-# POS features: add pos tags as feature. If value is uncommented, specify the
+##################
+## POS Features ##
+##################
+
+## To avoid training a too slow system, it is recommended to only use
+## one of the three types of POS features available.
+## YOU HAVE BEEN WARNED!!
+
+# POS features: add pos tags as feature under the window defined above.
+# If value is uncommented, specify the location of the ixa-pipe-pos model.
+# If commented out, no pos tag features are used.
+POSFeatures=/home/ragerri/javacode/ixa-pipe-pos/pos-models/en/en-maxent-100-c5-baseline-dict-penn.bin
+
+# POS Bigram features: add pos tag bigrams as feature. If value is uncommented, specify the
 # location of the ixa-pipe-pos model. If commented out, no pos tag features
 # are used.
-POSFeatures=/home/ragerri/javacode/ixa-pipe-pos/pos-models/en/en-maxent-100-c5-baseline-dict-penn.bin
+POSBigramFeatures=/home/ragerri/javacode/ixa-pipe-pos/pos-models/en/en-maxent-100-c5-baseline-dict-penn.bin
+
+# POS Trigram features: add pos tag trigrams as feature. If value is uncommented, specify the
+# location of the ixa-pipe-pos model. If commented out, no pos tag features
+# are used.
+POSTrigramFeatures=/home/ragerri/javacode/ixa-pipe-pos/pos-models/en/en-maxent-100-c5-baseline-dict-penn.bin
+
+
 
 #####################################
 #### CROSS VALIDATION PARAMETERS ####

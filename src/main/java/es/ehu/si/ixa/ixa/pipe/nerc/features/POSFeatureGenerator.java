@@ -28,22 +28,30 @@ import opennlp.tools.util.featuregen.FeatureGeneratorResourceProvider;
 import opennlp.tools.util.model.ArtifactSerializer;
 import es.ehu.si.ixa.ixa.pipe.nerc.dict.POSModelResource;
 
+/**
+ * Generate features with POS tags of current token. This feature generator can
+ * also be placed in a sliding window.
+ * @author ragerri
+ * @version 2015-03-10
+ */
 public class POSFeatureGenerator extends CustomFeatureGenerator implements ArtifactToSerializerMapper {
   
   private POSModelResource posModelResource;
-  private Map<String, String> attributes;
-  
+  private String[] currentSentence;
+  private String[] currentTags;
   
   public POSFeatureGenerator() {
   }
   
   public void createFeatures(List<String> features, String[] tokens, int index,
       String[] previousOutcomes) {
-    
-    String[] posTags = posModelResource.posTag(tokens);
-    String posTag = posTags[index];
-    System.err.println(posTag);
-    features.add(attributes.get("model") + "=" + posTag);
+    //cache pos tagger results for each sentence
+    if (currentSentence != tokens) {
+      currentSentence = tokens;
+      currentTags = posModelResource.posTag(tokens);
+    }
+    String posTag = currentTags[index];
+    features.add("posTag=" + posTag);
   }
   
 
@@ -66,7 +74,6 @@ public class POSFeatureGenerator extends CustomFeatureGenerator implements Artif
       throw new InvalidFormatException("Not a POSModelResource for key: " + properties.get("model"));
     }
     this.posModelResource = (POSModelResource) dictResource;
-    this.attributes = properties;
   }
   
   @Override
@@ -76,4 +83,5 @@ public class POSFeatureGenerator extends CustomFeatureGenerator implements Artif
     return Collections.unmodifiableMap(mapping);
   }
 }
+
 

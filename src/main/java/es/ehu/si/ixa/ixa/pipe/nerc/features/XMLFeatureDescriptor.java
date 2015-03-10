@@ -34,7 +34,7 @@ import es.ehu.si.ixa.ixa.pipe.nerc.train.InputOutputUtils;
 /**
  * Class to automatically generate the feature descriptor from the trainParameters.prop file.
  * @author ragerri
- * @version 2014-10-27
+ * @version 2015-03-10
  */
 public final class XMLFeatureDescriptor {
   
@@ -305,12 +305,28 @@ public final class XMLFeatureDescriptor {
       Element posFeatureElement = new Element("custom");
       posFeatureElement.setAttribute("class", POSFeatureGenerator.class.getName());
       posFeatureElement.setAttribute("model", InputOutputUtils.normalizeLexiconName(posModelPath));
-      Element posWindow = new Element("window");
-      posWindow.setAttribute("prevLength", Integer.toString(leftWindow));
-      posWindow.setAttribute("nextLength", Integer.toString(rightWindow));
-      posWindow.addContent(posFeatureElement);
-      generators.addContent(posWindow);
+      Element posFeatureWindow = new Element("window");
+      posFeatureWindow.setAttribute("prevLength", Integer.toString(leftWindow));
+      posFeatureWindow.setAttribute("nextLength", Integer.toString(rightWindow));
+      posFeatureWindow.addContent(posFeatureElement);
+      generators.addContent(posFeatureWindow);
       System.err.println("-> POS Features added!");
+    }
+    if (Flags.isPOSBigramFeatures(params)) {
+      String posModelPath = Flags.getPOSBigramFeatures(params);
+      Element posBigramFeatureElement = new Element("custom");
+      posBigramFeatureElement.setAttribute("class",POSBigramFeatureGenerator.class.getName());
+      posBigramFeatureElement.setAttribute("model", InputOutputUtils.normalizeLexiconName(posModelPath));
+      generators.addContent(posBigramFeatureElement);
+      System.err.println("-> POS Bigram Features added");
+    }
+    if (Flags.isPOSTrigramFeatures(params)) {
+      String posModelPath = Flags.getPOSTrigramFeatures(params);
+      Element posTrigramFeatureElement = new Element("custom");
+      posTrigramFeatureElement.setAttribute("class",POSTrigramFeatureGenerator.class.getName());
+      posTrigramFeatureElement.setAttribute("model", InputOutputUtils.normalizeLexiconName(posModelPath));
+      generators.addContent(posTrigramFeatureElement);
+      System.err.println("-> POS Trigram Features added");
     }
     
     aggGenerators.addContent(cached);

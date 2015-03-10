@@ -348,6 +348,26 @@ public class Flags {
     return posFlag;
   }
   
+  public static String getPOSBigramFeatures(TrainingParameters params) {
+    String posBigramFlag = null;
+    if (params.getSettings().get("POSBigramFeatures") != null) {
+      posBigramFlag = params.getSettings().get("POSBigramFeatures");
+    } else {
+      posBigramFlag = Flags.DEFAULT_FEATURE_FLAG;
+    }
+    return posBigramFlag;
+  }
+  
+  public static String getPOSTrigramFeatures(TrainingParameters params) {
+    String posTrigramFlag = null;
+    if (params.getSettings().get("POSTrigramFeatures") != null) {
+      posTrigramFlag = params.getSettings().get("POSTrigramFeatures");
+    } else {
+      posTrigramFlag = Flags.DEFAULT_FEATURE_FLAG;
+    }
+    return posTrigramFlag;
+  }
+  
   /**
    * Get a parameter in trainParams.prop file consisting of a list of
    * clustering lexicons separated by comma "," and return a list of
@@ -409,10 +429,30 @@ public class Flags {
   
   /**
    * @param params
-   * @return whether the word2vecClusterfeatures are activated or not
+   * @return whether the pos features are activated or not
    */
   public static boolean isPOSFeatures(TrainingParameters params) {
     String posFeatures = getPOSFeatures(params);
+    return !posFeatures
+        .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
+  }
+  
+  /**
+   * @param params
+   * @return whether the pos features are activated or not
+   */
+  public static boolean isPOSBigramFeatures(TrainingParameters params) {
+    String posFeatures = getPOSBigramFeatures(params);
+    return !posFeatures
+        .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
+  }
+  
+  /**
+   * @param params
+   * @return whether the pos features are activated or not
+   */
+  public static boolean isPOSTrigramFeatures(TrainingParameters params) {
+    String posFeatures = getPOSTrigramFeatures(params);
     return !posFeatures
         .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
   }
