@@ -317,7 +317,11 @@ public final class XMLFeatureDescriptor {
       Element posClassFeatureElement = new Element("custom");
       posClassFeatureElement.setAttribute("class",POSClassFeatureGenerator.class.getName());
       posClassFeatureElement.setAttribute("model", InputOutputUtils.normalizeLexiconName(posModelPath));
-      generators.addContent(posClassFeatureElement);
+      Element posClassFeatureWindow = new Element("window");
+      posClassFeatureWindow.setAttribute("prevLength", Integer.toString(leftWindow));
+      posClassFeatureWindow.setAttribute("nextLength", Integer.toString(rightWindow));
+      posClassFeatureWindow.addContent(posClassFeatureElement);
+      generators.addContent(posClassFeatureWindow);
       System.err.println("-> POS and POS Class Features added");
     }
     aggGenerators.addContent(cached);
