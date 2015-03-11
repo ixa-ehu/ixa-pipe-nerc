@@ -313,8 +313,8 @@ public final class XMLFeatureDescriptor {
       System.err.println("-> POS Features added!");
     }
     if (Flags.isPOSClassFeatures(params)) {
-      //leftWindow = 1;
-      //rightWindow = 1;
+      leftWindow = 1;
+      rightWindow = 1;
       String posModelPath = Flags.getPOSClassFeatures(params);
       Element posClassFeatureElement = new Element("custom");
       posClassFeatureElement.setAttribute("class",POSClassFeatureGenerator.class.getName());

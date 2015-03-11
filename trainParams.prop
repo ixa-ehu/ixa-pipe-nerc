@@ -148,7 +148,8 @@ Word2VecClusterFeatures=/home/ragerri/clusters.large.txt
 ############################
 
 ## To avoid training a too slow system, it is recommended to only use
-## one of the types of POS features available.
+## one of the types of POS features available. Also, be aware that POSClassFeatures
+## subsumes POSFeatures.
 ## YOU HAVE BEEN WARNED!!
 
 # POS features: add pos tags as feature under the window defined above.
@@ -161,7 +162,7 @@ POSFeatures=/home/ragerri/javacode/ixa-pipe-pos/pos-models/en/en-maxent-100-c5-b
 # are used.
 POSClassFeatures=/home/ragerri/javacode/ixa-pipe-pos/pos-models/en/en-maxent-100-c5-baseline-dict-penn.bin
 
-# Lemma Features: adds lemma as a feature. It is required to provide the ixa-pipe-pos model of the POS tagger
+# Lemma Features: add lemma as a feature. It is required to provide the ixa-pipe-pos model of the POS tagger
 # and the ixa-pipe-pos lemmatization dictionary
 LemmaFeatures=/home/ragerri/javacode/ixa-pipe-pos/pos-models/en/en-maxent-100-c5-baseline-dict-penn.bin,/home/ragerri/javacode/ixa-pipe-pos/src/main/resources/lemmatizer-dicts/freeling/en-lemmatizer.dict
 

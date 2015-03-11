@@ -38,7 +38,7 @@ import es.ehu.si.ixa.ixa.pipe.nerc.dict.POSModelResource;
 public class LemmaFeatureGenerator extends CustomFeatureGenerator implements ArtifactToSerializerMapper {
   
   private POSModelResource posModelResource;
-  private LemmaResource lemmaResource;
+  private LemmaResource lemmaDictResource;
   private String[] currentSentence;
   private String[] currentTags;
   
@@ -53,7 +53,7 @@ public class LemmaFeatureGenerator extends CustomFeatureGenerator implements Art
       currentTags = posModelResource.posTag(tokens);
     }
     String posTag = currentTags[index];
-    String lemma = lemmaResource.lookUpLemma(tokens[index], posTag);
+    String lemma = lemmaDictResource.lookUpLemma(tokens[index], posTag);
     features.add("lemma=" + lemma);
   }
   
@@ -80,6 +80,7 @@ public class LemmaFeatureGenerator extends CustomFeatureGenerator implements Art
     if (!(lemmaResource instanceof LemmaResource)) {
       throw new InvalidFormatException("Not a LemmaResource for key: " + properties.get("dict"));
     }
+    this.lemmaDictResource = (LemmaResource) lemmaResource;
   }
   
   @Override
