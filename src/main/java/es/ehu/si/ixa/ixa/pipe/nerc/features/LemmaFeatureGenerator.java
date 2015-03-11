@@ -26,21 +26,23 @@ import opennlp.tools.util.featuregen.ArtifactToSerializerMapper;
 import opennlp.tools.util.featuregen.CustomFeatureGenerator;
 import opennlp.tools.util.featuregen.FeatureGeneratorResourceProvider;
 import opennlp.tools.util.model.ArtifactSerializer;
+import es.ehu.si.ixa.ixa.pipe.nerc.dict.LemmaResource;
 import es.ehu.si.ixa.ixa.pipe.nerc.dict.POSModelResource;
 
 /**
- * Generate features with POS tags and first letter of postag for current token.
- * This feature generator can also be placed in a sliding window.
+ * Generate lemma as feature of current token. This feature generator can
+ * also be placed in a sliding window.
  * @author ragerri
- * @version 2015-03-10
+ * @version 2015-03-11
  */
-public class POSClassFeatureGenerator extends CustomFeatureGenerator implements ArtifactToSerializerMapper {
+public class LemmaFeatureGenerator extends CustomFeatureGenerator implements ArtifactToSerializerMapper {
   
   private POSModelResource posModelResource;
+  private LemmaResource lemmaResource;
   private String[] currentSentence;
   private String[] currentTags;
   
-  public POSClassFeatureGenerator() {
+  public LemmaFeatureGenerator() {
   }
   
   public void createFeatures(List<String> features, String[] tokens, int index,
@@ -51,12 +53,10 @@ public class POSClassFeatureGenerator extends CustomFeatureGenerator implements 
       currentTags = posModelResource.posTag(tokens);
     }
     String posTag = currentTags[index];
-    String posTagClass = posTag.substring(0, 1);
-    features.add("posTag=" + posTag);
-    features.add("posTagClass=" + posTagClass);
+    String lemma = lemmaResource.lookUpLemma(tokens[index], posTag);
+    features.add("lemma=" + lemma);
   }
   
-
   @Override
   public void updateAdaptiveData(String[] tokens, String[] outcomes) {
     
@@ -71,20 +71,24 @@ public class POSClassFeatureGenerator extends CustomFeatureGenerator implements 
   public void init(Map<String, String> properties,
       FeatureGeneratorResourceProvider resourceProvider)
       throws InvalidFormatException {
-    Object dictResource = resourceProvider.getResource(properties.get("model"));
-    if (!(dictResource instanceof POSModelResource)) {
+    Object posResource = resourceProvider.getResource(properties.get("model"));
+    if (!(posResource instanceof POSModelResource)) {
       throw new InvalidFormatException("Not a POSModelResource for key: " + properties.get("model"));
     }
-    this.posModelResource = (POSModelResource) dictResource;
+    this.posModelResource = (POSModelResource) posResource;
+    Object lemmaResource = resourceProvider.getResource(properties.get("dict"));
+    if (!(lemmaResource instanceof LemmaResource)) {
+      throw new InvalidFormatException("Not a LemmaResource for key: " + properties.get("dict"));
+    }
   }
   
   @Override
   public Map<String, ArtifactSerializer<?>> getArtifactSerializerMapping() {
     Map<String, ArtifactSerializer<?>> mapping = new HashMap<>();
     mapping.put("posmodelserializer", new POSModelResource.POSModelResourceSerializer());
+    mapping.put("lemmadictserializer", new LemmaResource.LemmaResourceSerializer());
     return Collections.unmodifiableMap(mapping);
   }
 }
-
 
 

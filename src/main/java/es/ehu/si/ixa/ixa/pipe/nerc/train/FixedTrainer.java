@@ -35,6 +35,7 @@ import es.ehu.si.ixa.ixa.pipe.nerc.StringUtils;
 import es.ehu.si.ixa.ixa.pipe.nerc.dict.BrownCluster;
 import es.ehu.si.ixa.ixa.pipe.nerc.dict.ClarkCluster;
 import es.ehu.si.ixa.ixa.pipe.nerc.dict.Dictionary;
+import es.ehu.si.ixa.ixa.pipe.nerc.dict.LemmaResource;
 import es.ehu.si.ixa.ixa.pipe.nerc.dict.POSModelResource;
 import es.ehu.si.ixa.ixa.pipe.nerc.dict.Word2VecCluster;
 import es.ehu.si.ixa.ixa.pipe.nerc.features.XMLFeatureDescriptor;
@@ -167,6 +168,16 @@ public class FixedTrainer extends AbstractTrainer {
       String serializerId = "postagserializer";
       artifactSerializers.put(serializerId, new POSModelResource.POSModelResourceSerializer());
       loadResource(serializerId, artifactSerializers, posModelPath, featureGenDescriptor, resources);
+    }
+    if (Flags.isLemmaFeatures(params)) {
+      String lemmaResourcesPath = Flags.getLemmaFeatures(params);
+      String[] lemmaResources = lemmaResourcesPath.split(",");
+      String posSerializerId = "postagserializer";
+      String lemmaSerializerId = "lemmaserializer";
+      artifactSerializers.put(posSerializerId, new POSModelResource.POSModelResourceSerializer());
+      loadResource(posSerializerId, artifactSerializers, lemmaResources[0], featureGenDescriptor, resources);
+      artifactSerializers.put(lemmaSerializerId, new LemmaResource.LemmaResourceSerializer());
+      loadResource(lemmaSerializerId, artifactSerializers, lemmaResources[1], featureGenDescriptor, resources);
     }
     return resources;
   }

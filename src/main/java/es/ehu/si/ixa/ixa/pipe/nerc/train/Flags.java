@@ -348,6 +348,7 @@ public class Flags {
     return posFlag;
   }
   
+  
   public static String getPOSClassFeatures(TrainingParameters params) {
     String posClassFlag = null;
     if (params.getSettings().get("POSClassFeatures") != null) {
@@ -356,6 +357,16 @@ public class Flags {
       posClassFlag = Flags.DEFAULT_FEATURE_FLAG;
     }
     return posClassFlag;
+  }
+  
+  public static String getLemmaFeatures(TrainingParameters params) {
+    String lemmaFlag = null;
+    if (params.getSettings().get("LemmaFeatures") != null) {
+      lemmaFlag = params.getSettings().get("LemmaFeatures");
+    } else {
+      lemmaFlag = Flags.DEFAULT_FEATURE_FLAG;
+    }
+    return lemmaFlag;
   }
   
   /**
@@ -434,6 +445,16 @@ public class Flags {
   public static boolean isPOSClassFeatures(TrainingParameters params) {
     String posFeatures = getPOSClassFeatures(params);
     return !posFeatures
+        .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
+  }
+  
+  /**
+   * @param params
+   * @return whether the pos features are activated or not
+   */
+  public static boolean isLemmaFeatures(TrainingParameters params) {
+    String lemmaFeatures = getLemmaFeatures(params);
+    return !lemmaFeatures
         .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
   }
   

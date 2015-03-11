@@ -326,6 +326,22 @@ public final class XMLFeatureDescriptor {
       generators.addContent(posClassFeatureWindow);
       System.err.println("-> POS and POS Class Features added");
     }
+    if (Flags.isLemmaFeatures(params)) {
+      //leftWindow = 1;
+      //rightWindow = 1;
+      String lemmaPath = Flags.getLemmaFeatures(params);
+      String[] lemmaResources = lemmaPath.split(",");
+      Element lemmaClassFeatureElement = new Element("custom");
+      lemmaClassFeatureElement.setAttribute("class", LemmaFeatureGenerator.class.getName());
+      lemmaClassFeatureElement.setAttribute("model", InputOutputUtils.normalizeLexiconName(lemmaResources[0]));
+      lemmaClassFeatureElement.setAttribute("dict", InputOutputUtils.normalizeLexiconName(lemmaResources[1]));
+      Element lemmaClassFeatureWindow = new Element("window");
+      lemmaClassFeatureWindow.setAttribute("prevLength", Integer.toString(leftWindow));
+      lemmaClassFeatureWindow.setAttribute("nextLength", Integer.toString(rightWindow));
+      lemmaClassFeatureWindow.addContent(lemmaClassFeatureElement);
+      generators.addContent(lemmaClassFeatureWindow);
+      System.err.println("-> Lemma Features added");
+    }
     aggGenerators.addContent(cached);
     cached.addContent(generators);
     

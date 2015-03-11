@@ -143,9 +143,9 @@ ClarkClusterFeatures=/home/ragerri/resources/reuters-rcv1/clark/reuters-rcv1.tok
 # NOTE: you can add multiple clustering lexicons by chaining them with a comma.
 Word2VecClusterFeatures=/home/ragerri/clusters.large.txt
 
-##################
-## POS Features ##
-##################
+############################
+## Morphological Features ##
+############################
 
 ## To avoid training a too slow system, it is recommended to only use
 ## one of the types of POS features available.
@@ -160,6 +160,10 @@ POSFeatures=/home/ragerri/javacode/ixa-pipe-pos/pos-models/en/en-maxent-100-c5-b
 # location of the ixa-pipe-pos model. If commented out, no pos tag features
 # are used.
 POSClassFeatures=/home/ragerri/javacode/ixa-pipe-pos/pos-models/en/en-maxent-100-c5-baseline-dict-penn.bin
+
+# Lemma Features: adds lemma as a feature. It is required to provide the ixa-pipe-pos model of the POS tagger
+# and the ixa-pipe-pos lemmatization dictionary
+LemmaFeatures=/home/ragerri/javacode/ixa-pipe-pos/pos-models/en/en-maxent-100-c5-baseline-dict-penn.bin,/home/ragerri/javacode/ixa-pipe-pos/src/main/resources/lemmatizer-dicts/freeling/en-lemmatizer.dict
 
 #####################################
 #### CROSS VALIDATION PARAMETERS ####
