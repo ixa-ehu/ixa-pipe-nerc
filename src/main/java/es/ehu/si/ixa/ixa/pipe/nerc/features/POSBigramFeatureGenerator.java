@@ -50,6 +50,7 @@ public class POSBigramFeatureGenerator extends CustomFeatureGenerator implements
       currentTags = posModelResource.posTag(tokens);
     }
     String posTag = currentTags[index];
+    features.add("posTag=" + posTag);
     if (index > 0) {
       String pposTag = currentTags[index - 1];
       features.add("pposTag,posTag=" + pposTag + "," + posTag);

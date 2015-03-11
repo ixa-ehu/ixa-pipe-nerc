@@ -50,6 +50,7 @@ public class POSTrigramFeatureGenerator extends CustomFeatureGenerator implement
       currentTags = posModelResource.posTag(tokens);
     }
     String posTag = currentTags[index];
+    features.add("posTag=" + posTag);
     if (index > 1) {
       String pposTag = currentTags[index - 1];
       String ppposTag = currentTags[index - 2];
