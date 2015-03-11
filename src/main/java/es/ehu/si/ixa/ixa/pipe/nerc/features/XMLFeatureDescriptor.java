@@ -312,23 +312,14 @@ public final class XMLFeatureDescriptor {
       generators.addContent(posFeatureWindow);
       System.err.println("-> POS Features added!");
     }
-    if (Flags.isPOSBigramFeatures(params)) {
-      String posModelPath = Flags.getPOSBigramFeatures(params);
-      Element posBigramFeatureElement = new Element("custom");
-      posBigramFeatureElement.setAttribute("class",POSBigramFeatureGenerator.class.getName());
-      posBigramFeatureElement.setAttribute("model", InputOutputUtils.normalizeLexiconName(posModelPath));
-      generators.addContent(posBigramFeatureElement);
-      System.err.println("-> POS Bigram Features added");
+    if (Flags.isPOSClassFeatures(params)) {
+      String posModelPath = Flags.getPOSClassFeatures(params);
+      Element posClassFeatureElement = new Element("custom");
+      posClassFeatureElement.setAttribute("class",POSClassFeatureGenerator.class.getName());
+      posClassFeatureElement.setAttribute("model", InputOutputUtils.normalizeLexiconName(posModelPath));
+      generators.addContent(posClassFeatureElement);
+      System.err.println("-> POS and POS Class Features added");
     }
-    if (Flags.isPOSTrigramFeatures(params)) {
-      String posModelPath = Flags.getPOSTrigramFeatures(params);
-      Element posTrigramFeatureElement = new Element("custom");
-      posTrigramFeatureElement.setAttribute("class",POSTrigramFeatureGenerator.class.getName());
-      posTrigramFeatureElement.setAttribute("model", InputOutputUtils.normalizeLexiconName(posModelPath));
-      generators.addContent(posTrigramFeatureElement);
-      System.err.println("-> POS Trigram Features added");
-    }
-    
     aggGenerators.addContent(cached);
     cached.addContent(generators);
     

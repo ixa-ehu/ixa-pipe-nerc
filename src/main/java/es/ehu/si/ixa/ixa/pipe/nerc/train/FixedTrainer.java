@@ -64,8 +64,7 @@ import es.ehu.si.ixa.ixa.pipe.nerc.features.XMLFeatureDescriptor;
  * <li>Word2VecClusterFeatures: use the word2vec clustering class of a token as
  * a feature.
  * <li>POSFeatures: use the pos tags in a window as features.
- * <li>POSBigramFeatures: use bigrams of pos tags as features.
- * <li>POSTrigramFeatures: use trigrams of pos tags as features.
+ * <li>POSClassFeatures: use pos tags and first letter of pos tag as feature.
  * <ol>
  * 
  * @author ragerri
@@ -163,14 +162,8 @@ public class FixedTrainer extends AbstractTrainer {
       artifactSerializers.put(serializerId, new POSModelResource.POSModelResourceSerializer());
       loadResource(serializerId, artifactSerializers, posModelPath, featureGenDescriptor, resources);
     }
-    if (Flags.isPOSBigramFeatures(params)) {
-      String posModelPath = Flags.getPOSBigramFeatures(params);
-      String serializerId = "postagserializer";
-      artifactSerializers.put(serializerId, new POSModelResource.POSModelResourceSerializer());
-      loadResource(serializerId, artifactSerializers, posModelPath, featureGenDescriptor, resources);
-    }
-    if (Flags.isPOSTrigramFeatures(params)) {
-      String posModelPath = Flags.getPOSTrigramFeatures(params);
+    if (Flags.isPOSClassFeatures(params)) {
+      String posModelPath = Flags.getPOSClassFeatures(params);
       String serializerId = "postagserializer";
       artifactSerializers.put(serializerId, new POSModelResource.POSModelResourceSerializer());
       loadResource(serializerId, artifactSerializers, posModelPath, featureGenDescriptor, resources);

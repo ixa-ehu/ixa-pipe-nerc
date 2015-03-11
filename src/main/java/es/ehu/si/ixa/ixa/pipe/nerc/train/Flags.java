@@ -348,24 +348,14 @@ public class Flags {
     return posFlag;
   }
   
-  public static String getPOSBigramFeatures(TrainingParameters params) {
-    String posBigramFlag = null;
-    if (params.getSettings().get("POSBigramFeatures") != null) {
-      posBigramFlag = params.getSettings().get("POSBigramFeatures");
+  public static String getPOSClassFeatures(TrainingParameters params) {
+    String posClassFlag = null;
+    if (params.getSettings().get("POSClassFeatures") != null) {
+      posClassFlag = params.getSettings().get("POSClassFeatures");
     } else {
-      posBigramFlag = Flags.DEFAULT_FEATURE_FLAG;
+      posClassFlag = Flags.DEFAULT_FEATURE_FLAG;
     }
-    return posBigramFlag;
-  }
-  
-  public static String getPOSTrigramFeatures(TrainingParameters params) {
-    String posTrigramFlag = null;
-    if (params.getSettings().get("POSTrigramFeatures") != null) {
-      posTrigramFlag = params.getSettings().get("POSTrigramFeatures");
-    } else {
-      posTrigramFlag = Flags.DEFAULT_FEATURE_FLAG;
-    }
-    return posTrigramFlag;
+    return posClassFlag;
   }
   
   /**
@@ -439,24 +429,14 @@ public class Flags {
   
   /**
    * @param params
-   * @return whether the pos features are activated or not
+   * @return whether the pos class features are activated or not
    */
-  public static boolean isPOSBigramFeatures(TrainingParameters params) {
-    String posFeatures = getPOSBigramFeatures(params);
+  public static boolean isPOSClassFeatures(TrainingParameters params) {
+    String posFeatures = getPOSClassFeatures(params);
     return !posFeatures
         .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
   }
   
-  /**
-   * @param params
-   * @return whether the pos features are activated or not
-   */
-  public static boolean isPOSTrigramFeatures(TrainingParameters params) {
-    String posFeatures = getPOSTrigramFeatures(params);
-    return !posFeatures
-        .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
-  }
-
   /**
    * @param params
    * @return whether the word2vecClusterfeatures are activated or not

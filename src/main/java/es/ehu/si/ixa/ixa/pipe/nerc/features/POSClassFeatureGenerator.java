@@ -29,17 +29,18 @@ import opennlp.tools.util.model.ArtifactSerializer;
 import es.ehu.si.ixa.ixa.pipe.nerc.dict.POSModelResource;
 
 /**
- * Generate trigrams of pos tags as features.
+ * Generate features with POS tags and first letter of postag for current token.
+ * This feature generator can also be placed in a sliding window.
  * @author ragerri
  * @version 2015-03-10
  */
-public class POSTrigramFeatureGenerator extends CustomFeatureGenerator implements ArtifactToSerializerMapper {
+public class POSClassFeatureGenerator extends CustomFeatureGenerator implements ArtifactToSerializerMapper {
   
   private POSModelResource posModelResource;
   private String[] currentSentence;
   private String[] currentTags;
   
-  public POSTrigramFeatureGenerator() {
+  public POSClassFeatureGenerator() {
   }
   
   public void createFeatures(List<String> features, String[] tokens, int index,
@@ -50,18 +51,11 @@ public class POSTrigramFeatureGenerator extends CustomFeatureGenerator implement
       currentTags = posModelResource.posTag(tokens);
     }
     String posTag = currentTags[index];
+    String posTagClass = currentTags[index].substring(0, 1);
     features.add("posTag=" + posTag);
-    if (index > 1) {
-      String pposTag = currentTags[index - 1];
-      String ppposTag = currentTags[index - 2];
-      features.add("ppposTag,pposTag,posTag=" + ppposTag + "," + pposTag + "," + posTag);
-    }
-    if (index + 2 < tokens.length) {
-      String nposTag = currentTags[index + 1];
-      String nnposTag = currentTags[index + 2];
-      features.add("posTag,nposTag,nnposTag=" + posTag + "," + nposTag + "," + nnposTag);
-    }
+    features.add("posTagClass=" + posTagClass);
   }
+  
 
   @Override
   public void updateAdaptiveData(String[] tokens, String[] outcomes) {
@@ -91,5 +85,6 @@ public class POSTrigramFeatureGenerator extends CustomFeatureGenerator implement
     return Collections.unmodifiableMap(mapping);
   }
 }
+
 
 
