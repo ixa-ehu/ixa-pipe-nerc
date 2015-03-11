@@ -50,10 +50,8 @@ public class POSClassFeatureGenerator extends CustomFeatureGenerator implements 
       currentSentence = tokens;
       currentTags = posModelResource.posTag(tokens);
     }
-    String posTag = currentTags[index];
     String posTagClass = currentTags[index].substring(0, 1);
-    features.add("posTag,posTagClass=" + posTag + "," + posTagClass);
-    //features.add("posTagClass=" + posTagClass);
+    features.add("posTagClass=" + posTagClass);
   }
   
 
