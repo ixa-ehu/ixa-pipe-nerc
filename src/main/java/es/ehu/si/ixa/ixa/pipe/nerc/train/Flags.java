@@ -27,9 +27,7 @@ public class Flags {
   public static final String DEFAULT_FEATURE_FLAG = "no";
   public static final String CHAR_NGRAM_RANGE = "2:5";
   public static final String DEFAULT_WINDOW = "2:2";
-  public static final String DEFAULT_LEMMA_RANGE = "pos,lemma";
-  public static final String DEFAULT_POS_RANGE = "pos";
-
+  public static final String DEFAULT_MORPHO_RANGE = "pos,no,lemma";
   /**
    * Default beam size for decoding.
    */
@@ -341,14 +339,32 @@ public class Flags {
     return brownFlag;
   }
 
-  public static String getPOSFeatures(TrainingParameters params) {
-    String posFlag = null;
-    if (params.getSettings().get("POSFeatures") != null) {
-      posFlag = params.getSettings().get("POSFeatures");
+  public static String getMorphoFeatures(TrainingParameters params) {
+    String morphoFlag = null;
+    if (params.getSettings().get("MorphoFeatures") != null) {
+      morphoFlag = params.getSettings().get("MorphoFeatures");
     } else {
-      posFlag = Flags.DEFAULT_FEATURE_FLAG;
+      morphoFlag = Flags.DEFAULT_FEATURE_FLAG;
     }
-    return posFlag;
+    return morphoFlag;
+  }
+  
+  public static String[] getMorphoResources(String morphoFlag) {
+    String[] morphoFlagArray = morphoFlag.split(",");
+    if (morphoFlagArray.length != 2) {
+      System.err.println("MorphoFeatures resources requires two fields but only got " + morphoFlagArray.length);
+      System.exit(1);
+    }
+    return morphoFlagArray;
+  }
+  
+  public static String[] getMorphoFeaturesRange(String morphoRangeFlag) {
+    String[] morphoRangeArray = morphoRangeFlag.split(",");
+    if (morphoRangeArray.length != 3) {
+      System.err.println("MorphoFeaturesRange option requires three fields but only got " + morphoRangeArray.length);
+      System.exit(1);
+    }
+    return morphoRangeArray;
   }
 
   /**
@@ -358,39 +374,12 @@ public class Flags {
    *          the training parameters
    * @return a list containing the initial and maximum ngram values
    */
-  public static String getPOSFeaturesRange(TrainingParameters params) {
-    String posRangeFlag = null;
-    if (params.getSettings().get("POSFeaturesRange") != null) {
-      posRangeFlag = params.getSettings().get("POSFeaturesRange");
-    } else {
-      posRangeFlag = Flags.DEFAULT_POS_RANGE;
-    }
-    return posRangeFlag;
-  }
-
-  public static String getLemmaFeatures(TrainingParameters params) {
-    String lemmaFlag = null;
-    if (params.getSettings().get("LemmaFeatures") != null) {
-      lemmaFlag = params.getSettings().get("LemmaFeatures");
-    } else {
-      lemmaFlag = Flags.DEFAULT_FEATURE_FLAG;
-    }
-    return lemmaFlag;
-  }
-
-  /**
-   * Get the lemma features configuration.
-   * 
-   * @param params
-   *          the training parameters
-   * @return a list containing the initial and maximum ngram values
-   */
-  public static String getLemmaFeaturesRange(TrainingParameters params) {
+  public static String getMorphoFeaturesRange(TrainingParameters params) {
     String lemmaRangeFlag = null;
-    if (params.getSettings().get("LemmaFeaturesRange") != null) {
-      lemmaRangeFlag = params.getSettings().get("LemmaFeaturesRange");
+    if (params.getSettings().get("MorphoFeaturesRange") != null) {
+      lemmaRangeFlag = params.getSettings().get("MorphoFeaturesRange");
     } else {
-      lemmaRangeFlag = Flags.DEFAULT_LEMMA_RANGE;
+      lemmaRangeFlag = Flags.DEFAULT_MORPHO_RANGE;
     }
     return lemmaRangeFlag;
   }
@@ -457,21 +446,13 @@ public class Flags {
   }
 
   /**
-   * @param params
-   * @return whether the pos features are activated or not
+   * Check if morphological features are active.
+   * @param params the parameters
+   * @return whether the morphological features are activated or not
    */
-  public static boolean isPOSFeatures(TrainingParameters params) {
-    String posFeatures = getPOSFeatures(params);
-    return !posFeatures.equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
-  }
-
-  /**
-   * @param params
-   * @return whether the pos features are activated or not
-   */
-  public static boolean isLemmaFeatures(TrainingParameters params) {
-    String lemmaFeatures = getLemmaFeatures(params);
-    return !lemmaFeatures.equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
+  public static boolean isMorphoFeatures(TrainingParameters params) {
+    String morphoFeatures = getMorphoFeatures(params);
+    return !morphoFeatures.equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
   }
 
   /**

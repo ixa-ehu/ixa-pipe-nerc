@@ -157,21 +157,15 @@ public class FixedTrainer extends AbstractTrainer {
         loadResource(serializerId, artifactSerializers, dictionaryPath, featureGenDescriptor, resources);
       }
     }
-    if (Flags.isPOSFeatures(params)) {
-      String posModelPath = Flags.getPOSFeatures(params);
-      String serializerId = "postagserializer";
-      artifactSerializers.put(serializerId, new POSModelResource.POSModelResourceSerializer());
-      loadResource(serializerId, artifactSerializers, posModelPath, featureGenDescriptor, resources);
-    }
-    if (Flags.isLemmaFeatures(params)) {
-      String lemmaResourcesPath = Flags.getLemmaFeatures(params);
-      String[] lemmaResources = lemmaResourcesPath.split(",");
+    if (Flags.isMorphoFeatures(params)) {
+      String morphoResourcesPath = Flags.getMorphoFeatures(params);
+      String[] morphoResources = Flags.getMorphoResources(morphoResourcesPath);
       String posSerializerId = "postagserializer";
       String lemmaSerializerId = "lemmaserializer";
       artifactSerializers.put(posSerializerId, new POSModelResource.POSModelResourceSerializer());
-      loadResource(posSerializerId, artifactSerializers, lemmaResources[0], featureGenDescriptor, resources);
+      loadResource(posSerializerId, artifactSerializers, morphoResources[0], featureGenDescriptor, resources);
       artifactSerializers.put(lemmaSerializerId, new LemmaResource.LemmaResourceSerializer());
-      loadResource(lemmaSerializerId, artifactSerializers, lemmaResources[1], featureGenDescriptor, resources);
+      loadResource(lemmaSerializerId, artifactSerializers, morphoResources[1], featureGenDescriptor, resources);
     }
     return resources;
   }

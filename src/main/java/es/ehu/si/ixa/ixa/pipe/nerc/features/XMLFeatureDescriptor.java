@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Rodrigo Agerri
+ * Copyright 2015 Rodrigo Agerri
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -32,9 +32,9 @@ import es.ehu.si.ixa.ixa.pipe.nerc.train.Flags;
 import es.ehu.si.ixa.ixa.pipe.nerc.train.InputOutputUtils;
 
 /**
- * Class to automatically generate the feature descriptor from the trainParameters.prop file.
+ * Class to automatically generate the feature descriptor from a trainParams.prop file.
  * @author ragerri
- * @version 2015-03-10
+ * @version 2015-03-12
  */
 public final class XMLFeatureDescriptor {
   
@@ -298,38 +298,24 @@ public final class XMLFeatureDescriptor {
       }
       System.err.println("-> Word2Vec Clusters Features added!");
     }
-    //POS features
-    if (Flags.isPOSFeatures(params)) {
-      setWindow(params);
-      String posModelPath = Flags.getPOSFeatures(params);
-      Element posFeatureElement = new Element("custom");
-      posFeatureElement.setAttribute("class", POSFeatureGenerator.class.getName());
-      posFeatureElement.setAttribute("model", InputOutputUtils.normalizeLexiconName(posModelPath));
-      Element posFeatureWindow = new Element("window");
-      posFeatureWindow.setAttribute("prevLength", Integer.toString(leftWindow));
-      posFeatureWindow.setAttribute("nextLength", Integer.toString(rightWindow));
-      posFeatureWindow.addContent(posFeatureElement);
-      generators.addContent(posFeatureWindow);
-      System.err.println("-> POS Features added!");
-    }
-    //Lemma features
-    if (Flags.isLemmaFeatures(params)) {
+    //Morphological features
+    if (Flags.isMorphoFeatures(params)) {
       //leftWindow = 1;
       //rightWindow = 1;
-      String lemmaPath = Flags.getLemmaFeatures(params);
-      String[] lemmaResources = lemmaPath.split(",");
-      String lemmaConfig = Flags.getLemmaFeaturesRange(params);
-      Element lemmaClassFeatureElement = new Element("custom");
-      lemmaClassFeatureElement.setAttribute("class", LemmaFeatureGenerator.class.getName());
-      lemmaClassFeatureElement.setAttribute("model", InputOutputUtils.normalizeLexiconName(lemmaResources[0]));
-      lemmaClassFeatureElement.setAttribute("dict", InputOutputUtils.normalizeLexiconName(lemmaResources[1]));
-      lemmaClassFeatureElement.setAttribute("range", lemmaConfig);
-      Element lemmaClassFeatureWindow = new Element("window");
-      lemmaClassFeatureWindow.setAttribute("prevLength", Integer.toString(leftWindow));
-      lemmaClassFeatureWindow.setAttribute("nextLength", Integer.toString(rightWindow));
-      lemmaClassFeatureWindow.addContent(lemmaClassFeatureElement);
-      generators.addContent(lemmaClassFeatureWindow);
-      System.err.println("-> Lemma Features added");
+      String morphoPath = Flags.getMorphoFeatures(params);
+      String[] morphoResources = Flags.getMorphoResources(morphoPath);
+      String morphoRange = Flags.getMorphoFeaturesRange(params);
+      Element morphoClassFeatureElement = new Element("custom");
+      morphoClassFeatureElement.setAttribute("class", MorphoFeatureGenerator.class.getName());
+      morphoClassFeatureElement.setAttribute("model", InputOutputUtils.normalizeLexiconName(morphoResources[0]));
+      morphoClassFeatureElement.setAttribute("dict", InputOutputUtils.normalizeLexiconName(morphoResources[1]));
+      morphoClassFeatureElement.setAttribute("range", morphoRange);
+      Element morphoClassFeatureWindow = new Element("window");
+      morphoClassFeatureWindow.setAttribute("prevLength", Integer.toString(leftWindow));
+      morphoClassFeatureWindow.setAttribute("nextLength", Integer.toString(rightWindow));
+      morphoClassFeatureWindow.addContent(morphoClassFeatureElement);
+      generators.addContent(morphoClassFeatureWindow);
+      System.err.println("-> Morphological Features added");
     }
     aggGenerators.addContent(cached);
     cached.addContent(generators);

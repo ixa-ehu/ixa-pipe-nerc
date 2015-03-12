@@ -147,30 +147,16 @@ Word2VecClusterFeatures=/home/ragerri/clusters.large.txt
 ## Morphological Features ##
 ############################
 
-## To avoid training a too slow system, it is recommended to only use
-## one of the types of Morphological features available. Use the POSFeaturesRange
-## and LemmaFeaturesRange switches to specify which features are needed. For
-## example, if you need pos tags, pos classes and lemma, just the LemmaFeatures
-## can give you all three feature generators.
-## YOU HAVE BEEN WARNED!!
-
-# POS features: add pos tags as feature under the window defined above.
-# If value is uncommented, specify the location of the ixa-pipe-pos model.
-# POSFeaturesRange configures which combination of pos features are to be used:
-# Options are 'pos' and 'posclass' and their combinations. To choose both just
-# concatenate them like this: 'pos,posclass'. 'posclass' simply uses the first
-# letter of the pos tag as feature.
-# If POSFeatures commented out, no pos tag features are used.
-POSFeatures=/home/ragerri/javacode/ixa-pipe-pos/pos-models/en/en-maxent-100-c5-baseline-dict-penn.bin
-POSFeaturesRange=pos,posclass
-
-# Lemma Features: add lemma as a feature. It is required to provide the ixa-pipe-pos model of the POS tagger
-# and a plain text word\tlemma\tpostag dictionary for it to work.
-# LemmaFeaturesRange specifies the combination of features to be used: options are 'pos',
-# 'posclass' and 'lemma'.
-# If LemmaFeatures is commented out, these features are not used.
-LemmaFeatures=/home/ragerri/javacode/ixa-pipe-pos/pos-models/en/en-maxent-100-c5-baseline-dict-penn.bin,/home/ragerri/javacode/ixa-pipe-pos/src/main/resources/lemmatizer-dicts/freeling/en-lemmatizer.dict
-LemmaFeaturesRange='pos,posclass,lemma'
+# Morpho Features: add pos tag and lemma as a feature. It is required to provide
+# the ixa-pipe-pos model and a plain text word\tlemma\tpostag dictionary for it to work.
+# MorphoFeaturesRange specifies the combination of features to be used: options are 'pos',
+# 'posclass' and 'lemma' in that strict order. For example, if 'pos,posclass,lemma' is
+# chosen then all three types of features will be used. If 'pos,no,no' is chosen, then
+# only pos tag features are active. If 'pos,no,lemma' then pos tag and lemma features,
+# and so on.
+# If MorphoFeatures is commented out, no these features are used.
+MorphoFeatures=/home/ragerri/javacode/ixa-pipe-pos/pos-models/en/en-maxent-100-c5-baseline-dict-penn.bin,/home/ragerri/javacode/ixa-pipe-pos/src/main/resources/lemmatizer-dicts/freeling/en-lemmatizer.dict
+MorphoFeaturesRange='pos,posclass,lemma'
 
 #####################################
 #### CROSS VALIDATION PARAMETERS ####

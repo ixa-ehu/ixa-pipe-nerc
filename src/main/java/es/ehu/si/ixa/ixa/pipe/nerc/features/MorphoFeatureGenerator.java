@@ -28,6 +28,7 @@ import opennlp.tools.util.featuregen.FeatureGeneratorResourceProvider;
 import opennlp.tools.util.model.ArtifactSerializer;
 import es.ehu.si.ixa.ixa.pipe.nerc.dict.LemmaResource;
 import es.ehu.si.ixa.ixa.pipe.nerc.dict.POSModelResource;
+import es.ehu.si.ixa.ixa.pipe.nerc.train.Flags;
 
 /**
  * Generate lemma as feature of current token. This feature generator can
@@ -35,29 +36,40 @@ import es.ehu.si.ixa.ixa.pipe.nerc.dict.POSModelResource;
  * @author ragerri
  * @version 2015-03-11
  */
-public class LemmaFeatureGenerator extends CustomFeatureGenerator implements ArtifactToSerializerMapper {
+public class MorphoFeatureGenerator extends CustomFeatureGenerator implements ArtifactToSerializerMapper {
   
   private POSModelResource posModelResource;
   private LemmaResource lemmaDictResource;
   private String[] currentSentence;
   private String[] currentTags;
-  private Map<String, String> rangeMap;
+  private boolean isPos;
+  private boolean isPosClass;
+  private boolean isLemma;
   
-  public LemmaFeatureGenerator() {
+  public MorphoFeatureGenerator() {
   }
   
   public void createFeatures(List<String> features, String[] tokens, int index,
       String[] previousOutcomes) {
     
-    String featuresRange = rangeMap.get("range");
     //cache pos tagger results for each sentence
     if (currentSentence != tokens) {
       currentSentence = tokens;
       currentTags = posModelResource.posTag(tokens);
     }
     String posTag = currentTags[index];
-    String lemma = lemmaDictResource.lookUpLemma(tokens[index], posTag);
-    features.add("lemma=" + lemma);
+    //options
+    if (isPos) {
+      features.add("posTag=" + posTag);
+    }
+    if (isPosClass) {
+      String posTagClass = posTag.substring(0, 1);
+      features.add("posTagClass=" + posTagClass);
+    }
+    if (isLemma) {
+      String lemma = lemmaDictResource.lookUpLemma(tokens[index], posTag);
+      features.add("lemma=" + lemma);
+    }
   }
   
   @Override
@@ -84,7 +96,26 @@ public class LemmaFeatureGenerator extends CustomFeatureGenerator implements Art
       throw new InvalidFormatException("Not a LemmaResource for key: " + properties.get("dict"));
     }
     this.lemmaDictResource = (LemmaResource) lemmaResource;
-    this.rangeMap = properties;
+    processRangeOptions(properties);
+  }
+  
+  /**
+   * Process the options of which kind of features are to be generated.
+   * @param properties the properties map
+   */
+  private void processRangeOptions(Map<String, String> properties) {
+    String featuresRange = properties.get("range");
+    String[] rangeArray = Flags.getMorphoFeaturesRange(featuresRange);
+    //options
+    if (rangeArray[0].equalsIgnoreCase("pos")) {
+      isPos = true;
+    }
+    if (rangeArray[1].equalsIgnoreCase("posclass")) {
+      isPosClass = true;
+    }
+    if (rangeArray[2].equalsIgnoreCase("lemma")) {
+      isLemma = true;
+    }
   }
   
   @Override
