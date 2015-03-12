@@ -154,7 +154,7 @@ Word2VecClusterFeatures=/home/ragerri/clusters.large.txt
 # chosen then all three types of features will be used. If 'pos,no,no' is chosen, then
 # only pos tag features are active. If 'pos,no,lemma' then pos tag and lemma features,
 # and so on.
-# If MorphoFeatures is commented out, no these features are used.
+# If MorphoFeatures is commented out, none these features are used.
 MorphoFeatures=/home/ragerri/javacode/ixa-pipe-pos/pos-models/en/en-maxent-100-c5-baseline-dict-penn.bin,/home/ragerri/javacode/ixa-pipe-pos/src/main/resources/lemmatizer-dicts/freeling/en-lemmatizer.dict
 MorphoFeaturesRange='pos,posclass,lemma'
 
