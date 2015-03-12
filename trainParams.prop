@@ -28,8 +28,8 @@ Threads=4
 Language=en
 
 # ClearAdaptiveFeatures: ONLY WORKS with CONLL formats!!
-# Specify if adaptive features be cleared in the training and/or evaluation data.
-# Options are: 'yes', 'no','docstart'. The first two will reset the
+# Specify if adaptive features are cleared in the training and/or evaluation data.
+# Options are: 'yes', 'no', 'docstart'. The first two will reset the
 # features every sentence whereas the 'docstart' option will look for -DOCSTART-
 # marks in the data to clear the adaptive features.
 # Crossvalidation only works if ClearTrainingFeatures is set to 'yes'.
@@ -148,23 +148,29 @@ Word2VecClusterFeatures=/home/ragerri/clusters.large.txt
 ############################
 
 ## To avoid training a too slow system, it is recommended to only use
-## one of the types of POS features available. Also, be aware that POSClassFeatures
-## subsumes POSFeatures.
+## one of the types of Morphological features available. Use the POSFeaturesRange
+## and LemmaFeaturesRange switches to specify which features are needed. For
+## example, if you need pos tags, pos classes and lemma, just the LemmaFeatures
+## can give you all three feature generators.
 ## YOU HAVE BEEN WARNED!!
 
 # POS features: add pos tags as feature under the window defined above.
 # If value is uncommented, specify the location of the ixa-pipe-pos model.
-# If commented out, no pos tag features are used.
+# POSFeaturesRange configures which combination of pos features are to be used:
+# Options are 'pos' and 'posclass' and their combinations. To choose both just
+# concatenate them like this: 'pos,posclass'. 'posclass' simply uses the first
+# letter of the pos tag as feature.
+# If POSFeatures commented out, no pos tag features are used.
 POSFeatures=/home/ragerri/javacode/ixa-pipe-pos/pos-models/en/en-maxent-100-c5-baseline-dict-penn.bin
-
-# POS Class features: add pos tag and pos tag class as feature. If value is uncommented, specify the
-# location of the ixa-pipe-pos model. If commented out, no pos tag features
-# are used.
-POSClassFeatures=/home/ragerri/javacode/ixa-pipe-pos/pos-models/en/en-maxent-100-c5-baseline-dict-penn.bin
+POSFeaturesRange=pos,posclass
 
 # Lemma Features: add lemma as a feature. It is required to provide the ixa-pipe-pos model of the POS tagger
-# and the ixa-pipe-pos lemmatization dictionary
+# and a plain text word\tlemma\tpostag dictionary for it to work.
+# LemmaFeaturesRange specifies the combination of features to be used: options are 'pos',
+# 'posclass' and 'lemma'.
+# If LemmaFeatures is commented out, these features are not used.
 LemmaFeatures=/home/ragerri/javacode/ixa-pipe-pos/pos-models/en/en-maxent-100-c5-baseline-dict-penn.bin,/home/ragerri/javacode/ixa-pipe-pos/src/main/resources/lemmatizer-dicts/freeling/en-lemmatizer.dict
+LemmaFeaturesRange='pos,posclass,lemma'
 
 #####################################
 #### CROSS VALIDATION PARAMETERS ####

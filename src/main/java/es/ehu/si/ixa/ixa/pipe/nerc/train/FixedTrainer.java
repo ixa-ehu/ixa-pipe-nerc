@@ -163,12 +163,6 @@ public class FixedTrainer extends AbstractTrainer {
       artifactSerializers.put(serializerId, new POSModelResource.POSModelResourceSerializer());
       loadResource(serializerId, artifactSerializers, posModelPath, featureGenDescriptor, resources);
     }
-    if (Flags.isPOSClassFeatures(params)) {
-      String posModelPath = Flags.getPOSClassFeatures(params);
-      String serializerId = "postagserializer";
-      artifactSerializers.put(serializerId, new POSModelResource.POSModelResourceSerializer());
-      loadResource(serializerId, artifactSerializers, posModelPath, featureGenDescriptor, resources);
-    }
     if (Flags.isLemmaFeatures(params)) {
       String lemmaResourcesPath = Flags.getLemmaFeatures(params);
       String[] lemmaResources = lemmaResourcesPath.split(",");

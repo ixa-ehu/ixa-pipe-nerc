@@ -29,7 +29,7 @@ import opennlp.tools.util.model.ArtifactSerializer;
 import es.ehu.si.ixa.ixa.pipe.nerc.dict.POSModelResource;
 
 /**
- * Generate features with POS tags and first letter of postag for current token.
+ * Generate features with POS tags and first letter of POS tag for current token.
  * This feature generator can also be placed in a sliding window.
  * @author ragerri
  * @version 2015-03-10

@@ -27,6 +27,9 @@ public class Flags {
   public static final String DEFAULT_FEATURE_FLAG = "no";
   public static final String CHAR_NGRAM_RANGE = "2:5";
   public static final String DEFAULT_WINDOW = "2:2";
+  public static final String DEFAULT_LEMMA_RANGE = "pos,lemma";
+  public static final String DEFAULT_POS_RANGE = "pos";
+
   /**
    * Default beam size for decoding.
    */
@@ -37,14 +40,14 @@ public class Flags {
   public static final String DEFAULT_LEXER = "off";
   public static final String DEFAULT_DICT_OPTION = "off";
   public static final String DEFAULT_DICT_PATH = "off";
-  public static final String DEFAULT_OUTPUT_FORMAT="naf";
+  public static final String DEFAULT_OUTPUT_FORMAT = "naf";
   public static final String DEFAULT_SEQUENCE_CODEC = "BILOU";
   public static final String DEFAULT_EVAL_FORMAT = "conll02";
 
   private Flags() {
-    
+
   }
-  
+
   public static String getLanguage(TrainingParameters params) {
     String lang = null;
     if (params.getSettings().get("Language") == null) {
@@ -107,7 +110,7 @@ public class Flags {
     }
     return beamsize;
   }
-  
+
   public static Integer getFolds(TrainingParameters params) {
     Integer beamsize = null;
     if (params.getSettings().get("Folds") == null) {
@@ -117,7 +120,7 @@ public class Flags {
     }
     return beamsize;
   }
-  
+
   public static String getSequenceCodec(TrainingParameters params) {
     String seqCodec = null;
     if (params.getSettings().get("SequenceCodec") == null) {
@@ -127,7 +130,7 @@ public class Flags {
     }
     return seqCodec;
   }
-  
+
   public static String getClearTrainingFeatures(TrainingParameters params) {
     String clearFeatures = null;
     if (params.getSettings().get("ClearTrainingFeatures") == null) {
@@ -137,7 +140,7 @@ public class Flags {
     }
     return clearFeatures;
   }
-  
+
   public static String getClearEvaluationFeatures(TrainingParameters params) {
     String clearFeatures = null;
     if (params.getSettings().get("ClearEvaluationFeatures") == null) {
@@ -177,7 +180,7 @@ public class Flags {
     }
     return tokenClassFlag;
   }
-  
+
   public static String getTokenPatternFeatures(TrainingParameters params) {
     String tokenClassFlag = null;
     if (params.getSettings().get("TokenPatternFeatures") != null) {
@@ -337,7 +340,7 @@ public class Flags {
     }
     return brownFlag;
   }
-  
+
   public static String getPOSFeatures(TrainingParameters params) {
     String posFlag = null;
     if (params.getSettings().get("POSFeatures") != null) {
@@ -347,18 +350,24 @@ public class Flags {
     }
     return posFlag;
   }
-  
-  
-  public static String getPOSClassFeatures(TrainingParameters params) {
-    String posClassFlag = null;
-    if (params.getSettings().get("POSClassFeatures") != null) {
-      posClassFlag = params.getSettings().get("POSClassFeatures");
+
+  /**
+   * Get the lemma features configuration.
+   * 
+   * @param params
+   *          the training parameters
+   * @return a list containing the initial and maximum ngram values
+   */
+  public static String getPOSFeaturesRange(TrainingParameters params) {
+    String posRangeFlag = null;
+    if (params.getSettings().get("POSFeaturesRange") != null) {
+      posRangeFlag = params.getSettings().get("POSFeaturesRange");
     } else {
-      posClassFlag = Flags.DEFAULT_FEATURE_FLAG;
+      posRangeFlag = Flags.DEFAULT_POS_RANGE;
     }
-    return posClassFlag;
+    return posRangeFlag;
   }
-  
+
   public static String getLemmaFeatures(TrainingParameters params) {
     String lemmaFlag = null;
     if (params.getSettings().get("LemmaFeatures") != null) {
@@ -368,12 +377,31 @@ public class Flags {
     }
     return lemmaFlag;
   }
-  
+
   /**
-   * Get a parameter in trainParams.prop file consisting of a list of
-   * clustering lexicons separated by comma "," and return a list of
-   * files, one for each lexicon.
-   * @param clusterPath the clustering parameter in the prop file
+   * Get the lemma features configuration.
+   * 
+   * @param params
+   *          the training parameters
+   * @return a list containing the initial and maximum ngram values
+   */
+  public static String getLemmaFeaturesRange(TrainingParameters params) {
+    String lemmaRangeFlag = null;
+    if (params.getSettings().get("LemmaFeaturesRange") != null) {
+      lemmaRangeFlag = params.getSettings().get("LemmaFeaturesRange");
+    } else {
+      lemmaRangeFlag = Flags.DEFAULT_LEMMA_RANGE;
+    }
+    return lemmaRangeFlag;
+  }
+
+  /**
+   * Get a parameter in trainParams.prop file consisting of a list of clustering
+   * lexicons separated by comma "," and return a list of files, one for each
+   * lexicon.
+   * 
+   * @param clusterPath
+   *          the clustering parameter in the prop file
    * @return a list of files one for each lexicon
    */
   public static List<File> getClusterLexiconFiles(String clusterPath) {
@@ -383,7 +411,7 @@ public class Flags {
       clusterLexicons.add(new File(clusterName));
     }
     return clusterLexicons;
-    
+
   }
 
   public static void devSetException() {
@@ -427,37 +455,25 @@ public class Flags {
         .println("You need to specify the DictionaryFeatures in the parameters file to use the DictionaryPath!");
     System.exit(1);
   }
-  
+
   /**
    * @param params
    * @return whether the pos features are activated or not
    */
   public static boolean isPOSFeatures(TrainingParameters params) {
     String posFeatures = getPOSFeatures(params);
-    return !posFeatures
-        .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
+    return !posFeatures.equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
   }
-  
-  /**
-   * @param params
-   * @return whether the pos class features are activated or not
-   */
-  public static boolean isPOSClassFeatures(TrainingParameters params) {
-    String posFeatures = getPOSClassFeatures(params);
-    return !posFeatures
-        .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
-  }
-  
+
   /**
    * @param params
    * @return whether the pos features are activated or not
    */
   public static boolean isLemmaFeatures(TrainingParameters params) {
     String lemmaFeatures = getLemmaFeatures(params);
-    return !lemmaFeatures
-        .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
+    return !lemmaFeatures.equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
   }
-  
+
   /**
    * @param params
    * @return whether the word2vecClusterfeatures are activated or not
@@ -470,93 +486,78 @@ public class Flags {
 
   public static boolean isClarkFeatures(TrainingParameters params) {
     String clarkFeatures = getClarkFeatures(params);
-    return !clarkFeatures
-        .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
+    return !clarkFeatures.equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
   }
 
   public static boolean isBrownFeatures(TrainingParameters params) {
     String brownFeatures = getBrownFeatures(params);
-    return !brownFeatures
-        .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
+    return !brownFeatures.equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
   }
 
   public static boolean isDictionaryFeatures(TrainingParameters params) {
     String dictFeatures = getDictionaryFeatures(params);
-    return !dictFeatures
-        .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
+    return !dictFeatures.equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
   }
 
   public static boolean isCharNgramClassFeature(TrainingParameters params) {
     XMLFeatureDescriptor.setNgramRange(params);
     String charngramParam = getCharNgramFeatures(params);
-    return !charngramParam
-        .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
+    return !charngramParam.equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
   }
 
   public static boolean isFivegramClassFeature(TrainingParameters params) {
     String fivegramParam = getFivegramClassFeatures(params);
-    return !fivegramParam
-        .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
+    return !fivegramParam.equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
   }
 
   public static boolean isFourgramClassFeature(TrainingParameters params) {
     String fourgramParam = getFourgramClassFeatures(params);
-    return !fourgramParam
-        .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
+    return !fourgramParam.equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
   }
 
   public static boolean isTrigramClassFeature(TrainingParameters params) {
     String trigramParam = getTrigramClassFeatures(params);
-    return !trigramParam
-        .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
+    return !trigramParam.equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
   }
 
   public static boolean isBigramClassFeature(TrainingParameters params) {
     String bigramParam = getBigramClassFeatures(params);
-    return !bigramParam
-        .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
+    return !bigramParam.equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
   }
 
   public static boolean isSuffixFeature(TrainingParameters params) {
     String suffixParam = getSuffixFeatures(params);
-    return !suffixParam
-        .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
+    return !suffixParam.equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
   }
 
   public static boolean isPrefixFeature(TrainingParameters params) {
     String prefixParam = getPreffixFeatures(params);
-    return !prefixParam
-        .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
+    return !prefixParam.equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
   }
 
   public static boolean isSentenceFeature(TrainingParameters params) {
     String sentenceParam = getSentenceFeatures(params);
-    return !sentenceParam
-        .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
+    return !sentenceParam.equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
   }
 
   public static boolean isPreviousMapFeature(TrainingParameters params) {
     String previousMapParam = getPreviousMapFeatures(params);
-    return !previousMapParam
-        .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
+    return !previousMapParam.equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
   }
 
   public static boolean isOutcomePriorFeature(TrainingParameters params) {
     String outcomePriorParam = getOutcomePriorFeatures(params);
-    return !outcomePriorParam
-        .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
+    return !outcomePriorParam.equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
   }
 
   public static boolean isTokenClassFeature(TrainingParameters params) {
     String tokenParam = getTokenClassFeatures(params);
-    return !tokenParam
-        .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
+    return !tokenParam.equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
   }
 
   public static boolean isTokenFeature(TrainingParameters params) {
     String tokenParam = getTokenFeatures(params);
-    return !tokenParam
-        .equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
+    return !tokenParam.equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
   }
 
 }

@@ -41,12 +41,15 @@ public class LemmaFeatureGenerator extends CustomFeatureGenerator implements Art
   private LemmaResource lemmaDictResource;
   private String[] currentSentence;
   private String[] currentTags;
+  private Map<String, String> rangeMap;
   
   public LemmaFeatureGenerator() {
   }
   
   public void createFeatures(List<String> features, String[] tokens, int index,
       String[] previousOutcomes) {
+    
+    String featuresRange = rangeMap.get("range");
     //cache pos tagger results for each sentence
     if (currentSentence != tokens) {
       currentSentence = tokens;
@@ -81,6 +84,7 @@ public class LemmaFeatureGenerator extends CustomFeatureGenerator implements Art
       throw new InvalidFormatException("Not a LemmaResource for key: " + properties.get("dict"));
     }
     this.lemmaDictResource = (LemmaResource) lemmaResource;
+    this.rangeMap = properties;
   }
   
   @Override

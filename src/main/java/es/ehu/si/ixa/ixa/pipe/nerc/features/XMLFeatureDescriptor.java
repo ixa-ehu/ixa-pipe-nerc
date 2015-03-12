@@ -312,29 +312,18 @@ public final class XMLFeatureDescriptor {
       generators.addContent(posFeatureWindow);
       System.err.println("-> POS Features added!");
     }
-    if (Flags.isPOSClassFeatures(params)) {
-      leftWindow = 1;
-      rightWindow = 1;
-      String posModelPath = Flags.getPOSClassFeatures(params);
-      Element posClassFeatureElement = new Element("custom");
-      posClassFeatureElement.setAttribute("class",POSClassFeatureGenerator.class.getName());
-      posClassFeatureElement.setAttribute("model", InputOutputUtils.normalizeLexiconName(posModelPath));
-      Element posClassFeatureWindow = new Element("window");
-      posClassFeatureWindow.setAttribute("prevLength", Integer.toString(leftWindow));
-      posClassFeatureWindow.setAttribute("nextLength", Integer.toString(rightWindow));
-      posClassFeatureWindow.addContent(posClassFeatureElement);
-      generators.addContent(posClassFeatureWindow);
-      System.err.println("-> POS and POS Class Features added");
-    }
+    //Lemma features
     if (Flags.isLemmaFeatures(params)) {
       //leftWindow = 1;
       //rightWindow = 1;
       String lemmaPath = Flags.getLemmaFeatures(params);
       String[] lemmaResources = lemmaPath.split(",");
+      String lemmaConfig = Flags.getLemmaFeaturesRange(params);
       Element lemmaClassFeatureElement = new Element("custom");
       lemmaClassFeatureElement.setAttribute("class", LemmaFeatureGenerator.class.getName());
       lemmaClassFeatureElement.setAttribute("model", InputOutputUtils.normalizeLexiconName(lemmaResources[0]));
       lemmaClassFeatureElement.setAttribute("dict", InputOutputUtils.normalizeLexiconName(lemmaResources[1]));
+      lemmaClassFeatureElement.setAttribute("range", lemmaConfig);
       Element lemmaClassFeatureWindow = new Element("window");
       lemmaClassFeatureWindow.setAttribute("prevLength", Integer.toString(leftWindow));
       lemmaClassFeatureWindow.setAttribute("nextLength", Integer.toString(rightWindow));
