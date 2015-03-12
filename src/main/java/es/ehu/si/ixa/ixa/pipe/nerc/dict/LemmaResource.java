@@ -132,7 +132,7 @@ public class LemmaResource implements SerializableArtifact {
     Writer writer = new BufferedWriter(new OutputStreamWriter(out));
 
     for (Map.Entry<List<String>, String> entry : dictMap.entrySet()) {
-      writer.write(entry.getKey().get(0) + "\t" + entry.getKey().get(1) + "\t" + entry.getValue() + "\n");
+      writer.write(entry.getKey().get(0) + "\t" + entry.getValue() + "\t" + entry.getKey().get(1) +"\n");
     }
     writer.flush();
   }
