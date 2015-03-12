@@ -31,10 +31,10 @@ import es.ehu.si.ixa.ixa.pipe.nerc.dict.POSModelResource;
 import es.ehu.si.ixa.ixa.pipe.nerc.train.Flags;
 
 /**
- * Generate lemma as feature of current token. This feature generator can
- * also be placed in a sliding window.
+ * Generate pos tag, pos tag class or lemma as feature of current token.
+ * This feature generator can also be placed in a sliding window.
  * @author ragerri
- * @version 2015-03-11
+ * @version 2015-03-12
  */
 public class MorphoFeatureGenerator extends CustomFeatureGenerator implements ArtifactToSerializerMapper {
   

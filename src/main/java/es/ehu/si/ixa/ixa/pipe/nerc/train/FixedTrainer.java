@@ -1,5 +1,5 @@
 /*
- *  Copyright 2014 Rodrigo Agerri
+ *  Copyright 2015 Rodrigo Agerri
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ import es.ehu.si.ixa.ixa.pipe.nerc.features.XMLFeatureDescriptor;
 
 /**
  * Training NER based on Apache OpenNLP Machine Learning API. This class creates
- * a feature set based on the features activated in the trainParams.txt
+ * a feature set based on the features activated in the trainParams.prop
  * properties file:
  * <ol>
  * <li>Window: specify left and right window lengths.
@@ -64,12 +64,11 @@ import es.ehu.si.ixa.ixa.pipe.nerc.features.XMLFeatureDescriptor;
  * containing a token.
  * <li>Word2VecClusterFeatures: use the word2vec clustering class of a token as
  * a feature.
- * <li>POSFeatures: use the pos tags in a window as features.
- * <li>POSClassFeatures: use pos tags and first letter of pos tag as feature.
+ * <li>MorphoFeatures: use pos tags, pos tag class and lemma as features.
  * <ol>
  * 
  * @author ragerri
- * @version 2015-03-10
+ * @version 2015-03-12
  */
 public class FixedTrainer extends AbstractTrainer {
   
