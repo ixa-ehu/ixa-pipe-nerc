@@ -165,7 +165,7 @@ MorphoFeaturesRange=pos,posclass,lemma
 # 'posclass', 'lemma', 'mfs', 'monosemic'. If 'pos,no,no,no,no' is chosen, only pos
 # features to be used. If 'pos,no,lemma,mfs,no' is chosen, then pos, lemma and most
 # frequent sense features are used.
-MFSFeatures=/home/ragerri/resources/supersense/supersenses.wn20
+MFSFeatures=/home/ragerri/javacode/ixa-pipe-pos/pos-models-1.3.0/en/en-maxent-100-c5-baseline-dict-penn.bin,/home/ragerri/resources/pos-resources/lemmatizer-dicts/freeling/en-lemmatizer.txt,/home/ragerri/resources/supersense/supersenses.wn20
 MFSFeaturesRange=pos,posclass,lemma,mfs,monosemic
 
 #####################################

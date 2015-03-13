@@ -39,7 +39,7 @@ import es.ehu.si.ixa.ixa.pipe.nerc.train.Flags;
  * as feature of the current token.
  * This feature generator can also be placed in a sliding window.
  * @author ragerri
- * @version 2015-03-12
+ * @version 2015-03-13
  */
 public class MFSFeatureGenerator extends CustomFeatureGenerator implements ArtifactToSerializerMapper {
   
@@ -88,7 +88,6 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements Artif
         TreeMultimap<Integer, String> mfsMap = mfsDictResource.getOrderedMap(lemmaPOSClass);
         if (!mfsMap.isEmpty()) {
           String mfs = mfsDictResource.getMFS(mfsMap);
-          System.err.println("-> MFS: " + tokens[index] + " " + lemmaPOSClass + " " + mfs);
           features.add("mfs=" + mfs);
           features.add("mfs,w=" + mfs + "," + tokens[index]);
         } else {
@@ -101,9 +100,10 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements Artif
         TreeMultimap<Integer, String> mfsMap = mfsDictResource.getOrderedMap(lemmaPOSClass);
         if (mfsMap.size() == 1) {
           String monosemic = mfsMap.get(mfsMap.keySet().first()).first();
-          System.err.println("-> Monosemic: " + monosemic);
           features.add("monosemic=" + monosemic);
           features.add("monosemic,w=" + monosemic + "," + tokens[index]);
+        } else {
+          features.add("monosemic=" + "unknownMonosemic");
         }
       } else {
         //TODO use DictionaryFeatureFinder to find multiword spans and build the
@@ -117,7 +117,9 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements Artif
             System.err.println("-> Monosemic: " + monosemic);
             features.add("monosemic=" + monosemic);
             features.add("monosemic,w=" + monosemic + "," + tokens[index]);
-          }//TODO Unknown
+          } else {
+            features.add("monosemic=" + "unknownMonosemic");
+          }
         }
       }
     }

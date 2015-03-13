@@ -89,11 +89,10 @@ public class MFSResource implements SerializableArtifact {
   
   /**
    * Get the MFS from a lemma#posClass entry, e.g., house#n.
-   * @param lemmaPOSClass the entry
+   * @param mfsMap map to get the MFS from
    * @return the most frequent sense
    */
   public String getMFS(TreeMultimap<Integer, String> mfsMap) {
-    System.err.println("-> MFS MAP SIZE " + mfsMap.size());
     SortedSet<String> mfs = mfsMap.get(mfsMap.keySet().first());
     return mfs.first();
    }
