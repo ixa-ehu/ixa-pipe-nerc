@@ -92,6 +92,7 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements Artif
           features.add("mfs,w=" + mfs + "," + tokens[index]);
         } else {
           features.add("mfs=" + "unknownMFS");
+          //TODO add also token
         }
       }
     }
@@ -104,6 +105,7 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements Artif
           features.add("monosemic,w=" + monosemic + "," + tokens[index]);
         } else {
           features.add("monosemic=" + "unknownMonosemic");
+          //TODO add also token
         }
       } else {
         //TODO use DictionaryFeatureFinder to find multiword spans and build the
