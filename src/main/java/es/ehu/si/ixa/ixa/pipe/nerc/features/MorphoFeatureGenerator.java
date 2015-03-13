@@ -105,7 +105,7 @@ public class MorphoFeatureGenerator extends CustomFeatureGenerator implements Ar
    */
   private void processRangeOptions(Map<String, String> properties) {
     String featuresRange = properties.get("range");
-    String[] rangeArray = Flags.getMorphoFeaturesRange(featuresRange);
+    String[] rangeArray = Flags.processMorphoFeaturesRange(featuresRange);
     //options
     if (rangeArray[0].equalsIgnoreCase("pos")) {
       isPos = true;

@@ -28,6 +28,8 @@ public class Flags {
   public static final String CHAR_NGRAM_RANGE = "2:5";
   public static final String DEFAULT_WINDOW = "2:2";
   public static final String DEFAULT_MORPHO_RANGE = "pos,no,lemma";
+  public static final String DEFAULT_MFS_RANGE = "pos,no,lemma,mfs,monosemic";
+  
   /**
    * Default beam size for decoding.
    */
@@ -358,15 +360,6 @@ public class Flags {
     return morphoFlagArray;
   }
   
-  public static String[] getMorphoFeaturesRange(String morphoRangeFlag) {
-    String[] morphoRangeArray = morphoRangeFlag.split(",");
-    if (morphoRangeArray.length != 3) {
-      System.err.println("MorphoFeaturesRange option requires three fields but only got " + morphoRangeArray.length);
-      System.exit(1);
-    }
-    return morphoRangeArray;
-  }
-
   /**
    * Get the lemma features configuration.
    * 
@@ -383,7 +376,62 @@ public class Flags {
     }
     return lemmaRangeFlag;
   }
+  
+  public static String[] processMorphoFeaturesRange(String mfsFlag) {
+    String[] mfsFlagArray = mfsFlag.split(",");
+    if (mfsFlagArray.length != 3) {
+      System.err.println("MorphoFeaturesRange requiress three fields but only got " + mfsFlagArray.length);
+      System.exit(1);
+    }
+    return mfsFlagArray;
+  }
 
+  
+  public static String getMFSFeatures(TrainingParameters params) {
+    String mfsFlag = null;
+    if (params.getSettings().get("MFSFeatures") != null) {
+      mfsFlag = params.getSettings().get("MFSFeatures");
+    } else {
+      mfsFlag = Flags.DEFAULT_FEATURE_FLAG;
+    }
+    return mfsFlag;
+  }
+  
+  public static String[] getMFSResources(String mfsFlag) {
+    String[] mfsFlagArray = mfsFlag.split(",");
+    if (mfsFlagArray.length != 3) {
+      System.err.println("MFSResources resources requires three fields but only got " + mfsFlagArray.length);
+      System.exit(1);
+    }
+    return mfsFlagArray;
+  }
+  
+  /**
+   * Get the lemma features configuration.
+   * 
+   * @param params
+   *          the training parameters
+   * @return a list containing the initial and maximum ngram values
+   */
+  public static String getMFSFeaturesRange(TrainingParameters params) {
+    String mfsRangeFlag = null;
+    if (params.getSettings().get("MFSFeaturesRange") != null) {
+      mfsRangeFlag = params.getSettings().get("MFSFeaturesRange");
+    } else {
+      mfsRangeFlag = Flags.DEFAULT_MFS_RANGE;
+    }
+    return mfsRangeFlag;
+  }
+  
+  public static String[] processMFSFeaturesRange(String mfsFlag) {
+    String[] mfsFlagArray = mfsFlag.split(",");
+    if (mfsFlagArray.length != 5) {
+      System.err.println("MFSFeaturesRange requires five fields but only got " + mfsFlagArray.length);
+      System.exit(1);
+    }
+    return mfsFlagArray;
+  }
+  
   /**
    * Get a parameter in trainParams.prop file consisting of a list of clustering
    * lexicons separated by comma "," and return a list of files, one for each
@@ -453,6 +501,16 @@ public class Flags {
   public static boolean isMorphoFeatures(TrainingParameters params) {
     String morphoFeatures = getMorphoFeatures(params);
     return !morphoFeatures.equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
+  }
+  
+  /**
+   * Check if mfs features are active.
+   * @param params the parameters
+   * @return whether the mfs features are activated or not
+   */
+  public static boolean isMFSFeatures(TrainingParameters params) {
+    String mfsFeatures = getMFSFeatures(params);
+    return !mfsFeatures.equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
   }
 
   /**

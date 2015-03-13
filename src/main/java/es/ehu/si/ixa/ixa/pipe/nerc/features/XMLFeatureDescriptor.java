@@ -317,6 +317,39 @@ public final class XMLFeatureDescriptor {
       generators.addContent(morphoClassFeatureWindow);
       System.err.println("-> Morphological Features added");
     }
+    //MFS features
+    /*if (Flags.isMFSFeatures(params)) {
+      leftWindow = 0;
+      rightWindow = 0;
+      String mfsPath = Flags.getMFSFeatures(params);
+      String[] mfsResources = Flags.getMFSResources(mfsPath);
+      String mfsRange = Flags.getMFSFeaturesRange(params);
+      Element mfsClassFeatureElement = new Element("custom");
+      mfsClassFeatureElement.setAttribute("class", MFSFeatureGenerator.class.getName());
+      mfsClassFeatureElement.setAttribute("model", InputOutputUtils.normalizeLexiconName(mfsResources[0]));
+      mfsClassFeatureElement.setAttribute("dict", InputOutputUtils.normalizeLexiconName(mfsResources[1]));
+      mfsClassFeatureElement.setAttribute("mfs", InputOutputUtils.normalizeLexiconName(mfsResources[2]));
+      mfsClassFeatureElement.setAttribute("range", mfsRange);
+      Element mfsClassFeatureWindow = new Element("window");
+      mfsClassFeatureWindow.setAttribute("prevLength", Integer.toString(leftWindow));
+      mfsClassFeatureWindow.setAttribute("nextLength", Integer.toString(rightWindow));
+      mfsClassFeatureWindow.addContent(mfsClassFeatureElement);
+      generators.addContent(mfsClassFeatureWindow);
+      System.err.println("-> MFS Features added");
+    }*/
+    if (Flags.isMFSFeatures(params)) {
+      String mfsPath = Flags.getMFSFeatures(params);
+      String[] mfsResources = Flags.getMFSResources(mfsPath);
+      String mfsRange = Flags.getMFSFeaturesRange(params);
+      Element mfsClassFeatureElement = new Element("custom");
+      mfsClassFeatureElement.setAttribute("class", MFSFeatureGenerator.class.getName());
+      mfsClassFeatureElement.setAttribute("model", InputOutputUtils.normalizeLexiconName(mfsResources[0]));
+      mfsClassFeatureElement.setAttribute("dict", InputOutputUtils.normalizeLexiconName(mfsResources[1]));
+      mfsClassFeatureElement.setAttribute("mfs", InputOutputUtils.normalizeLexiconName(mfsResources[2]));
+      mfsClassFeatureElement.setAttribute("range", mfsRange);
+      generators.addContent(mfsClassFeatureElement);
+      System.err.println("-> MFS Features added");
+    }
     aggGenerators.addContent(cached);
     cached.addContent(generators);
     

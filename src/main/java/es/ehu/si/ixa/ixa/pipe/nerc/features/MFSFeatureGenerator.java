@@ -26,6 +26,9 @@ import opennlp.tools.util.featuregen.ArtifactToSerializerMapper;
 import opennlp.tools.util.featuregen.CustomFeatureGenerator;
 import opennlp.tools.util.featuregen.FeatureGeneratorResourceProvider;
 import opennlp.tools.util.model.ArtifactSerializer;
+
+import com.google.common.collect.TreeMultimap;
+
 import es.ehu.si.ixa.ixa.pipe.nerc.dict.LemmaResource;
 import es.ehu.si.ixa.ixa.pipe.nerc.dict.MFSResource;
 import es.ehu.si.ixa.ixa.pipe.nerc.dict.POSModelResource;
@@ -49,6 +52,7 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements Artif
   private boolean isPosClass;
   private boolean isLemma;
   private boolean isMFS;
+  private boolean isMonosemic;
   
   public MFSFeatureGenerator() {
   }
@@ -74,13 +78,47 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements Artif
       String lemma = lemmaDictResource.lookUpLemma(tokens[index], posTag);
       features.add("lemma=" + lemma);
     }
+    String lemmaPOSClass = null;
     if (isMFS) {
-      //TODO make language agnostic
+      //TODO use DictionaryFeatureFinder to find multiword spans and build the
+      //feature as for DictionaryFeatureGenerator
       if (posTag.startsWith("J") || posTag.startsWith("N") || posTag.startsWith("R") || posTag.startsWith("V")) {
         String lemma = lemmaDictResource.lookUpLemma(tokens[index], posTag);
-        String lemmaPOSClass = lemma + "#" + posTag.substring(0, 1);
-        List<String> mfsOrderedList = mfsDictResource.getMFS(lemmaPOSClass);
-        //TODO do the ordering of the values
+        lemmaPOSClass = lemma + "#" + posTag.substring(0, 1).toLowerCase();
+        TreeMultimap<Integer, String> mfsMap = mfsDictResource.getOrderedMap(lemmaPOSClass);
+        if (!mfsMap.isEmpty()) {
+          String mfs = mfsDictResource.getMFS(mfsMap);
+          System.err.println("-> MFS: " + tokens[index] + " " + lemmaPOSClass + " " + mfs);
+          features.add("mfs=" + mfs);
+          features.add("mfs,w=" + mfs + "," + tokens[index]);
+        } else {
+          features.add("mfs=" + "unknownMFS");
+        }
+      }
+    }
+    if (isMonosemic) {
+      if (isMFS && lemmaPOSClass != null) {
+        TreeMultimap<Integer, String> mfsMap = mfsDictResource.getOrderedMap(lemmaPOSClass);
+        if (mfsMap.size() == 1) {
+          String monosemic = mfsMap.get(mfsMap.keySet().first()).first();
+          System.err.println("-> Monosemic: " + monosemic);
+          features.add("monosemic=" + monosemic);
+          features.add("monosemic,w=" + monosemic + "," + tokens[index]);
+        }
+      } else {
+        //TODO use DictionaryFeatureFinder to find multiword spans and build the
+        //feature as for DictionaryFeatureGenerator
+        if (posTag.startsWith("J") || posTag.startsWith("N") || posTag.startsWith("R") || posTag.startsWith("V")) {
+          String lemma = lemmaDictResource.lookUpLemma(tokens[index], posTag);
+          lemmaPOSClass = lemma + "#" + posTag.substring(0, 1).toLowerCase();
+          TreeMultimap<Integer, String> mfsMap = mfsDictResource.getOrderedMap(lemmaPOSClass);
+          if (mfsMap.size() == 1) {
+            String monosemic = mfsMap.get(mfsMap.keySet().first()).first();
+            System.err.println("-> Monosemic: " + monosemic);
+            features.add("monosemic=" + monosemic);
+            features.add("monosemic,w=" + monosemic + "," + tokens[index]);
+          }//TODO Unknown
+        }
       }
     }
   }
@@ -123,7 +161,7 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements Artif
    */
   private void processRangeOptions(Map<String, String> properties) {
     String featuresRange = properties.get("range");
-    String[] rangeArray = Flags.getMorphoFeaturesRange(featuresRange);
+    String[] rangeArray = Flags.processMFSFeaturesRange(featuresRange);
     //options
     if (rangeArray[0].equalsIgnoreCase("pos")) {
       isPos = true;
@@ -136,6 +174,9 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements Artif
     }
     if (rangeArray[3].equalsIgnoreCase("mfs")) {
       isMFS = true;
+    }
+    if (rangeArray[4].equalsIgnoreCase("monosemic")) {
+      isMonosemic = true;
     }
   }
   

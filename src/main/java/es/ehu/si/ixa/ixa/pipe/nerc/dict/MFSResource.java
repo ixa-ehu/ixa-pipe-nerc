@@ -26,6 +26,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
 import java.util.regex.Pattern;
 
 import opennlp.tools.util.InvalidFormatException;
@@ -33,11 +34,16 @@ import opennlp.tools.util.model.ArtifactSerializer;
 import opennlp.tools.util.model.SerializableArtifact;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Ordering;
+import com.google.common.collect.TreeMultimap;
 
 /**
+ * Reads wordnet lexicons formated as house#n\t1092#noun.artifact
+ * to search for most frequent senses.
  * @author ragerri
- * @version 2015-03-11
+ * @version 2015-03-13
  * 
  */
 public class MFSResource implements SerializableArtifact {
@@ -82,16 +88,64 @@ public class MFSResource implements SerializableArtifact {
   }
   
   /**
-   * Look-up lemma#pos in dictionary.
-   * @param word the word
-   * @param postag the postag
-   * @return the frequency#supersense list of values
+   * Get the MFS from a lemma#posClass entry, e.g., house#n.
+   * @param lemmaPOSClass the entry
+   * @return the most frequent sense
    */
-  public List<String> getMFS(String lemmaPOSClass) {
-    List<String> mfsList = multiMap.get(lemmaPOSClass);
-    return mfsList;
+  public String getMFS(TreeMultimap<Integer, String> mfsMap) {
+    System.err.println("-> MFS MAP SIZE " + mfsMap.size());
+    SortedSet<String> mfs = mfsMap.get(mfsMap.keySet().first());
+    return mfs.first();
    }
   
+  /**
+   * Get a rank of senses ordered by MFS. 
+   * @param lemmaPOSClass the lemma#pos entry
+   * @param rankSize the size of the rank
+   * @return the ordered multimap containing the rank
+   */
+  public TreeMultimap<Integer, String> getMFSRanking(String lemmaPOSClass, Integer rankSize) {
+    
+    TreeMultimap<Integer, String> mfsResultsMap = getOrderedMap(lemmaPOSClass);
+    TreeMultimap<Integer, String> mfsRankMap = TreeMultimap.create(Ordering.natural().reverse(), Ordering.natural());
+    for (Map.Entry<Integer, String> freqSenseEntry : Iterables.limit(mfsResultsMap.entries(), rankSize)) {
+      mfsRankMap.put(freqSenseEntry.getKey(), freqSenseEntry.getValue());
+    }
+    return mfsRankMap;
+  }
+  
+  /**
+   * Get the ordered Map of most frequent senses for a lemma#pos entry.
+   * @param lemmaPOSClass the lemma#pos entry
+   * @return the ordered multimap of senses
+   */
+  public TreeMultimap<Integer, String> getOrderedMap(String lemmaPOSClass) {
+    List<String> mfsList = multiMap.get(lemmaPOSClass);
+    TreeMultimap<Integer, String> mfsMap = TreeMultimap.create(Ordering.natural().reverse(), Ordering.natural());
+    if (!mfsList.isEmpty()) {
+      getOrderedSenses(mfsList, mfsMap);
+    }
+    return mfsMap;
+  }
+  
+  /**
+   * Look-up lemma#pos string as key in dictionary.
+   * @param mfsList the list containing the freq#sense values
+   */
+  public void getOrderedSenses(List<String> mfsList, TreeMultimap<Integer, String> mfsResultsMap) {
+    if (!mfsList.isEmpty()) {
+      for (String mfsResult : mfsList) {
+        String[] mfsEntry = mfsResult.split("#");
+        mfsResultsMap.put(Integer.valueOf(mfsEntry[0]), mfsEntry[1]);
+      }
+    }
+  }
+  
+  /**
+   * Serialize the lexicon in the original format.
+   * @param out
+   * @throws IOException
+   */
   public void serialize(OutputStream out) throws IOException {
     Writer writer = new BufferedWriter(new OutputStreamWriter(out));
 
