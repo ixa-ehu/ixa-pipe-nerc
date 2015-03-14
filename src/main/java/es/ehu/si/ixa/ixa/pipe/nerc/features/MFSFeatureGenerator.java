@@ -89,11 +89,11 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements Artif
         if (!mfsMap.isEmpty()) {
           String mfs = mfsDictResource.getMFS(mfsMap);
           features.add("mfs=" + mfs);
-          features.add("mfs,w=" + mfs + "," + tokens[index]);
-        } else {
+          //features.add("mfs,w=" + mfs + "," + tokens[index]);
+        } /*else {
           features.add("mfs=" + "unknownMFS");
           //TODO add also token
-        }
+        }*/
       }
     }
     if (isMonosemic) {
@@ -119,9 +119,9 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements Artif
             System.err.println("-> Monosemic: " + monosemic);
             features.add("monosemic=" + monosemic);
             features.add("monosemic,w=" + monosemic + "," + tokens[index]);
-          } else {
+          } /*else {
             features.add("monosemic=" + "unknownMonosemic");
-          }
+          }*/
         }
       }
     }
