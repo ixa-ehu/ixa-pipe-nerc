@@ -79,11 +79,6 @@ TokenFeatures=yes
 # etc. see FastTokenClassFeatureGenerator class for details
 TokenClassFeatures=yes
 
-# TokenPatternFeatures: Partitions tokens into sub-tokens based on character classes and generates
-# class features for each of the sub-tokens and combinations of those
-# sub-tokens.
-TokenPatternFeatures=yes
-
 # OutcomePriorFeatures: maps the underlying previous outcomes
 OutcomePriorFeatures=yes
 

@@ -88,10 +88,10 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements Artif
         if (!mfsMap.isEmpty()) {
           String mfs = mfsDictResource.getMFS(mfsMap);
           features.add("mfs=" + mfs);
-          features.add("mfs,w=" + mfs + "," + tokens[index]);
+          features.add("mfs,lemma=" + mfs + "," + lemma);
         } else {
           features.add("mfs=" + "noMFS");
-          features.add("mfs,w=" + "noMFS" + "," + tokens[index]);
+          features.add("mfs,lemma=" + "noMFS" + "," + lemma);
         }
       }
     }
