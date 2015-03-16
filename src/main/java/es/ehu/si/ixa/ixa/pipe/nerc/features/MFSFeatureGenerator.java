@@ -66,9 +66,14 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements Artif
       currentTags = posModelResource.posTag(tokens);
     }
     String posTag = currentTags[index];
-    //options
     if (isPos) {
       features.add("posTag=" + posTag);
+      if (posTag.startsWith("NNP")) {
+        features.add("posprop=" + posTag);
+      }
+      if (posTag.equalsIgnoreCase("NN") || posTag.equalsIgnoreCase("NNS")) {
+        features.add("poscomm=" + posTag);
+      }
     }
     if (isPosClass) {
       String posTagClass = posTag.substring(0, 1);
@@ -91,8 +96,8 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements Artif
           features.add("mfs=" + mfs);
           features.add("mfs,w=" + mfs + "," + tokens[index]);
         } else {
-          features.add("mfs=" + "unknownMFS");
-          features.add("mfs,w=" + "unknownMFS" + "," + tokens[index]);
+          features.add("mfs=" + "noMFS");
+          features.add("mfs,w=" + "noMFS" + "," + tokens[index]);
         }
       }
     }
@@ -104,12 +109,10 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements Artif
           features.add("monosemic=" + monosemic);
           features.add("monosemic,w=" + monosemic + "," + tokens[index]);
         } else {
-          features.add("monosemic=" + "unknownMonosemic");
-          features.add("monosemic,w=" + "uknownMonosemic" + "," + tokens[index]);
+          features.add("monosemic=" + "noMonosemic");
+          features.add("monosemic,w=" + "noMonosemic" + "," + tokens[index]);
         }
       } else {
-        //TODO use DictionaryFeatureFinder to find multiword spans and build the
-        //feature as for DictionaryFeatureGenerator
         if (posTag.startsWith("J") || posTag.startsWith("N") || posTag.startsWith("R") || posTag.startsWith("V")) {
           String lemma = lemmaDictResource.lookUpLemma(tokens[index], posTag);
           lemmaPOSClass = lemma + "#" + posTag.substring(0, 1).toLowerCase();
@@ -119,8 +122,8 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements Artif
             features.add("monosemic=" + monosemic);
             features.add("monosemic,w=" + monosemic + "," + tokens[index]);
           } else {
-            features.add("monosemic=" + "unknownMonosemic");
-	    features.add("monosemic,w=" + "uknownMonosemic" + "," + tokens[index]);
+            features.add("monosemic=" + "noMonosemic");
+            features.add("monosemic,w=" + "noMonosemic" + "," + tokens[index]);
           }
         }
       }
