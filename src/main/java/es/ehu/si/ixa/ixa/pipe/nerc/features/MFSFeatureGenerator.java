@@ -68,12 +68,6 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements Artif
     String posTag = currentTags[index];
     if (isPos) {
       features.add("posTag=" + posTag);
-      if (posTag.startsWith("NNP")) {
-        features.add("posprop=" + posTag);
-      }
-      if (posTag.equalsIgnoreCase("NN") || posTag.equalsIgnoreCase("NNS")) {
-        features.add("poscomm=" + posTag);
-      }
     }
     if (isPosClass) {
       String posTagClass = posTag.substring(0, 1);
