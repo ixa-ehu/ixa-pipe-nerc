@@ -89,11 +89,11 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements Artif
         if (!mfsMap.isEmpty()) {
           String mfs = mfsDictResource.getMFS(mfsMap);
           features.add("mfs=" + mfs);
-          //features.add("mfs,w=" + mfs + "," + tokens[index]);
-        } /*else {
+          features.add("mfs,w=" + mfs + "," + tokens[index]);
+        } else {
           features.add("mfs=" + "unknownMFS");
-          //TODO add also token
-        }*/
+          features.add("mfs,w=" + "unknownMFS" + "," + tokens[index]);
+        }
       }
     }
     if (isMonosemic) {
@@ -105,7 +105,7 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements Artif
           features.add("monosemic,w=" + monosemic + "," + tokens[index]);
         } else {
           features.add("monosemic=" + "unknownMonosemic");
-          //TODO add also token
+          features.add("monosemic,w=" + "uknownMonosemic" + "," + tokens[index]);
         }
       } else {
         //TODO use DictionaryFeatureFinder to find multiword spans and build the
@@ -116,12 +116,12 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements Artif
           TreeMultimap<Integer, String> mfsMap = mfsDictResource.getOrderedMap(lemmaPOSClass);
           if (mfsMap.size() == 1) {
             String monosemic = mfsMap.get(mfsMap.keySet().first()).first();
-            System.err.println("-> Monosemic: " + monosemic);
             features.add("monosemic=" + monosemic);
             features.add("monosemic,w=" + monosemic + "," + tokens[index]);
-          } /*else {
+          } else {
             features.add("monosemic=" + "unknownMonosemic");
-          }*/
+	    features.add("monosemic,w=" + "uknownMonosemic" + "," + tokens[index]);
+          }
         }
       }
     }

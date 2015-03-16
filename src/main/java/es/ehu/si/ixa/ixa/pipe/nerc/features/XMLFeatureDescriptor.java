@@ -318,9 +318,8 @@ public final class XMLFeatureDescriptor {
       System.err.println("-> Morphological Features added");
     }
     //MFS features
-    /*if (Flags.isMFSFeatures(params)) {
-      leftWindow = 0;
-      rightWindow = 0;
+    if (Flags.isMFSFeatures(params)) {
+      setWindow(params);
       String mfsPath = Flags.getMFSFeatures(params);
       String[] mfsResources = Flags.getMFSResources(mfsPath);
       String mfsRange = Flags.getMFSFeaturesRange(params);
@@ -336,8 +335,8 @@ public final class XMLFeatureDescriptor {
       mfsClassFeatureWindow.addContent(mfsClassFeatureElement);
       generators.addContent(mfsClassFeatureWindow);
       System.err.println("-> MFS Features added");
-    }*/
-    if (Flags.isMFSFeatures(params)) {
+      }
+    /*if (Flags.isMFSFeatures(params)) {
       String mfsPath = Flags.getMFSFeatures(params);
       String[] mfsResources = Flags.getMFSResources(mfsPath);
       String mfsRange = Flags.getMFSFeaturesRange(params);
@@ -349,7 +348,7 @@ public final class XMLFeatureDescriptor {
       mfsClassFeatureElement.setAttribute("range", mfsRange);
       generators.addContent(mfsClassFeatureElement);
       System.err.println("-> MFS Features added");
-    }
+      }*/
     aggGenerators.addContent(cached);
     cached.addContent(generators);
     
