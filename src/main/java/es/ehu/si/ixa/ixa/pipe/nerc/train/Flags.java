@@ -181,10 +181,10 @@ public class Flags {
     return tokenClassFlag;
   }
 
-  public static String getTokenPatternFeatures(TrainingParameters params) {
+  public static String getWordShapeSuperSenseFeatures(TrainingParameters params) {
     String tokenClassFlag = null;
-    if (params.getSettings().get("TokenPatternFeatures") != null) {
-      tokenClassFlag = params.getSettings().get("TokenPatternFeatures");
+    if (params.getSettings().get("WordShapeSuperSenseFeatures") != null) {
+      tokenClassFlag = params.getSettings().get("WordShapeSuperSenseFeatures");
     } else {
       tokenClassFlag = Flags.DEFAULT_FEATURE_FLAG;
     }
@@ -587,6 +587,11 @@ public class Flags {
   public static boolean isOutcomePriorFeature(TrainingParameters params) {
     String outcomePriorParam = getOutcomePriorFeatures(params);
     return !outcomePriorParam.equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
+  }
+  
+  public static boolean isWordShapeSuperSenseFeature(TrainingParameters params) {
+    String tokenParam = getWordShapeSuperSenseFeatures(params);
+    return !tokenParam.equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
   }
 
   public static boolean isTokenClassFeature(TrainingParameters params) {

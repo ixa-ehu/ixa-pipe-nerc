@@ -76,8 +76,12 @@ Window=2:2
 TokenFeatures=yes
 
 # TokenClassFeatures: include token shape features (capitalization, digits,
-# etc. see FastTokenClassFeatureGenerator class for details
+# etc. see TokenClassFeatureGenerator class for details
 TokenClassFeatures=yes
+
+# WordShapeSuperSenseFeatures: token shape features as implemented by
+# Ciaramita and Altun (2006).
+WordShapeSuperSenseFeatures=yes
 
 # OutcomePriorFeatures: maps the underlying previous outcomes
 OutcomePriorFeatures=yes

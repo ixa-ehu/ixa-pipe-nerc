@@ -132,6 +132,17 @@ public final class XMLFeatureDescriptor {
       generators.addContent(tokenClassWindow);
       System.err.println("-> Token Class Features added!: Window range " + leftWindow + ":" + rightWindow);
     }
+    if (Flags.isWordShapeSuperSenseFeature(params)) {
+      setWindow(params);
+      Element wordShapeSuperSenseFeature = new Element("custom");
+      wordShapeSuperSenseFeature.setAttribute("class", WordShapeSuperSenseFeatureGenerator.class.getName());
+      Element wordShapeWindow = new Element("window");
+      wordShapeWindow.setAttribute("prevLength", Integer.toString(leftWindow));
+      wordShapeWindow.setAttribute("nextLength", Integer.toString(rightWindow));
+      wordShapeWindow.addContent(wordShapeSuperSenseFeature);
+      generators.addContent(wordShapeWindow);
+      System.err.println("-> Word Shape SuperSense Features added!: Window range " + leftWindow + ":" + rightWindow);
+    }
     if (Flags.isOutcomePriorFeature(params)) {
       Element outcomePriorFeature = new Element("custom");
       outcomePriorFeature.setAttribute("class", OutcomePriorFeatureGenerator.class.getName());
@@ -318,7 +329,7 @@ public final class XMLFeatureDescriptor {
       System.err.println("-> Morphological Features added");
     }
     //MFS features
-    if (Flags.isMFSFeatures(params)) {
+    /*if (Flags.isMFSFeatures(params)) {
       setWindow(params);
       String mfsPath = Flags.getMFSFeatures(params);
       String[] mfsResources = Flags.getMFSResources(mfsPath);
@@ -335,8 +346,8 @@ public final class XMLFeatureDescriptor {
       mfsClassFeatureWindow.addContent(mfsClassFeatureElement);
       generators.addContent(mfsClassFeatureWindow);
       System.err.println("-> MFS Features added");
-      }
-    /*if (Flags.isMFSFeatures(params)) {
+      }*/
+    if (Flags.isMFSFeatures(params)) {
       String mfsPath = Flags.getMFSFeatures(params);
       String[] mfsResources = Flags.getMFSResources(mfsPath);
       String mfsRange = Flags.getMFSFeaturesRange(params);
@@ -348,7 +359,7 @@ public final class XMLFeatureDescriptor {
       mfsClassFeatureElement.setAttribute("range", mfsRange);
       generators.addContent(mfsClassFeatureElement);
       System.err.println("-> MFS Features added");
-      }*/
+      }
     aggGenerators.addContent(cached);
     cached.addContent(generators);
     
