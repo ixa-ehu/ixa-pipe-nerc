@@ -88,7 +88,7 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements Artif
         TreeMultimap<Integer, String> mfsMap = mfsDictResource.getOrderedMap(lemmaPOSClass);
         if (!mfsMap.isEmpty()) {
           String mfs = mfsDictResource.getMFS(mfsMap);
-          //TODO implement all Ciaramita's features
+          //TODO check also with tokens
           features.add("mfs=" + mfs);
           features.add("mfs,lemma=" + mfs + "," + lemma);
         } else {

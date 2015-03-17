@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import opennlp.tools.util.InvalidFormatException;
 import opennlp.tools.util.featuregen.CustomFeatureGenerator;
@@ -31,6 +33,8 @@ import opennlp.tools.util.featuregen.FeatureGeneratorResourceProvider;
  * @version 2015-03-17
  */
 public class WordShapeSuperSenseFeatureGenerator extends CustomFeatureGenerator {
+  
+  private static Pattern duplicateCharacters = Pattern.compile("([a-z\\d])\\1", Pattern.CASE_INSENSITIVE);
 
   public WordShapeSuperSenseFeatureGenerator() {
     
@@ -42,9 +46,9 @@ public class WordShapeSuperSenseFeatureGenerator extends CustomFeatureGenerator 
     String normalizedToken = normalize(tokens[index]);
     features.add("sh=" + normalizedToken);
     
-    if (Character.isLowerCase(tokens[index].codePointAt(0))) {
+    if (Character.isLowerCase(tokens[index].charAt(0))) {
       features.add("sh=" + "low");
-    } else if (Character.isUpperCase(tokens[index].codePointAt(0))) {
+    } else if (Character.isUpperCase(tokens[index].charAt(0))) {
         if (index > 0 && (tokens[index - 1].equalsIgnoreCase("?") ||
             tokens[index -1].equalsIgnoreCase("?") || 
             tokens[index -1].equalsIgnoreCase("."))) {
@@ -63,37 +67,11 @@ public class WordShapeSuperSenseFeatureGenerator extends CustomFeatureGenerator 
    * @return the normalized token
    */
   public static String normalize(String token) {
-    String normalizedToken = token.replaceAll("[A-Z]", "X");
-    normalizedToken = token.replaceAll("[a-z]", "x");
-    normalizedToken = token.replaceAll("[0-9]", "d");    
-    normalizedToken = replaceDuplicateCharacters(normalizedToken);
-    return normalizedToken;
-  }
-  
-  /**
-   * Finds duplicate characters in token and replaces them with asterisk.
-   * @param token the token to be normalized
-   * @return the normalized token
-   */
-  public static String replaceDuplicateCharacters(String token) {
-    String normalizedToken = null;
-    char[] tokenArray = token.toCharArray();
-    Map<Character, Integer> map = new HashMap<Character, Integer>();
-    for (Character letter : tokenArray) {
-      if (map.containsKey(letter)) {
-        map.put(letter, map.get(letter) + 1);
-      } else {
-        map.put(letter, 1);
-      }
-    }
-    Set<Character> duplicateSet = map.keySet();
-    for (Character duplicateLetter : duplicateSet) {
-      if (map.get(duplicateLetter) > 1) {
-        token.replaceAll(Character.toString(duplicateLetter), "*");
-      } else {
-        normalizedToken = token;
-      }
-    }
+    Matcher duplicateMatcher = duplicateCharacters.matcher(token);
+    String normalizedToken = duplicateMatcher.replaceAll("#");
+    normalizedToken = normalizedToken.replaceAll("[A-Z]", "X");
+    normalizedToken = normalizedToken.replaceAll("[a-z]", "x");
+    normalizedToken = normalizedToken.replaceAll("[0-9]", "d");
     return normalizedToken;
   }
 
