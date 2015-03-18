@@ -15,10 +15,8 @@
  */
 package es.ehu.si.ixa.ixa.pipe.nerc.features;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,7 +32,9 @@ import opennlp.tools.util.featuregen.FeatureGeneratorResourceProvider;
  */
 public class WordShapeSuperSenseFeatureGenerator extends CustomFeatureGenerator {
   
-  private static Pattern duplicateCharacters = Pattern.compile("([a-z\\d])\\1", Pattern.CASE_INSENSITIVE);
+  private static Pattern duplicateUpper = Pattern.compile("([A-Z])[A-Z]+");
+  private static Pattern duplicateLower = Pattern.compile("([a-z])[a-z]+");
+  private static Pattern duplicateDigit = Pattern.compile("([0-9])[0-9]+");
 
   public WordShapeSuperSenseFeatureGenerator() {
     
@@ -67,14 +67,32 @@ public class WordShapeSuperSenseFeatureGenerator extends CustomFeatureGenerator 
    * @return the normalized token
    */
   public static String normalize(String token) {
-    Matcher duplicateMatcher = duplicateCharacters.matcher(token);
-    String normalizedToken = duplicateMatcher.replaceAll("#");
-    normalizedToken = normalizedToken.replaceAll("[A-Z]", "X");
+    String normalizedToken = token.replaceAll("[A-Z]", "X");
     normalizedToken = normalizedToken.replaceAll("[a-z]", "x");
     normalizedToken = normalizedToken.replaceAll("[0-9]", "d");
+    normalizedToken = normalizeDuplicates(normalizedToken);
     return normalizedToken;
   }
-
+  
+  public static String normalizeDuplicates(String normalizedToken) {
+    Matcher upperMatcher = duplicateUpper.matcher(normalizedToken);
+    if (upperMatcher.find()) {
+      String duplicateUpper = upperMatcher.group(1);
+      normalizedToken = upperMatcher.replaceAll(duplicateUpper + " # ");
+    }
+    Matcher lowerMatcher = duplicateLower.matcher(normalizedToken);
+    if (lowerMatcher.find()) {
+      String duplicateLower = lowerMatcher.group(1);
+      normalizedToken = lowerMatcher.replaceAll(duplicateLower + " # ");
+    }
+    Matcher digitMatcher = duplicateDigit.matcher(normalizedToken);
+    if (digitMatcher.find()) {
+      String duplicateDigit = digitMatcher.group(1);
+      normalizedToken = digitMatcher.replaceAll(duplicateDigit + " # ");
+    }
+    return normalizedToken;
+  }
+ 
   @Override
   public void clearAdaptiveData() {
     
