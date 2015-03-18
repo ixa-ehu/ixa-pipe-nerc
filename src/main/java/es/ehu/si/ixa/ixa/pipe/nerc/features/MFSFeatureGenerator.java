@@ -82,7 +82,7 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements Artif
     if (isMFS) {
       //TODO use DictionaryFeatureFinder to find multiword spans and build the
       //feature as for DictionaryFeatureGenerator
-      if (posTag.startsWith("J") || posTag.startsWith("N") || posTag.startsWith("R") || posTag.startsWith("V")) {
+      if (posTag.startsWith("N") || posTag.startsWith("V")) {
         String lemma = lemmaDictResource.lookUpLemma(tokens[index], posTag);
         lemmaPOSClass = lemma + "#" + posTag.substring(0, 1).toLowerCase();
         TreeMultimap<Integer, String> mfsMap = mfsDictResource.getOrderedMap(lemmaPOSClass);
@@ -109,7 +109,7 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements Artif
           features.add("monosemic,w=" + "noMonosemic" + "," + tokens[index]);
         }
       } else {
-        if (posTag.startsWith("J") || posTag.startsWith("N") || posTag.startsWith("R") || posTag.startsWith("V")) {
+        if (posTag.startsWith("N") || posTag.startsWith("V")) {
           String lemma = lemmaDictResource.lookUpLemma(tokens[index], posTag);
           lemmaPOSClass = lemma + "#" + posTag.substring(0, 1).toLowerCase();
           TreeMultimap<Integer, String> mfsMap = mfsDictResource.getOrderedMap(lemmaPOSClass);
