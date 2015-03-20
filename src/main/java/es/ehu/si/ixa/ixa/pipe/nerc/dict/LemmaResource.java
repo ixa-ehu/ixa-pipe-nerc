@@ -108,6 +108,21 @@ public class LemmaResource implements SerializableArtifact {
   }
   
   /**
+   * Look-up lemma in dictionary.
+   * @param word the word
+   * @param postag the postag
+   * @return the lemma
+   */
+  public List<String> lookUpLemmaArray(String[] tokens, String[] postags) {
+    List<String> lemmas = new ArrayList<String>();
+    for (int i = 0; i < tokens.length; i++) {
+      String lemma = lookUpLemma(tokens[i], postags[i]);
+      lemmas.add(lemma);
+    }
+    return lemmas;
+  }
+  
+  /**
    * Get the dictionary keys (word and postag).
    *
    * @param word

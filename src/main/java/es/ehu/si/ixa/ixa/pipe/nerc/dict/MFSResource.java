@@ -24,6 +24,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
@@ -139,6 +140,87 @@ public class MFSResource implements SerializableArtifact {
       }
     }
   }
+  
+  /**
+  * Extract most frequent sense baseline from WordNet data,
+  * using Ciaramita and Altun's approach.
+  * 
+  * @param lemmas in the sentence
+  * @return the most frequent senses for the sentence
+  */
+  public List<String> getLabeledMFS(List<String> lemmas,
+      String[] posTags) {
+
+    List<String> mostFrequentSenseList = new ArrayList<String>();
+
+    String prefix = "B-";
+    String mostFrequentSense = null;
+    String searchSpan = null;
+    // iterative over lemmas from the beginning
+    for (int i = 0; i < lemmas.size(); i++) {
+      mostFrequentSense = null;
+      String pos = posTags[i];
+      int j;
+      // iterate over lemmas from the end
+      for (j = lemmas.size() - 1; j >= i; j--) {
+        // create span for search in multimap; the first search takes as span
+        // the whole sentence
+        String endPos = posTags[j];
+        if (pos.startsWith("N") || endPos.startsWith("N") || pos.startsWith("V") || endPos.startsWith("V")) {
+          searchSpan = createSpan(lemmas, i, j);
+          String firstSpan = (searchSpan + "#" + pos.substring(0, 1)).toLowerCase();
+          TreeMultimap<Integer, String> mfsMap = getOrderedMap(firstSpan);
+          if (!mfsMap.isEmpty()) {
+            mostFrequentSense = getMFS(mfsMap);
+            break;
+          }
+          String lastSpan = (searchSpan + "#" + endPos.substring(0, 1)).toLowerCase();
+          TreeMultimap<Integer, String> mfsMapEnd = getOrderedMap(lastSpan);
+          if (!mfsMapEnd.isEmpty()) {
+            mostFrequentSense = getMFS(mfsMapEnd);
+            break;
+          }
+        }
+      }
+      prefix = "B-";
+      //multi-token case
+      if (mostFrequentSense != null) {
+        while (i < j) {
+          mostFrequentSenseList.add((prefix + mostFrequentSense).intern());
+          prefix = "I-";
+          i++;
+        }
+      }
+      //one word case
+      if (mostFrequentSense != null) {
+        mostFrequentSenseList.add((prefix + mostFrequentSense).intern());
+      } else {
+        mostFrequentSenseList.add("O");
+      }
+    }
+    return mostFrequentSenseList;
+  }
+ 
+  /**
+   * Create lemma span for search of multiwords in MFS dictionary.
+   * 
+   * @param lemmas
+   *          the lemmas of the sentence
+   * @param from
+   *          the starting index
+   * @param to
+   *          the end index
+   * @return the string representing a perhaps multi word entry
+   */
+  private String createSpan(List<String> lemmas, int from, int to) {
+    String lemmaSpan = "";
+    for (int i = from; i < to; i++) {
+      lemmaSpan += lemmas.get(i) + "_";
+    }
+    lemmaSpan += lemmas.get(to);
+    return lemmaSpan;
+  }
+ 
   
   /**
    * Serialize the lexicon in the original format.

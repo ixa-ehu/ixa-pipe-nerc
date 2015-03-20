@@ -27,8 +27,8 @@ public class Flags {
   public static final String DEFAULT_FEATURE_FLAG = "no";
   public static final String CHAR_NGRAM_RANGE = "2:5";
   public static final String DEFAULT_WINDOW = "2:2";
-  public static final String DEFAULT_MORPHO_RANGE = "pos,no,lemma";
-  public static final String DEFAULT_MFS_RANGE = "pos,no,lemma,mfs,monosemic";
+  public static final String DEFAULT_MORPHO_RANGE = "pos,posclass,lemma";
+  public static final String DEFAULT_MFS_RANGE = "mfs,monosemic";
   
   /**
    * Default beam size for decoding.
@@ -361,16 +361,33 @@ public class Flags {
   }
   
   /**
-   * Get the lemma features configuration.
+   * Get the morphological features configuration.
    * 
    * @param params
    *          the training parameters
-   * @return a list containing the initial and maximum ngram values
+   * @return a list containing the options
    */
   public static String getMorphoFeaturesRange(TrainingParameters params) {
     String lemmaRangeFlag = null;
     if (params.getSettings().get("MorphoFeaturesRange") != null) {
       lemmaRangeFlag = params.getSettings().get("MorphoFeaturesRange");
+    } else {
+      lemmaRangeFlag = Flags.DEFAULT_MORPHO_RANGE;
+    }
+    return lemmaRangeFlag;
+  }
+  
+  /**
+   * Get the WordNet morphological features configuration.
+   * 
+   * @param params
+   *          the training parameters
+   * @return a list containing the options
+   */
+  public static String getWordNetMorphoFeaturesRange(TrainingParameters params) {
+    String lemmaRangeFlag = null;
+    if (params.getSettings().get("WordNetMorphoFeaturesRange") != null) {
+      lemmaRangeFlag = params.getSettings().get("WordNetMorphoFeaturesRange");
     } else {
       lemmaRangeFlag = Flags.DEFAULT_MORPHO_RANGE;
     }
@@ -425,8 +442,8 @@ public class Flags {
   
   public static String[] processMFSFeaturesRange(String mfsFlag) {
     String[] mfsFlagArray = mfsFlag.split(",");
-    if (mfsFlagArray.length != 5) {
-      System.err.println("MFSFeaturesRange requires five fields but only got " + mfsFlagArray.length);
+    if (mfsFlagArray.length != 2) {
+      System.err.println("MFSFeaturesRange requires two fields but only got " + mfsFlagArray.length);
       System.exit(1);
     }
     return mfsFlagArray;

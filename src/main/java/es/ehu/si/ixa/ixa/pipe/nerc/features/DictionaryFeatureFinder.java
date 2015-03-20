@@ -36,10 +36,6 @@ public class DictionaryFeatureFinder {
    * The dictionary to find the names.
    */
   private Dictionary dictionary;
-  /**
-   * Debugging switch.
-   */
-  private final boolean debug = false;
 
   public DictionaryFeatureFinder(final Dictionary aDictionary) {
     this.dictionary = aDictionary;

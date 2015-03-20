@@ -58,15 +58,8 @@ public class MorphoFeatureGenerator extends CustomFeatureGenerator implements Ar
       currentTags = posModelResource.posTag(tokens);
     }
     String posTag = currentTags[index];
-    //options
     if (isPos) {
       features.add("posTag=" + posTag);
-      if (posTag.startsWith("NNP")) {
-        features.add("posTag=" + "posprop");
-      }
-      if (posTag.equalsIgnoreCase("NNS") || posTag.equalsIgnoreCase("NN")) {
-        features.add("posTag=" + "poscomm");
-      }
     }
     if (isPosClass) {
       String posTagClass = posTag.substring(0, 1);

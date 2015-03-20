@@ -311,8 +311,7 @@ public final class XMLFeatureDescriptor {
     }
     //Morphological features
     if (Flags.isMorphoFeatures(params)) {
-      //leftWindow = 1;
-      //rightWindow = 1;
+      setWindow(params);
       String morphoPath = Flags.getMorphoFeatures(params);
       String[] morphoResources = Flags.getMorphoResources(morphoPath);
       String morphoRange = Flags.getMorphoFeaturesRange(params);

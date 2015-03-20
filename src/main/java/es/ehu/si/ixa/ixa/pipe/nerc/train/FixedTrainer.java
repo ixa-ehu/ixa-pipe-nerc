@@ -66,6 +66,7 @@ import es.ehu.si.ixa.ixa.pipe.nerc.features.XMLFeatureDescriptor;
  * <li>Word2VecClusterFeatures: use the word2vec clustering class of a token as
  * a feature.
  * <li>MorphoFeatures: use pos tags, pos tag class and lemma as features.
+ * <li>MFSFeatures: Most Frequent sense feature.
  * <ol>
  * 
  * @author ragerri
