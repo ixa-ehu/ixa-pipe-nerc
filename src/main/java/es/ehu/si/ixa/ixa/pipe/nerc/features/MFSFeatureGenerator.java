@@ -82,12 +82,10 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements
     }
     //mfs
     if (isMFS) {
-      if (posTag.startsWith("J") || posTag.startsWith("N") || posTag.startsWith("R") || posTag.startsWith("V")) {
-        String mfs = mfsDictResource.getLabeledMFS(currentLemmas, currentTags).get(index);
-        System.err.println("-> MFS " + mfs + " " + currentLemmas.get(index) + " " + tokens[index] +  " " + currentTags[index]);
-        features.add("mfs=" + mfs);
-        features.add("mfs,lemma=" + mfs + "," + currentLemmas.get(index));
-      }
+      String mfs = mfsDictResource.getLabeledMFS(currentLemmas, currentTags).get(index);
+      System.err.println("-> MFS " + mfs + " " + currentLemmas.get(index) + " " + tokens[index] +  " " + currentTags[index]);
+      features.add("mfs=" + mfs);
+      features.add("mfs,lemma=" + mfs + "," + currentLemmas.get(index));
     }
     if (isMonosemic) {
     }

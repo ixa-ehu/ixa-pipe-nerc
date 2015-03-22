@@ -142,14 +142,14 @@ public class MFSResource implements SerializableArtifact {
   }
   
   /**
-  * Extract most frequent sense baseline from WordNet data,
-  * using Ciaramita and Altun's approach.
-  * 
-  * @param lemmas in the sentence
-  * @return the most frequent senses for the sentence
-  */
-  public List<String> getLabeledMFS(List<String> lemmas,
-      String[] posTags) {
+   * Extract most frequent sense baseline from WordNet data, using Ciaramita and
+   * Altun's approach.
+   * 
+   * @param lemmas
+   *          in the sentence
+   * @return the most frequent senses for the sentence
+   */
+  public List<String> getLabeledMFS(List<String> lemmas, String[] posTags) {
 
     List<String> mostFrequentSenseList = new ArrayList<String>();
 
@@ -166,24 +166,24 @@ public class MFSResource implements SerializableArtifact {
         // create span for search in multimap; the first search takes as span
         // the whole sentence
         String endPos = posTags[j];
-        if (pos.startsWith("N") || endPos.startsWith("N") || pos.startsWith("V") || endPos.startsWith("V")) {
-          searchSpan = createSpan(lemmas, i, j);
-          String firstSpan = (searchSpan + "#" + pos.substring(0, 1)).toLowerCase();
-          TreeMultimap<Integer, String> mfsMap = getOrderedMap(firstSpan);
-          if (!mfsMap.isEmpty()) {
-            mostFrequentSense = getMFS(mfsMap);
-            break;
-          }
-          String lastSpan = (searchSpan + "#" + endPos.substring(0, 1)).toLowerCase();
-          TreeMultimap<Integer, String> mfsMapEnd = getOrderedMap(lastSpan);
-          if (!mfsMapEnd.isEmpty()) {
-            mostFrequentSense = getMFS(mfsMapEnd);
-            break;
-          }
+        searchSpan = createSpan(lemmas, i, j);
+        String firstSpan = (searchSpan + "#" + pos.substring(0, 1))
+            .toLowerCase();
+        TreeMultimap<Integer, String> mfsMap = getOrderedMap(firstSpan);
+        if (!mfsMap.isEmpty()) {
+          mostFrequentSense = getMFS(mfsMap);
+          break;
+        }
+        String lastSpan = (searchSpan + "#" + endPos.substring(0, 1))
+            .toLowerCase();
+        TreeMultimap<Integer, String> mfsMapEnd = getOrderedMap(lastSpan);
+        if (!mfsMapEnd.isEmpty()) {
+          mostFrequentSense = getMFS(mfsMapEnd);
+          break;
         }
       }
       prefix = "B-";
-      //multi-token case
+      // multi-token case
       if (mostFrequentSense != null) {
         while (i < j) {
           mostFrequentSenseList.add((prefix + mostFrequentSense).intern());
@@ -191,7 +191,7 @@ public class MFSResource implements SerializableArtifact {
           i++;
         }
       }
-      //one word case
+      // one word case
       if (mostFrequentSense != null) {
         mostFrequentSenseList.add((prefix + mostFrequentSense).intern());
       } else {
@@ -200,7 +200,7 @@ public class MFSResource implements SerializableArtifact {
     }
     return mostFrequentSenseList;
   }
- 
+
   /**
    * Create lemma span for search of multiwords in MFS dictionary.
    * 
