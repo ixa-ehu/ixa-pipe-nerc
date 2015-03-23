@@ -48,6 +48,7 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements
   private String[] currentSentence;
   private String[] currentTags;
   private List<String> currentLemmas;
+  private List<String> currentMFSList;
   private boolean isMFS;
   private boolean isMonosemic;
 
@@ -57,11 +58,12 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements
   public void createFeatures(List<String> features, String[] tokens, int index,
       String[] previousOutcomes) {
 
-    // cache pos tagger results for each sentence
+    // cache results for each sentence
     if (currentSentence != tokens) {
       currentSentence = tokens;
       currentTags = posModelResource.posTag(tokens);
       currentLemmas = lemmaDictResource.lookUpLemmaArray(tokens, currentTags);
+      currentMFSList = mfsDictResource.getLabeledMFS(currentLemmas, currentTags);
     }
     //word shapes with no window
     String firstCharacter = tokens[index].substring(0, 1);
@@ -82,13 +84,35 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements
     }
     //mfs
     if (isMFS) {
-      String mfs = mfsDictResource.getLabeledMFS(currentLemmas, currentTags).get(index);
-      System.err.println("-> MFS " + mfs + " " + currentLemmas.get(index) + " " + tokens[index] +  " " + currentTags[index]);
+      String mfs = currentMFSList.get(index);
+      //System.err.println("-> MFS " + mfs + " " + currentLemmas.get(index) + " " + tokens[index] +  " " + currentTags[index]);
       features.add("mfs=" + mfs);
       features.add("mfs,lemma=" + mfs + "," + currentLemmas.get(index));
+      //previous label
+      if (index > 0) {
+        String previousLabel = previousOutcomes[index - 1];
+        previousLabel = bilouToBio(previousLabel);
+        features.add("prevLabel=" + previousLabel);
+        //System.err.println("-> PrevLabel " + previousLabel);
+      }
     }
     if (isMonosemic) {
     }
+  }
+  
+  public static String bilouToBio(String label) {
+    if (label.endsWith("-unit")) {
+      label = "B-" + label.split("-unit")[0];
+    } else if (label.endsWith("-start")) {
+      label = "B-" + label.split("-start")[0];
+    } else if (label.endsWith("-cont")) {
+      label = "I-" + label.split("-cont")[0];
+    } else if (label.endsWith("-last")) {
+      label = "I-" + label.split("-last")[0];
+    } else if (label.equalsIgnoreCase("other")) {
+      label = "O";
+    }
+    return label;
   }
 
   @Override

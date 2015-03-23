@@ -67,7 +67,8 @@ public class MorphoFeatureGenerator extends CustomFeatureGenerator implements Ar
     }
     if (isLemma) {
       String lemma = lemmaDictResource.lookUpLemma(tokens[index], posTag);
-      features.add("lemma=" + lemma);
+      features.add("lemma=" + lemma.toLowerCase());
+      //System.err.println("-> Morpho " + lemma.toLowerCase() + " " + posTag + " " + posTag.substring(0, 1));
     }
   }
   
