@@ -29,7 +29,6 @@ import opennlp.tools.util.model.ArtifactSerializer;
 import es.ehu.si.ixa.ixa.pipe.nerc.dict.LemmaResource;
 import es.ehu.si.ixa.ixa.pipe.nerc.dict.MFSResource;
 import es.ehu.si.ixa.ixa.pipe.nerc.dict.POSModelResource;
-import es.ehu.si.ixa.ixa.pipe.nerc.train.Flags;
 
 /**
  * Generate pos tag, pos tag class, lemma and most frequent sense as feature of
@@ -49,8 +48,8 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements
   private String[] currentTags;
   private List<String> currentLemmas;
   private List<String> currentMFSList;
-  private boolean isMFS;
-  private boolean isMonosemic;
+  private String startSymbol = null;
+  private String endSymbol = null;
 
   public MFSFeatureGenerator() {
   }
@@ -65,40 +64,164 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements
       currentLemmas = lemmaDictResource.lookUpLemmaArray(tokens, currentTags);
       currentMFSList = mfsDictResource.getLabeledMFS(currentLemmas, currentTags);
     }
+    
+    String curStem = currentLemmas.get(index);
+    String curTok = tokens[index];
+    String curPOS = currentTags[index];
+    String curShape = normalize(tokens[index]);
+    String firstSense = currentMFSList.get(index);
+    String prevLabel = startSymbol;
+    
+    String prevShape = startSymbol;
+    String prevPOS = startSymbol;
+    String prevStem = startSymbol;
+    String nextShape = startSymbol;
+    String nextPOS = endSymbol;
+    String nextStem = endSymbol;
+    
+    String prev2Shape = startSymbol;
+    String prev2POS = startSymbol;
+    String prev2Stem = startSymbol;
+    String next2Shape = startSymbol;
+    String next2POS = endSymbol;
+    String next2Stem = endSymbol;
+    
+    if (index - 2 >= 0) {
+      prev2Shape = normalize(tokens[index - 2]);
+      prev2Stem = currentLemmas.get(index - 2);
+      prev2POS = currentTags[index - 2];
+    }
+    if (index - 1 >= 0 ) {
+      prevShape = normalize(tokens[index - 1]);
+      prevStem = currentLemmas.get(index - 1);
+      prevPOS = currentTags[index - 1];
+      //TODO checkout prevLabel value
+      prevLabel = previousOutcomes[index - 1];
+      prevLabel = bilouToBio(prevLabel);
+    }
+    if (index + 1 < tokens.length) {
+      nextShape = normalize(tokens[index + 1]);
+      nextStem = currentLemmas.get(index + 1);
+      nextPOS = currentTags[index + 1];
+    }
+    if (index + 2 < tokens.length) {
+      next2Shape = normalize(tokens[index + 2]);
+      next2Stem = currentLemmas.get(index + 2);
+      next2POS = currentTags[index + 2];
+    }
+    
+    features.add("bias");
+    
+    if (firstSense == null) {
+      firstSense = "O";
+    }
+    features.add("firstSense=" + firstSense);
+    features.add("firstSense,curTok=" + firstSense + "," + curStem);
+    
+    if (prevLabel != startSymbol) {
+      features.add("prevLabel=" + prevLabel);
+    }
+    
+    if(curPOS.equals("NN") || curPOS.equals("NNS")){
+        features.add("curPOS_common");
+    }
+    if(curPOS.equals("NNP") || curPOS.equals("NNPS")){
+        features.add("curPOS_proper");
+    }
+    features.add("curTok=" + curStem);
+    features.add("curPOS=" + curPOS);
+    features.add("curPOS_0" + curPOS.charAt(0));
+    
+    if (prevPOS != startSymbol) {
+      features.add("prevTok=" + prevStem);
+      features.add("prevPOS=" + prevPOS);
+      features.add("prevPOS_0=" + prevPOS.charAt(0));
+    }
+    
+    if (nextPOS != endSymbol) {
+      features.add("nextTok=" + nextStem);
+      features.add("nextPOS=" + nextPOS);
+      features.add("nextPOS_0" + nextPOS.charAt(0));
+    }
+    
+    if (prev2POS != startSymbol) {
+      features.add("prev2Tok=" + prev2Stem);
+      features.add("prev2POS=" + prev2POS);
+      features.add("prev2POS_0=" + prev2POS.charAt(0));
+    }
+    if (next2POS != endSymbol) {
+      features.add("next2Tok=" + next2Stem);
+      features.add("next2POS=" + next2POS);
+      features.add("next2POS_0=" + next2POS.charAt(0));
+    }
+    
+    features.add("curShape=" + curShape);
+    if (prevPOS != startSymbol) {
+      features.add("prevShape=" + prevShape);
+    }
+    if (nextPOS != endSymbol) {
+      features.add("nextShape=" + nextShape);
+    }
+    if (prev2POS != startSymbol) {
+      features.add("prev2Shape=" + prev2Shape);
+    }
+    if (next2POS != endSymbol) {
+      features.add("next2Shape=" + next2Shape);
+    }
+    
     //word shapes with no window
-    String firstCharacter = tokens[index].substring(0, 1);
-    if (firstCharacter.toLowerCase().equals(firstCharacter)) {
-      features.add("shlow");
+    String firstCharCurTok = curTok.substring(0, 1);
+    if (firstCharCurTok.toLowerCase().equals(firstCharCurTok)) {
+      features.add("curTokLowercase");
     } else if (index == 0) {
-      features.add("shcap_brk");
+      features.add("curTokUpperCaseFirstChar");
     } else {
-      features.add("shcap_nobrk");
+      features.add("curTokUpperCaseOther");
     }
-    //postag features with no window
-    String posTag = currentTags[index];
-    if (posTag.startsWith("NNP")) {
-      features.add("posprop");
-    }
-    if (posTag.equalsIgnoreCase("NNS") || posTag.equalsIgnoreCase("NN")) {
-      features.add("poscomm");
-    }
-    //mfs
-    if (isMFS) {
-      String mfs = currentMFSList.get(index);
-      //System.err.println("-> MFS " + mfs + " " + currentLemmas.get(index) + " " + tokens[index] +  " " + currentTags[index]);
-      features.add("mfs=" + mfs);
-      features.add("mfs,lemma=" + mfs + "," + currentLemmas.get(index));
-      //previous label
-      if (index > 0) {
-        String previousLabel = previousOutcomes[index - 1];
-        previousLabel = bilouToBio(previousLabel);
-        features.add("prevLabel=" + previousLabel);
-        //System.err.println("-> PrevLabel " + previousLabel);
-      }
-    }
-    if (isMonosemic) {
-    }
+    
   }
+  
+  /**
+   * Normalize upper case, lower case, digits and duplicate characters.
+   * 
+   * @param token
+   *          the token to be normalized
+   * @return the normalized tokens
+   */
+  private String normalize(String token) {
+    String normalizedToken = "";
+
+    char currentCharacter;
+    int prevCharType = -1;
+    char charType = '~';
+    boolean addedStar = false;
+    for (int i = 0; i < token.length(); i++) {
+
+      currentCharacter = token.charAt(i);
+      if (currentCharacter >= 'A' && currentCharacter <= 'Z') {
+        charType = 'X';
+      } else if (currentCharacter >= 'a' && currentCharacter <= 'z') {
+        charType = 'x';
+      } else if (currentCharacter >= '0' && currentCharacter <= '9') {
+        charType = 'd';
+      } else {
+        charType = currentCharacter;
+      }
+
+      if (charType == prevCharType) {
+        if (!addedStar) {
+          normalizedToken += "*";
+          addedStar = true;
+        }
+      } else {
+        addedStar = false;
+        normalizedToken += charType;
+      }
+      prevCharType = charType;
+    }
+    return normalizedToken;
+  }
+
   
   public static String bilouToBio(String label) {
     if (label.endsWith("-unit")) {
@@ -124,24 +247,6 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements
   public void clearAdaptiveData() {
 
   }
-
-  /**
-   * Process the options of which kind of features are to be generated.
-   * 
-   * @param properties
-   *          the properties map
-   */
-  private void processRangeOptions(Map<String, String> properties) {
-    String featuresRange = properties.get("range");
-    String[] rangeArray = Flags.processMFSFeaturesRange(featuresRange);
-    // options
-    if (rangeArray[0].equalsIgnoreCase("mfs")) {
-      isMFS = true;
-    }
-    if (rangeArray[1].equalsIgnoreCase("monosemic")) {
-      isMonosemic = true;
-    }
-  }
   
   @Override
   public void init(Map<String, String> properties,
@@ -165,7 +270,6 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements
           + properties.get("mfs"));
     }
     this.mfsDictResource = (MFSResource) mfsResource;
-    processRangeOptions(properties);
   }
 
   @Override

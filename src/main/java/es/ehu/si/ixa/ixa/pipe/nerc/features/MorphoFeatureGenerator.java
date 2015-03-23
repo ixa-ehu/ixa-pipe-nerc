@@ -42,6 +42,7 @@ public class MorphoFeatureGenerator extends CustomFeatureGenerator implements Ar
   private LemmaResource lemmaDictResource;
   private String[] currentSentence;
   private String[] currentTags;
+  private List<String> currentLemmas;
   private boolean isPos;
   private boolean isPosClass;
   private boolean isLemma;
@@ -56,6 +57,7 @@ public class MorphoFeatureGenerator extends CustomFeatureGenerator implements Ar
     if (currentSentence != tokens) {
       currentSentence = tokens;
       currentTags = posModelResource.posTag(tokens);
+      currentLemmas = lemmaDictResource.lookUpLemmaArray(tokens, currentTags);
     }
     String posTag = currentTags[index];
     if (isPos) {
@@ -66,9 +68,8 @@ public class MorphoFeatureGenerator extends CustomFeatureGenerator implements Ar
       features.add("posTagClass=" + posTagClass);
     }
     if (isLemma) {
-      String lemma = lemmaDictResource.lookUpLemma(tokens[index], posTag);
-      features.add("lemma=" + lemma.toLowerCase());
-      //System.err.println("-> Morpho " + lemma.toLowerCase() + " " + posTag + " " + posTag.substring(0, 1));
+      String lemma = currentLemmas.get(index);
+      features.add("lemma=" + lemma);
     }
   }
   
