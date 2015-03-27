@@ -411,7 +411,7 @@ public class Flags {
   public static String[] getSuperSenseResources(String mfsFlag) {
     String[] mfsFlagArray = mfsFlag.split(",");
     if (mfsFlagArray.length != 3) {
-      System.err.println("SuperSense resources requires three fields but only got " + mfsFlagArray.length);
+      System.err.println("SuperSense resources requires three fields but got " + mfsFlagArray.length);
       System.exit(1);
     }
     return mfsFlagArray;
@@ -420,7 +420,7 @@ public class Flags {
   public static String[] getMFSResources(String mfsFlag) {
     String[] mfsFlagArray = mfsFlag.split(",");
     if (mfsFlagArray.length != 3) {
-      System.err.println("MFS resources requires three fields but only got " + mfsFlagArray.length);
+      System.err.println("MFS resources requires three fields but got " + mfsFlagArray.length);
       System.exit(1);
     }
     return mfsFlagArray;
@@ -551,7 +551,7 @@ public class Flags {
    * @return whether the mfs features are activated or not
    */
   public static boolean isMFSFeatures(TrainingParameters params) {
-    String mfsFeatures = getSuperSenseFeatures(params);
+    String mfsFeatures = getMFSFeatures(params);
     return !mfsFeatures.equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
   }
 
