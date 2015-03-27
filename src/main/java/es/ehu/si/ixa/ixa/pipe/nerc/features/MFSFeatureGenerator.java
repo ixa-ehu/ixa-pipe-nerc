@@ -67,7 +67,7 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements
       currentTags = posModelResource.posTag(tokens);
       currentLemmas = lemmaDictResource.lookUpLemmaArray(tokens, currentTags);
       currentMFSList = mfsDictResource
-          .getLabeledMFS(currentLemmas, currentTags);
+          .getFirstSenseTokens(currentLemmas, currentTags);
     }
     String posTag = currentTags[index];
 

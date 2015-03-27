@@ -64,7 +64,7 @@ public class SuperSenseFeatureGenerator extends CustomFeatureGenerator implement
       currentTags = posModelResource.posTag(tokens);
       currentLemmas = lemmaDictResource.lookUpLemmaArray(tokens, currentTags);
       currentMFSList = mfsDictResource
-          .getLabeledMFS(currentLemmas, currentTags);
+          .getFirstSenseBio(currentLemmas, currentTags);
     }
 
     String curStem = currentLemmas.get(index);

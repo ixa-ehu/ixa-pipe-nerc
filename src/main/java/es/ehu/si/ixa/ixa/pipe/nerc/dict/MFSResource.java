@@ -89,6 +89,34 @@ public class MFSResource implements SerializableArtifact {
   }
   
   /**
+   * Extract most frequent sense baseline from WordNet data at token level.
+   * 
+   * @param lemmas
+   *          in the sentence
+   * @param posTags the postags in the sentence
+   * @return the most frequent senses for the sentence
+   */
+  public List<String> getFirstSenseTokens(List<String> lemmas, String[] posTags) {
+
+    List<String> mostFrequentSenseList = new ArrayList<String>();
+
+    String mostFrequentSense = null;
+    // iterative over lemmas from the beginning
+    for (int i = 0; i < lemmas.size(); i++) {
+      String entrySearch = (lemmas.get(i) + "#" + posTags[i].substring(0 ,1)).toLowerCase();
+        TreeMultimap<Integer, String> mfsMap = getOrderedMap(entrySearch);
+        if (!mfsMap.isEmpty()) {
+          mostFrequentSense = getMFS(mfsMap);
+          mostFrequentSenseList.add(mostFrequentSense);
+        } else {
+          mostFrequentSense = "noMFS";
+          mostFrequentSenseList.add(mostFrequentSense);
+        }
+     }
+    return mostFrequentSenseList;
+  }
+  
+  /**
    * Extract most frequent sense baseline from WordNet data, using Ciaramita and
    * Altun's (2006) approach.
    * 
@@ -96,7 +124,7 @@ public class MFSResource implements SerializableArtifact {
    *          in the sentence
    * @return the most frequent senses for the sentence
    */
-  public List<String> getLabeledMFS(List<String> lemmas, String[] posTags) {
+  public List<String> getFirstSenseBio(List<String> lemmas, String[] posTags) {
 
     List<String> mostFrequentSenseList = new ArrayList<String>();
 
