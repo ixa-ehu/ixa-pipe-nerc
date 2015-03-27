@@ -325,39 +325,20 @@ public final class XMLFeatureDescriptor {
       morphoClassFeatureWindow.setAttribute("nextLength", Integer.toString(rightWindow));
       morphoClassFeatureWindow.addContent(morphoClassFeatureElement);
       generators.addContent(morphoClassFeatureWindow);
-      System.err.println("-> Morphological Features added");
+      System.err.println("-> Morphological Features added!");
     }
-    //MFS features
-    /*if (Flags.isMFSFeatures(params)) {
-      setWindow(params);
-      String mfsPath = Flags.getMFSFeatures(params);
-      String[] mfsResources = Flags.getMFSResources(mfsPath);
-      String mfsRange = Flags.getMFSFeaturesRange(params);
+    if (Flags.isSuperSenseFeatures(params)) {
+      String mfsPath = Flags.getSuperSenseFeatures(params);
+      String[] mfsResources = Flags.getSuperSenseResources(mfsPath);
+      String mfsRange = Flags.getSuperSenseFeaturesRange(params);
       Element mfsClassFeatureElement = new Element("custom");
-      mfsClassFeatureElement.setAttribute("class", MFSFeatureGenerator.class.getName());
-      mfsClassFeatureElement.setAttribute("model", InputOutputUtils.normalizeLexiconName(mfsResources[0]));
-      mfsClassFeatureElement.setAttribute("dict", InputOutputUtils.normalizeLexiconName(mfsResources[1]));
-      mfsClassFeatureElement.setAttribute("mfs", InputOutputUtils.normalizeLexiconName(mfsResources[2]));
-      mfsClassFeatureElement.setAttribute("range", mfsRange);
-      Element mfsClassFeatureWindow = new Element("window");
-      mfsClassFeatureWindow.setAttribute("prevLength", Integer.toString(leftWindow));
-      mfsClassFeatureWindow.setAttribute("nextLength", Integer.toString(rightWindow));
-      mfsClassFeatureWindow.addContent(mfsClassFeatureElement);
-      generators.addContent(mfsClassFeatureWindow);
-      System.err.println("-> MFS Features added");
-      }*/
-    if (Flags.isMFSFeatures(params)) {
-      String mfsPath = Flags.getMFSFeatures(params);
-      String[] mfsResources = Flags.getMFSResources(mfsPath);
-      String mfsRange = Flags.getMFSFeaturesRange(params);
-      Element mfsClassFeatureElement = new Element("custom");
-      mfsClassFeatureElement.setAttribute("class", MFSFeatureGenerator.class.getName());
+      mfsClassFeatureElement.setAttribute("class", SuperSenseFeatureGenerator.class.getName());
       mfsClassFeatureElement.setAttribute("model", InputOutputUtils.normalizeLexiconName(mfsResources[0]));
       mfsClassFeatureElement.setAttribute("dict", InputOutputUtils.normalizeLexiconName(mfsResources[1]));
       mfsClassFeatureElement.setAttribute("mfs", InputOutputUtils.normalizeLexiconName(mfsResources[2]));
       mfsClassFeatureElement.setAttribute("range", mfsRange);
       generators.addContent(mfsClassFeatureElement);
-      System.err.println("-> MFS Features added");
+      System.err.println("-> SuperSense Features added!");
       }
     aggGenerators.addContent(cached);
     cached.addContent(generators);

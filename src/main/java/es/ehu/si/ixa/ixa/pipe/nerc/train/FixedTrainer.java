@@ -168,9 +168,9 @@ public class FixedTrainer extends AbstractTrainer {
       artifactSerializers.put(lemmaSerializerId, new LemmaResource.LemmaResourceSerializer());
       loadResource(lemmaSerializerId, artifactSerializers, morphoResources[1], featureGenDescriptor, resources);
     }
-    if (Flags.isMFSFeatures(params)) {
-      String mfsResourcesPath = Flags.getMFSFeatures(params);
-      String[] mfsResources = Flags.getMFSResources(mfsResourcesPath);
+    if (Flags.isSuperSenseFeatures(params)) {
+      String mfsResourcesPath = Flags.getSuperSenseFeatures(params);
+      String[] mfsResources = Flags.getSuperSenseResources(mfsResourcesPath);
       String posSerializerId = "postagserializer";
       String lemmaSerializerId = "lemmaserializer";
       String mfsSerializerId = "mfsserializer";

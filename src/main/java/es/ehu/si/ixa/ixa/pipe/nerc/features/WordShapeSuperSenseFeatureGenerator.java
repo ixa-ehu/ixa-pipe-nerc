@@ -23,7 +23,8 @@ import opennlp.tools.util.featuregen.CustomFeatureGenerator;
 import opennlp.tools.util.featuregen.FeatureGeneratorResourceProvider;
 
 /**
- * Ciaramita and Altun (2006) word shape features.
+ * Ciaramita and Altun (2006) word shape features. This feature generator
+ * can also be placed on a sliding window.
  * 
  * @author ragerri
  * @version 2015-03-17
@@ -49,7 +50,7 @@ public class WordShapeSuperSenseFeatureGenerator extends CustomFeatureGenerator 
    *          the token to be normalized
    * @return the normalized token
    */
-  private String normalize(String token) {
+  public static String normalize(String token) {
     String normalizedToken = "";
 
     char currentCharacter;

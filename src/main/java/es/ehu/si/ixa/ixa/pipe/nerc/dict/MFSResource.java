@@ -89,61 +89,8 @@ public class MFSResource implements SerializableArtifact {
   }
   
   /**
-   * Get the MFS from a lemma#posClass entry, e.g., house#n.
-   * @param mfsMap map to get the MFS from
-   * @return the most frequent sense
-   */
-  public String getMFS(TreeMultimap<Integer, String> mfsMap) {
-    SortedSet<String> mfs = mfsMap.get(mfsMap.keySet().first());
-    return mfs.first();
-   }
-  
-  /**
-   * Get a rank of senses ordered by MFS. 
-   * @param lemmaPOSClass the lemma#pos entry
-   * @param rankSize the size of the rank
-   * @return the ordered multimap containing the rank
-   */
-  public TreeMultimap<Integer, String> getMFSRanking(String lemmaPOSClass, Integer rankSize) {
-    
-    TreeMultimap<Integer, String> mfsResultsMap = getOrderedMap(lemmaPOSClass);
-    TreeMultimap<Integer, String> mfsRankMap = TreeMultimap.create(Ordering.natural().reverse(), Ordering.natural());
-    for (Map.Entry<Integer, String> freqSenseEntry : Iterables.limit(mfsResultsMap.entries(), rankSize)) {
-      mfsRankMap.put(freqSenseEntry.getKey(), freqSenseEntry.getValue());
-    }
-    return mfsRankMap;
-  }
-  
-  /**
-   * Get the ordered Map of most frequent senses for a lemma#pos entry.
-   * @param lemmaPOSClass the lemma#pos entry
-   * @return the ordered multimap of senses
-   */
-  public TreeMultimap<Integer, String> getOrderedMap(String lemmaPOSClass) {
-    List<String> mfsList = multiMap.get(lemmaPOSClass);
-    TreeMultimap<Integer, String> mfsMap = TreeMultimap.create(Ordering.natural().reverse(), Ordering.natural());
-    if (!mfsList.isEmpty()) {
-      getOrderedSenses(mfsList, mfsMap);
-    }
-    return mfsMap;
-  }
-  
-  /**
-   * Look-up lemma#pos string as key in dictionary.
-   * @param mfsList the list containing the freq#sense values
-   */
-  public void getOrderedSenses(List<String> mfsList, TreeMultimap<Integer, String> mfsResultsMap) {
-    if (!mfsList.isEmpty()) {
-      for (String mfsResult : mfsList) {
-        String[] mfsEntry = mfsResult.split("#");
-        mfsResultsMap.put(Integer.valueOf(mfsEntry[0]), mfsEntry[1]);
-      }
-    }
-  }
-  
-  /**
    * Extract most frequent sense baseline from WordNet data, using Ciaramita and
-   * Altun's approach.
+   * Altun's (2006) approach.
    * 
    * @param lemmas
    *          in the sentence
@@ -200,7 +147,7 @@ public class MFSResource implements SerializableArtifact {
     }
     return mostFrequentSenseList;
   }
-
+  
   /**
    * Create lemma span for search of multiwords in MFS dictionary.
    * 
@@ -219,6 +166,59 @@ public class MFSResource implements SerializableArtifact {
     }
     lemmaSpan += lemmas.get(to);
     return lemmaSpan;
+  }
+  
+  /**
+   * Get the ordered Map of most frequent senses for a lemma#pos entry.
+   * @param lemmaPOSClass the lemma#pos entry
+   * @return the ordered multimap of senses
+   */
+  public TreeMultimap<Integer, String> getOrderedMap(String lemmaPOSClass) {
+    List<String> mfsList = multiMap.get(lemmaPOSClass);
+    TreeMultimap<Integer, String> mfsMap = TreeMultimap.create(Ordering.natural().reverse(), Ordering.natural());
+    if (!mfsList.isEmpty()) {
+      getOrderedSenses(mfsList, mfsMap);
+    }
+    return mfsMap;
+  }
+  
+  /**
+   * Look-up lemma#pos string as key in dictionary.
+   * @param mfsList the list containing the freq#sense values
+   */
+  public void getOrderedSenses(List<String> mfsList, TreeMultimap<Integer, String> mfsResultsMap) {
+    if (!mfsList.isEmpty()) {
+      for (String mfsResult : mfsList) {
+        String[] mfsEntry = mfsResult.split("#");
+        mfsResultsMap.put(Integer.valueOf(mfsEntry[0]), mfsEntry[1]);
+      }
+    }
+  }
+  
+  /**
+   * Get the MFS from a lemma#posClass entry, e.g., house#n.
+   * @param mfsMap map to get the MFS from
+   * @return the most frequent sense
+   */
+  public String getMFS(TreeMultimap<Integer, String> mfsMap) {
+    SortedSet<String> mfs = mfsMap.get(mfsMap.keySet().first());
+    return mfs.first();
+   }
+  
+  /**
+   * Get a rank of senses ordered by MFS. 
+   * @param lemmaPOSClass the lemma#pos entry
+   * @param rankSize the size of the rank
+   * @return the ordered multimap containing the rank
+   */
+  public TreeMultimap<Integer, String> getMFSRanking(String lemmaPOSClass, Integer rankSize) {
+    
+    TreeMultimap<Integer, String> mfsResultsMap = getOrderedMap(lemmaPOSClass);
+    TreeMultimap<Integer, String> mfsRankMap = TreeMultimap.create(Ordering.natural().reverse(), Ordering.natural());
+    for (Map.Entry<Integer, String> freqSenseEntry : Iterables.limit(mfsResultsMap.entries(), rankSize)) {
+      mfsRankMap.put(freqSenseEntry.getKey(), freqSenseEntry.getValue());
+    }
+    return mfsRankMap;
   }
  
   

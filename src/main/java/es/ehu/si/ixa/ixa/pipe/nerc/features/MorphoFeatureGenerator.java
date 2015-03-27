@@ -53,7 +53,7 @@ public class MorphoFeatureGenerator extends CustomFeatureGenerator implements Ar
   public void createFeatures(List<String> features, String[] tokens, int index,
       String[] previousOutcomes) {
     
-    //cache pos tagger results for each sentence
+    //cache annotations for each sentence
     if (currentSentence != tokens) {
       currentSentence = tokens;
       currentTags = posModelResource.posTag(tokens);
@@ -107,7 +107,7 @@ public class MorphoFeatureGenerator extends CustomFeatureGenerator implements Ar
   private void processRangeOptions(Map<String, String> properties) {
     String featuresRange = properties.get("range");
     String[] rangeArray = Flags.processMorphoFeaturesRange(featuresRange);
-    //options
+    
     if (rangeArray[0].equalsIgnoreCase("pos")) {
       isPos = true;
     }

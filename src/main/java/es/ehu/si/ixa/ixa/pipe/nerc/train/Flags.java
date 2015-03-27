@@ -28,7 +28,7 @@ public class Flags {
   public static final String CHAR_NGRAM_RANGE = "2:5";
   public static final String DEFAULT_WINDOW = "2:2";
   public static final String DEFAULT_MORPHO_RANGE = "pos,posclass,lemma";
-  public static final String DEFAULT_MFS_RANGE = "mfs,monosemic";
+  public static final String DEFAULT_SUPERSENSE_RANGE = "mfs,monosemic";
   
   /**
    * Default beam size for decoding.
@@ -377,44 +377,27 @@ public class Flags {
     return lemmaRangeFlag;
   }
   
-  /**
-   * Get the WordNet morphological features configuration.
-   * 
-   * @param params
-   *          the training parameters
-   * @return a list containing the options
-   */
-  public static String getWordNetMorphoFeaturesRange(TrainingParameters params) {
-    String lemmaRangeFlag = null;
-    if (params.getSettings().get("WordNetMorphoFeaturesRange") != null) {
-      lemmaRangeFlag = params.getSettings().get("WordNetMorphoFeaturesRange");
-    } else {
-      lemmaRangeFlag = Flags.DEFAULT_MORPHO_RANGE;
-    }
-    return lemmaRangeFlag;
-  }
-  
   public static String[] processMorphoFeaturesRange(String mfsFlag) {
     String[] mfsFlagArray = mfsFlag.split(",");
     if (mfsFlagArray.length != 3) {
-      System.err.println("MorphoFeaturesRange requiress three fields but only got " + mfsFlagArray.length);
+      System.err.println("MorphoFeaturesRange requires three fields but only got " + mfsFlagArray.length);
       System.exit(1);
     }
     return mfsFlagArray;
   }
 
   
-  public static String getMFSFeatures(TrainingParameters params) {
+  public static String getSuperSenseFeatures(TrainingParameters params) {
     String mfsFlag = null;
-    if (params.getSettings().get("MFSFeatures") != null) {
-      mfsFlag = params.getSettings().get("MFSFeatures");
+    if (params.getSettings().get("SuperSenseFeatures") != null) {
+      mfsFlag = params.getSettings().get("SuperSenseFeatures");
     } else {
       mfsFlag = Flags.DEFAULT_FEATURE_FLAG;
     }
     return mfsFlag;
   }
   
-  public static String[] getMFSResources(String mfsFlag) {
+  public static String[] getSuperSenseResources(String mfsFlag) {
     String[] mfsFlagArray = mfsFlag.split(",");
     if (mfsFlagArray.length != 3) {
       System.err.println("MFSResources resources requires three fields but only got " + mfsFlagArray.length);
@@ -423,27 +406,20 @@ public class Flags {
     return mfsFlagArray;
   }
   
-  /**
-   * Get the lemma features configuration.
-   * 
-   * @param params
-   *          the training parameters
-   * @return a list containing the initial and maximum ngram values
-   */
-  public static String getMFSFeaturesRange(TrainingParameters params) {
+  public static String getSuperSenseFeaturesRange(TrainingParameters params) {
     String mfsRangeFlag = null;
-    if (params.getSettings().get("MFSFeaturesRange") != null) {
-      mfsRangeFlag = params.getSettings().get("MFSFeaturesRange");
+    if (params.getSettings().get("SuperSenseFeaturesRange") != null) {
+      mfsRangeFlag = params.getSettings().get("SuperSenseFeaturesRange");
     } else {
-      mfsRangeFlag = Flags.DEFAULT_MFS_RANGE;
+      mfsRangeFlag = Flags.DEFAULT_SUPERSENSE_RANGE;
     }
     return mfsRangeFlag;
   }
   
-  public static String[] processMFSFeaturesRange(String mfsFlag) {
+  public static String[] processSuperSenseFeaturesRange(String mfsFlag) {
     String[] mfsFlagArray = mfsFlag.split(",");
     if (mfsFlagArray.length != 2) {
-      System.err.println("MFSFeaturesRange requires two fields but only got " + mfsFlagArray.length);
+      System.err.println("MFSFeaturesRange requires two fields but got " + mfsFlagArray.length);
       System.exit(1);
     }
     return mfsFlagArray;
@@ -525,8 +501,8 @@ public class Flags {
    * @param params the parameters
    * @return whether the mfs features are activated or not
    */
-  public static boolean isMFSFeatures(TrainingParameters params) {
-    String mfsFeatures = getMFSFeatures(params);
+  public static boolean isSuperSenseFeatures(TrainingParameters params) {
+    String mfsFeatures = getSuperSenseFeatures(params);
     return !mfsFeatures.equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
   }
 
