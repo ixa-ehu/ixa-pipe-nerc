@@ -103,7 +103,7 @@ public class MFSResource implements SerializableArtifact {
     String mostFrequentSense = null;
     // iterative over lemmas from the beginning
     for (int i = 0; i < lemmas.size(); i++) {
-      String entrySearch = (lemmas.get(i) + "#" + posTags[i].substring(0 ,1)).toLowerCase();
+      String entrySearch = lemmas.get(i) + "#" + posTags[i].substring(0 ,1).toLowerCase();
         TreeMultimap<Integer, String> mfsMap = getOrderedMap(entrySearch);
         if (!mfsMap.isEmpty()) {
           mostFrequentSense = getMFS(mfsMap);
