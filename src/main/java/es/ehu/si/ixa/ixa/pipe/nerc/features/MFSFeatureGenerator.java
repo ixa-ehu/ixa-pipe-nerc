@@ -87,7 +87,7 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements
       String mfs = currentMFSList.get(index);
       // TODO check also with lemmas
       features.add("mfs=" + mfs);
-      features.add("mfs,w=" + mfs + "," + tokens[index]);
+      features.add("mfs,lemma=" + mfs + "," + tokens[index]);
 
     }
     if (isMonosemic) {
