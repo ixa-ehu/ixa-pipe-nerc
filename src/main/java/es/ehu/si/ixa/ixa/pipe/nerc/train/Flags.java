@@ -27,8 +27,9 @@ public class Flags {
   public static final String DEFAULT_FEATURE_FLAG = "no";
   public static final String CHAR_NGRAM_RANGE = "2:5";
   public static final String DEFAULT_WINDOW = "2:2";
-  public static final String DEFAULT_MORPHO_RANGE = "pos,no,lemma";
-  public static final String DEFAULT_MFS_RANGE = "pos,no,lemma,mfs,monosemic";
+  public static final String DEFAULT_MORPHO_RANGE = "pos,posclass,lemma";
+  public static final String DEFAULT_MFS_RANGE = "pos,posclass,lemma,mfs,no";
+  public static final String DEFAULT_SUPERSENSE_RANGE = "mfs,monosemic";
   
   /**
    * Default beam size for decoding.
@@ -361,11 +362,11 @@ public class Flags {
   }
   
   /**
-   * Get the lemma features configuration.
+   * Get the morphological features configuration.
    * 
    * @param params
    *          the training parameters
-   * @return a list containing the initial and maximum ngram values
+   * @return a list containing the options
    */
   public static String getMorphoFeaturesRange(TrainingParameters params) {
     String lemmaRangeFlag = null;
@@ -380,12 +381,22 @@ public class Flags {
   public static String[] processMorphoFeaturesRange(String mfsFlag) {
     String[] mfsFlagArray = mfsFlag.split(",");
     if (mfsFlagArray.length != 3) {
-      System.err.println("MorphoFeaturesRange requiress three fields but only got " + mfsFlagArray.length);
+      System.err.println("MorphoFeaturesRange requires three fields but only got " + mfsFlagArray.length);
       System.exit(1);
     }
     return mfsFlagArray;
   }
 
+  
+  public static String getSuperSenseFeatures(TrainingParameters params) {
+    String mfsFlag = null;
+    if (params.getSettings().get("SuperSenseFeatures") != null) {
+      mfsFlag = params.getSettings().get("SuperSenseFeatures");
+    } else {
+      mfsFlag = Flags.DEFAULT_FEATURE_FLAG;
+    }
+    return mfsFlag;
+  }
   
   public static String getMFSFeatures(TrainingParameters params) {
     String mfsFlag = null;
@@ -397,36 +408,57 @@ public class Flags {
     return mfsFlag;
   }
   
-  public static String[] getMFSResources(String mfsFlag) {
+  public static String[] getSuperSenseResources(String mfsFlag) {
     String[] mfsFlagArray = mfsFlag.split(",");
     if (mfsFlagArray.length != 3) {
-      System.err.println("MFSResources resources requires three fields but only got " + mfsFlagArray.length);
+      System.err.println("SuperSense resources requires three fields but only got " + mfsFlagArray.length);
       System.exit(1);
     }
     return mfsFlagArray;
   }
   
-  /**
-   * Get the lemma features configuration.
-   * 
-   * @param params
-   *          the training parameters
-   * @return a list containing the initial and maximum ngram values
-   */
+  public static String[] getMFSResources(String mfsFlag) {
+    String[] mfsFlagArray = mfsFlag.split(",");
+    if (mfsFlagArray.length != 3) {
+      System.err.println("MFS resources requires three fields but only got " + mfsFlagArray.length);
+      System.exit(1);
+    }
+    return mfsFlagArray;
+  }
+  
+  public static String getSuperSenseFeaturesRange(TrainingParameters params) {
+    String mfsRangeFlag = null;
+    if (params.getSettings().get("SuperSenseFeaturesRange") != null) {
+      mfsRangeFlag = params.getSettings().get("SuperSenseFeaturesRange");
+    } else {
+      mfsRangeFlag = Flags.DEFAULT_SUPERSENSE_RANGE;
+    }
+    return mfsRangeFlag;
+  }
+  
   public static String getMFSFeaturesRange(TrainingParameters params) {
     String mfsRangeFlag = null;
     if (params.getSettings().get("MFSFeaturesRange") != null) {
       mfsRangeFlag = params.getSettings().get("MFSFeaturesRange");
     } else {
-      mfsRangeFlag = Flags.DEFAULT_MFS_RANGE;
+      mfsRangeFlag = Flags.DEFAULT_SUPERSENSE_RANGE;
     }
     return mfsRangeFlag;
+  }
+  
+  public static String[] processSuperSenseFeaturesRange(String mfsFlag) {
+    String[] mfsFlagArray = mfsFlag.split(",");
+    if (mfsFlagArray.length != 2) {
+      System.err.println("SuperSenseFeaturesRange requires two fields but got " + mfsFlagArray.length);
+      System.exit(1);
+    }
+    return mfsFlagArray;
   }
   
   public static String[] processMFSFeaturesRange(String mfsFlag) {
     String[] mfsFlagArray = mfsFlag.split(",");
     if (mfsFlagArray.length != 5) {
-      System.err.println("MFSFeaturesRange requires five fields but only got " + mfsFlagArray.length);
+      System.err.println("MFSFeaturesRange requires five fields but got " + mfsFlagArray.length);
       System.exit(1);
     }
     return mfsFlagArray;
@@ -504,12 +536,22 @@ public class Flags {
   }
   
   /**
+   * Check if supersense tagger features are active.
+   * @param params the parameters
+   * @return whether the supersense features are activated or not
+   */
+  public static boolean isSuperSenseFeatures(TrainingParameters params) {
+    String mfsFeatures = getSuperSenseFeatures(params);
+    return !mfsFeatures.equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
+  }
+  
+  /**
    * Check if mfs features are active.
    * @param params the parameters
    * @return whether the mfs features are activated or not
    */
   public static boolean isMFSFeatures(TrainingParameters params) {
-    String mfsFeatures = getMFSFeatures(params);
+    String mfsFeatures = getSuperSenseFeatures(params);
     return !mfsFeatures.equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
   }
 

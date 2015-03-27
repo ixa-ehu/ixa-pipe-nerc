@@ -42,6 +42,7 @@ public class MorphoFeatureGenerator extends CustomFeatureGenerator implements Ar
   private LemmaResource lemmaDictResource;
   private String[] currentSentence;
   private String[] currentTags;
+  private List<String> currentLemmas;
   private boolean isPos;
   private boolean isPosClass;
   private boolean isLemma;
@@ -52,28 +53,22 @@ public class MorphoFeatureGenerator extends CustomFeatureGenerator implements Ar
   public void createFeatures(List<String> features, String[] tokens, int index,
       String[] previousOutcomes) {
     
-    //cache pos tagger results for each sentence
+    //cache annotations for each sentence
     if (currentSentence != tokens) {
       currentSentence = tokens;
       currentTags = posModelResource.posTag(tokens);
+      currentLemmas = lemmaDictResource.lookUpLemmaArray(tokens, currentTags);
     }
     String posTag = currentTags[index];
-    //options
     if (isPos) {
       features.add("posTag=" + posTag);
-      if (posTag.startsWith("NNP")) {
-        features.add("posTag=" + "posprop");
-      }
-      if (posTag.equalsIgnoreCase("NNS") || posTag.equalsIgnoreCase("NN")) {
-        features.add("posTag=" + "poscomm");
-      }
     }
     if (isPosClass) {
       String posTagClass = posTag.substring(0, 1);
       features.add("posTagClass=" + posTagClass);
     }
     if (isLemma) {
-      String lemma = lemmaDictResource.lookUpLemma(tokens[index], posTag);
+      String lemma = currentLemmas.get(index);
       features.add("lemma=" + lemma);
     }
   }
@@ -112,7 +107,7 @@ public class MorphoFeatureGenerator extends CustomFeatureGenerator implements Ar
   private void processRangeOptions(Map<String, String> properties) {
     String featuresRange = properties.get("range");
     String[] rangeArray = Flags.processMorphoFeaturesRange(featuresRange);
-    //options
+    
     if (rangeArray[0].equalsIgnoreCase("pos")) {
       isPos = true;
     }

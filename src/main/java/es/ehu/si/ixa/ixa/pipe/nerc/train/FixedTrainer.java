@@ -42,13 +42,14 @@ import es.ehu.si.ixa.ixa.pipe.nerc.dict.Word2VecCluster;
 import es.ehu.si.ixa.ixa.pipe.nerc.features.XMLFeatureDescriptor;
 
 /**
- * Training NER based on Apache OpenNLP Machine Learning API. This class creates
- * a feature set based on the features activated in the trainParams.prop
- * properties file:
+ * Training sequence labeler based on Apache OpenNLP Machine Learning API. This class creates
+ * a feature set based on the features activated in the trainParams.properties
+ * file:
  * <ol>
  * <li>Window: specify left and right window lengths.
  * <li>TokenFeatures: tokens as features in a window length.
  * <li>TokenClassFeatures: token shape features in a window length.
+ * <li>WordShapeSuperSenseFeatures: token shape features from Ciaramita and Altun (2006).
  * <li>OutcomePriorFeatures: take into account previous outcomes.
  * <li>PreviousMapFeatures: add features based on tokens and previous decisions.
  * <li>SentenceFeatures: add beginning and end of sentence words.
@@ -66,10 +67,12 @@ import es.ehu.si.ixa.ixa.pipe.nerc.features.XMLFeatureDescriptor;
  * <li>Word2VecClusterFeatures: use the word2vec clustering class of a token as
  * a feature.
  * <li>MorphoFeatures: use pos tags, pos tag class and lemma as features.
+ * <li>MFSFeatures: Most Frequent sense feature.
+ * <li>SuperSenseFeatures: Ciaramita and Altun (2006) features for super sense tagging.
  * <ol>
  * 
  * @author ragerri
- * @version 2015-03-12
+ * @version 2015-03-27
  */
 public class FixedTrainer extends AbstractTrainer {
   
@@ -166,6 +169,19 @@ public class FixedTrainer extends AbstractTrainer {
       loadResource(posSerializerId, artifactSerializers, morphoResources[0], featureGenDescriptor, resources);
       artifactSerializers.put(lemmaSerializerId, new LemmaResource.LemmaResourceSerializer());
       loadResource(lemmaSerializerId, artifactSerializers, morphoResources[1], featureGenDescriptor, resources);
+    }
+    if (Flags.isSuperSenseFeatures(params)) {
+      String mfsResourcesPath = Flags.getSuperSenseFeatures(params);
+      String[] mfsResources = Flags.getSuperSenseResources(mfsResourcesPath);
+      String posSerializerId = "postagserializer";
+      String lemmaSerializerId = "lemmaserializer";
+      String mfsSerializerId = "mfsserializer";
+      artifactSerializers.put(posSerializerId, new POSModelResource.POSModelResourceSerializer());
+      loadResource(posSerializerId, artifactSerializers, mfsResources[0], featureGenDescriptor, resources);
+      artifactSerializers.put(lemmaSerializerId, new LemmaResource.LemmaResourceSerializer());
+      loadResource(lemmaSerializerId, artifactSerializers, mfsResources[1], featureGenDescriptor, resources);
+      artifactSerializers.put(mfsSerializerId, new MFSResource.MFSResourceSerializer());
+      loadResource(mfsSerializerId, artifactSerializers, mfsResources[2], featureGenDescriptor, resources);
     }
     if (Flags.isMFSFeatures(params)) {
       String mfsResourcesPath = Flags.getMFSFeatures(params);

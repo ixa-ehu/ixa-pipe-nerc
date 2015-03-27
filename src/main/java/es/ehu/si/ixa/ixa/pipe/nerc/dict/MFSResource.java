@@ -24,6 +24,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
@@ -88,29 +89,83 @@ public class MFSResource implements SerializableArtifact {
   }
   
   /**
-   * Get the MFS from a lemma#posClass entry, e.g., house#n.
-   * @param mfsMap map to get the MFS from
-   * @return the most frequent sense
+   * Extract most frequent sense baseline from WordNet data, using Ciaramita and
+   * Altun's (2006) approach.
+   * 
+   * @param lemmas
+   *          in the sentence
+   * @return the most frequent senses for the sentence
    */
-  public String getMFS(TreeMultimap<Integer, String> mfsMap) {
-    SortedSet<String> mfs = mfsMap.get(mfsMap.keySet().first());
-    return mfs.first();
-   }
+  public List<String> getLabeledMFS(List<String> lemmas, String[] posTags) {
+
+    List<String> mostFrequentSenseList = new ArrayList<String>();
+
+    String prefix = "B-";
+    String mostFrequentSense = null;
+    String searchSpan = null;
+    // iterative over lemmas from the beginning
+    for (int i = 0; i < lemmas.size(); i++) {
+      mostFrequentSense = null;
+      String pos = posTags[i];
+      int j;
+      // iterate over lemmas from the end
+      for (j = lemmas.size() - 1; j >= i; j--) {
+        // create span for search in multimap; the first search takes as span
+        // the whole sentence
+        String endPos = posTags[j];
+        searchSpan = createSpan(lemmas, i, j);
+        String firstSpan = (searchSpan + "#" + pos.substring(0, 1))
+            .toLowerCase();
+        TreeMultimap<Integer, String> mfsMap = getOrderedMap(firstSpan);
+        if (!mfsMap.isEmpty()) {
+          mostFrequentSense = getMFS(mfsMap);
+          break;
+        }
+        String lastSpan = (searchSpan + "#" + endPos.substring(0, 1))
+            .toLowerCase();
+        TreeMultimap<Integer, String> mfsMapEnd = getOrderedMap(lastSpan);
+        if (!mfsMapEnd.isEmpty()) {
+          mostFrequentSense = getMFS(mfsMapEnd);
+          break;
+        }
+      }
+      prefix = "B-";
+      // multi-token case
+      if (mostFrequentSense != null) {
+        while (i < j) {
+          mostFrequentSenseList.add((prefix + mostFrequentSense).intern());
+          prefix = "I-";
+          i++;
+        }
+      }
+      // one word case
+      if (mostFrequentSense != null) {
+        mostFrequentSenseList.add((prefix + mostFrequentSense).intern());
+      } else {
+        mostFrequentSenseList.add("O");
+      }
+    }
+    return mostFrequentSenseList;
+  }
   
   /**
-   * Get a rank of senses ordered by MFS. 
-   * @param lemmaPOSClass the lemma#pos entry
-   * @param rankSize the size of the rank
-   * @return the ordered multimap containing the rank
+   * Create lemma span for search of multiwords in MFS dictionary.
+   * 
+   * @param lemmas
+   *          the lemmas of the sentence
+   * @param from
+   *          the starting index
+   * @param to
+   *          the end index
+   * @return the string representing a perhaps multi word entry
    */
-  public TreeMultimap<Integer, String> getMFSRanking(String lemmaPOSClass, Integer rankSize) {
-    
-    TreeMultimap<Integer, String> mfsResultsMap = getOrderedMap(lemmaPOSClass);
-    TreeMultimap<Integer, String> mfsRankMap = TreeMultimap.create(Ordering.natural().reverse(), Ordering.natural());
-    for (Map.Entry<Integer, String> freqSenseEntry : Iterables.limit(mfsResultsMap.entries(), rankSize)) {
-      mfsRankMap.put(freqSenseEntry.getKey(), freqSenseEntry.getValue());
+  private String createSpan(List<String> lemmas, int from, int to) {
+    String lemmaSpan = "";
+    for (int i = from; i < to; i++) {
+      lemmaSpan += lemmas.get(i) + "_";
     }
-    return mfsRankMap;
+    lemmaSpan += lemmas.get(to);
+    return lemmaSpan;
   }
   
   /**
@@ -139,6 +194,33 @@ public class MFSResource implements SerializableArtifact {
       }
     }
   }
+  
+  /**
+   * Get the MFS from a lemma#posClass entry, e.g., house#n.
+   * @param mfsMap map to get the MFS from
+   * @return the most frequent sense
+   */
+  public String getMFS(TreeMultimap<Integer, String> mfsMap) {
+    SortedSet<String> mfs = mfsMap.get(mfsMap.keySet().first());
+    return mfs.first();
+   }
+  
+  /**
+   * Get a rank of senses ordered by MFS. 
+   * @param lemmaPOSClass the lemma#pos entry
+   * @param rankSize the size of the rank
+   * @return the ordered multimap containing the rank
+   */
+  public TreeMultimap<Integer, String> getMFSRanking(String lemmaPOSClass, Integer rankSize) {
+    
+    TreeMultimap<Integer, String> mfsResultsMap = getOrderedMap(lemmaPOSClass);
+    TreeMultimap<Integer, String> mfsRankMap = TreeMultimap.create(Ordering.natural().reverse(), Ordering.natural());
+    for (Map.Entry<Integer, String> freqSenseEntry : Iterables.limit(mfsResultsMap.entries(), rankSize)) {
+      mfsRankMap.put(freqSenseEntry.getKey(), freqSenseEntry.getValue());
+    }
+    return mfsRankMap;
+  }
+ 
   
   /**
    * Serialize the lexicon in the original format.
