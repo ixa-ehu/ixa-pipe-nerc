@@ -133,7 +133,7 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements
     features.add("curPOS_0" + curPOS.charAt(0));
     
     if (prevPOS != startSymbol) {
-      features.add("prevTok=" + prevStem);
+    features.add("prevTok=" + prevStem);
       features.add("prevPOS=" + prevPOS);
       features.add("prevPOS_0=" + prevPOS.charAt(0));
     }
@@ -188,7 +188,7 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements
    *          the token to be normalized
    * @return the normalized tokens
    */
-  private String normalize(String token) {
+  public static String normalize(String token) {
     String normalizedToken = "";
 
     char currentCharacter;

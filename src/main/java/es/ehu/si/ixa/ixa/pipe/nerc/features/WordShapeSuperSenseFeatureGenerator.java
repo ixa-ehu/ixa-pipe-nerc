@@ -40,7 +40,6 @@ public class WordShapeSuperSenseFeatureGenerator extends CustomFeatureGenerator 
     String normalizedToken = normalize(tokens[index]);
     features.add("sh=" + normalizedToken);
     features.add("w,sh=" + tokens[index].toLowerCase() + "," + normalizedToken);
-    //System.err.println("Shape -> " + normalizedToken + " " + tokens[index]);
   }
 
   /**
