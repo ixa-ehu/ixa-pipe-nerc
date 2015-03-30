@@ -39,7 +39,6 @@ public class DictionaryFeatureGenerator extends CustomFeatureGenerator implement
       } else {
         currentEntities = dictionary.getBioDictionaryMatch(tokens);
       }
-      
     }
     
     String currentEntity = currentEntities.get(index);
