@@ -202,6 +202,10 @@ public class Annotate {
         tokenIds[i] = sentence.get(i).getId();
       }
       if (statistical) {
+        //TODO manage this properly
+        /*if (tokens[0].startsWith("-DOCSTART-")) {
+          nameFinder.clearAdaptiveData();
+        }*/
         Span[] statSpans = nameFinder.nercToSpans(tokens);
         allSpans = Lists.newArrayList(statSpans);
       }
