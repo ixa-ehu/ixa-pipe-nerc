@@ -54,6 +54,7 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements
   private boolean isLemma;
   private boolean isMFS;
   private boolean isMonosemic;
+  private boolean isBio;
 
   public MFSFeatureGenerator() {
   }
@@ -84,6 +85,7 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements
       features.add("lemma=" + lemma);
     }
     if (isMFS) {
+      //TODO check with bio and bilou mfs
       String mfs = currentMFSList.get(index);
       // TODO check also with lemmas
       features.add("mfs=" + mfs);
@@ -128,6 +130,11 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements
     }
     this.mfsDictResource = (MFSResource) mfsResource;
     processRangeOptions(properties);
+    if (properties.get("seqCodec").equalsIgnoreCase("bilou")) {
+      isBio = false;
+    } else {
+      isBio = true;
+    }
   }
 
   /**

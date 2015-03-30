@@ -37,7 +37,7 @@ import es.ehu.si.ixa.ixa.pipe.nerc.dict.POSModelResource;
  * included in this feature generator.
  * 
  * @author ragerri
- * @version 2015-03-27
+ * @version 2015-03-30
  */
 public class SuperSenseFeatureGenerator extends CustomFeatureGenerator implements
     ArtifactToSerializerMapper {
@@ -51,6 +51,7 @@ public class SuperSenseFeatureGenerator extends CustomFeatureGenerator implement
   private List<String> currentMFSList;
   private String startSymbol = null;
   private String endSymbol = null;
+  private Boolean isBio = true;
 
   public SuperSenseFeatureGenerator() {
   }
@@ -63,8 +64,11 @@ public class SuperSenseFeatureGenerator extends CustomFeatureGenerator implement
       currentSentence = tokens;
       currentTags = posModelResource.posTag(tokens);
       currentLemmas = lemmaDictResource.lookUpLemmaArray(tokens, currentTags);
-      currentMFSList = mfsDictResource
-          .getFirstSenseBio(currentLemmas, currentTags);
+      if (isBio) {
+        currentMFSList = mfsDictResource.getFirstSenseBio(currentLemmas, currentTags);
+      } else {
+      currentMFSList = mfsDictResource.getFirstSenseBilou(currentLemmas, currentTags);
+      }
     }
 
     String curStem = currentLemmas.get(index);
@@ -97,9 +101,7 @@ public class SuperSenseFeatureGenerator extends CustomFeatureGenerator implement
       prevShape = WordShapeSuperSenseFeatureGenerator.normalize(tokens[index - 1]);
       prevStem = currentLemmas.get(index - 1);
       prevPOS = currentTags[index - 1];
-      // TODO checkout prevLabel value
       prevLabel = previousOutcomes[index - 1];
-      prevLabel = bilouToBio(prevLabel);
     }
     if (index + 1 < tokens.length) {
       nextShape = WordShapeSuperSenseFeatureGenerator.normalize(tokens[index + 1]);
@@ -183,26 +185,6 @@ public class SuperSenseFeatureGenerator extends CustomFeatureGenerator implement
 
   }
 
-  /**
-   * Convert BILOU encoding to BIO.
-   * @param label the label
-   * @return the converted label
-   */
-  public static String bilouToBio(String label) {
-    if (label.endsWith("-unit")) {
-      label = "B-" + label.split("-unit")[0];
-    } else if (label.endsWith("-start")) {
-      label = "B-" + label.split("-start")[0];
-    } else if (label.endsWith("-cont")) {
-      label = "I-" + label.split("-cont")[0];
-    } else if (label.endsWith("-last")) {
-      label = "I-" + label.split("-last")[0];
-    } else if (label.equalsIgnoreCase("other")) {
-      label = "O";
-    }
-    return label;
-  }
-
   @Override
   public void updateAdaptiveData(String[] tokens, String[] outcomes) {
 
@@ -235,6 +217,11 @@ public class SuperSenseFeatureGenerator extends CustomFeatureGenerator implement
           + properties.get("mfs"));
     }
     this.mfsDictResource = (MFSResource) mfsResource;
+    if (properties.get("seqCodec").equalsIgnoreCase("bilou")) {
+      isBio = false;
+    } else {
+      isBio = true;
+    }
   }
 
   @Override

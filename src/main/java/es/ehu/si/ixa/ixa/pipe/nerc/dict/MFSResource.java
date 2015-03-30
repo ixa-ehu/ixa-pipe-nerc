@@ -30,6 +30,8 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.regex.Pattern;
 
+import opennlp.tools.namefind.BilouCodec;
+import opennlp.tools.namefind.BioCodec;
 import opennlp.tools.util.InvalidFormatException;
 import opennlp.tools.util.model.ArtifactSerializer;
 import opennlp.tools.util.model.SerializableArtifact;
@@ -44,7 +46,7 @@ import com.google.common.collect.TreeMultimap;
  * Reads wordnet lexicons formated as house#n\t1092#noun.artifact
  * to search for most frequent senses.
  * @author ragerri
- * @version 2015-03-13
+ * @version 2015-03-30
  * 
  */
 public class MFSResource implements SerializableArtifact {
@@ -118,7 +120,7 @@ public class MFSResource implements SerializableArtifact {
   
   /**
    * Extract most frequent sense baseline from WordNet data, using Ciaramita and
-   * Altun's (2006) approach.
+   * Altun's (2006) approach for a bio encoding.
    * 
    * @param lemmas
    *          in the sentence
@@ -128,7 +130,7 @@ public class MFSResource implements SerializableArtifact {
 
     List<String> mostFrequentSenseList = new ArrayList<String>();
 
-    String prefix = "B-";
+    String prefix = "-" + BioCodec.START;
     String mostFrequentSense = null;
     String searchSpan = null;
     // iterative over lemmas from the beginning
@@ -157,20 +159,84 @@ public class MFSResource implements SerializableArtifact {
           break;
         }
       }
-      prefix = "B-";
+      prefix = "-" + BioCodec.START;
       // multi-token case
       if (mostFrequentSense != null) {
         while (i < j) {
-          mostFrequentSenseList.add((prefix + mostFrequentSense).intern());
-          prefix = "I-";
+          mostFrequentSenseList.add((mostFrequentSense + prefix).intern());
+          prefix = "-" + BioCodec.CONTINUE;
           i++;
         }
       }
-      // one word case
+      // one word case or last member of multispan
       if (mostFrequentSense != null) {
-        mostFrequentSenseList.add((prefix + mostFrequentSense).intern());
+        mostFrequentSenseList.add((mostFrequentSense + prefix).intern());
       } else {
-        mostFrequentSenseList.add("O");
+        mostFrequentSenseList.add(BioCodec.OTHER);
+      }
+    }
+    return mostFrequentSenseList;
+  }
+  
+  /**
+   * Extract most frequent sense baseline from WordNet data, using Ciaramita and
+   * Altun's (2006) approach for bilou encoding.
+   * 
+   * @param lemmas
+   *          in the sentence
+   * @return the most frequent senses for the sentence
+   */
+  public List<String> getFirstSenseBilou(List<String> lemmas, String[] posTags) {
+
+    List<String> mostFrequentSenseList = new ArrayList<String>();
+
+    String prefix = "-" + BioCodec.START;
+    String mostFrequentSense = null;
+    String searchSpan = null;
+    // iterative over lemmas from the beginning
+    for (int i = 0; i < lemmas.size(); i++) {
+      mostFrequentSense = null;
+      String pos = posTags[i];
+      int j;
+      // iterate over lemmas from the end
+      for (j = lemmas.size() - 1; j >= i; j--) {
+        // create span for search in multimap; the first search takes as span
+        // the whole sentence
+        String endPos = posTags[j];
+        searchSpan = createSpan(lemmas, i, j);
+        String firstSpan = (searchSpan + "#" + pos.substring(0, 1))
+            .toLowerCase();
+        TreeMultimap<Integer, String> mfsMap = getOrderedMap(firstSpan);
+        if (!mfsMap.isEmpty()) {
+          mostFrequentSense = getMFS(mfsMap);
+          break;
+        }
+        String lastSpan = (searchSpan + "#" + endPos.substring(0, 1))
+            .toLowerCase();
+        TreeMultimap<Integer, String> mfsMapEnd = getOrderedMap(lastSpan);
+        if (!mfsMapEnd.isEmpty()) {
+          mostFrequentSense = getMFS(mfsMapEnd);
+          break;
+        }
+      }
+      prefix = "-" + BilouCodec.START;
+      // multi-token case
+      if (mostFrequentSense != null) {
+        while (i < j) {
+          mostFrequentSenseList.add((mostFrequentSense + prefix).intern());
+          prefix = "-" + BilouCodec.CONTINUE;
+          i++;
+        }
+      }
+      // one word case or last member of multi-span
+      if (mostFrequentSense != null) {
+        if (prefix.equals("-" + BilouCodec.CONTINUE)) {
+          mostFrequentSenseList.add((mostFrequentSense + "-" + BilouCodec.LAST).intern());
+        } else if (prefix.equals("-" + BilouCodec.START)) {
+          mostFrequentSenseList.add((mostFrequentSense + "-" + BilouCodec.UNIT).intern());
+        }
+      } else {
+        mostFrequentSenseList.add(BilouCodec.OTHER);
       }
     }
     return mostFrequentSenseList;

@@ -1,3 +1,19 @@
+/*
+ *  Copyright 2015 Rodrigo Agerri
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+ */
+
 package es.ehu.si.ixa.ixa.pipe.nerc.features;
 
 import java.util.Collections;
@@ -6,47 +22,47 @@ import java.util.List;
 import java.util.Map;
 
 import opennlp.tools.util.InvalidFormatException;
+import opennlp.tools.util.Span;
 import opennlp.tools.util.featuregen.ArtifactToSerializerMapper;
 import opennlp.tools.util.featuregen.CustomFeatureGenerator;
 import opennlp.tools.util.featuregen.FeatureGeneratorResourceProvider;
 import opennlp.tools.util.model.ArtifactSerializer;
 import es.ehu.si.ixa.ixa.pipe.nerc.dict.Dictionary;
 
+
 /**
- * Checks if a named entity is in a gazetteer.
+ * Checks if a string of search found in a gazetteer is inside a span of a named entity in the
+ * training data.
  * @author ragerri
  * @version 2015-03-30
  *
  */
-public class DictionaryFeatureGenerator extends CustomFeatureGenerator implements  ArtifactToSerializerMapper {
+public class InSpanFeatureGenerator extends CustomFeatureGenerator implements  ArtifactToSerializerMapper {
 
   private String[] currentSentence;
-  private List<String> currentEntities;
+  private Span[] currentNames;
   private Dictionary dictionary;
   private Map<String, String> attributes;
-  private boolean isBilou = true;
   
-  public DictionaryFeatureGenerator() {
+  public InSpanFeatureGenerator() {
   }
   
   public void createFeatures(List<String> features, String[] tokens, int index, String[] previousOutcomes) {
     
+    InSpanFeatureFinder finder = new InSpanFeatureFinder(dictionary);
     // cache results for sentence
     if (currentSentence != tokens) {
       currentSentence = tokens;
-      if (isBilou) {
-        currentEntities = dictionary.getBilouDictionaryMatch(tokens);
-      } else {
-        currentEntities = dictionary.getBioDictionaryMatch(tokens);
-      }
-      
+      currentNames = finder.nercToSpans(tokens);
     }
-    
-    String currentEntity = currentEntities.get(index);
-    
-    features.add(attributes.get("dict") + "=" + currentEntity);
-    features.add(attributes.get("dict") + "," + "w=" + currentEntity + "," + tokens[index]);
-    features.add(attributes.get("dict") + ",w=dict");
+    // iterate over names and check if a span is contained
+    for (int i = 0; i < currentNames.length; i++) {
+      if (currentNames[i].contains(index)) {
+        features.add(attributes.get("dict") + ":w=dict");
+        features.add(attributes.get("dict") + ":w=dict=" + tokens[index]);
+        break;
+      }
+    }
   }
   
   @Override
@@ -65,11 +81,6 @@ public class DictionaryFeatureGenerator extends CustomFeatureGenerator implement
     }
     this.dictionary = (Dictionary) dictResource;
     this.attributes = properties;
-    if (properties.get("seqCodec").equalsIgnoreCase("bio")) {
-      isBilou = false;
-    } else {
-      isBilou = true;
-    }
   }
 
   @Override
@@ -78,5 +89,7 @@ public class DictionaryFeatureGenerator extends CustomFeatureGenerator implement
     mapping.put("dictionaryserializer", new Dictionary.DictionarySerializer());
     return Collections.unmodifiableMap(mapping);
   }
-}
   
+  
+  
+}

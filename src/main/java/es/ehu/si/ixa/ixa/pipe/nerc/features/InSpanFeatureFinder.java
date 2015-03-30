@@ -30,14 +30,14 @@ import es.ehu.si.ixa.ixa.pipe.nerc.dict.Dictionary;
  * @author ragerri
  * 
  */
-public class DictionaryFeatureFinder {
+public class InSpanFeatureFinder {
 
   /**
    * The dictionary to find the names.
    */
   private Dictionary dictionary;
 
-  public DictionaryFeatureFinder(final Dictionary aDictionary) {
+  public InSpanFeatureFinder(final Dictionary aDictionary) {
     this.dictionary = aDictionary;
   }
 

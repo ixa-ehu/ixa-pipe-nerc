@@ -32,9 +32,9 @@ import es.ehu.si.ixa.ixa.pipe.nerc.train.Flags;
 import es.ehu.si.ixa.ixa.pipe.nerc.train.InputOutputUtils;
 
 /**
- * Class to automatically generate the feature descriptor from a trainParams.prop file.
+ * Class to automatically generate the feature descriptor from a trainParams.properties file.
  * @author ragerri
- * @version 2015-03-12
+ * @version 2015-03-30
  */
 public final class XMLFeatureDescriptor {
   
@@ -212,11 +212,13 @@ public final class XMLFeatureDescriptor {
     if (Flags.isDictionaryFeatures(params)) {
       setWindow(params);
       String dictPath = Flags.getDictionaryFeatures(params);
+      String seqCodec = Flags.getSequenceCodec(params);
       List<File> fileList = StringUtils.getFilesInDir(new File(dictPath));
       for (File dictFile : fileList) {
         Element dictFeatures = new Element("custom");
         dictFeatures.setAttribute("class", DictionaryFeatureGenerator.class.getName());
         dictFeatures.setAttribute("dict", InputOutputUtils.normalizeLexiconName(dictFile.getCanonicalPath()));
+        dictFeatures.setAttribute("seqCodec", seqCodec);
         Element dictWindow = new Element("window");
         dictWindow.setAttribute("prevLength", Integer.toString(leftWindow));
         dictWindow.setAttribute("nextLength", Integer.toString(rightWindow));
@@ -249,11 +251,6 @@ public final class XMLFeatureDescriptor {
         brownBigramFeatures.setAttribute("class", BrownBigramFeatureGenerator.class.getName());
         brownBigramFeatures.setAttribute("dict", InputOutputUtils.normalizeLexiconName(brownClusterFile.getCanonicalPath()));
         generators.addContent(brownBigramFeatures);
-        // brown trigram features
-        //Element brownTrigramFeatures = new Element("custom");
-        //brownTrigramFeatures.setAttribute("class",BrownTrigramFeatureGenerator.class.getName());
-        //brownTrigramFeatures.setAttribute("dict", InputOutputUtils.normalizeLexiconName(brownClusterFile.getCanonicalPath()));
-        //generators.addContent(brownTrigramFeatures);
         //brown token feature
         Element brownTokenFeature = new Element("custom");
         brownTokenFeature.setAttribute("class", BrownTokenFeatureGenerator.class.getName());
@@ -332,12 +329,14 @@ public final class XMLFeatureDescriptor {
       String mfsPath = Flags.getMFSFeatures(params);
       String[] mfsResources = Flags.getMFSResources(mfsPath);
       String mfsRange = Flags.getMFSFeaturesRange(params);
+      String seqCodec = Flags.getSequenceCodec(params);
       Element mfsClassFeatureElement = new Element("custom");
       mfsClassFeatureElement.setAttribute("class", MFSFeatureGenerator.class.getName());
       mfsClassFeatureElement.setAttribute("model", InputOutputUtils.normalizeLexiconName(mfsResources[0]));
       mfsClassFeatureElement.setAttribute("dict", InputOutputUtils.normalizeLexiconName(mfsResources[1]));
       mfsClassFeatureElement.setAttribute("mfs", InputOutputUtils.normalizeLexiconName(mfsResources[2]));
       mfsClassFeatureElement.setAttribute("range", mfsRange);
+      mfsClassFeatureElement.setAttribute("seqCodec", seqCodec);
       Element mfsClassFeatureWindow = new Element("window");
       mfsClassFeatureWindow.setAttribute("prevLength", Integer.toString(leftWindow));
       mfsClassFeatureWindow.setAttribute("nextLength", Integer.toString(rightWindow));
@@ -349,12 +348,14 @@ public final class XMLFeatureDescriptor {
       String mfsPath = Flags.getSuperSenseFeatures(params);
       String[] mfsResources = Flags.getSuperSenseResources(mfsPath);
       String mfsRange = Flags.getSuperSenseFeaturesRange(params);
+      String seqCodec = Flags.getSequenceCodec(params);
       Element mfsClassFeatureElement = new Element("custom");
       mfsClassFeatureElement.setAttribute("class", SuperSenseFeatureGenerator.class.getName());
       mfsClassFeatureElement.setAttribute("model", InputOutputUtils.normalizeLexiconName(mfsResources[0]));
       mfsClassFeatureElement.setAttribute("dict", InputOutputUtils.normalizeLexiconName(mfsResources[1]));
       mfsClassFeatureElement.setAttribute("mfs", InputOutputUtils.normalizeLexiconName(mfsResources[2]));
       mfsClassFeatureElement.setAttribute("range", mfsRange);
+      mfsClassFeatureElement.setAttribute("seqCodec", seqCodec);
       generators.addContent(mfsClassFeatureElement);
       System.err.println("-> SuperSense Features added!");
       }
