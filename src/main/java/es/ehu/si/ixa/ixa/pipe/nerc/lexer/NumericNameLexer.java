@@ -18,7 +18,11 @@ package es.ehu.si.ixa.ixa.pipe.nerc.lexer;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
 
+import es.ehu.si.ixa.ixa.pipe.nerc.Name;
 import es.ehu.si.ixa.ixa.pipe.nerc.NameFactory;
 
 
@@ -26,9 +30,6 @@ import es.ehu.si.ixa.ixa.pipe.nerc.NameFactory;
  *  NumericNameLexer is based on the {@link NumericLexer} class.
  *  This NameLexer overrides {@link AbstractNameLexer} getToken() method
  *  by using the {@link NumericLexer} yylex() method.
- * Specifically, apart from English Penn Treebank-compliant tokenization,
- * this NumericNameLexer provides for German, English, Spanish, French, Italian
- * and Dutch:
  * <ol>
  *  <li> Numeric DATE Recognition.
  *  <li> Recognition of numeric TIME expressions.
@@ -39,16 +40,17 @@ import es.ehu.si.ixa.ixa.pipe.nerc.NameFactory;
  * For more CLI options, please check {@code CLI} javadoc and README file.
  * @author ragerri
  * @version 2014-05-14
- * @param <T> the object
  */
-public class NumericNameLexer<T> extends AbstractNameLexer<T> {
+public class NumericNameLexer {
 
   /**
    * The lexer specification.
    */
   private NumericLexer jlexer;
+  private Name nextToken;
+  
   /**
-   * Construct a new NumericNameLexer which uses the @link JFlexLexer specification.
+   * Construct a new NumericNameLexer.
    * @param breader Reader
    * @param nameFactory The NameFactory that will be invoked to convert
    *        each string extracted by the @link NumericLexer into a @Name object
@@ -56,21 +58,56 @@ public class NumericNameLexer<T> extends AbstractNameLexer<T> {
   public NumericNameLexer(final BufferedReader breader, final NameFactory nameFactory) {
     jlexer = new NumericLexer(breader, nameFactory);
   }
-
+  
   /**
-   * It obtains the next token. This functions performs the actual recognition
-   * by calling the @link NumericLexer yylex() function.
+   * Returns found expressions as a List of names.
    *
-   * @return the next token or null if none exists.
+   * @return A list of all tokens remaining in the underlying Reader
    */
-  @Override
-  @SuppressWarnings("unchecked")
-  public final T getToken() {
-    try {
-      return (T) jlexer.yylex();
-    } catch (IOException e) {
-      e.printStackTrace();
+  public List<Name> getNumericNames() {
+    List<Name> result = new ArrayList<Name>();
+    while (hasNextToken()) {
+      result.add(getNextToken());
     }
-    return nextToken;
+    return result;
   }
+  
+  /**
+   * Check if the next token provided by yylex() is null.
+   * @return true or false
+   */
+  public boolean hasNextToken() {
+    if (nextToken == null) {
+      try {
+        nextToken = jlexer.yylex();
+      } catch (IOException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+    }
+    return nextToken != null;
+  }
+  
+  
+  /**
+   * Get the next token provided by yylex().
+   * @return the next name
+   */
+  public Name getNextToken() {
+    if (nextToken == null) {
+      try {
+        nextToken = jlexer.yylex();
+      } catch (IOException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+    }
+    Name result = nextToken;
+    nextToken = null;
+    if (result == null) {
+      throw new NoSuchElementException();
+    }
+    return result;
+  }
+  
 }

@@ -26,12 +26,12 @@ import opennlp.tools.util.Span;
 
 public class NumericNameFinder implements NameFinder {
   
-  private NumericNameLexer<Name> numericLexer;
+  private NumericNameLexer numericLexer;
   private NameFactory nameFactory;
   
   public NumericNameFinder(BufferedReader breader, NameFactory aNameFactory) {
     this.nameFactory = aNameFactory;
-    numericLexer = new NumericNameLexer<Name>(breader, aNameFactory);
+    numericLexer = new NumericNameLexer(breader, aNameFactory);
   }
 
   public List<Name> getNames(String[] tokens) {
@@ -43,7 +43,7 @@ public class NumericNameFinder implements NameFinder {
 
   public Span[] nercToSpans(final String[] tokens) {
     List<Span> neSpans = new ArrayList<Span>();
-    List<Name> flexNameList = numericLexer.nameLex();
+    List<Name> flexNameList = numericLexer.getNumericNames();
     for (Name name : flexNameList) {
       //System.err.println("numeric name: " + name.value());
       List<Integer> neIds = StringUtils.exactTokenFinderIgnoreCase(name.value(), tokens);

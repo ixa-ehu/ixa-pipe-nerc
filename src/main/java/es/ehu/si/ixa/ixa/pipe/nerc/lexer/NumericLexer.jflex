@@ -5,7 +5,6 @@ package es.ehu.si.ixa.pipe.nerc.lexer;
 
 import java.io.Reader;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 
 import es.ehu.si.ixa.pipe.nerc.Name;
 import es.ehu.si.ixa.pipe.nerc.NameFactory;
