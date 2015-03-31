@@ -62,7 +62,7 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements
   public void createFeatures(List<String> features, String[] tokens, int index,
       String[] previousOutcomes) {
 
-    // cache anotation results for each sentence
+    // cache annotation results for each sentence
     if (currentSentence != tokens) {
       currentSentence = tokens;
       currentTags = posModelResource.posTag(tokens);
@@ -72,8 +72,6 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements
       } else {
         currentMFSList = mfsDictResource.getFirstSenseBilou(currentLemmas, currentTags);
       }
-      //TODO try with tokens only
-      //currentMFSList = mfsDictResource.getFirstSenseTokens(currentLemmas, currentTags);
     }
     String posTag = currentTags[index];
 
@@ -91,7 +89,6 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements
     }
     if (isMFS) {
       String mfs = currentMFSList.get(index);
-      // TODO check also with tokens
       features.add("mfs=" + mfs);
       features.add("mfs,lemma=" + mfs + "," + currentLemmas.get(index));
 
