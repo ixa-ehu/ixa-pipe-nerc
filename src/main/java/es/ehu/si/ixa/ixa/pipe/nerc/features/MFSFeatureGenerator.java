@@ -67,8 +67,13 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements
       currentSentence = tokens;
       currentTags = posModelResource.posTag(tokens);
       currentLemmas = lemmaDictResource.lookUpLemmaArray(tokens, currentTags);
-      currentMFSList = mfsDictResource
-          .getFirstSenseTokens(currentLemmas, currentTags);
+      if (isBio) {
+        currentMFSList = mfsDictResource.getFirstSenseBio(currentLemmas, currentTags);
+      } else {
+        currentMFSList = mfsDictResource.getFirstSenseBilou(currentLemmas, currentTags);
+      }
+      //TODO try with tokens only
+      //currentMFSList = mfsDictResource.getFirstSenseTokens(currentLemmas, currentTags);
     }
     String posTag = currentTags[index];
 
@@ -85,11 +90,10 @@ public class MFSFeatureGenerator extends CustomFeatureGenerator implements
       features.add("lemma=" + lemma);
     }
     if (isMFS) {
-      //TODO check with bio and bilou mfs
       String mfs = currentMFSList.get(index);
-      // TODO check also with lemmas
+      // TODO check also with tokens
       features.add("mfs=" + mfs);
-      features.add("mfs,lemma=" + mfs + "," + tokens[index]);
+      features.add("mfs,lemma=" + mfs + "," + currentLemmas.get(index));
 
     }
     if (isMonosemic) {

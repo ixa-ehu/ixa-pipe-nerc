@@ -281,7 +281,7 @@ public class Annotate {
         tokenIds[i] = sentence.get(i).getId();
       }
       if (statistical) {
-        if (tokens[0].startsWith("-DOCSTART-")) {
+        if (clearFeatures.equalsIgnoreCase("docstart") && tokens[0].startsWith("-DOCSTART-")) {
           nameFinder.clearAdaptiveData();
         }
         Span[] statSpans = nameFinder.nercToSpans(tokens);
