@@ -40,21 +40,19 @@ and [CoNLL 2003](http://www.clips.ua.ac.be/conll2003/ner/) for more information.
 PERCENT, FACILITY, PRODUCT, ORDINAL, LOCATION, PERSON, WORK_OF_ART, MONEY, DATE, EVENT, QUANTITY, ORGANIZATION, CARDINAL.
 
 The models are self-contained, that is, the prop files are not needed to use them. 
-You will find for each model a prop and a log file. The log file
-describes the training process that was performed. The prop file is used for training only. Please see the
-traininParams.prop template file to all available training options and
-documentation. 
+You will find for each model a properties file describing its training although it is
+not needed to run the model. Please see the traininParams.properties template file 
+for all available training options and documentation. 
 
-We provide fast models trained on local features only: We do not use POS
-tags, chunking or gazetteers in our baseline models but we do use
-bigrams, trigrams and character ngrams. For English we also provide some models with
-external knowledge, based on Brown and Clark and Word2Vec clustering, and dictionaries. 
-To avoid duplication of efforts, we use and contribute to the machine learning API provided 
-by the [Apache OpenNLP project](http://opennlp.apache.org).
+We provide competitive models based on robust local features and exploiting unlabeled data
+via clustering features. We do not use POS tags, lemmas or chunks but we do use
+bigrams, trigrams and character ngrams. The clustering features are based on Brown, Clark (2003)
+and Word2Vec clustering plus some gazetteers in some cases. 
+To avoid duplication of efforts, we use and contribute to the API provided by the [Apache OpenNLP project](http://opennlp.apache.org) with our own custom developed features.
 
 ### Features
 
-**A description of every feature is provided in the trainParams.prop properties
+**A description of every feature is provided in the trainParams.properties properties
 file** distributed with ixa-pipe-nerc. As the training functionality is configured in
 properties files, please do check this document. For each model distributed,
 there is a prop file which describes the training of the model, as well as a
@@ -62,40 +60,47 @@ log file which provides details about the evaluation and training process.
 
 ### Models
 
-**ixa-pipe-nerc models and resources**: 
+Every result in reported here can be reproduced using the evaluation functionality of ixa-pipe-nerc or
+with the [conlleval script](http://www.cnts.ua.ac.be/conll2002/ner/bin/conlleval.txt) using these scripts:
 
-  + **Latest models**: [nerc-models-latest.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-models-1.3.3.tgz)
-  + Release 3.2 models: [nerc-models-$version.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-models-1.3.2.tgz)
-  + The [nerc-resources.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-resources.tgz)
-  package, which contains **every resource** required to train the English models
-  with clustering and dictionary features.
+**Reproducing results with conlleval**: [conlleval-results](http://ixa2.si.ehu.es/ixa-pipes/models/results-conlleval.tar.gz)
 
-All models are trained with the averaged Perceptron algorithm as
-described in (Collins 2002):
+**ixa-pipe-nerc models**: 
+
+  + **Latest models** [423MB]: [nerc-models-latest.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-models-1.4.0.tgz)
+  + Releases 3.3-3.6 models: [nerc-models-$version.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-models-1.3.3.tgz)
+
+All models are trained with the averaged Perceptron algorithm as described in (Collins 2002) and as implemented
+in Apache OpenNLP.
+
++ **Basque**: eu-clusters model, trained on egunkaria dataset, F1 76.72 on 3 class evaluation and F1 75.40 on 4 classes.
 
 + **English Models**: 
   
   + **CoNLL 2003 models**: We distribute models trained with local features
-  with external knowledge. Furthermore, we also
-  distribute opennlp compatible models (look for "opennlp" in the model name). 
-  Each of the models improve in F1 but they get slower: 
-    + CoNLL 2003 local features: F1 83.35
-    + CoNLL 2003 Brown and Clark clusters as features: F1 89.76
-    + CoNLL 2003 Brown, Clark and dictionaries: F1 90.29
+  and with external knowledge. Each of the models improve in F1 (reported on testb data)
+  but they get somewhat slower: 
+    + CoNLL 2003 local + brown features: F1 88.56
+    + CoNLL 2003 light clusters model: F1 90.27
+    + CoNLL 2003 clusters model: F1 90.82
+    + CoNLL 2003 clusters + dicts: F1 91.19
+  
+  + **Combined models**: trained using Ontonotes 4.0, conll03 and muc 7 data, good for out of domain usage.
  
 + **Spanish Models**: 
 
-  + CoNLL 2002 local features: F1 79.50
+  + CoNLL 2002 clusters: F1 84.16
+  + CoNLL 2002 clusters + dict: F1 84.30
 
 + **Dutch Models**: 
-  + CoNLL 2002 local features: F1 78.13
+  + CoNLL 2002 clusters: F1 84.23
+  + CoNLL 2002 clusters + dict: F1 84.91
 
 + **German Models**: 
-  + CoNLL 2003 local features: F1 71.62
+  + CoNLL 2003 clusters + dict: F1 76.42
 
 + **Italian Models**: 
-  + Evalita07 local features: F1 70.93
-  + Evalita09 local features: F1 74.43
+  + Evalita09 clusters: F1 80.38
 
 ## CLI-USAGE
 
@@ -168,7 +173,7 @@ template trainParams.prop file.
 **Example**:
 
 ````shell
-java -jar target/ixa.pipe.nerc-1.0.jar train -p trainParams.prop
+java -jar target/ixa.pipe.nerc-1.0.jar train -p trainParams.properties
 ````
 **Training with Features using External Resources**: For training with dictionary or clustering
 based features (Brown, Clark and Word2Vec) you need to pass the lexicon as
