@@ -45,11 +45,11 @@ public class ClarkFeatureGenerator extends CustomFeatureGenerator implements Art
   }
 
   public String getWordClass(String token) {
-    String distSim = clarkCluster.lookupToken(token);
-    if (distSim == null) {
-      distSim = unknownClarkClass;
+    String clarkClass = clarkCluster.lookupToken(token);
+    if (clarkClass == null) {
+      clarkClass = unknownClarkClass;
     }
-    return distSim;
+    return clarkClass;
   }
 
   @Override

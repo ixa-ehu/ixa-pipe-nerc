@@ -4,7 +4,7 @@
 	<groupId>es.ehu.si.ixa</groupId>
 	<artifactId>ixa-pipe-nerc</artifactId>
 	<packaging>jar</packaging>
-	<version>1.3.6</version>
+	<version>1.4.0</version>
 	<name>ixa-pipe-nerc</name>
 	<description>ixa pipes sequence labeler (ixa2.si.ehu.es/ixa-pipes).</description>
 	<licenses>
