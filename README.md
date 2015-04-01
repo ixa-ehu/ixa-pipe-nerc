@@ -32,12 +32,10 @@ for easy access to its API.
 
 ## OVERVIEW
 
-ixa-pipe-nerc provides NERC English, Spanish, Dutch, German and Italian. The named entity types are based on:
+ixa-pipe-nerc provides NERC for Basque, English, Spanish, Dutch, German and Italian. The named entity types are based on:
 
 + **CONLL**: LOCATION, MISC, ORGANIZATION and PERSON. See [CoNLL 2002](http://www.clips.ua.ac.be/conll2002/ner/)
-and [CoNLL 2003](http://www.clips.ua.ac.be/conll2003/ner/) for more information. 
-+ **ONTONOTES 4.0**: 18 Named Entity types: TIME, LAW, GPE, NORP, LANGUAGE,
-PERCENT, FACILITY, PRODUCT, ORDINAL, LOCATION, PERSON, WORK_OF_ART, MONEY, DATE, EVENT, QUANTITY, ORGANIZATION, CARDINAL.
+and [CoNLL 2003](http://www.clips.ua.ac.be/conll2003/ner/) for more information.
 
 The models are self-contained, that is, the prop files are not needed to use them. 
 You will find for each model a properties file describing its training although it is
