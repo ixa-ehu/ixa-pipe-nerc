@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>es.ehu.si.ixa</groupId>
+  <groupId>eus.ixa</groupId>
   <artifactId>ixa-pipe-nerc</artifactId>
   <name>ixa-pipe-nerc</name>
   <version>1.4.0</version>
@@ -14,9 +14,9 @@
     <developer>
       <id>ragerri</id>
       <name>Rodrigo Agerri</name>
-      <email>rodrigo.agerri@ehu.es</email>
+      <email>rodrigo.agerri@ehu.eus</email>
       <organization>IXA NLP Group</organization>
-      <organizationUrl>http://ixa.si.ehu.es</organizationUrl>
+      <organizationUrl>http://ixa.eus</organizationUrl>
     </developer>
   </developers>
   <licenses>
@@ -61,7 +61,7 @@
         <artifactId>exec-maven-plugin</artifactId>
         <version>1.2.1</version>
         <configuration>
-          <mainClass>es.ehu.si.ixa.ixa.pipe.nerc.CLI</mainClass>
+          <mainClass>eus.ixa.ixa.pipe.nerc.CLI</mainClass>
         </configuration>
       </plugin>
       <plugin>
@@ -115,7 +115,7 @@
               <transformers>
                 <transformer>
                   <manifestEntries>
-                    <Main-Class>es.ehu.si.ixa.ixa.pipe.nerc.CLI</Main-Class>
+                    <Main-Class>eus.ixa.ixa.pipe.nerc.CLI</Main-Class>
                     <groupId>${project.groupId}</groupId>
                     <artifactId>${project.artifactId}</artifactId>
                     <Implementation-Version>${project.version}</Implementation-Version>
