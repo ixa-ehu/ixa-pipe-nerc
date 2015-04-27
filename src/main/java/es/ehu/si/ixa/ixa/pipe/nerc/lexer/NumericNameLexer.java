@@ -28,8 +28,6 @@ import es.ehu.si.ixa.ixa.pipe.nerc.NameFactory;
 
 /**
  *  NumericNameLexer is based on the {@link NumericLexer} class.
- *  This NameLexer overrides {@link AbstractNameLexer} getToken() method
- *  by using the {@link NumericLexer} yylex() method.
  * <ol>
  *  <li> Numeric DATE Recognition.
  *  <li> Recognition of numeric TIME expressions.

@@ -555,10 +555,6 @@ public class Flags {
     return !mfsFeatures.equalsIgnoreCase(Flags.DEFAULT_FEATURE_FLAG);
   }
 
-  /**
-   * @param params
-   * @return whether the word2vecClusterfeatures are activated or not
-   */
   public static boolean isWord2VecClusterFeatures(TrainingParameters params) {
     String word2vecClusterFeatures = getWord2VecClusterFeatures(params);
     return !word2vecClusterFeatures

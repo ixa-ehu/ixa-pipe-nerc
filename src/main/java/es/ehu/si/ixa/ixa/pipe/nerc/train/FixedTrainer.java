@@ -69,7 +69,7 @@ import es.ehu.si.ixa.ixa.pipe.nerc.features.XMLFeatureDescriptor;
  * <li>MorphoFeatures: use pos tags, pos tag class and lemma as features.
  * <li>MFSFeatures: Most Frequent sense feature.
  * <li>SuperSenseFeatures: Ciaramita and Altun (2006) features for super sense tagging.
- * <ol>
+ * </ol>
  * 
  * @author ragerri
  * @version 2015-03-27
@@ -77,8 +77,9 @@ import es.ehu.si.ixa.ixa.pipe.nerc.features.XMLFeatureDescriptor;
 public class FixedTrainer extends AbstractTrainer {
   
   /**
-   * Construct a trainer based on features specified in the trainParams.txt
-   * properties file.
+   * Construct a trainer.
+   * @param params the training parameters
+   * @throws IOException if io errors
    */
   public FixedTrainer(final TrainingParameters params) throws IOException {
     super(params);
@@ -90,7 +91,7 @@ public class FixedTrainer extends AbstractTrainer {
    * 
    * @param params
    *          the parameter training file
-   * @throws IOException
+   * @throws IOException if io error
    */
   public void createTrainer(TrainingParameters params) throws IOException {
     String seqCodec = getSequenceCodec();
@@ -112,7 +113,7 @@ public class FixedTrainer extends AbstractTrainer {
    * @param params the training parameters
    * @param featureGenDescriptor the feature generator descriptor
    * @return the map contanining and id and the resource
-   * @throws IOException 
+   * @throws IOException if io error
    */
   public static Map<String, Object> loadResources(TrainingParameters params,
       byte[] featureGenDescriptor) throws IOException {

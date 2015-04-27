@@ -45,9 +45,9 @@ public class WindowFeatureGenerator implements AdaptiveFeatureGenerator {
   /**
    * Initializes the current instance with the given parameters.
    *
-   * @param generator Feature generator to apply to the window.
-   * @param prevWindowSize Size of the window to the left of the current token.
-   * @param nextWindowSize Size of the window to the right of the current token.
+   * @param generator feature generator to apply to the window.
+   * @param prevWindowSize size of the window to the left of the current token.
+   * @param nextWindowSize size of the window to the right of the current token.
    */
   public WindowFeatureGenerator(AdaptiveFeatureGenerator generator, int prevWindowSize,  int nextWindowSize) {
     if (prevWindowSize < 1 || nextWindowSize < 1) {
@@ -62,9 +62,9 @@ public class WindowFeatureGenerator implements AdaptiveFeatureGenerator {
   /**
    * Initializes the current instance with the given parameters.
    * 
-   * @param prevWindowSize
-   * @param nextWindowSize
-   * @param generators
+   * @param prevWindowSize size of the window to the left of the current token
+   * @param nextWindowSize size of the window to the right of the current token
+   * @param generators the array of feature generators
    */
   public WindowFeatureGenerator(int prevWindowSize, int nextWindowSize, AdaptiveFeatureGenerator... generators) {
     this(new AggregatedFeatureGenerator(generators), prevWindowSize, nextWindowSize);

@@ -96,6 +96,7 @@ public class MFSResource implements SerializableArtifact {
    * 
    * @param lemmas
    *          in the sentence
+   * @param posTags the postags of the sentence
    * @return the most frequent senses for the sentence
    */
   public List<String> getFirstSenseBio(List<String> lemmas, String[] posTags) {
@@ -156,6 +157,7 @@ public class MFSResource implements SerializableArtifact {
    * 
    * @param lemmas
    *          in the sentence
+   * @param posTags posTags in the sentence
    * @return the most frequent senses for the sentence
    */
   public List<String> getFirstSenseBilou(List<String> lemmas, String[] posTags) {
@@ -251,6 +253,7 @@ public class MFSResource implements SerializableArtifact {
   /**
    * Look-up lemma#pos string as key in dictionary.
    * @param mfsList the list containing the freq#sense values
+   * @param mfsResultsMap the map in which the results are stored
    */
   public void getOrderedSenses(List<String> mfsList, TreeMultimap<Integer, String> mfsResultsMap) {
     if (!mfsList.isEmpty()) {
@@ -290,8 +293,8 @@ public class MFSResource implements SerializableArtifact {
   
   /**
    * Serialize the lexicon in the original format.
-   * @param out
-   * @throws IOException
+   * @param out the output stream
+   * @throws IOException if io errors
    */
   public void serialize(OutputStream out) throws IOException {
     Writer writer = new BufferedWriter(new OutputStreamWriter(out));

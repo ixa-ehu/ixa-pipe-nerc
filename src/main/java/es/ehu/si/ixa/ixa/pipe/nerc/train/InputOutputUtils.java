@@ -189,8 +189,6 @@ public final class InputOutputUtils {
    * @param infile
    *          the string pointing to the file
    * @return the object stream
-   * @throws IOException
-   *           throw exception if error occurs
    */
   public static ObjectStream<String> readFileIntoMarkableStreamFactory(final String infile) {
 

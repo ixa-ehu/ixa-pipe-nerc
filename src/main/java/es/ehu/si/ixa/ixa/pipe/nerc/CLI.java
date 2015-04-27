@@ -142,7 +142,7 @@ public class CLI {
    *          the arguments passed through the CLI
    * @throws IOException
    *           exception if problems with the incoming data
-   * @throws JDOMException 
+   * @throws JDOMException if xml format problems
    */
   public final void parseCLI(final String[] args) throws IOException, JDOMException {
     try {
@@ -174,6 +174,7 @@ public class CLI {
    *          the output stream providing the named entities
    * @throws IOException
    *           exception if problems in input or output streams
+   * @throws JDOMException if xml formatting problems
    */
   public final void annotate(final InputStream inputStream,
       final OutputStream outputStream) throws IOException, JDOMException {

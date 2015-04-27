@@ -38,7 +38,7 @@ import opennlp.tools.util.model.ArtifactSerializer;
 import opennlp.tools.util.model.SerializableArtifact;
 
 /**
- * Dictionary class which creates a HashMap<String, String> from 
+ * Dictionary class which creates a HashMap String, String from 
  * a tab separated file name\tclass\t.
  * 
  * @author ragerri
@@ -88,7 +88,7 @@ public class Dictionary implements SerializableArtifact {
   }
   
   /**
-   * Get the <key,value> size of the dictionary.
+   * Get the key,value size of the dictionary.
    * @return maximum token count in the dictionary
    */
   public int getMaxTokenCount() {
@@ -96,7 +96,7 @@ public class Dictionary implements SerializableArtifact {
   }
   
   /**
-   * Get the Map<String, String> dictionary.
+   * Get the Map String, String dictionary.
    * @return the dictionary map
    */
   public final Map<String, String> getDict() {

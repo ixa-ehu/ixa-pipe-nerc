@@ -159,6 +159,7 @@ public class CrossValidator {
   
   /**
    * Get the Sequence codec.
+   * @param seqCodecOption the codec chosen
    * @return the sequence codec
    */
   public final String getSequenceCodec(String seqCodecOption) {

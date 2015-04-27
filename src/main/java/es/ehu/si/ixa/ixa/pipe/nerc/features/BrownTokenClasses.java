@@ -32,7 +32,7 @@ public class BrownTokenClasses {
   
   /**
    * It provides a list containing the pathLengths for a token if found
-   * in the {@code BrownCluster} Map<token,BrownClass>.
+   * in the {@code BrownCluster} Map token,BrownClass.
    * 
    * @param token the token to be looked up in the brown clustering map
    * @param brownLexicon the Brown clustering map
