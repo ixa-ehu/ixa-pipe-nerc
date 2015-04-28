@@ -217,7 +217,7 @@ public final class XMLFeatureDescriptor {
       for (File dictFile : fileList) {
         Element dictFeatures = new Element("custom");
         dictFeatures.setAttribute("class", DictionaryFeatureGenerator.class.getName());
-        dictFeatures.setAttribute("dict", InputOutputUtils.normalizeLexiconName(dictFile.getCanonicalPath()));
+        dictFeatures.setAttribute("dict", InputOutputUtils.normalizeLexiconName(dictFile.getName()));
         dictFeatures.setAttribute("seqCodec", seqCodec);
         Element dictWindow = new Element("window");
         dictWindow.setAttribute("prevLength", Integer.toString(leftWindow));
@@ -249,12 +249,12 @@ public final class XMLFeatureDescriptor {
         //brown bigram class features
         Element brownBigramFeatures = new Element("custom");
         brownBigramFeatures.setAttribute("class", BrownBigramFeatureGenerator.class.getName());
-        brownBigramFeatures.setAttribute("dict", InputOutputUtils.normalizeLexiconName(brownClusterFile.getCanonicalPath()));
+        brownBigramFeatures.setAttribute("dict", InputOutputUtils.normalizeLexiconName(brownClusterFile.getName()));
         generators.addContent(brownBigramFeatures);
         //brown token feature
         Element brownTokenFeature = new Element("custom");
         brownTokenFeature.setAttribute("class", BrownTokenFeatureGenerator.class.getName());
-        brownTokenFeature.setAttribute("dict", InputOutputUtils.normalizeLexiconName(brownClusterFile.getCanonicalPath()));
+        brownTokenFeature.setAttribute("dict", InputOutputUtils.normalizeLexiconName(brownClusterFile.getName()));
         Element brownTokenWindow = new Element("window");
         brownTokenWindow.setAttribute("prevLength", Integer.toString(leftWindow));
         brownTokenWindow.setAttribute("nextLength", Integer.toString(rightWindow));
@@ -263,7 +263,7 @@ public final class XMLFeatureDescriptor {
         //brown token class feature
         Element brownTokenClassFeature = new Element("custom");
         brownTokenClassFeature.setAttribute("class", BrownTokenClassFeatureGenerator.class.getName());
-        brownTokenClassFeature.setAttribute("dict", InputOutputUtils.normalizeLexiconName(brownClusterFile.getCanonicalPath()));
+        brownTokenClassFeature.setAttribute("dict", InputOutputUtils.normalizeLexiconName(brownClusterFile.getName()));
         Element brownTokenClassWindow = new Element("window");
         brownTokenClassWindow.setAttribute("prevLength", Integer.toString(leftWindow));
         brownTokenClassWindow.setAttribute("nextLength", Integer.toString(rightWindow));
@@ -280,7 +280,7 @@ public final class XMLFeatureDescriptor {
       for (File clarkCluster: clarkClusterFiles) {
         Element clarkFeatures = new Element("custom");
         clarkFeatures.setAttribute("class", ClarkFeatureGenerator.class.getName());
-        clarkFeatures.setAttribute("dict", InputOutputUtils.normalizeLexiconName(clarkCluster.getCanonicalPath()));
+        clarkFeatures.setAttribute("dict", InputOutputUtils.normalizeLexiconName(clarkCluster.getName()));
         Element clarkWindow = new Element("window");
         clarkWindow.setAttribute("prevLength", Integer.toString(leftWindow));
         clarkWindow.setAttribute("nextLength", Integer.toString(rightWindow));
@@ -297,7 +297,7 @@ public final class XMLFeatureDescriptor {
       for (File word2vecFile : word2vecClusterFiles) {
         Element word2vecClusterFeatures = new Element("custom");
         word2vecClusterFeatures.setAttribute("class", Word2VecClusterFeatureGenerator.class.getName());
-        word2vecClusterFeatures.setAttribute("dict", InputOutputUtils.normalizeLexiconName(word2vecFile.getCanonicalPath()));
+        word2vecClusterFeatures.setAttribute("dict", InputOutputUtils.normalizeLexiconName(word2vecFile.getName()));
         Element word2vecClusterWindow = new Element("window");
         word2vecClusterWindow.setAttribute("prevLength", Integer.toString(leftWindow));
         word2vecClusterWindow.setAttribute("nextLength", Integer.toString(rightWindow));
@@ -314,8 +314,8 @@ public final class XMLFeatureDescriptor {
       String morphoRange = Flags.getMorphoFeaturesRange(params);
       Element morphoClassFeatureElement = new Element("custom");
       morphoClassFeatureElement.setAttribute("class", MorphoFeatureGenerator.class.getName());
-      morphoClassFeatureElement.setAttribute("model", InputOutputUtils.normalizeLexiconName(morphoResources[0]));
-      morphoClassFeatureElement.setAttribute("dict", InputOutputUtils.normalizeLexiconName(morphoResources[1]));
+      morphoClassFeatureElement.setAttribute("model", InputOutputUtils.normalizeLexiconName(new File(morphoResources[0]).getName()));
+      morphoClassFeatureElement.setAttribute("dict", InputOutputUtils.normalizeLexiconName(new File(morphoResources[1]).getName()));
       morphoClassFeatureElement.setAttribute("range", morphoRange);
       Element morphoClassFeatureWindow = new Element("window");
       morphoClassFeatureWindow.setAttribute("prevLength", Integer.toString(leftWindow));
@@ -332,9 +332,9 @@ public final class XMLFeatureDescriptor {
       String seqCodec = Flags.getSequenceCodec(params);
       Element mfsClassFeatureElement = new Element("custom");
       mfsClassFeatureElement.setAttribute("class", MFSFeatureGenerator.class.getName());
-      mfsClassFeatureElement.setAttribute("model", InputOutputUtils.normalizeLexiconName(mfsResources[0]));
-      mfsClassFeatureElement.setAttribute("dict", InputOutputUtils.normalizeLexiconName(mfsResources[1]));
-      mfsClassFeatureElement.setAttribute("mfs", InputOutputUtils.normalizeLexiconName(mfsResources[2]));
+      mfsClassFeatureElement.setAttribute("model", InputOutputUtils.normalizeLexiconName(new File(mfsResources[0]).getName()));
+      mfsClassFeatureElement.setAttribute("dict", InputOutputUtils.normalizeLexiconName(new File(mfsResources[1]).getName()));
+      mfsClassFeatureElement.setAttribute("mfs", InputOutputUtils.normalizeLexiconName(new File(mfsResources[2]).getName()));
       mfsClassFeatureElement.setAttribute("range", mfsRange);
       mfsClassFeatureElement.setAttribute("seqCodec", seqCodec);
       Element mfsClassFeatureWindow = new Element("window");
@@ -351,9 +351,9 @@ public final class XMLFeatureDescriptor {
       String seqCodec = Flags.getSequenceCodec(params);
       Element mfsClassFeatureElement = new Element("custom");
       mfsClassFeatureElement.setAttribute("class", SuperSenseFeatureGenerator.class.getName());
-      mfsClassFeatureElement.setAttribute("model", InputOutputUtils.normalizeLexiconName(mfsResources[0]));
-      mfsClassFeatureElement.setAttribute("dict", InputOutputUtils.normalizeLexiconName(mfsResources[1]));
-      mfsClassFeatureElement.setAttribute("mfs", InputOutputUtils.normalizeLexiconName(mfsResources[2]));
+      mfsClassFeatureElement.setAttribute("model", InputOutputUtils.normalizeLexiconName(new File(mfsResources[0]).getName()));
+      mfsClassFeatureElement.setAttribute("dict", InputOutputUtils.normalizeLexiconName(new File(mfsResources[1]).getName()));
+      mfsClassFeatureElement.setAttribute("mfs", InputOutputUtils.normalizeLexiconName(new File(mfsResources[2]).getName()));
       mfsClassFeatureElement.setAttribute("range", mfsRange);
       mfsClassFeatureElement.setAttribute("seqCodec", seqCodec);
       generators.addContent(mfsClassFeatureElement);

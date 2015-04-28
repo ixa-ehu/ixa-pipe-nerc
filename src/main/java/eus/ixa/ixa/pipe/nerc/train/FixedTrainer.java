@@ -213,7 +213,7 @@ public class FixedTrainer extends AbstractTrainer {
 
     File resourceFile = new File(resourcePath);
     if (resourceFile != null) {
-      String resourceId = InputOutputUtils.normalizeLexiconName(resourcePath);
+      String resourceId = InputOutputUtils.normalizeLexiconName(resourceFile.getName());
       ArtifactSerializer<?> serializer = artifactSerializers.get(serializerId);
       InputStream resourceIn = CmdLineUtil.openInFile(resourceFile);
       try {

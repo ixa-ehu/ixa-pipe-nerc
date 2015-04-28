@@ -2,9 +2,9 @@
 ixa-pipe-nerc
 =============
 
-ixa-pipe-nerc is multilingual Named Entity Recognition and Classification tagger. 
-ixa-pipe-nerc is part of IXA pipes, a multilingual NLP pipeline developed 
-by the IXA NLP Group [http://ixa2.si.ehu.es/ixa-pipes]. 
+ixa-pipe-nerc is multilingual Named Entity Recognition and Classification tagger.
+ixa-pipe-nerc is part of IXA pipes, a multilingual set of NLP tools developed
+by the IXA NLP Group [http://ixa2.si.ehu.es/ixa-pipes].
 
 Please go to [http://ixa2.si.ehu.es/ixa-pipes] for general information about the IXA
 pipes tools but also for **official releases, including source code and binary
@@ -37,16 +37,17 @@ ixa-pipe-nerc provides NERC for Basque, English, Spanish, Dutch, German and Ital
 + **CONLL**: LOCATION, MISC, ORGANIZATION and PERSON. See [CoNLL 2002](http://www.clips.ua.ac.be/conll2002/ner/)
 and [CoNLL 2003](http://www.clips.ua.ac.be/conll2003/ner/) for more information.
 
-The models are self-contained, that is, the prop files are not needed to use them. 
+The models are self-contained, that is, the prop files are not needed to use them.
 You will find for each model a properties file describing its training although it is
-not needed to run the model. Please see the traininParams.properties template file 
-for all available training options and documentation. 
+not needed to run the model. Please see the traininParams.properties template file
+for all available training options and documentation.
 
 We provide competitive models based on robust local features and exploiting unlabeled data
 via clustering features. We do not use POS tags, lemmas or chunks but we do use
 bigrams, trigrams and character ngrams. The clustering features are based on Brown, Clark (2003)
-and Word2Vec clustering plus some gazetteers in some cases. 
-To avoid duplication of efforts, we use and contribute to the API provided by the [Apache OpenNLP project](http://opennlp.apache.org) with our own custom developed features.
+and Word2Vec clustering plus some gazetteers in some cases.
+To avoid duplication of efforts, we use and contribute to the API provided by the
+[Apache OpenNLP project](http://opennlp.apache.org) with our own custom developed features.
 
 ### Features
 
@@ -63,7 +64,7 @@ with the [conlleval script](http://www.cnts.ua.ac.be/conll2002/ner/bin/conlleval
 
 **Reproducing results with conlleval**: [conlleval-results](http://ixa2.si.ehu.es/ixa-pipes/models/results-conlleval.tar.gz)
 
-**ixa-pipe-nerc models**: 
+**ixa-pipe-nerc models**:
 
   + **Latest models** [423MB]: [nerc-models-latest.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-models-1.4.0.tgz)
   + Releases 3.3-3.6 models: [nerc-models-$version.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-models-1.3.3.tgz)
@@ -73,31 +74,32 @@ in Apache OpenNLP.
 
 + **Basque**: eu-clusters model, trained on egunkaria dataset, F1 76.72 on 3 class evaluation and F1 75.40 on 4 classes.
 
-+ **English Models**: 
-  
++ **English Models**:
+
   + **CoNLL 2003 models**: We distribute models trained with local features
   and with external knowledge. Each of the models improve in F1 (reported on testb data)
-  but they get somewhat slower: 
-    + CoNLL 2003 local + brown features: F1 88.56
+  but they get somewhat slower:
+    + CoNLL 2003 local + brown features: F1 88.50
+    + CoNLL 2003 local + clark features: F1 88.97
     + CoNLL 2003 light clusters model: F1 90.27
     + CoNLL 2003 clusters model: F1 90.82
     + CoNLL 2003 clusters + dicts: F1 91.19
-  
+
   + **Combined models**: trained using Ontonotes 4.0, conll03 and muc 7 data, good for out of domain usage.
- 
-+ **Spanish Models**: 
+
++ **Spanish Models**:
 
   + CoNLL 2002 clusters: F1 84.16
   + CoNLL 2002 clusters + dict: F1 84.30
 
-+ **Dutch Models**: 
++ **Dutch Models**:
   + CoNLL 2002 clusters: F1 84.23
   + CoNLL 2002 clusters + dict: F1 84.91
 
-+ **German Models**: 
++ **German Models**:
   + CoNLL 2003 clusters + dict: F1 76.42
 
-+ **Italian Models**: 
++ **Italian Models**:
   + Evalita09 clusters: F1 80.38
 
 ## CLI-USAGE
@@ -112,17 +114,17 @@ ixa-pipe-nerc provides 3 command-line basic functionalities:
 
 Each of these functionalities are accessible by adding (tag|train|eval) as a
 subcommand to ixa-pipe-nerc-$version.jar. Please read below and check the -help
-parameter: 
+parameter:
 
 ````shell
 java -jar target/ixa-pipe-nerc-$version.jar (tag|train|eval) -help
 ````
-**Every option for training is documented in the trainParams.prop properties file distributed with
-ixa-pipe-nerc**. Please do read that file!! 
+**Every option for training is documented in the trainParams.properties file distributed with
+ixa-pipe-nerc**. Please do read that file!!
 
-### Tagging 
+### Tagging
 
-If you are in hurry, just execute: 
+If you are in hurry, just execute:
 
 ````shell
 cat file.txt | ixa-pipe-tok | ixa-pipe-pos | java -jar $PATH/target/ixa-pipe-nerc-$version.jar tag -m model.bin
@@ -135,12 +137,12 @@ through standard output. The NAF format specification is here:
 
 (http://wordpress.let.vupr.nl/naf/)
 
-You can get the necessary input for ixa-pipe-nerc by piping 
-[ixa-pipe-tok](https://github.com/ixa-ehu/ixa-pipe-tok) and 
+You can get the necessary input for ixa-pipe-nerc by piping
+[ixa-pipe-tok](https://github.com/ixa-ehu/ixa-pipe-tok) and
 [ixa-pipe-pos](https://github.com/ixa-ehu/ixa-pipe-pos) as shown in the
-example. 
+example.
 
-There are several options to tag with ixa-pipe-nerc: 
+There are several options to tag with ixa-pipe-nerc:
 
 + **model**: pass the model as a parameter.
 + **language**: pass the language as a parameter.
@@ -156,7 +158,7 @@ There are several options to tag with ixa-pipe-nerc:
 + **dictPath**: the directory containing the gazetteers for the --dictTag
   option.
 
-**Example**: 
+**Example**:
 
 ````shell
 cat file.txt | ixa-pipe-tok | ixa-pipe-pos | java -jar $PATH/target/ixa-pipe-nerc-$version.jar tag -m nerc-models-$version/en/en-local-conll03.bin
@@ -166,7 +168,7 @@ cat file.txt | ixa-pipe-tok | ixa-pipe-pos | java -jar $PATH/target/ixa-pipe-ner
 
 To train a new model, you just need to pass a training parameters file as an
 argument. As it has been already said, the options are documented in the
-template trainParams.prop file. 
+template trainParams.properties file.
 
 **Example**:
 
@@ -181,7 +183,7 @@ for tagging or evaluation the model is serialized with all resources included.
 ### Evaluation
 
 You can evaluate a trained model or a prediction data against a reference data
-or testset. 
+or testset.
 
 + **language**: provide the language.
 + **model**: if evaluating a model, pass the model.
