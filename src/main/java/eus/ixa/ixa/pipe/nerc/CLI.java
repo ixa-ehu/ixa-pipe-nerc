@@ -87,9 +87,13 @@ public class CLI {
   private Subparsers subParsers = argParser.addSubparsers().help(
       "sub-command help");
   /**
-   * The parser that manages the tagging sub-command.
+   * The parser that manages the NER tagging sub-command.
    */
   private Subparser annotateParser;
+  /**
+   * Parser to manage the Opinion Target Extraction sub-command.
+   */
+  private Subparser oteParser;
   /**
    * The parser that manages the training sub-command.
    */
@@ -104,12 +108,14 @@ public class CLI {
   private Subparser crossValidateParser;
 
   /**
-   * Construct a CLI object with the three sub-parsers to manage the command
+   * Construct a CLI object with the sub-parsers to manage the command
    * line parameters.
    */
   public CLI() {
-    annotateParser = subParsers.addParser("tag").help("Tagging CLI");
+    annotateParser = subParsers.addParser("tag").help("NER Tagging CLI");
     loadAnnotateParameters();
+    oteParser = subParsers.addParser("ote").help("Opinion Target Extraction CLI");
+    loadOteParameters();
     trainParser = subParsers.addParser("train").help("Training CLI");
     loadTrainingParameters();
     evalParser = subParsers.addParser("eval").help("Evaluation CLI");
@@ -150,6 +156,8 @@ public class CLI {
       System.err.println("CLI options: " + parsedArguments);
       if (args[0].equals("tag")) {
         annotate(System.in, System.out);
+      } else if (args[0].equals("ote")) {
+        extractOte(System.in, System.out);
       } else if (args[0].equals("eval")) {
         eval();
       } else if (args[0].equals("train")) {
@@ -160,7 +168,7 @@ public class CLI {
     } catch (ArgumentParserException e) {
       argParser.handleError(e);
       System.out.println("Run java -jar target/ixa-pipe-nerc-" + version
-          + ".jar (tag|train|eval|cross) -help for details");
+          + ".jar (tag|ote|train|eval|cross) -help for details");
       System.exit(1);
     }
   }
@@ -220,6 +228,60 @@ public class CLI {
       kafToString = annotator.annotateNEsToOpenNLP(kaf);
     } else {
       kafToString = annotator.annotateNEsToKAF(kaf);
+    }
+    bwriter.write(kafToString);
+    bwriter.close();
+    breader.close();
+  }
+  
+  /**
+   * Main method to do Opinion Target Extraction (OTE).
+   * 
+   * @param inputStream
+   *          the input stream containing the content to tag
+   * @param outputStream
+   *          the output stream providing the opinion targets
+   * @throws IOException
+   *           exception if problems in input or output streams
+   * @throws JDOMException if xml formatting problems
+   */
+  public final void extractOte(final InputStream inputStream,
+      final OutputStream outputStream) throws IOException, JDOMException {
+
+    BufferedReader breader = new BufferedReader(new InputStreamReader(
+        inputStream, "UTF-8"));
+    BufferedWriter bwriter = new BufferedWriter(new OutputStreamWriter(
+        outputStream, "UTF-8"));
+    // read KAF document from inputstream
+    KAFDocument kaf = KAFDocument.createFromStream(breader);
+    // load parameters into a properties
+    String model = parsedArguments.getString("model");
+    String outputFormat = parsedArguments.getString("outputFormat");
+    String clearFeatures = parsedArguments.getString("clearFeatures");
+    // language parameter
+    String lang = null;
+    if (parsedArguments.getString("language") != null) {
+      lang = parsedArguments.getString("language");
+      if (!kaf.getLang().equalsIgnoreCase(lang)) {
+        System.err
+            .println("Language parameter in NAF and CLI do not match!!");
+        System.exit(1);
+      }
+    } else {
+      lang = kaf.getLang();
+    }
+    Properties properties = setOteProperties(model, lang, clearFeatures);
+    KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor(
+        "opinions", "ixa-pipe-nerc-" + Files.getNameWithoutExtension(model), version + "-" + commit);
+    newLp.setBeginTimestamp();
+    OpinionTargetExtractor oteExtractor = new OpinionTargetExtractor(properties);
+    oteExtractor.extractOpinionTargets(kaf);
+    newLp.setEndTimestamp();
+    String kafToString = null;
+    if (outputFormat.equalsIgnoreCase("opennlp")) {
+      kafToString = oteExtractor.annotateOTEsToOpenNLP(kaf);
+    } else {
+      kafToString = oteExtractor.annotateOTEsToKAF(kaf);
     }
     bwriter.write(kafToString);
     bwriter.close();
@@ -339,9 +401,34 @@ public class CLI {
         .help("Provide the path to the dictionaries for direct dictionary tagging; it ONLY WORKS if --dictTag " +
         		"option is activated.\n");
   }
+  
+  /**
+   * Create the available parameters for Opinion Target Extraction.
+   */
+  private void loadOteParameters() {
+    
+    oteParser.addArgument("-m", "--model")
+        .required(true)
+        .help("Pass the model to do the tagging as a parameter.\n");
+    oteParser.addArgument("--clearFeatures")
+        .required(false)
+        .choices("yes", "no", "docstart")
+        .setDefault(Flags.DEFAULT_FEATURE_FLAG)
+        .help("Reset the adaptive features every sentence; defaults to 'no'; if -DOCSTART- marks" +
+                " are present, choose 'docstart'.\n");
+    oteParser.addArgument("-l","--language")
+        .required(false)
+        .choices("en")
+        .help("Choose language; it defaults to the language value in incoming NAF file.\n");
+    oteParser.addArgument("-o","--outputFormat")
+        .required(false)
+        .choices("naf", "opennlp")
+        .setDefault(Flags.DEFAULT_OUTPUT_FORMAT)
+        .help("Choose output format; it defaults to NAF.\n");
+  }
 
   /**
-   * Create the main parameters available for training NERC models.
+   * Create the main parameters available for training sequence labeling models.
    */
   private void loadTrainingParameters() {
     trainParser.addArgument("-p", "--params").required(true)
@@ -380,7 +467,7 @@ public class CLI {
     evalParser.addArgument("--types")
         .required(false)
         .setDefault(Flags.DEFAULT_NE_TYPES)
-        .help("Choose which Named Entity types are used for evaluation; the argument must be a comma separated" +
+        .help("Choose which Sequence types used for evaluation; the argument must be a comma separated" +
         		" string; e.g., 'person,organization'.\n");
             
   }
@@ -394,7 +481,7 @@ public class CLI {
   }
 
   /**
-   * Set a Properties object with the CLI parameters for annotation.
+   * Set a Properties object with the CLI parameters for NER annotation.
    * @param model the model parameter
    * @param language language parameter
    * @param lexer rule based parameter
@@ -411,6 +498,23 @@ public class CLI {
     annotateProperties.setProperty("dictPath", dictPath);
     annotateProperties.setProperty("clearFeatures", clearFeatures);
     return annotateProperties;
+  }
+  
+  /**
+   * Set a Properties object with the CLI parameters for Opinion Target Extraction.
+   * @param model the model parameter
+   * @param language language parameter
+   * @param lexer rule based parameter
+   * @param dictTag directly tag from a dictionary
+   * @param dictPath directory to the dictionaries
+   * @return the properties object
+   */
+  private Properties setOteProperties(String model, String language, String clearFeatures) {
+    Properties oteProperties = new Properties();
+    oteProperties.setProperty("model", model);
+    oteProperties.setProperty("language", language);
+    oteProperties.setProperty("clearFeatures", clearFeatures);
+    return oteProperties;
   }
   
   /**

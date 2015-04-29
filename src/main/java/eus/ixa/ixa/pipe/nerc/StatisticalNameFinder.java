@@ -31,7 +31,7 @@ import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.Span;
 
 /**
- * Statistical Named Entity Recognition based on Apache OpenNLP Machine Learning API.
+ * Statistical Sequence Labelling based on Apache OpenNLP Machine Learning API.
  *
  * @author ragerri
  * @version 2014-04-04
