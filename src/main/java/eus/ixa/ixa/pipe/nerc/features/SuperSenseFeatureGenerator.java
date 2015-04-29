@@ -49,8 +49,6 @@ public class SuperSenseFeatureGenerator extends CustomFeatureGenerator implement
   private String[] currentTags;
   private List<String> currentLemmas;
   private List<String> currentMFSList;
-  private String startSymbol = null;
-  private String endSymbol = null;
   private Boolean isBio = true;
 
   public SuperSenseFeatureGenerator() {
@@ -71,46 +69,46 @@ public class SuperSenseFeatureGenerator extends CustomFeatureGenerator implement
       }
     }
 
-    String curStem = currentLemmas.get(index);
+    String curLemma = currentLemmas.get(index);
     String curTok = tokens[index];
     String curPOS = currentTags[index];
     String curShape = WordShapeSuperSenseFeatureGenerator.normalize(tokens[index]);
     String firstSense = currentMFSList.get(index);
-    String prevLabel = startSymbol;
+    String prevLabel = null;
 
-    String prevShape = startSymbol;
-    String prevPOS = startSymbol;
-    String prevStem = startSymbol;
-    String nextShape = startSymbol;
-    String nextPOS = endSymbol;
-    String nextStem = endSymbol;
+    String prevShape = null;
+    String prevPOS = null;
+    String prevLemma = null;
+    String nextShape = null;
+    String nextPOS = null;
+    String nextLemma = null;
 
-    String prev2Shape = startSymbol;
-    String prev2POS = startSymbol;
-    String prev2Stem = startSymbol;
-    String next2Shape = startSymbol;
-    String next2POS = endSymbol;
-    String next2Stem = endSymbol;
+    String prev2Shape = null;
+    String prev2POS = null;
+    String prev2Lemma = null;
+    String next2Shape = null;
+    String next2POS = null;
+    String next2Lemma = null;
 
     if (index - 2 >= 0) {
       prev2Shape = WordShapeSuperSenseFeatureGenerator.normalize(tokens[index - 2]);
-      prev2Stem = currentLemmas.get(index - 2);
+      prev2Lemma = currentLemmas.get(index - 2);
       prev2POS = currentTags[index - 2];
     }
     if (index - 1 >= 0) {
       prevShape = WordShapeSuperSenseFeatureGenerator.normalize(tokens[index - 1]);
-      prevStem = currentLemmas.get(index - 1);
+      prevLemma = currentLemmas.get(index - 1);
       prevPOS = currentTags[index - 1];
       prevLabel = previousOutcomes[index - 1];
     }
     if (index + 1 < tokens.length) {
       nextShape = WordShapeSuperSenseFeatureGenerator.normalize(tokens[index + 1]);
-      nextStem = currentLemmas.get(index + 1);
+      nextLemma = currentLemmas.get(index + 1);
       nextPOS = currentTags[index + 1];
     }
     if (index + 2 < tokens.length) {
       next2Shape = WordShapeSuperSenseFeatureGenerator.normalize(tokens[index + 2]);
-      next2Stem = currentLemmas.get(index + 2);
+      next2Lemma = currentLemmas.get(index + 2);
       next2POS = currentTags[index + 2];
     }
 
@@ -120,9 +118,9 @@ public class SuperSenseFeatureGenerator extends CustomFeatureGenerator implement
       firstSense = "O";
     }
     features.add("firstSense=" + firstSense);
-    features.add("firstSense,curTok=" + firstSense + "," + curStem);
+    features.add("firstSense,curTok=" + firstSense + "," + curLemma);
 
-    if (prevLabel != startSymbol) {
+    if (prevLabel != null) {
       features.add("prevLabel=" + prevLabel);
     }
 
@@ -132,44 +130,44 @@ public class SuperSenseFeatureGenerator extends CustomFeatureGenerator implement
     if (curPOS.equals("NNP") || curPOS.equals("NNPS")) {
       features.add("curPOS_proper");
     }
-    features.add("curTok=" + curStem);
+    features.add("curTok=" + curLemma);
     features.add("curPOS=" + curPOS);
     features.add("curPOS_0" + curPOS.charAt(0));
 
-    if (prevPOS != startSymbol) {
-      features.add("prevTok=" + prevStem);
+    if (prevPOS != null) {
+      features.add("prevTok=" + prevLemma);
       features.add("prevPOS=" + prevPOS);
       features.add("prevPOS_0=" + prevPOS.charAt(0));
     }
 
-    if (nextPOS != endSymbol) {
-      features.add("nextTok=" + nextStem);
+    if (nextPOS != null) {
+      features.add("nextTok=" + nextLemma);
       features.add("nextPOS=" + nextPOS);
       features.add("nextPOS_0" + nextPOS.charAt(0));
     }
 
-    if (prev2POS != startSymbol) {
-      features.add("prev2Tok=" + prev2Stem);
+    if (prev2POS != null) {
+      features.add("prev2Tok=" + prev2Lemma);
       features.add("prev2POS=" + prev2POS);
       features.add("prev2POS_0=" + prev2POS.charAt(0));
     }
-    if (next2POS != endSymbol) {
-      features.add("next2Tok=" + next2Stem);
+    if (next2POS != null) {
+      features.add("next2Tok=" + next2Lemma);
       features.add("next2POS=" + next2POS);
       features.add("next2POS_0=" + next2POS.charAt(0));
     }
 
     features.add("curShape=" + curShape);
-    if (prevPOS != startSymbol) {
+    if (prevPOS != null) {
       features.add("prevShape=" + prevShape);
     }
-    if (nextPOS != endSymbol) {
+    if (nextPOS != null) {
       features.add("nextShape=" + nextShape);
     }
-    if (prev2POS != startSymbol) {
+    if (prev2POS != null) {
       features.add("prev2Shape=" + prev2Shape);
     }
-    if (next2POS != endSymbol) {
+    if (next2POS != null) {
       features.add("next2Shape=" + next2Shape);
     }
 
