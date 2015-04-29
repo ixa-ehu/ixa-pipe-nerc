@@ -73,7 +73,7 @@ with the [conlleval script](http://www.cnts.ua.ac.be/conll2002/ner/bin/conlleval
 
 **NERC models**:
 
-  + **Latest models** [423MB]: [nerc-models-latest.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-models-1.4.0.tgz)
+  + Release **1.5.0** [400MB+]: [nerc-models-latest.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-models-1.5.0.tgz)
   + Releases 3.3-3.6 models: [nerc-models-$version.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-models-1.3.3.tgz)
 
 All models are trained with the averaged Perceptron algorithm as described in (Collins 2002) and as implemented
