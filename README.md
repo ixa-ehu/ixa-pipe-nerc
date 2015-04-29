@@ -73,7 +73,7 @@ with the [conlleval script](http://www.cnts.ua.ac.be/conll2002/ner/bin/conlleval
 
 **NERC models**:
 
-  + Release **1.5.0** [400MB+]: [nerc-models-latest.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-models-1.5.0.tgz)
+  + **Release 1.5.0** [685MB]: [nerc-models-latest.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-models-1.5.0.tgz)
   + Release 1.4.0 [400MB+]: [nerc-models-1.4.0.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-models-1.4.0.tgz)
   + Releases 1.3.3-1.3.6: [nerc-models-1.3.+.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-models-1.3.3.tgz)
 
@@ -112,7 +112,7 @@ in Apache OpenNLP.
 
 ### OTE-Models
 
-+ **Latest models**: (ote-models-latest)(http://ixa2.si.ehu.es/ixa-pipes/models/ote-models-1.5.0.tar.gz)
++ **Latest models**: [ote-models-latest](http://ixa2.si.ehu.es/ixa-pipes/models/ote-models-1.5.0.tgz)
 
 + **English Models**:
     + Trained on SemEval 2014 restaurants dataset.
@@ -221,7 +221,7 @@ template trainParams.properties file.
 **Example**:
 
 ````shell
-java -jar target/ixa.pipe.nerc-1.0.jar train -p trainParams.properties
+java -jar target/ixa.pipe.nerc-$version.jar train -p trainParams.properties
 ````
 **Training with Features using External Resources**: For training with dictionary or clustering
 based features (Brown, Clark and Word2Vec) you need to pass the lexicon as
