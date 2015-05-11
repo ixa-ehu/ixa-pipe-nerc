@@ -26,6 +26,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -49,6 +50,10 @@ import opennlp.tools.util.model.SerializableArtifact;
 public class ClarkCluster implements SerializableArtifact {
 
   private static final Pattern spacePattern = Pattern.compile(" ");
+  /**
+   * Turkish capital letter I with dot.
+   */
+  public static final Pattern dotInsideI = Pattern.compile("\u0130", Pattern.UNICODE_CHARACTER_CLASS);
   
   public static class ClarkClusterSerializer implements ArtifactSerializer<ClarkCluster> {
 
@@ -72,10 +77,12 @@ public class ClarkCluster implements SerializableArtifact {
     while ((line = breader.readLine()) != null) {
       String[] lineArray = spacePattern.split(line);
       if (lineArray.length == 3) {
-        tokenToClusterMap.put(lineArray[0].toLowerCase(), lineArray[1]);
+        String normalizedToken = dotInsideI.matcher(lineArray[0]).replaceAll("i");
+        tokenToClusterMap.put(normalizedToken.toLowerCase(), lineArray[1]);
       }
       else if (lineArray.length == 2) {
-        tokenToClusterMap.put(lineArray[0].toLowerCase(), lineArray[1]);
+        String normalizedToken = dotInsideI.matcher(lineArray[0]).replaceAll("i");
+        tokenToClusterMap.put(normalizedToken.toLowerCase(), lineArray[1]);
       }
     }
   }

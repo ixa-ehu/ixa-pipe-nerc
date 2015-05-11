@@ -79,11 +79,13 @@ public class BrownCluster implements SerializableArtifact {
       if (lineArray.length == 3) {
         int freq = Integer.parseInt(lineArray[2]);
           if (freq > 5 ) {
-            tokenToClusterMap.put(lineArray[1], lineArray[0]);
+            String normalizedToken = ClarkCluster.dotInsideI.matcher(lineArray[1]).replaceAll("I");
+            tokenToClusterMap.put(normalizedToken, lineArray[0]);
         }
       }
       else if (lineArray.length == 2) {
-        tokenToClusterMap.put(lineArray[0], lineArray[1]);
+        String normalizedToken = ClarkCluster.dotInsideI.matcher(lineArray[0]).replaceAll("I");
+        tokenToClusterMap.put(normalizedToken, lineArray[1]);
       }
     }
   }

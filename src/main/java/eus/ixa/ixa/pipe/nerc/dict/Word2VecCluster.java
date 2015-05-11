@@ -73,7 +73,8 @@ public class Word2VecCluster implements SerializableArtifact {
     while ((line = breader.readLine()) != null) {
       String[] lineArray = spacePattern.split(line);
       if (lineArray.length == 2) {
-        tokenToClusterMap.put(lineArray[0].toLowerCase(), lineArray[1]);
+        String normalizedToken = ClarkCluster.dotInsideI.matcher(lineArray[0]).replaceAll("i");
+        tokenToClusterMap.put(normalizedToken.toLowerCase(), lineArray[1]);
       }
     }
   }
