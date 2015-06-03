@@ -26,7 +26,6 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -78,11 +77,11 @@ public class ClarkCluster implements SerializableArtifact {
       String[] lineArray = spacePattern.split(line);
       if (lineArray.length == 3) {
         String normalizedToken = dotInsideI.matcher(lineArray[0]).replaceAll("i");
-        tokenToClusterMap.put(normalizedToken.toLowerCase(), lineArray[1]);
+        tokenToClusterMap.put(normalizedToken.toLowerCase(), lineArray[1].intern());
       }
       else if (lineArray.length == 2) {
         String normalizedToken = dotInsideI.matcher(lineArray[0]).replaceAll("i");
-        tokenToClusterMap.put(normalizedToken.toLowerCase(), lineArray[1]);
+        tokenToClusterMap.put(normalizedToken.toLowerCase(), lineArray[1].intern());
       }
     }
   }

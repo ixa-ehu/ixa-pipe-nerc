@@ -71,7 +71,7 @@ public class Dictionary implements SerializableArtifact {
     while ((line = breader.readLine()) != null) {
       String[] lineArray = tabPattern.split(line);
       if (lineArray.length == 2) {
-        dictionary.put(lineArray[0].toLowerCase(), lineArray[1]);
+        dictionary.put(lineArray[0].toLowerCase(), lineArray[1].intern());
       } else {
         System.err.println(lineArray[0] + " is not well formed!");
       }
