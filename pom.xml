@@ -35,19 +35,19 @@
 			<url>https://repository.apache.org/content/repositories/snapshots/</url>
 		</repository>
 	</repositories>
-	<dependencies>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.11</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>eus.ixa</groupId>
-			<artifactId>ixa-pipe-pos</artifactId>
-			<version>1.4.1</version>
-			<scope>compile</scope>
-		</dependency>
+		<dependencies>
+		  <dependency>
+		    <groupId>junit</groupId>
+		    <artifactId>junit</artifactId>
+		    <version>4.11</version>
+		    <scope>test</scope>
+		    </dependency>
+		  <dependency>
+		    <groupId>eus.ixa</groupId>
+		    <artifactId>ixa-pipe-pos</artifactId>
+		    <version>1.4.4</version>
+		    <scope>compile</scope>
+		    </dependency>
 	</dependencies>
 
 	<distributionManagement>
