@@ -4,7 +4,7 @@
 	<groupId>eus.ixa</groupId>
 	<artifactId>ixa-pipe-nerc</artifactId>
 	<packaging>jar</packaging>
-	<version>1.5.2</version>
+	<version>1.5.3</version>
 	<name>ixa-pipe-nerc</name>
 	<description>ixa pipes sequence labeler (ixa2.si.ehu.es/ixa-pipes).</description>
 	<licenses>
@@ -30,10 +30,6 @@
 	</prerequisites>
 	<url>http://ixa2.si.ehu.es/ixa-pipes</url>
 	<repositories>
-	<repository>
-			<id>apache opennlp snapshots</id>
-			<url>https://repository.apache.org/content/repositories/snapshots/</url>
-		</repository>
 	</repositories>
 		<dependencies>
 		  <dependency>
@@ -45,7 +41,7 @@
 		  <dependency>
 		    <groupId>eus.ixa</groupId>
 		    <artifactId>ixa-pipe-pos</artifactId>
-		    <version>1.4.4</version>
+		    <version>1.4.5</version>
 		    <scope>compile</scope>
 		    </dependency>
 	</dependencies>

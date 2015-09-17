@@ -31,10 +31,10 @@ import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.Span;
 
 /**
- * Statistical Sequence Labelling based on Apache OpenNLP Machine Learning API.
+ * Statistical Sequence Labeling based on Apache OpenNLP Machine Learning API.
  *
  * @author ragerri
- * @version 2014-04-04
+ * @version 2015-09-17
  *
  */
 
@@ -166,7 +166,11 @@ public class StatisticalNameFinder implements NameFinder {
   private final TokenNameFinderModel loadModel(final String lang, final String model) {
     long lStartTime = new Date().getTime();
     try {
-      nercModels.putIfAbsent(lang, new TokenNameFinderModel(new FileInputStream(model)));
+      synchronized (nercModels) {
+        if (!nercModels.containsKey(lang)) {
+          nercModels.put(lang, new TokenNameFinderModel(new FileInputStream(model)));
+        }
+      }
     } catch (IOException e) {
       e.printStackTrace();
     }
