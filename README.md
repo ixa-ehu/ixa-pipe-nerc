@@ -4,7 +4,7 @@ ixa-pipe-nerc
 
 ixa-pipe-nerc is a multilingual Sequence Labeler for tasks such as Named Entity
 Recognition (NERC), Opinion Target Extraction (OTE) and SuperSense Tagging (SST).
-**Current version is 1.5.2**
+**Current version is 1.5.3**
 
 ixa-pipe-nerc is part of IXA pipes, a multilingual set of NLP tools developed
 by the IXA NLP Group [http://ixa2.si.ehu.es/ixa-pipes].
@@ -261,7 +261,7 @@ this dependency to your pom.xml:
 <dependency>
     <groupId>eus.ixa</groupId>
     <artifactId>ixa-pipe-nerc</artifactId>
-    <version>1.5.2</version>
+    <version>1.5.3</version>
 </dependency>
 ````
 
@@ -282,7 +282,7 @@ The contents of the module are the following:
     + src/                    java source code of the module and required resources
     + Furthermore, the installation process, as described in the README.md, will generate another directory:
     target/                 it contains binary executable and other directories
-    + trainParams.prop      A template properties file containing documention
+    + trainParams.properties      A template properties file containing documention
     for every available option
 
 
