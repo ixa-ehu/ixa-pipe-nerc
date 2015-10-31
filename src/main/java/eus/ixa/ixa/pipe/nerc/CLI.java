@@ -20,12 +20,16 @@ import ixa.kaflib.KAFDocument;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.net.Socket;
 import java.util.Properties;
 
 import net.sourceforge.argparse4j.ArgumentParsers;
@@ -106,6 +110,14 @@ public class CLI {
    * The parser that manages the cross validation sub-command.
    */
   private Subparser crossValidateParser;
+  /**
+   * Parser to start TCP socket for server-client functionality.
+   */
+  private Subparser serverParser;
+  /**
+   * Sends queries to the serverParser for annotation.
+   */
+  private Subparser clientParser;
 
   /**
    * Construct a CLI object with the sub-parsers to manage the command
@@ -122,6 +134,10 @@ public class CLI {
     loadEvalParameters();
     crossValidateParser = subParsers.addParser("cross").help("Cross validation CLI");
     loadCrossValidateParameters();
+    serverParser = subParsers.addParser("server").help("Start TCP socket server");
+    loadServerParameters();
+    clientParser = subParsers.addParser("client").help("Send queries to the TCP socket server");
+    loadClientParameters();
     }
 
   /**
@@ -164,11 +180,15 @@ public class CLI {
         train();
       } else if (args[0].equals("cross")) {
         crossValidate();
+      } else if (args[0].equals("server")) {
+        server();
+      } else if (args[0].equals("client")) {
+        client(System.in, System.out);
       }
     } catch (ArgumentParserException e) {
       argParser.handleError(e);
       System.out.println("Run java -jar target/ixa-pipe-nerc-" + version
-          + ".jar (tag|ote|train|eval|cross) -help for details");
+          + ".jar (tag|ote|train|eval|cross|server|client) -help for details");
       System.exit(1);
     }
   }
@@ -359,6 +379,70 @@ public class CLI {
     CrossValidator crossValidator = new CrossValidator(params);
     crossValidator.crossValidate(params);
   }
+  
+
+  public final void server() {
+
+    // load parameters into a properties
+    String port = parsedArguments.getString("port");
+    String model = parsedArguments.getString("model");
+    String lexer = parsedArguments.getString("lexer");
+    String dictTag = parsedArguments.getString("dictTag");
+    String dictPath = parsedArguments.getString("dictPath");
+    String clearFeatures = parsedArguments.getString("clearFeatures");
+    String outputFormat = parsedArguments.getString("outputFormat");
+    // language parameter
+    String lang = parsedArguments.getString("language");
+    Properties properties = setServerProperties(port, model, lang, lexer, dictTag, dictPath, clearFeatures, outputFormat);
+    new NameFinderServer(properties);
+  }
+  
+  public final void client(final InputStream inputStream,
+      final OutputStream outputStream) {
+
+    try {
+      BufferedReader breader = new BufferedReader(
+          new InputStreamReader(System.in, "UTF-8"));
+      BufferedWriter bwriter = new BufferedWriter(new OutputStreamWriter(System.out, "UTF-8"));
+      
+      String port = parsedArguments.getString("port");
+      
+      Socket socketClient = new Socket("localhost", Integer.parseInt(port)); 
+      InputStream dataInStream = socketClient.getInputStream();
+      DataInput dataInFlow = new DataInputStream(dataInStream);
+      OutputStream dataOutStream = socketClient.getOutputStream();
+      DataOutputStream dataOutFlow = new DataOutputStream(dataOutStream);
+
+      String line = breader.readLine();
+      while (line != null) {
+        dataOutFlow.writeBoolean(false);
+        dataOutFlow.writeUTF(line);
+        line = breader.readLine();
+      }
+      dataOutFlow.writeBoolean(true);
+
+      StringBuilder kafStringBuilder = new StringBuilder();
+      boolean EnOfKAFFile = dataInFlow.readBoolean();
+      String kafLine = "";
+      while (!EnOfKAFFile) {
+        kafLine = dataInFlow.readUTF();
+        kafStringBuilder.append(kafLine);
+        kafStringBuilder.append('\n');
+        EnOfKAFFile = dataInFlow.readBoolean();
+      }
+      String kafString = kafStringBuilder.toString();
+      bwriter.write(kafString);
+      bwriter.close();
+
+      dataOutFlow.flush();
+      socketClient.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
 
   /**
    * Create the available parameters for NER tagging.
@@ -479,6 +563,59 @@ public class CLI {
     crossValidateParser.addArgument("-p", "--params").required(true)
         .help("Load the Cross validation parameters file\n");
   }
+  
+
+  /**
+   * Create the available parameters for NER tagging.
+   */
+  private void loadServerParameters() {
+    
+    serverParser.addArgument("-p", "--port")
+        .required(true)
+        .help("Port to be assigned to the server.\n");
+    serverParser.addArgument("-m", "--model")
+        .required(true)
+        .help("Pass the model to do the tagging as a parameter.\n");
+    serverParser.addArgument("--clearFeatures")
+        .required(false)
+        .choices("yes", "no", "docstart")
+        .setDefault(Flags.DEFAULT_FEATURE_FLAG)
+        .help("Reset the adaptive features every sentence; defaults to 'no'; if -DOCSTART- marks" +
+                " are present, choose 'docstart'.\n");
+    serverParser.addArgument("-l","--language")
+        .required(true)
+        .choices("de", "en", "es", "eu", "it", "nl")
+        .help("Choose language.\n");
+    serverParser.addArgument("-o","--outputFormat")
+        .required(false)
+        .choices("conll03", "conll02", "naf", "opennlp")
+        .setDefault(Flags.DEFAULT_OUTPUT_FORMAT)
+        .help("Choose output format; it defaults to NAF.\n");
+    serverParser.addArgument("--lexer")
+        .choices("numeric")
+        .setDefault(Flags.DEFAULT_LEXER)
+        .required(false)
+        .help("Use lexer rules for NERC tagging; it defaults to false.\n");
+    serverParser.addArgument("--dictTag")
+        .required(false)
+        .choices("tag", "post")
+        .setDefault(Flags.DEFAULT_DICT_OPTION)
+        .help("Choose to directly tag entities by dictionary look-up; if the 'tag' option is chosen, " +
+                "only tags entities found in the dictionary; if 'post' option is chosen, it will " +
+                "post-process the results of the statistical model.\n");
+    serverParser.addArgument("--dictPath")
+        .required(false)
+        .setDefault(Flags.DEFAULT_DICT_PATH)
+        .help("Provide the path to the dictionaries for direct dictionary tagging; it ONLY WORKS if --dictTag " +
+                "option is activated.\n");
+  }
+  
+  private void loadClientParameters() {
+    
+    clientParser.addArgument("-p", "--port")
+        .required(true)
+        .help("Port of the server to send the query.\n");
+  }
 
   /**
    * Set a Properties object with the CLI parameters for NER annotation.
@@ -534,6 +671,19 @@ public class CLI {
     evalProperties.setProperty("types", netypes);
     evalProperties.setProperty("clearFeatures", clearFeatures);
     return evalProperties;
+  }
+  
+  private Properties setServerProperties(String port, String model, String language, String lexer, String dictTag, String dictPath, String clearFeatures, String outputFormat) {
+    Properties serverProperties = new Properties();
+    serverProperties.setProperty("port", port);
+    serverProperties.setProperty("model", model);
+    serverProperties.setProperty("language", language);
+    serverProperties.setProperty("ruleBasedOption", lexer);
+    serverProperties.setProperty("dictTag", dictTag);
+    serverProperties.setProperty("dictPath", dictPath);
+    serverProperties.setProperty("clearFeatures", clearFeatures);
+    serverProperties.setProperty("outputFormat", outputFormat);
+    return serverProperties;
   }
 
 }
