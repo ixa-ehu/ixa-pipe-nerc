@@ -30,19 +30,38 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Properties;
 
-public class NameFinderServer {
+import com.google.common.io.Files;
 
+public class NameFinderServer {
+  
+  /**
+   * Get dynamically the version of ixa-pipe-nerc by looking at the MANIFEST
+   * file.
+   */
+  private final String version = CLI.class.getPackage().getImplementationVersion();
+  /**
+   * Get the git commit of the ixa-pipe-nerc compiled by looking at the MANIFEST
+   * file.
+   */
+  private final String commit = CLI.class.getPackage().getSpecificationVersion();
+
+  /**
+   * Construct a NameFinder server.
+   * @param properties the properties
+   */
   public NameFinderServer(Properties properties) {
 
     Integer port = Integer.parseInt(properties.getProperty("port"));
+    String model = properties.getProperty("model");
+    String outputFormat = properties.getProperty("outputFormat");
     BufferedReader stdInReader = null;
     ServerSocket socketServer = null;
 
     try {
       Annotate annotator = new Annotate(properties);
-      System.out.println("Trying to listen port " + port);
+      System.out.println("-> Trying to listen port... " + port);
       socketServer = new ServerSocket(port);
-      System.out.println("Listening to port " + port);
+      System.out.println("-> SUCCESS!! Listening to port " + port);
 
       while (true) {
         Socket socketClient = socketServer.accept();
@@ -62,24 +81,30 @@ public class NameFinderServer {
             EnOfInputFile = inFromClient.readBoolean();
           }
           String stringFromClient = stdInStringBuilder.toString();
-        
 
           stdInReader = new BufferedReader(new StringReader(stringFromClient));
           KAFDocument kaf = KAFDocument.createFromStream(stdInReader);
+          KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor(
+              "entities",
+              "ixa-pipe-nerc-" + Files.getNameWithoutExtension(model), version
+                  + "-" + commit);
+          newLp.setBeginTimestamp();
           annotator.annotateNEs(kaf);
-           String kafToString = null;
-           String outputFormat = properties.getProperty("outputFormat");
-           if (outputFormat.equalsIgnoreCase("conll03")) {
-           kafToString = annotator.annotateNEsToCoNLL2003(kaf);
-           } else if (outputFormat.equalsIgnoreCase("conll02")) {
-           kafToString = annotator.annotateNEsToCoNLL2002(kaf);
-           } else if (outputFormat.equalsIgnoreCase("opennlp")) {
-           kafToString = annotator.annotateNEsToOpenNLP(kaf);
-           } else {
-           kafToString = annotator.annotateNEsToKAF(kaf);
-           }
+          newLp.setEndTimestamp();
+          // get outputFormat
+          String kafToString = null;
+          if (outputFormat.equalsIgnoreCase("conll03")) {
+            kafToString = annotator.annotateNEsToCoNLL2003(kaf);
+          } else if (outputFormat.equalsIgnoreCase("conll02")) {
+            kafToString = annotator.annotateNEsToCoNLL2002(kaf);
+          } else if (outputFormat.equalsIgnoreCase("opennlp")) {
+            kafToString = annotator.annotateNEsToOpenNLP(kaf);
+          } else {
+            kafToString = annotator.annotateNEsToKAF(kaf);
+          }
 
-          BufferedReader kafReader = new BufferedReader(new StringReader(kafToString));
+          BufferedReader kafReader = new BufferedReader(new StringReader(
+              kafToString));
           String kafLine = kafReader.readLine();
           while (kafLine != null) {
             outToClient.writeBoolean(false);

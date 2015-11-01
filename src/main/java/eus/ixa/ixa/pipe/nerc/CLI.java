@@ -384,6 +384,10 @@ public class CLI {
   public final void server() {
 
     // load parameters into a properties
+    String task = parsedArguments.getString("task");
+    if (task.equalsIgnoreCase("ner")) {
+      
+    }
     String port = parsedArguments.getString("port");
     String model = parsedArguments.getString("model");
     String lexer = parsedArguments.getString("lexer");
@@ -393,8 +397,8 @@ public class CLI {
     String outputFormat = parsedArguments.getString("outputFormat");
     // language parameter
     String lang = parsedArguments.getString("language");
-    Properties properties = setServerProperties(port, model, lang, lexer, dictTag, dictPath, clearFeatures, outputFormat);
-    new NameFinderServer(properties);
+    Properties nameFinderproperties = setNameFinderServerProperties(port, model, lang, lexer, dictTag, dictPath, clearFeatures, outputFormat);
+    new NameFinderServer(nameFinderproperties);
   }
   
   public final void client(final InputStream inputStream,
@@ -570,6 +574,11 @@ public class CLI {
    */
   private void loadServerParameters() {
     
+    serverParser.addArgument("-t","--task")
+         .required(false)
+         .choices("ner", "ote", "sst")
+         .setDefault(Flags.DEFAULT_TASK)
+         .help("Choose the type of sequence labeling task.\n");
     serverParser.addArgument("-p", "--port")
         .required(true)
         .help("Port to be assigned to the server.\n");
@@ -673,7 +682,7 @@ public class CLI {
     return evalProperties;
   }
   
-  private Properties setServerProperties(String port, String model, String language, String lexer, String dictTag, String dictPath, String clearFeatures, String outputFormat) {
+  private Properties setNameFinderServerProperties(String port, String model, String language, String lexer, String dictTag, String dictPath, String clearFeatures, String outputFormat) {
     Properties serverProperties = new Properties();
     serverProperties.setProperty("port", port);
     serverProperties.setProperty("model", model);

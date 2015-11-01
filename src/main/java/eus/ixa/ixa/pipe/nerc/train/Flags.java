@@ -44,6 +44,7 @@ public class Flags {
   public static final String DEFAULT_OUTPUT_FORMAT = "naf";
   public static final String DEFAULT_SEQUENCE_CODEC = "BILOU";
   public static final String DEFAULT_EVAL_FORMAT = "conll02";
+  public static final String DEFAULT_TASK = "ner";
 
   private Flags() {
 
