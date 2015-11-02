@@ -1,17 +1,17 @@
 /*
  *  Copyright 2015 Rodrigo Agerri
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+        http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
  */
 
 package eus.ixa.ixa.pipe.nerc;
@@ -31,18 +31,20 @@ import org.jdom2.JDOMException;
 
 import com.google.common.io.Files;
 
-public class NameFinderServer {
-  
+public class TargetExtractorServer {
+
   /**
    * Get dynamically the version of ixa-pipe-nerc by looking at the MANIFEST
    * file.
    */
-  private final String version = CLI.class.getPackage().getImplementationVersion();
+  private final String version = CLI.class.getPackage()
+      .getImplementationVersion();
   /**
    * Get the git commit of the ixa-pipe-nerc compiled by looking at the MANIFEST
    * file.
    */
-  private final String commit = CLI.class.getPackage().getSpecificationVersion();
+  private final String commit = CLI.class.getPackage()
+      .getSpecificationVersion();
   /**
    * The model.
    */
@@ -52,12 +54,14 @@ public class NameFinderServer {
    * and OpenNLP.
    */
   private String outputFormat = null;
-  
+
   /**
-   * Construct a NameFinder server.
-   * @param properties the properties
+   * Construct an Opinion Target Extractor server.
+   * 
+   * @param properties
+   *          the properties
    */
-  public NameFinderServer(Properties properties) {
+  public TargetExtractorServer(Properties properties) {
 
     Integer port = Integer.parseInt(properties.getProperty("port"));
     model = properties.getProperty("model");
@@ -65,7 +69,7 @@ public class NameFinderServer {
     ServerSocket socketServer = null;
 
     try {
-      Annotate annotator = new Annotate(properties);
+      OpinionTargetExtractor annotator = new OpinionTargetExtractor(properties);
       System.out.println("-> Trying to listen port... " + port);
       socketServer = new ServerSocket(port);
       System.out.println("-> Connected and listening to port " + port);
@@ -73,15 +77,17 @@ public class NameFinderServer {
       while (true) {
         Socket activeSocket = socketServer.accept();
         System.out.println("-> Received a  connection from: " + activeSocket);
-        //data from client;
-        DataInputStream inFromClient = new DataInputStream(activeSocket.getInputStream());
-        DataOutputStream outToClient = new DataOutputStream(activeSocket.getOutputStream());
-        
+        // data from client;
+        DataInputStream inFromClient = new DataInputStream(
+            activeSocket.getInputStream());
+        DataOutputStream outToClient = new DataOutputStream(
+            activeSocket.getOutputStream());
+
         try {
           String stringFromClient = getClientData(inFromClient);
-          //annotate
+          // annotate
           String kafToString = getAnnotations(annotator, stringFromClient);
-          //send to server
+          // send to server
           sendDataToServer(outToClient, kafToString);
         } catch (Exception e) {
           System.out.println(e.getMessage());
@@ -91,21 +97,23 @@ public class NameFinderServer {
     } catch (IOException e) {
       e.printStackTrace();
     }
-    //close socketServer
+    // close socketServer
     try {
       socketServer.close();
     } catch (IOException e) {
       e.printStackTrace();
     }
   }
-  
+
   /**
    * Read data from the client and output to a String.
-   * @param inFromClient the client inputstream
+   * 
+   * @param inFromClient
+   *          the client inputstream
    * @return the string from the client
    */
   private String getClientData(DataInputStream inFromClient) {
-    //get data from client and build a string with it
+    // get data from client and build a string with it
     StringBuilder stringFromClient = new StringBuilder();
     try {
       boolean endOfClientFile = inFromClient.readBoolean();
@@ -114,25 +122,29 @@ public class NameFinderServer {
         line = inFromClient.readUTF();
         stringFromClient.append(line).append("\n");
         endOfClientFile = inFromClient.readBoolean();
-    }
-    }catch (IOException e) {
+      }
+    } catch (IOException e) {
       e.printStackTrace();
     }
-    return stringFromClient.toString(); 
+    return stringFromClient.toString();
   }
-  
+
   /**
    * Send data back to server after annotation.
-   * @param outToClient the outputstream to the client
-   * @param kafToString the string to be processed
-   * @throws IOException if io error
+   * 
+   * @param outToClient
+   *          the outputstream to the client
+   * @param kafToString
+   *          the string to be processed
+   * @throws IOException
+   *           if io error
    */
-  private void sendDataToServer(DataOutputStream outToClient, String kafToString) throws IOException {
-    
-    //get a reader from the final NAF document
-    BufferedReader kafReader = new BufferedReader(new StringReader(
-        kafToString));
-    //send NAF to client
+  private void sendDataToServer(DataOutputStream outToClient, String kafToString)
+      throws IOException {
+
+    // get a reader from the final NAF document
+    BufferedReader kafReader = new BufferedReader(new StringReader(kafToString));
+    // send NAF to client
     String kafLine = kafReader.readLine();
     while (kafLine != null) {
       outToClient.writeBoolean(false);
@@ -141,36 +153,42 @@ public class NameFinderServer {
     }
     outToClient.writeBoolean(true);
   }
-  
+
   /**
-   * Named Entity annotator.
-   * @param annotator the annotator
-   * @param stringFromClient the string to be annotated
+   * OTE annotator.
+   * 
+   * @param annotator
+   *          the annotator
+   * @param stringFromClient
+   *          the string to be annotated
    * @return the annotation result
-   * @throws IOException if io error
-   * @throws JDOMException if xml error
+   * @throws IOException
+   *           if io error
+   * @throws JDOMException
+   *           if xml error
    */
-  private String getAnnotations(Annotate annotator, String stringFromClient) throws IOException, JDOMException {
-  //get a breader from the string coming from the client
-    BufferedReader clientReader = new BufferedReader(new StringReader(stringFromClient));
+  private String getAnnotations(OpinionTargetExtractor annotator, String stringFromClient)
+      throws IOException, JDOMException {
+    // get a breader from the string coming from the client
+    BufferedReader clientReader = new BufferedReader(new StringReader(
+        stringFromClient));
     KAFDocument kaf = KAFDocument.createFromStream(clientReader);
     KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor(
-          "entities",
-          "ixa-pipe-nerc-" + Files.getNameWithoutExtension(model), version
-              + "-" + commit);
+        "entities", "ixa-pipe-nerc-" + Files.getNameWithoutExtension(model),
+        version + "-" + commit);
     newLp.setBeginTimestamp();
-    annotator.annotateNEs(kaf);
+    annotator.annotateOTE(kaf);
     newLp.setEndTimestamp();
     // get outputFormat
     String kafToString = null;
     if (outputFormat.equalsIgnoreCase("conll03")) {
-      kafToString = annotator.annotateNEsToCoNLL2003(kaf);
+      kafToString = annotator.annotateOTEsToKAF(kaf);
     } else if (outputFormat.equalsIgnoreCase("conll02")) {
-      kafToString = annotator.annotateNEsToCoNLL2002(kaf);
+      kafToString = annotator.annotateOTEsToKAF(kaf);
     } else if (outputFormat.equalsIgnoreCase("opennlp")) {
-      kafToString = annotator.annotateNEsToOpenNLP(kaf);
+      kafToString = annotator.annotateOTEsToOpenNLP(kaf);
     } else {
-      kafToString = annotator.annotateNEsToKAF(kaf);
+      kafToString = annotator.annotateOTEsToKAF(kaf);
     }
     return kafToString;
   }

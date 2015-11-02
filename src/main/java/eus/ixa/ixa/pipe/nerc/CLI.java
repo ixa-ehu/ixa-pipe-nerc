@@ -295,7 +295,7 @@ public class CLI {
         "opinions", "ixa-pipe-nerc-" + Files.getNameWithoutExtension(model), version + "-" + commit);
     newLp.setBeginTimestamp();
     OpinionTargetExtractor oteExtractor = new OpinionTargetExtractor(properties);
-    oteExtractor.extractOpinionTargets(kaf);
+    oteExtractor.annotateOTE(kaf);
     newLp.setEndTimestamp();
     String kafToString = null;
     if (outputFormat.equalsIgnoreCase("opennlp")) {
@@ -380,14 +380,13 @@ public class CLI {
     crossValidator.crossValidate(params);
   }
   
-
+  /**
+   * Set up the TCP socket for annotation.
+   */
   public final void server() {
 
     // load parameters into a properties
     String task = parsedArguments.getString("task");
-    if (task.equalsIgnoreCase("ner")) {
-      
-    }
     String port = parsedArguments.getString("port");
     String model = parsedArguments.getString("model");
     String lexer = parsedArguments.getString("lexer");
@@ -397,10 +396,19 @@ public class CLI {
     String outputFormat = parsedArguments.getString("outputFormat");
     // language parameter
     String lang = parsedArguments.getString("language");
-    Properties nameFinderproperties = setNameFinderServerProperties(port, model, lang, lexer, dictTag, dictPath, clearFeatures, outputFormat);
-    new NameFinderServer(nameFinderproperties);
+    Properties serverproperties = setNameServerProperties(port, model, lang, lexer, dictTag, dictPath, clearFeatures, outputFormat);
+    if (task.equalsIgnoreCase("ote")) {
+      new TargetExtractorServer(serverproperties);
+    } else {
+      new NameFinderServer(serverproperties);
+    }
   }
   
+  /**
+   * The client to query the TCP server for annotation.
+   * @param inputStream the stdin
+   * @param outputStream stdout
+   */
   public final void client(final InputStream inputStream,
       final OutputStream outputStream) {
 
@@ -409,11 +417,11 @@ public class CLI {
       BufferedWriter outToUser = new BufferedWriter(new OutputStreamWriter(System.out, "UTF-8"));
       
       String port = parsedArguments.getString("port");
-      
       Socket socketClient = new Socket("localhost", Integer.parseInt(port));
       DataOutputStream outToServer = new DataOutputStream(socketClient.getOutputStream());
       DataInput inFromServer = new DataInputStream(socketClient.getInputStream());
       
+      //send data to server socket
       String line = inFromUser.readLine();
       while (line != null) {
         outToServer.writeBoolean(false);
@@ -421,7 +429,8 @@ public class CLI {
         line = inFromUser.readLine();
       }
       outToServer.writeBoolean(true);
-
+      
+      //get data from server socket
       StringBuilder kafStringBuilder = new StringBuilder();
       boolean endOfFinalKAF = inFromServer.readBoolean();
       String kafLine = "";
@@ -676,7 +685,7 @@ public class CLI {
     return evalProperties;
   }
   
-  private Properties setNameFinderServerProperties(String port, String model, String language, String lexer, String dictTag, String dictPath, String clearFeatures, String outputFormat) {
+  private Properties setNameServerProperties(String port, String model, String language, String lexer, String dictTag, String dictPath, String clearFeatures, String outputFormat) {
     Properties serverProperties = new Properties();
     serverProperties.setProperty("port", port);
     serverProperties.setProperty("model", model);

@@ -65,7 +65,7 @@ public class OpinionTargetExtractor {
    * @param kaf the KAFDocument
    * @throws IOException if io errors
    */
-  public final void extractOpinionTargets(final KAFDocument kaf) throws IOException {
+  public final void annotateOTE(final KAFDocument kaf) throws IOException {
 
     List<List<WF>> sentences = kaf.getSentences();
     for (List<WF> sentence : sentences) {

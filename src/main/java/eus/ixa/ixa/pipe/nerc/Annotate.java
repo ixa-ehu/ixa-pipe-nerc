@@ -40,7 +40,7 @@ import eus.ixa.ixa.pipe.nerc.dict.Dictionaries;
 import eus.ixa.ixa.pipe.nerc.train.Flags;
 
 /**
- * Annotation class of ixa-pipe-nerc.
+ * Annotation class for Named Entities in ixa-pipe-nerc.
  * 
  * @author ragerri
  * @version 2015-02-25
