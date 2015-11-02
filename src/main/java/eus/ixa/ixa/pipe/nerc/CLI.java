@@ -405,40 +405,34 @@ public class CLI {
       final OutputStream outputStream) {
 
     try {
-      BufferedReader breader = new BufferedReader(
-          new InputStreamReader(System.in, "UTF-8"));
-      BufferedWriter bwriter = new BufferedWriter(new OutputStreamWriter(System.out, "UTF-8"));
+      BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
+      BufferedWriter outToUser = new BufferedWriter(new OutputStreamWriter(System.out, "UTF-8"));
       
       String port = parsedArguments.getString("port");
       
-      Socket socketClient = new Socket("localhost", Integer.parseInt(port)); 
-      InputStream dataInStream = socketClient.getInputStream();
-      DataInput dataInFlow = new DataInputStream(dataInStream);
-      OutputStream dataOutStream = socketClient.getOutputStream();
-      DataOutputStream dataOutFlow = new DataOutputStream(dataOutStream);
-
-      String line = breader.readLine();
+      Socket socketClient = new Socket("localhost", Integer.parseInt(port));
+      DataOutputStream outToServer = new DataOutputStream(socketClient.getOutputStream());
+      DataInput inFromServer = new DataInputStream(socketClient.getInputStream());
+      
+      String line = inFromUser.readLine();
       while (line != null) {
-        dataOutFlow.writeBoolean(false);
-        dataOutFlow.writeUTF(line);
-        line = breader.readLine();
+        outToServer.writeBoolean(false);
+        outToServer.writeUTF(line);
+        line = inFromUser.readLine();
       }
-      dataOutFlow.writeBoolean(true);
+      outToServer.writeBoolean(true);
 
       StringBuilder kafStringBuilder = new StringBuilder();
-      boolean EnOfKAFFile = dataInFlow.readBoolean();
+      boolean endOfFinalKAF = inFromServer.readBoolean();
       String kafLine = "";
-      while (!EnOfKAFFile) {
-        kafLine = dataInFlow.readUTF();
-        kafStringBuilder.append(kafLine);
-        kafStringBuilder.append('\n');
-        EnOfKAFFile = dataInFlow.readBoolean();
+      while (!endOfFinalKAF) {
+        kafLine = inFromServer.readUTF();
+        kafStringBuilder.append(kafLine).append("\n");
+        endOfFinalKAF = inFromServer.readBoolean();
       }
-      String kafString = kafStringBuilder.toString();
-      bwriter.write(kafString);
-      bwriter.close();
-
-      dataOutFlow.flush();
+      outToUser.write(kafStringBuilder.toString());
+      outToServer.flush();
+      outToUser.close();
       socketClient.close();
     } catch (IOException e) {
       e.printStackTrace();

@@ -23,8 +23,6 @@ import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.StringReader;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -54,7 +52,6 @@ public class NameFinderServer {
     Integer port = Integer.parseInt(properties.getProperty("port"));
     String model = properties.getProperty("model");
     String outputFormat = properties.getProperty("outputFormat");
-    BufferedReader stdInReader = null;
     ServerSocket socketServer = null;
 
     try {
@@ -65,25 +62,23 @@ public class NameFinderServer {
 
       while (true) {
         Socket socketClient = socketServer.accept();
-        InputStream dataInStream = socketClient.getInputStream();
-        DataInput inFromClient = new DataInputStream(dataInStream);
-        OutputStream dataOutStream = socketClient.getOutputStream();
-        DataOutputStream outToClient = new DataOutputStream(dataOutStream);
+        //data from client;
+        DataInput inFromClient = new DataInputStream(socketClient.getInputStream());
+        DataOutputStream outToClient = new DataOutputStream(socketClient.getOutputStream());
+        
         try {
-
-          StringBuilder stdInStringBuilder = new StringBuilder();
-          boolean EnOfInputFile = inFromClient.readBoolean();
+          //get data from client and build a string with it
+          StringBuilder stringFromClient = new StringBuilder();
+          boolean endOfClientFile = inFromClient.readBoolean();
           String line = "";
-          while (!EnOfInputFile) {
+          while (!endOfClientFile) {
             line = inFromClient.readUTF();
-            stdInStringBuilder.append(line);
-            stdInStringBuilder.append('\n');
-            EnOfInputFile = inFromClient.readBoolean();
+            stringFromClient.append(line).append("\n");
+            endOfClientFile = inFromClient.readBoolean();
           }
-          String stringFromClient = stdInStringBuilder.toString();
-
-          stdInReader = new BufferedReader(new StringReader(stringFromClient));
-          KAFDocument kaf = KAFDocument.createFromStream(stdInReader);
+          //get a breader from the string coming from the client
+          BufferedReader clientReader = new BufferedReader(new StringReader(stringFromClient.toString()));
+          KAFDocument kaf = KAFDocument.createFromStream(clientReader);
           KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor(
               "entities",
               "ixa-pipe-nerc-" + Files.getNameWithoutExtension(model), version
@@ -91,6 +86,7 @@ public class NameFinderServer {
           newLp.setBeginTimestamp();
           annotator.annotateNEs(kaf);
           newLp.setEndTimestamp();
+          
           // get outputFormat
           String kafToString = null;
           if (outputFormat.equalsIgnoreCase("conll03")) {
@@ -102,9 +98,11 @@ public class NameFinderServer {
           } else {
             kafToString = annotator.annotateNEsToKAF(kaf);
           }
-
+          
+          //get a reader from the final NAF document
           BufferedReader kafReader = new BufferedReader(new StringReader(
               kafToString));
+          //send NAF to client
           String kafLine = kafReader.readLine();
           while (kafLine != null) {
             outToClient.writeBoolean(false);
@@ -112,6 +110,7 @@ public class NameFinderServer {
             kafLine = kafReader.readLine();
           }
           outToClient.writeBoolean(true);
+          
         } catch (Exception e) {
           System.out.println(e.getMessage());
         }
