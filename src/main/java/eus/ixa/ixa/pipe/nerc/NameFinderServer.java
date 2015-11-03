@@ -55,7 +55,9 @@ public class NameFinderServer {
   
   /**
    * Construct a NameFinder server.
-   * @param properties the properties
+   * 
+   * @param properties
+   *          the properties
    */
   public NameFinderServer(Properties properties) {
 
@@ -68,34 +70,32 @@ public class NameFinderServer {
       Annotate annotator = new Annotate(properties);
       System.out.println("-> Trying to listen port... " + port);
       socketServer = new ServerSocket(port);
-      System.out.println("-> Connected and listening to port " + port);
 
       while (true) {
-        Socket activeSocket = socketServer.accept();
-        System.out.println("-> Received a  connection from: " + activeSocket);
-        //data from client;
-        DataInputStream inFromClient = new DataInputStream(activeSocket.getInputStream());
-        DataOutputStream outToClient = new DataOutputStream(activeSocket.getOutputStream());
-        
-        try {
+        System.out.println("-> Connected and listening to port " + port);
+        try (Socket activeSocket = socketServer.accept();
+            DataInputStream inFromClient = new DataInputStream(
+                activeSocket.getInputStream());
+            DataOutputStream outToClient = new DataOutputStream(
+                activeSocket.getOutputStream());) {
+          System.out.println("-> Received a  connection from: " + activeSocket);
+          //get data from client
           String stringFromClient = getClientData(inFromClient);
-          //annotate
+          // annotate
           String kafToString = getAnnotations(annotator, stringFromClient);
-          //send to server
+          // send to server
           sendDataToServer(outToClient, kafToString);
-        } catch (Exception e) {
-          System.out.println(e.getMessage());
         }
-        activeSocket.close();
       }
-    } catch (IOException e) {
+    } catch (IOException | JDOMException e) {
       e.printStackTrace();
-    }
-    //close socketServer
-    try {
-      socketServer.close();
-    } catch (IOException e) {
-      e.printStackTrace();
+    } finally {
+      System.out.println("closing tcp socket...");
+      try {
+        socketServer.close();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
     }
   }
   
@@ -133,11 +133,10 @@ public class NameFinderServer {
     BufferedReader kafReader = new BufferedReader(new StringReader(
         kafToString));
     //send NAF to client
-    String kafLine = kafReader.readLine();
-    while (kafLine != null) {
+    String kafLine;
+    while ((kafLine = kafReader.readLine()) != null) {
       outToClient.writeBoolean(false);
       outToClient.writeUTF(kafLine);
-      kafLine = kafReader.readLine();
     }
     outToClient.writeBoolean(true);
   }

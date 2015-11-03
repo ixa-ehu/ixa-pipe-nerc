@@ -20,7 +20,6 @@ import ixa.kaflib.KAFDocument;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -406,31 +405,35 @@ public class CLI {
   
   /**
    * The client to query the TCP server for annotation.
-   * @param inputStream the stdin
-   * @param outputStream stdout
+   * 
+   * @param inputStream
+   *          the stdin
+   * @param outputStream
+   *          stdout
    */
   public final void client(final InputStream inputStream,
       final OutputStream outputStream) {
 
-    try {
-      BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
-      BufferedWriter outToUser = new BufferedWriter(new OutputStreamWriter(System.out, "UTF-8"));
+    String port = parsedArguments.getString("port");
+    try (Socket socketClient = new Socket("localhost", Integer.parseInt(port));
+        BufferedReader inFromUser = new BufferedReader(new InputStreamReader(
+            System.in, "UTF-8"));
+        BufferedWriter outToUser = new BufferedWriter(new OutputStreamWriter(
+            System.out, "UTF-8"));
+        DataOutputStream outToServer = new DataOutputStream(
+            socketClient.getOutputStream());
+        DataInputStream inFromServer = new DataInputStream(
+            socketClient.getInputStream());) {
       
-      String port = parsedArguments.getString("port");
-      Socket socketClient = new Socket("localhost", Integer.parseInt(port));
-      DataOutputStream outToServer = new DataOutputStream(socketClient.getOutputStream());
-      DataInput inFromServer = new DataInputStream(socketClient.getInputStream());
-      
-      //send data to server socket
-      String line = inFromUser.readLine();
-      while (line != null) {
+      // send data to server socket
+      String line;
+      while ((line = inFromUser.readLine()) != null) {
         outToServer.writeBoolean(false);
         outToServer.writeUTF(line);
-        line = inFromUser.readLine();
       }
       outToServer.writeBoolean(true);
-      
-      //get data from server socket
+
+      // get data from server socket
       StringBuilder kafStringBuilder = new StringBuilder();
       boolean endOfFinalKAF = inFromServer.readBoolean();
       String kafLine = "";
@@ -440,9 +443,6 @@ public class CLI {
         endOfFinalKAF = inFromServer.readBoolean();
       }
       outToUser.write(kafStringBuilder.toString());
-      outToServer.flush();
-      outToUser.close();
-      socketClient.close();
     } catch (IOException e) {
       e.printStackTrace();
     } catch (Exception e) {
