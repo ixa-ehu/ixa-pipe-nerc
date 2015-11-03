@@ -18,6 +18,7 @@ package eus.ixa.ixa.pipe.nerc;
 
 import ixa.kaflib.KAFDocument;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -76,8 +77,8 @@ public class NameFinderServer {
         try (Socket activeSocket = socketServer.accept();
             DataInputStream inFromClient = new DataInputStream(
                 activeSocket.getInputStream());
-            DataOutputStream outToClient = new DataOutputStream(
-                activeSocket.getOutputStream());) {
+            DataOutputStream outToClient = new DataOutputStream(new BufferedOutputStream(
+                activeSocket.getOutputStream()));) {
           System.out.println("-> Received a  connection from: " + activeSocket);
           //get data from client
           String stringFromClient = getClientData(inFromClient);
@@ -118,7 +119,7 @@ public class NameFinderServer {
     }catch (IOException e) {
       e.printStackTrace();
     }
-    return stringFromClient.toString(); 
+    return stringFromClient.toString();
   }
   
   /**
@@ -129,16 +130,8 @@ public class NameFinderServer {
    */
   private void sendDataToServer(DataOutputStream outToClient, String kafToString) throws IOException {
     
-    //get a reader from the final NAF document
-    BufferedReader kafReader = new BufferedReader(new StringReader(
-        kafToString));
-    //send NAF to client
-    String kafLine;
-    while ((kafLine = kafReader.readLine()) != null) {
-      outToClient.writeBoolean(false);
-      outToClient.writeUTF(kafLine);
-    }
-    outToClient.writeBoolean(true);
+    byte[] kafByteArray = kafToString.getBytes("UTF-8");
+    outToClient.write(kafByteArray);
   }
   
   /**

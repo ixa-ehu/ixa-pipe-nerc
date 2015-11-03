@@ -18,8 +18,10 @@ package eus.ixa.ixa.pipe.nerc;
 
 import ixa.kaflib.KAFDocument;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -422,8 +424,8 @@ public class CLI {
             System.out, "UTF-8"));
         DataOutputStream outToServer = new DataOutputStream(
             socketClient.getOutputStream());
-        DataInputStream inFromServer = new DataInputStream(
-            socketClient.getInputStream());) {
+        DataInputStream inFromServer = new DataInputStream(new BufferedInputStream(
+            socketClient.getInputStream()));) {
       
       // send data to server socket
       String line;
@@ -432,17 +434,15 @@ public class CLI {
         outToServer.writeUTF(line);
       }
       outToServer.writeBoolean(true);
-
-      // get data from server socket
-      StringBuilder kafStringBuilder = new StringBuilder();
-      boolean endOfFinalKAF = inFromServer.readBoolean();
-      String kafLine = "";
-      while (!endOfFinalKAF) {
-        kafLine = inFromServer.readUTF();
-        kafStringBuilder.append(kafLine).append("\n");
-        endOfFinalKAF = inFromServer.readBoolean();
+      //get data from server
+      byte[] kafArray = new byte[1024];
+      ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
+      int count;
+      while ((count = inFromServer.read(kafArray)) > 0) {
+        byteArrayStream.write(kafArray, 0, count);
       }
-      outToUser.write(kafStringBuilder.toString());
+      String kafString = byteArrayStream.toString();
+      outToUser.write(kafString);
     } catch (IOException e) {
       e.printStackTrace();
     } catch (Exception e) {
