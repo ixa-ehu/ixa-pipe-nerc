@@ -110,7 +110,7 @@ public class NameFinderServer {
     StringBuilder stringFromClient = new StringBuilder();
     try {
       boolean endOfClientFile = inFromClient.readBoolean();
-      String line = "";
+      String line;
       while (!endOfClientFile) {
         line = inFromClient.readUTF();
         stringFromClient.append(line).append("\n");

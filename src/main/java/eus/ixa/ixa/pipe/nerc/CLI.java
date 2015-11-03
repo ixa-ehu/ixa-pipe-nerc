@@ -416,8 +416,9 @@ public class CLI {
   public final void client(final InputStream inputStream,
       final OutputStream outputStream) {
 
+    String host = parsedArguments.getString("host");
     String port = parsedArguments.getString("port");
-    try (Socket socketClient = new Socket("localhost", Integer.parseInt(port));
+    try (Socket socketClient = new Socket(host, Integer.parseInt(port));
         BufferedReader inFromUser = new BufferedReader(new InputStreamReader(
             System.in, "UTF-8"));
         BufferedWriter outToUser = new BufferedWriter(new OutputStreamWriter(
@@ -626,7 +627,11 @@ public class CLI {
     
     clientParser.addArgument("-p", "--port")
         .required(true)
-        .help("Port of the server to send the query.\n");
+        .help("Port of the TCP server.\n");
+    clientParser.addArgument("--host")
+        .required(false)
+        .setDefault(Flags.DEFAULT_HOSTNAME)
+        .help("Hostname or IP where the TCP server is running.\n");
   }
 
   /**

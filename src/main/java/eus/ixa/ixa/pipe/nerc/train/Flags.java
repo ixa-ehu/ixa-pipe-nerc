@@ -45,6 +45,7 @@ public class Flags {
   public static final String DEFAULT_SEQUENCE_CODEC = "BILOU";
   public static final String DEFAULT_EVAL_FORMAT = "conll02";
   public static final String DEFAULT_TASK = "ner";
+  public static final String DEFAULT_HOSTNAME= "localhost";
 
   private Flags() {
 
