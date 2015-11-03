@@ -71,15 +71,15 @@ public class NameFinderServer {
       Annotate annotator = new Annotate(properties);
       System.out.println("-> Trying to listen port... " + port);
       socketServer = new ServerSocket(port);
-
+      System.out.println("-> Connected and listening to port " + port);
       while (true) {
-        System.out.println("-> Connected and listening to port " + port);
+        
         try (Socket activeSocket = socketServer.accept();
             DataInputStream inFromClient = new DataInputStream(
                 activeSocket.getInputStream());
             DataOutputStream outToClient = new DataOutputStream(new BufferedOutputStream(
                 activeSocket.getOutputStream()));) {
-          System.out.println("-> Received a  connection from: " + activeSocket);
+          //System.err.println("-> Received a  connection from: " + activeSocket);
           //get data from client
           String stringFromClient = getClientData(inFromClient);
           // annotate
