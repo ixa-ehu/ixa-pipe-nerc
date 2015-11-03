@@ -18,6 +18,7 @@ package eus.ixa.ixa.pipe.nerc;
 
 import ixa.kaflib.KAFDocument;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -37,14 +38,12 @@ public class TargetExtractorServer {
    * Get dynamically the version of ixa-pipe-nerc by looking at the MANIFEST
    * file.
    */
-  private final String version = CLI.class.getPackage()
-      .getImplementationVersion();
+  private final String version = CLI.class.getPackage().getImplementationVersion();
   /**
    * Get the git commit of the ixa-pipe-nerc compiled by looking at the MANIFEST
    * file.
    */
-  private final String commit = CLI.class.getPackage()
-      .getSpecificationVersion();
+  private final String commit = CLI.class.getPackage().getSpecificationVersion();
   /**
    * The model.
    */
@@ -54,9 +53,9 @@ public class TargetExtractorServer {
    * and OpenNLP.
    */
   private String outputFormat = null;
-
+  
   /**
-   * Construct an Opinion Target Extractor server.
+   * Construct an OTE server.
    * 
    * @param properties
    *          the properties
@@ -72,48 +71,42 @@ public class TargetExtractorServer {
       OpinionTargetExtractor annotator = new OpinionTargetExtractor(properties);
       System.out.println("-> Trying to listen port... " + port);
       socketServer = new ServerSocket(port);
-      System.out.println("-> Connected and listening to port " + port);
 
       while (true) {
-        Socket activeSocket = socketServer.accept();
-        System.out.println("-> Received a  connection from: " + activeSocket);
-        // data from client;
-        DataInputStream inFromClient = new DataInputStream(
-            activeSocket.getInputStream());
-        DataOutputStream outToClient = new DataOutputStream(
-            activeSocket.getOutputStream());
-
-        try {
+        System.out.println("-> Connected and listening to port " + port);
+        try (Socket activeSocket = socketServer.accept();
+            DataInputStream inFromClient = new DataInputStream(
+                activeSocket.getInputStream());
+            DataOutputStream outToClient = new DataOutputStream(new BufferedOutputStream(
+                activeSocket.getOutputStream()));) {
+          System.out.println("-> Received a  connection from: " + activeSocket);
+          //get data from client
           String stringFromClient = getClientData(inFromClient);
           // annotate
           String kafToString = getAnnotations(annotator, stringFromClient);
           // send to server
           sendDataToServer(outToClient, kafToString);
-        } catch (Exception e) {
-          System.out.println(e.getMessage());
         }
-        activeSocket.close();
       }
-    } catch (IOException e) {
+    } catch (IOException | JDOMException e) {
       e.printStackTrace();
-    }
-    // close socketServer
-    try {
-      socketServer.close();
-    } catch (IOException e) {
-      e.printStackTrace();
+    } finally {
+      System.out.println("closing tcp socket...");
+      try {
+        socketServer.close();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
     }
   }
-
+  
   /**
    * Read data from the client and output to a String.
-   * 
-   * @param inFromClient
-   *          the client inputstream
+   * @param inFromClient the client inputstream
    * @return the string from the client
    */
   private String getClientData(DataInputStream inFromClient) {
-    // get data from client and build a string with it
+    //get data from client and build a string with it
     StringBuilder stringFromClient = new StringBuilder();
     try {
       boolean endOfClientFile = inFromClient.readBoolean();
@@ -122,38 +115,25 @@ public class TargetExtractorServer {
         line = inFromClient.readUTF();
         stringFromClient.append(line).append("\n");
         endOfClientFile = inFromClient.readBoolean();
-      }
-    } catch (IOException e) {
+    }
+    }catch (IOException e) {
       e.printStackTrace();
     }
     return stringFromClient.toString();
   }
-
+  
   /**
    * Send data back to server after annotation.
-   * 
-   * @param outToClient
-   *          the outputstream to the client
-   * @param kafToString
-   *          the string to be processed
-   * @throws IOException
-   *           if io error
+   * @param outToClient the outputstream to the client
+   * @param kafToString the string to be processed
+   * @throws IOException if io error
    */
-  private void sendDataToServer(DataOutputStream outToClient, String kafToString)
-      throws IOException {
-
-    // get a reader from the final NAF document
-    BufferedReader kafReader = new BufferedReader(new StringReader(kafToString));
-    // send NAF to client
-    String kafLine = kafReader.readLine();
-    while (kafLine != null) {
-      outToClient.writeBoolean(false);
-      outToClient.writeUTF(kafLine);
-      kafLine = kafReader.readLine();
-    }
-    outToClient.writeBoolean(true);
+  private void sendDataToServer(DataOutputStream outToClient, String kafToString) throws IOException {
+    
+    byte[] kafByteArray = kafToString.getBytes("UTF-8");
+    outToClient.write(kafByteArray);
   }
-
+  
   /**
    * OTE annotator.
    * 
