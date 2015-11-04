@@ -423,18 +423,17 @@ public class CLI {
             System.in, "UTF-8"));
         BufferedWriter outToUser = new BufferedWriter(new OutputStreamWriter(
             System.out, "UTF-8"));
-        DataOutputStream outToServer = new DataOutputStream(
-            socketClient.getOutputStream());
+        BufferedWriter outToServer = new BufferedWriter(new OutputStreamWriter(socketClient.getOutputStream(), "UTF-8"));
         DataInputStream inFromServer = new DataInputStream(new BufferedInputStream(
             socketClient.getInputStream()));) {
       
       // send data to server socket
       String line;
       while ((line = inFromUser.readLine()) != null) {
-        outToServer.writeBoolean(false);
-        outToServer.writeUTF(line);
+        outToServer.write(line);
+        outToServer.newLine();
+        outToServer.flush();
       }
-      outToServer.writeBoolean(true);
       //get data from server
       byte[] kafArray = new byte[1024];
       ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();

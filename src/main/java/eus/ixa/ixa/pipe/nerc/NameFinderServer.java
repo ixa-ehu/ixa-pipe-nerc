@@ -23,6 +23,7 @@ import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -75,8 +76,9 @@ public class NameFinderServer {
       while (true) {
         
         try (Socket activeSocket = socketServer.accept();
-            DataInputStream inFromClient = new DataInputStream(
-                activeSocket.getInputStream());
+            //DataInputStream inFromClient = new DataInputStream(
+            //    activeSocket.getInputStream());
+            BufferedReader inFromClient = new BufferedReader(new InputStreamReader(activeSocket.getInputStream(), "UTF-8"));
             DataOutputStream outToClient = new DataOutputStream(new BufferedOutputStream(
                 activeSocket.getOutputStream()));) {
           //System.err.println("-> Received a  connection from: " + activeSocket);
@@ -105,17 +107,17 @@ public class NameFinderServer {
    * @param inFromClient the client inputstream
    * @return the string from the client
    */
-  private String getClientData(DataInputStream inFromClient) {
+  private String getClientData(BufferedReader inFromClient) {
     //get data from client and build a string with it
     StringBuilder stringFromClient = new StringBuilder();
     try {
-      boolean endOfClientFile = inFromClient.readBoolean();
       String line;
-      while (!endOfClientFile) {
-        line = inFromClient.readUTF();
+      while ((line = inFromClient.readLine()) != null) {
         stringFromClient.append(line).append("\n");
-        endOfClientFile = inFromClient.readBoolean();
-    }
+        if (line.matches("</NAF>")) {
+          break;
+        }
+      }
     }catch (IOException e) {
       e.printStackTrace();
     }
