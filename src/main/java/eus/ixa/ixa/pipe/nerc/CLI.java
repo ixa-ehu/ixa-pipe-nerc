@@ -18,12 +18,8 @@ package eus.ixa.ixa.pipe.nerc;
 
 import ixa.kaflib.KAFDocument;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -423,9 +419,11 @@ public class CLI {
             System.in, "UTF-8"));
         BufferedWriter outToUser = new BufferedWriter(new OutputStreamWriter(
             System.out, "UTF-8"));
-        BufferedWriter outToServer = new BufferedWriter(new OutputStreamWriter(socketClient.getOutputStream(), "UTF-8"));
-        BufferedReader inFromServer = new BufferedReader(new InputStreamReader(socketClient.getInputStream(), "UTF-8"));) {
-      
+        BufferedWriter outToServer = new BufferedWriter(new OutputStreamWriter(
+            socketClient.getOutputStream(), "UTF-8"));
+        BufferedReader inFromServer = new BufferedReader(new InputStreamReader(
+            socketClient.getInputStream(), "UTF-8"));) {
+
       // send data to server socket
       String line;
       while ((line = inFromUser.readLine()) != null) {
@@ -433,21 +431,19 @@ public class CLI {
         outToServer.newLine();
         outToServer.flush();
       }
-      //get data from server
+      // get data from server
       StringBuilder sb = new StringBuilder();
       String kafString;
       while ((kafString = inFromServer.readLine()) != null) {
-        //sb.append(kafString).append("\n");
-        outToUser.write(kafString);
+        sb.append(kafString).append("\n");
       }
-      //outToUser.write(kafString);
+      outToUser.write(sb.toString());
     } catch (IOException e) {
       e.printStackTrace();
     } catch (Exception e) {
       e.printStackTrace();
     }
   }
-
 
   /**
    * Create the available parameters for NER tagging.
