@@ -75,8 +75,6 @@ public class NameFinderServer {
       while (true) {
         
         try (Socket activeSocket = socketServer.accept();
-            //DataInputStream inFromClient = new DataInputStream(
-            //    activeSocket.getInputStream());
             BufferedReader inFromClient = new BufferedReader(new InputStreamReader(activeSocket.getInputStream(), "UTF-8"));
             BufferedWriter outToClient = new BufferedWriter(new OutputStreamWriter(activeSocket.getOutputStream(), "UTF-8"));) {
           //System.err.println("-> Received a  connection from: " + activeSocket);
