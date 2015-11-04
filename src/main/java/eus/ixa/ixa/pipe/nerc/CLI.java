@@ -424,8 +424,7 @@ public class CLI {
         BufferedWriter outToUser = new BufferedWriter(new OutputStreamWriter(
             System.out, "UTF-8"));
         BufferedWriter outToServer = new BufferedWriter(new OutputStreamWriter(socketClient.getOutputStream(), "UTF-8"));
-        DataInputStream inFromServer = new DataInputStream(new BufferedInputStream(
-            socketClient.getInputStream()));) {
+        BufferedReader inFromServer = new BufferedReader(new InputStreamReader(socketClient.getInputStream(), "UTF-8"));) {
       
       // send data to server socket
       String line;
@@ -435,14 +434,13 @@ public class CLI {
         outToServer.flush();
       }
       //get data from server
-      byte[] kafArray = new byte[1024];
-      ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
-      int count;
-      while ((count = inFromServer.read(kafArray)) > 0) {
-        byteArrayStream.write(kafArray, 0, count);
+      StringBuilder sb = new StringBuilder();
+      String kafString;
+      while ((kafString = inFromServer.readLine()) != null) {
+        //sb.append(kafString).append("\n");
+        outToUser.write(kafString);
       }
-      String kafString = byteArrayStream.toString();
-      outToUser.write(kafString);
+      //outToUser.write(kafString);
     } catch (IOException e) {
       e.printStackTrace();
     } catch (Exception e) {
