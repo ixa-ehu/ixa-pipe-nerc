@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Properties;
@@ -65,7 +66,12 @@ public class NameFinderServer {
     Integer port = Integer.parseInt(properties.getProperty("port"));
     model = properties.getProperty("model");
     outputFormat = properties.getProperty("outputFormat");
+    
+    String kafToString;
     ServerSocket socketServer = null;
+    Socket activeSocket;
+    BufferedReader inFromClient = null;
+    BufferedWriter outToClient = null;
 
     try {
       Annotate annotator = new Annotate(properties);
@@ -73,21 +79,36 @@ public class NameFinderServer {
       socketServer = new ServerSocket(port);
       System.out.println("-> Connected and listening to port " + port);
       while (true) {
-        
-        try (Socket activeSocket = socketServer.accept();
-            BufferedReader inFromClient = new BufferedReader(new InputStreamReader(activeSocket.getInputStream(), "UTF-8"));
-            BufferedWriter outToClient = new BufferedWriter(new OutputStreamWriter(activeSocket.getOutputStream(), "UTF-8"));) {
-          //System.err.println("-> Received a  connection from: " + activeSocket);
+        try {
+          activeSocket = socketServer.accept();
+          inFromClient = new BufferedReader(new InputStreamReader(activeSocket.getInputStream(), "UTF-8"));
+          outToClient = new BufferedWriter(new OutputStreamWriter(activeSocket.getOutputStream(), "UTF-8"));
           //get data from client
           String stringFromClient = getClientData(inFromClient);
           // annotate
-          String kafToString = getAnnotations(annotator, stringFromClient);
-          // send to server
-          sendDataToServer(outToClient, kafToString);
+          kafToString = getAnnotations(annotator, stringFromClient);
+        } catch (JDOMException e) {
+          kafToString = "\n-> ERROR: Badly formatted NAF document!!\n";
+          sendDataToClient(outToClient, kafToString);
+          continue;
+        } catch (UnsupportedEncodingException e) {
+          kafToString = "\n-> ERROR: UTF-8 not supported!!\n";
+          sendDataToClient(outToClient, kafToString);
+          continue;
+        } catch (IOException e) {
+          kafToString = "\n -> ERROR: Input data not correct!!\n";
+          sendDataToClient(outToClient, kafToString);
+          continue;
         }
-      }
-    } catch (IOException | JDOMException e) {
+        //send data to server after all exceptions and close the outToClient
+        sendDataToClient(outToClient, kafToString);
+        //close the resources
+        inFromClient.close();
+        activeSocket.close();
+      } //end of processing block
+    } catch (IOException e) {
       e.printStackTrace();
+      System.err.println("-> IOException due to failing to create the TCP socket or to wrongly provided model path.");
     } finally {
       System.out.println("closing tcp socket...");
       try {
@@ -108,6 +129,9 @@ public class NameFinderServer {
     try {
       String line;
       while ((line = inFromClient.readLine()) != null) {
+        if (line.matches("<ENDOFDOCUMENT>")) {
+          break;
+        }
         stringFromClient.append(line).append("\n");
         if (line.matches("</NAF>")) {
           break;
@@ -125,8 +149,9 @@ public class NameFinderServer {
    * @param kafToString the string to be processed
    * @throws IOException if io error
    */
-  private void sendDataToServer(BufferedWriter outToClient, String kafToString) throws IOException {
+  private void sendDataToClient(BufferedWriter outToClient, String kafToString) throws IOException {
     outToClient.write(kafToString);
+    outToClient.close();
   }
   
   /**
@@ -137,7 +162,7 @@ public class NameFinderServer {
    * @throws IOException if io error
    * @throws JDOMException if xml error
    */
-  private String getAnnotations(Annotate annotator, String stringFromClient) throws IOException, JDOMException {
+  private String getAnnotations(Annotate annotator, String stringFromClient) throws JDOMException, IOException {
     //get a breader from the string coming from the client
     BufferedReader clientReader = new BufferedReader(new StringReader(stringFromClient));
     KAFDocument kaf = KAFDocument.createFromStream(clientReader);

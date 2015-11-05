@@ -26,7 +26,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.Properties;
 
 import net.sourceforge.argparse4j.ArgumentParsers;
@@ -115,7 +117,7 @@ public class CLI {
    * Sends queries to the serverParser for annotation.
    */
   private Subparser clientParser;
-
+  
   /**
    * Construct a CLI object with the sub-parsers to manage the command
    * line parameters.
@@ -425,12 +427,15 @@ public class CLI {
             socketClient.getInputStream(), "UTF-8"));) {
 
       // send data to server socket
+      StringBuilder inText = new StringBuilder();
       String line;
       while ((line = inFromUser.readLine()) != null) {
-        outToServer.write(line);
-        outToServer.newLine();
-        outToServer.flush();
+        inText.append(line).append("\n");
       }
+      inText.append("<ENDOFDOCUMENT>").append("\n");
+      outToServer.write(inText.toString());
+      outToServer.flush();
+      
       // get data from server
       StringBuilder sb = new StringBuilder();
       String kafString;
@@ -438,9 +443,16 @@ public class CLI {
         sb.append(kafString).append("\n");
       }
       outToUser.write(sb.toString());
+    } catch (UnsupportedEncodingException e) {
+      //this cannot happen but...
+      throw new AssertionError("UTF-8 not supported");
+    } catch (UnknownHostException e) {
+      System.err.println("ERROR: Unknown hostname or IP address!");
+      System.exit(1);
+    } catch (NumberFormatException e) {
+      System.err.println("Port number not correct!");
+      System.exit(1);
     } catch (IOException e) {
-      e.printStackTrace();
-    } catch (Exception e) {
       e.printStackTrace();
     }
   }
