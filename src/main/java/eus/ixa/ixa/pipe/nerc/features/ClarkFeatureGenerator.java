@@ -31,7 +31,7 @@ public class ClarkFeatureGenerator extends CustomFeatureGenerator implements Art
 
   private ClarkCluster clarkCluster;
   private Map<String, String> attributes;
-  public static String unknownClarkClass = "noclarkclass";
+  public static String unknownClarkClass = "O";
 
   
   public ClarkFeatureGenerator() {
@@ -51,7 +51,7 @@ public class ClarkFeatureGenerator extends CustomFeatureGenerator implements Art
     }
     return clarkClass;
   }
-
+  
   @Override
   public void updateAdaptiveData(String[] tokens, String[] outcomes) {
     

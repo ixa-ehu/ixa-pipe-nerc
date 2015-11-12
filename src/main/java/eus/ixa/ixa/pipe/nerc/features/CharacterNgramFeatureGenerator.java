@@ -43,7 +43,7 @@ public class CharacterNgramFeatureGenerator extends CustomFeatureGenerator {
 
     NGramModel model = new NGramModel();
     model.add(tokens[index], Integer.parseInt(attributes.get("minLength")), Integer.parseInt(attributes.get("maxLength")));
-
+    //model.add(tokens[index], Integer.parseInt(attributes.get("minLength")), tokens[index].length());
     for (StringList tokenList : model) {
 
       if (tokenList.size() > 0) {

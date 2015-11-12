@@ -31,7 +31,7 @@ import eus.ixa.ixa.pipe.nerc.dict.Word2VecCluster;
 public class Word2VecClusterFeatureGenerator extends CustomFeatureGenerator implements ArtifactToSerializerMapper {
   
   private Word2VecCluster word2vecCluster;
-  private static String unknownClass = "noWord2Vec";
+  private static String unknownClass = "O";
   private Map<String, String> attributes;
   
   
