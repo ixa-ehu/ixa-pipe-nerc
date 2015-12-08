@@ -17,6 +17,8 @@ package eus.ixa.ixa.pipe.nerc.features;
 
 import java.util.List;
 
+import eus.ixa.ixa.pipe.nerc.train.Flags;
+
 import opennlp.tools.util.featuregen.FeatureGeneratorAdapter;
 
 
@@ -37,6 +39,9 @@ public class SuffixFeatureGenerator extends FeatureGeneratorAdapter {
     String[] suffs = SuffixFeatureGenerator.getSuffixes(tokens[index]);
     for (String suff : suffs) {
       features.add("suf=" + suff);
+      if (Flags.DEBUG) {
+        System.err.println("-> " + tokens[index] + ": suf=" + suff);
+      }
     }
   }
 }

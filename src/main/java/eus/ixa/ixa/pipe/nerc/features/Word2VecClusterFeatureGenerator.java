@@ -27,6 +27,7 @@ import opennlp.tools.util.featuregen.CustomFeatureGenerator;
 import opennlp.tools.util.featuregen.FeatureGeneratorResourceProvider;
 import opennlp.tools.util.model.ArtifactSerializer;
 import eus.ixa.ixa.pipe.nerc.dict.Word2VecCluster;
+import eus.ixa.ixa.pipe.nerc.train.Flags;
 
 public class Word2VecClusterFeatureGenerator extends CustomFeatureGenerator implements ArtifactToSerializerMapper {
   
@@ -43,6 +44,9 @@ public class Word2VecClusterFeatureGenerator extends CustomFeatureGenerator impl
     
     String wordClass = getWordClass(tokens[index].toLowerCase());
     features.add(attributes.get("dict") + "=" + wordClass);
+    if (Flags.DEBUG) {
+      System.err.println("-> " + tokens[index].toLowerCase() + ": " + attributes.get("dict") + "=" + wordClass);
+    }
   }
   
   private String getWordClass(String token) {

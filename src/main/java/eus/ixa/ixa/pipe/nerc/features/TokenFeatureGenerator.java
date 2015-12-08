@@ -17,6 +17,8 @@ package eus.ixa.ixa.pipe.nerc.features;
 
 import java.util.List;
 
+import eus.ixa.ixa.pipe.nerc.train.Flags;
+
 import opennlp.tools.util.featuregen.FeatureGeneratorAdapter;
 
 /**
@@ -40,6 +42,9 @@ public class TokenFeatureGenerator extends FeatureGeneratorAdapter {
 
     if (lowercase) {
       features.add("w=" + tokens[index].toLowerCase());
+      if (Flags.DEBUG) {
+        System.err.println("-> " + tokens[index].toLowerCase() + ": w=" + tokens[index].toLowerCase());
+      }
     } else {
       features.add("w=" + tokens[index]);
     }

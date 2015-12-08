@@ -11,6 +11,7 @@ import opennlp.tools.util.featuregen.CustomFeatureGenerator;
 import opennlp.tools.util.featuregen.FeatureGeneratorResourceProvider;
 import opennlp.tools.util.model.ArtifactSerializer;
 import eus.ixa.ixa.pipe.nerc.dict.Dictionary;
+import eus.ixa.ixa.pipe.nerc.train.Flags;
 
 /**
  * Checks if a named entity is in a gazetteer.
@@ -46,6 +47,9 @@ public class DictionaryFeatureGenerator extends CustomFeatureGenerator implement
     features.add(attributes.get("dict") + "=" + currentEntity);
     features.add(attributes.get("dict") + "," + "w=" + currentEntity + "," + tokens[index]);
     features.add(attributes.get("dict") + ",w=dict");
+    if (Flags.DEBUG) {
+      System.err.println("-> " + tokens[index] + ": " + attributes.get("dict") + "," + "w=" + currentEntity + "," + tokens[index]);
+    }
   }
   
   @Override

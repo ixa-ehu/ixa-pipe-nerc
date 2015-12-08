@@ -17,6 +17,8 @@ package eus.ixa.ixa.pipe.nerc.features;
 
 import java.util.List;
 
+import eus.ixa.ixa.pipe.nerc.train.Flags;
+
 import opennlp.tools.util.featuregen.FeatureGeneratorAdapter;
 
 /**
@@ -33,11 +35,19 @@ public class BigramClassFeatureGenerator extends FeatureGeneratorAdapter {
       features.add("pw,w=" + tokens[index-1] + "," + tokens[index]);
       String pwc = TokenClassFeatureGenerator.tokenShapeFeature(tokens[index - 1]);
       features.add("pwc,wc=" + pwc + "," + wc);
+      if (Flags.DEBUG) {
+        System.err.println("-> " + tokens[index] + ": pw,w=" + tokens[index-1] + "," + tokens[index]);
+        System.err.println("-> " + tokens[index] + ": pwc,wc=" + pwc + "," + wc);
+      }
     }
     if (index + 1 < tokens.length) {
       features.add("w,nw=" + tokens[index] + "," + tokens[index + 1]);
       String nwc = TokenClassFeatureGenerator.tokenShapeFeature(tokens[index + 1]);
       features.add("wc,nc=" + wc + "," + nwc);
+      if (Flags.DEBUG) {
+        System.err.println("-> " + tokens[index] + ": w,nw=" + tokens[index] + "," + tokens[index + 1]);
+        System.err.println("-> " + tokens[index] + ": wc,nc=" + wc + "," + nwc);
+      }
     }
   } 
 }

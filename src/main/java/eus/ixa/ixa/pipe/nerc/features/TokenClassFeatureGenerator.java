@@ -18,6 +18,8 @@ package eus.ixa.ixa.pipe.nerc.features;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import eus.ixa.ixa.pipe.nerc.train.Flags;
+
 import opennlp.tools.util.featuregen.FeatureGeneratorAdapter;
 import opennlp.tools.util.featuregen.StringPattern;
 
@@ -65,6 +67,10 @@ public class TokenClassFeatureGenerator extends FeatureGeneratorAdapter {
 
     if (generateWordAndClassFeature) {
       features.add("w&c=" + tokens[index].toLowerCase()
+          + "," + wordClass);
+    }
+    if (Flags.DEBUG) {
+      System.err.println("-> " + tokens[index].toLowerCase() + ": w&c=" + tokens[index].toLowerCase()
           + "," + wordClass);
     }
   }

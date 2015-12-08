@@ -18,6 +18,8 @@ package eus.ixa.ixa.pipe.nerc.features;
 import java.util.List;
 import java.util.Map;
 
+import eus.ixa.ixa.pipe.nerc.train.Flags;
+
 import opennlp.tools.ngram.NGramModel;
 import opennlp.tools.util.InvalidFormatException;
 import opennlp.tools.util.StringList;
@@ -47,6 +49,9 @@ public class CharacterNgramFeatureGenerator extends CustomFeatureGenerator {
 
       if (tokenList.size() > 0) {
         features.add("ng=" + tokenList.getToken(0).toLowerCase());
+        if (Flags.DEBUG) {
+          System.err.println("-> " + tokenList.getToken(0).toLowerCase() + ": ng=" + tokenList.getToken(0).toLowerCase()); 
+        }
       }
     }
   }

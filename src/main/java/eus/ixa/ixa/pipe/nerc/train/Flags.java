@@ -24,6 +24,7 @@ import eus.ixa.ixa.pipe.nerc.features.XMLFeatureDescriptor;
 
 public class Flags {
 
+  public static final boolean DEBUG = true;
   public static final String DEFAULT_FEATURE_FLAG = "no";
   public static final String CHAR_NGRAM_RANGE = "2:5";
   public static final String DEFAULT_WINDOW = "2:2";

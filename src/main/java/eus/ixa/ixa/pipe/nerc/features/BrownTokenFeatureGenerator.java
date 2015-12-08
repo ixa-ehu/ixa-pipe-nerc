@@ -26,6 +26,7 @@ import opennlp.tools.util.featuregen.CustomFeatureGenerator;
 import opennlp.tools.util.featuregen.FeatureGeneratorResourceProvider;
 import opennlp.tools.util.model.ArtifactSerializer;
 import eus.ixa.ixa.pipe.nerc.dict.BrownCluster;
+import eus.ixa.ixa.pipe.nerc.train.Flags;
 
 public class BrownTokenFeatureGenerator extends CustomFeatureGenerator implements ArtifactToSerializerMapper {
 
@@ -45,6 +46,9 @@ public class BrownTokenFeatureGenerator extends CustomFeatureGenerator implement
     }
     for (int i = 0; i < wordClasses.size(); i++) {
       features.add(attributes.get("dict") + "=" + wordClasses.get(i));
+      if (Flags.DEBUG) {
+        System.err.println("-> " + tokens[index] + ": " + attributes.get("dict") + "=" + wordClasses.get(i));
+      }
     }
   }
 

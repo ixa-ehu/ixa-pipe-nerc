@@ -26,6 +26,7 @@ import opennlp.tools.util.featuregen.CustomFeatureGenerator;
 import opennlp.tools.util.featuregen.FeatureGeneratorResourceProvider;
 import opennlp.tools.util.model.ArtifactSerializer;
 import eus.ixa.ixa.pipe.nerc.dict.ClarkCluster;
+import eus.ixa.ixa.pipe.nerc.train.Flags;
 
 public class ClarkFeatureGenerator extends CustomFeatureGenerator implements ArtifactToSerializerMapper {
 
@@ -42,6 +43,9 @@ public class ClarkFeatureGenerator extends CustomFeatureGenerator implements Art
 
     String wordClass = getWordClass(tokens[index].toLowerCase());
     features.add(attributes.get("dict") + "=" + wordClass);
+    if (Flags.DEBUG) {
+      System.err.println("-> " + tokens[index].toLowerCase() + ": " + attributes.get("dict") + "=" + wordClass);
+    }
   }
 
   public String getWordClass(String token) {

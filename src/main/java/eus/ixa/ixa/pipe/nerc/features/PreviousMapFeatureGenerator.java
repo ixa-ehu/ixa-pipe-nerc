@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import eus.ixa.ixa.pipe.nerc.train.Flags;
+
 import opennlp.tools.util.featuregen.AdaptiveFeatureGenerator;
 
 
@@ -28,6 +30,9 @@ public class PreviousMapFeatureGenerator implements AdaptiveFeatureGenerator {
 
  public void createFeatures(List<String> features, String[] tokens, int index, String[] preds) {
    features.add("pd=" + previousMap.get(tokens[index]));
+   if (Flags.DEBUG) {
+     System.err.println("-> " + tokens[index] + ": pd=" + previousMap.get(tokens[index]));
+   }
  }
 
  /**

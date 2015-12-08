@@ -17,6 +17,8 @@ package eus.ixa.ixa.pipe.nerc.features;
 
 import java.util.List;
 
+import eus.ixa.ixa.pipe.nerc.train.Flags;
+
 import opennlp.tools.util.featuregen.FeatureGeneratorAdapter;
 
 public class Prefix34FeatureGenerator extends FeatureGeneratorAdapter {
@@ -36,6 +38,9 @@ public class Prefix34FeatureGenerator extends FeatureGeneratorAdapter {
     String[] prefs = Prefix34FeatureGenerator.getPrefixes(tokens[index]);
     for (String pref : prefs) {
       features.add("pre=" + pref);
+      if (Flags.DEBUG) {
+        System.err.println("-> " + tokens[index] + ": pre=" + pref);
+      }
     }
   }
 }
