@@ -30,7 +30,7 @@ for easy access to its API.
 2. [Usage of ixa-pipe-nerc](#cli-usage)
   + [NERC tagging](#tagging)
   + [Opinion Target Extraction (OTE)](#ote)
-  + [Server mode](##server)
+  + [Server mode](#server)
   + [Training your own models](#training)
   + [Evaluation](#evaluation)
 3. [API via Maven Dependency](#api)
@@ -220,12 +220,12 @@ cat file.txt | ixa-pipe-tok | ixa-pipe-pos | java -jar $PATH/target/ixa-pipe-ner
 We can start the TCP server as follows:
 
 ````shell
-java -jar target/ixa-pipe-nerc-1.5.3.jar server -l en --port 2060 -m en-91-18-conll03.bin
+java -jar target/ixa-pipe-nerc-$version.jar server -l en --port 2060 -m en-91-18-conll03.bin
 ````
 Once the server is running we can send NAF documents containing (at least) the term layer like this:
 
 ````shell
- cat file.pos.naf | java -jar ../ixa-pipe-nerc/target/ixa-pipe-nerc-1.5.3.jar client -p 2060
+ cat file.pos.naf | java -jar target/ixa-pipe-nerc-$version.jar client -p 2060
 ````
 
 ### Training
