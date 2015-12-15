@@ -4,7 +4,7 @@ ixa-pipe-nerc
 
 ixa-pipe-nerc is a multilingual Sequence Labeler for tasks such as Named Entity
 Recognition (NERC), Opinion Target Extraction (OTE) and SuperSense Tagging (SST).
-**Current version is 1.5.3**
+**Current version is 1.5.4**
 
 ixa-pipe-nerc is part of IXA pipes, a multilingual set of NLP tools developed
 by the IXA NLP Group [http://ixa2.si.ehu.es/ixa-pipes].
@@ -40,8 +40,9 @@ for easy access to its API.
 ixa-pipe-nerc provides:
 
 + **NERC** for Basque, English, Spanish, Dutch, German and Italian. The named entity types are based on:
-   + **CONLL**: LOCATION, MISC, ORGANIZATION and PERSON. See [CoNLL 2002](http://www.clips.ua.ac.be/conll2002/ner/)
-   and [CoNLL 2003](http://www.clips.ua.ac.be/conll2003/ner/) for more information.
+   + **CONLL**: LOCATION, MISC, ORGANIZATION and PERSON. See [CoNLL 2002](http://www.clips.ua.ac.be/conll2002/ner/) and [CoNLL 2003](http://www.clips.ua.ac.be/conll2003/ner/) for more information.
+   + **SONAR-1**: for Dutch, six main types, including CoNLL types plus PRODUCT and EVENT.
+   + **Ancora**: for Spanish, six main types, including CoNLL types plus DATE and NUMBER.
 + **Opinion Target Extraction** (OTE) for English. The models are trained on the SemEval 2014 and 2015 datasets;
   **ixa-pipe-nerc was the best system** in [SemEval 2015 OTE subtask within task 12](http://alt.qcri.org/semeval2015/task12/).
 + **SuperSense Tagging** (SST) for English. The models are trained on Semcor.
@@ -74,11 +75,9 @@ with the [conlleval script](http://www.cnts.ua.ac.be/conll2002/ner/bin/conlleval
 
 **NERC models**:
 
-  + **Release 1.5.0** [685MB]: [nerc-models-latest.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-models-1.5.0.tgz)
-  + Release 1.4.0 [400MB+]: [nerc-models-1.4.0.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-models-1.4.0.tgz)
-  + Releases 1.3.3-1.3.6: [nerc-models-1.3.+.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-models-1.3.3.tgz)
+  + **Release 1.5.4** [685MB]: [nerc-models-latest.tgz](http://ixa2.si.ehu.es/ixa-pipes/models/nerc-models-1.5.4.tgz)
 
-Every models is trained with the averaged Perceptron algorithm as described in (Collins 2002) and as implemented
+Every model is trained with the averaged Perceptron algorithm as described in (Collins 2002) and as implemented
 in Apache OpenNLP.
 
 + **Basque**: eu-clusters model, trained on egunkaria dataset, F1 76.72 on 3 class evaluation and F1 75.40 on 4 classes.
@@ -261,7 +260,7 @@ this dependency to your pom.xml:
 <dependency>
     <groupId>eus.ixa</groupId>
     <artifactId>ixa-pipe-nerc</artifactId>
-    <version>1.5.3</version>
+    <version>1.5.4</version>
 </dependency>
 ````
 
