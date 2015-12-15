@@ -24,14 +24,14 @@ import eus.ixa.ixa.pipe.nerc.features.XMLFeatureDescriptor;
 
 public class Flags {
 
-  public static final boolean DEBUG = true;
+  public static final boolean DEBUG = false;
   public static final String DEFAULT_FEATURE_FLAG = "no";
   public static final String CHAR_NGRAM_RANGE = "2:5";
   public static final String DEFAULT_WINDOW = "2:2";
   public static final String DEFAULT_MORPHO_RANGE = "pos,posclass,lemma";
   public static final String DEFAULT_MFS_RANGE = "pos,posclass,lemma,mfs,no";
   public static final String DEFAULT_SUPERSENSE_RANGE = "mfs,monosemic";
-  
+
   /**
    * Default beam size for decoding.
    */
