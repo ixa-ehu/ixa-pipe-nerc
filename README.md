@@ -30,6 +30,7 @@ for easy access to its API.
 2. [Usage of ixa-pipe-nerc](#cli-usage)
   + [NERC tagging](#tagging)
   + [Opinion Target Extraction (OTE)](#ote)
+  + [Server mode](##server)
   + [Training your own models](#training)
   + [Evaluation](#evaluation)
 3. [API via Maven Dependency](#api)
@@ -122,7 +123,9 @@ in Apache OpenNLP.
 
 ixa-pipe-nerc provides the following command-line basic functionalities:
 
-1. **tag**: reads a NAF document containing *wf* and *term* elements and tags named
+1. **server**: starts a TCP service loading the model and required resources.
+2. **client**: sends a NAF document to a running TCP server.
+2. **tag**: reads a NAF document containing *wf* and *term* elements and tags named
    entities.
 2. **ote**: reads a NAF document containing *wf* and *term* elements and performs
    opinion target extraction (OTE).
@@ -131,7 +134,7 @@ ixa-pipe-nerc provides the following command-line basic functionalities:
 4. **eval**: evaluates a trained model with a given test set.
 5. **cross**: it performs cross validation on a corpus.
 
-Each of these functionalities are accessible by adding (tag|ote|train|eval|cross) as a
+Each of these functionalities are accessible by adding (server|client|tag|ote|train|eval|cross) as a
 subcommand to ixa-pipe-nerc-$version.jar. Please read below and check the -help
 parameter:
 
@@ -210,6 +213,19 @@ There are several options to tag with ixa-pipe-nerc:
 
 ````shell
 cat file.txt | ixa-pipe-tok | ixa-pipe-pos | java -jar $PATH/target/ixa-pipe-nerc-$version.jar ote -m ote-models-$version/en/ote-semeval2014-restaurants.bin
+````
+
+### Server
+
+We can start the TCP server as follows:
+
+````shell
+java -jar target/ixa-pipe-nerc-1.5.3.jar server -l en --port 2060 -m en-91-18-conll03.bin
+````
+Once the server is running we can send NAF documents containing (at least) the term layer like this:
+
+````shell
+ cat file.pos.naf | java -jar ../ixa-pipe-nerc/target/ixa-pipe-nerc-1.5.3.jar client -p 2060
 ````
 
 ### Training
