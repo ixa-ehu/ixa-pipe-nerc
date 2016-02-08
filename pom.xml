@@ -44,6 +44,11 @@
 		    <version>1.4.6</version>
 		    <scope>compile</scope>
 		    </dependency>
+		    <dependency>
+		<groupId>kottmann.opennlp</groupId>
+		<artifactId>mallet-addon</artifactId>
+		<version>1.6.0-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 
 	<distributionManagement>
