@@ -45,7 +45,6 @@ public class NumericNameFinder implements NameFinder {
     List<Span> neSpans = new ArrayList<Span>();
     List<Name> flexNameList = numericLexer.getNumericNames();
     for (Name name : flexNameList) {
-      //System.err.println("numeric name: " + name.value());
       List<Integer> neIds = StringUtils.exactTokenFinderIgnoreCase(name.value(), tokens);
       for (int i = 0; i < neIds.size(); i += 2) {
         Span neSpan = new Span(neIds.get(i), neIds.get(i+1), name.getType());

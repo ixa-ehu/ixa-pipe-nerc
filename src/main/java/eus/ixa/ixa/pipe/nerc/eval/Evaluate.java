@@ -56,7 +56,7 @@ public class Evaluate {
    * language codes, the values the models.
    */
   private static ConcurrentHashMap<String, TokenNameFinderModel> nercModels =
-      new ConcurrentHashMap<String, TokenNameFinderModel>();
+      new ConcurrentHashMap<>();
  
   /**
    * Construct an evaluator. It takes from the properties a model,
@@ -100,7 +100,7 @@ public class Evaluate {
    * @throws IOException if test corpus not loaded
    */
   public final void detailEvaluate() throws IOException {
-    List<EvaluationMonitor<NameSample>> listeners = new LinkedList<EvaluationMonitor<NameSample>>();
+    List<EvaluationMonitor<NameSample>> listeners = new LinkedList<>();
     TokenNameFinderDetailedFMeasureListener detailedFListener = new TokenNameFinderDetailedFMeasureListener();
     listeners.add(detailedFListener);
     TokenNameFinderEvaluator evaluator = new TokenNameFinderEvaluator(nameFinder,
@@ -113,7 +113,7 @@ public class Evaluate {
    * @throws IOException if test corpus not loaded
    */
   public final void evalError() throws IOException {
-    List<EvaluationMonitor<NameSample>> listeners = new LinkedList<EvaluationMonitor<NameSample>>();
+    List<EvaluationMonitor<NameSample>> listeners = new LinkedList<>();
     listeners.add(new NameEvaluationErrorListener());
     TokenNameFinderEvaluator evaluator = new TokenNameFinderEvaluator(nameFinder,
         listeners.toArray(new TokenNameFinderEvaluationMonitor[listeners.size()]));

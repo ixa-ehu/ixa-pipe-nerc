@@ -1716,24 +1716,20 @@ class NumericLexer {
               break;
             case FIRST_DELETE:
               if ( ! this.seenUntokenizableCharacter) {
-                //LOGGER.warning(msg);
                 this.seenUntokenizableCharacter = true;
               }
               break;
             case ALL_DELETE:
-              //LOGGER.warning(msg);
               this.seenUntokenizableCharacter = true;
               break;
             case NONE_KEEP:
               return makeName();
             case FIRST_KEEP:
               if ( ! this.seenUntokenizableCharacter) {
-                //LOGGER.warning(msg);
                 this.seenUntokenizableCharacter = true;
               }
               return makeName();
             case ALL_KEEP:
-              //LOGGER.warning(msg);
               this.seenUntokenizableCharacter = true;
               return makeName();
           }

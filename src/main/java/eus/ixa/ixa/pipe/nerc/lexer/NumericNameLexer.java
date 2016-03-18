@@ -63,7 +63,7 @@ public class NumericNameLexer {
    * @return A list of all tokens remaining in the underlying Reader
    */
   public List<Name> getNumericNames() {
-    List<Name> result = new ArrayList<Name>();
+    List<Name> result = new ArrayList<>();
     while (hasNextToken()) {
       result.add(getNextToken());
     }
