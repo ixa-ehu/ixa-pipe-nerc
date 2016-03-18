@@ -101,7 +101,7 @@ public class MFSResource implements SerializableArtifact {
    */
   public List<String> getFirstSenseBio(List<String> lemmas, String[] posTags) {
 
-    List<String> mostFrequentSenseList = new ArrayList<String>();
+    List<String> mostFrequentSenseList = new ArrayList<>();
 
     String prefix = "-" + BioCodec.START;
     String mostFrequentSense = null;
@@ -162,7 +162,7 @@ public class MFSResource implements SerializableArtifact {
    */
   public List<String> getFirstSenseBilou(List<String> lemmas, String[] posTags) {
 
-    List<String> mostFrequentSenseList = new ArrayList<String>();
+    List<String> mostFrequentSenseList = new ArrayList<>();
 
     String prefix = "-" + BioCodec.START;
     String mostFrequentSense = null;

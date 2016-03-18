@@ -68,7 +68,7 @@ public class LemmaResource implements SerializableArtifact {
    * @throws IOException the io exception
    */
   public LemmaResource(InputStream in) throws IOException {
-    dictMap = new HashMap<List<String>, String>();
+    dictMap = new HashMap<>();
     BufferedReader breader = new BufferedReader(new InputStreamReader(
         in));
     String line;
@@ -114,7 +114,7 @@ public class LemmaResource implements SerializableArtifact {
    * @return the lemmas for the sentence
    */
   public List<String> lookUpLemmaArray(String[] tokens, String[] postags) {
-    List<String> lemmas = new ArrayList<String>();
+    List<String> lemmas = new ArrayList<>();
     for (int i = 0; i < tokens.length; i++) {
       String lemma = lookUpLemma(tokens[i], postags[i]);
       lemmas.add(lemma);
@@ -134,7 +134,7 @@ public class LemmaResource implements SerializableArtifact {
   private List<String> getDictKeys(final String word,
       final String postag) {
     String constantTag = "NNP";
-    List<String> keys = new ArrayList<String>();
+    List<String> keys = new ArrayList<>();
     if (postag.startsWith(String.valueOf(constantTag))) {
       keys.addAll(Arrays.asList(word, postag));
     } else {

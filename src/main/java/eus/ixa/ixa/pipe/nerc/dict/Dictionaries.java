@@ -113,9 +113,9 @@ public class Dictionaries {
    */
   private void loadDictionaries(final String inputDir) throws IOException {
     List<File> fileList = StringUtils.getFilesInDir(new File(inputDir));
-    dictNames = new ArrayList<String>(fileList.size());
-    dictionaries = new ArrayList<Map<String, String>>(fileList.size());
-    dictionariesIgnoreCase = new ArrayList<Map<String, String>>(fileList.size());
+    dictNames = new ArrayList<>(fileList.size());
+    dictionaries = new ArrayList<>(fileList.size());
+    dictionariesIgnoreCase = new ArrayList<>(fileList.size());
     System.err.println("\tloading dictionaries in " + inputDir + " directory");
     for (int i = 0; i < fileList.size(); ++i) {
       if (DEBUG) {

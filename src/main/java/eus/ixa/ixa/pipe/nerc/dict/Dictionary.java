@@ -62,7 +62,7 @@ public class Dictionary implements SerializableArtifact {
     }
   }
   
-  private Map<String, String> dictionary = new HashMap<String, String>();
+  private Map<String, String> dictionary = new HashMap<>();
 
   public Dictionary(InputStream in) throws IOException {
 
@@ -110,7 +110,7 @@ public class Dictionary implements SerializableArtifact {
    */
   public List<String> getBioDictionaryMatch(String[] tokens) {
 
-    List<String> entitiesList = new ArrayList<String>();
+    List<String> entitiesList = new ArrayList<>();
 
     String prefix = "-" + BioCodec.START;
     String gazEntry = null;
@@ -155,7 +155,7 @@ public class Dictionary implements SerializableArtifact {
    */
   public List<String> getBilouDictionaryMatch(String[] tokens) {
 
-    List<String> entitiesList = new ArrayList<String>();
+    List<String> entitiesList = new ArrayList<>();
 
     String prefix = "-" + BilouCodec.START;
     String gazClass = null;

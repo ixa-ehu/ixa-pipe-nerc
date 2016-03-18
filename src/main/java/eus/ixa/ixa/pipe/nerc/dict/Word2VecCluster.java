@@ -64,7 +64,7 @@ public class Word2VecCluster implements SerializableArtifact {
     }
   }
   
-  private Map<String, String> tokenToClusterMap = new HashMap<String, String>();
+  private Map<String, String> tokenToClusterMap = new HashMap<>();
   
   public Word2VecCluster(InputStream in) throws IOException {
 
