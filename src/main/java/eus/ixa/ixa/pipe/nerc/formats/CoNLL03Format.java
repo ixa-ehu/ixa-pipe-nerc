@@ -102,7 +102,7 @@ public class CoNLL03Format implements ObjectStream<NameSample>{
           throw new IOException("Empty line after -DOCSTART- not empty: '" + emptyLine +"'!");
         continue;
       }
-      String fields[] = line.split("\t");
+      String[] fields = line.split("\t");
       if (fields.length == 2) {
         tokens.add(fields[0]);
         neTypes.add(fields[1]);
