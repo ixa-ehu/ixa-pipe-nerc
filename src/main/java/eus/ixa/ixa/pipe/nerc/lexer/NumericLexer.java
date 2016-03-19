@@ -24,6 +24,8 @@ import eus.ixa.ixa.pipe.nerc.NameFactory;
  */
 class NumericLexer {
 
+  private static final Logger LOGGER = Logger.getLogger(NumericLexer.class.getName());
+
   /** This character denotes the end of file */
   public static final int YYEOF = -1;
 
@@ -34,87 +36,6 @@ class NumericLexer {
   public static final int YYINITIAL = 0;
 
   /**
-   * ZZ_LEXSTATE[l] is the state in the DFA for the lexical state l
-   * ZZ_LEXSTATE[l+1] is the state in the DFA for the lexical state l
-   *                  at the beginning of a line
-   * l is of the form l = 2*k, k a non negative integer
-   */
-  private static final int[] ZZ_LEXSTATE = {
-     0, 0
-  };
-
-  /** 
-   * Translates characters to character classes
-   */
-  private static final String ZZ_CMAP_PACKED = 
-    "\11\0\1\1\1\121\25\0\1\1\2\0\1\65\1\63\1\70\1\64"+
-    "\1\13\3\0\1\4\1\5\1\6\1\25\1\10\1\12\1\17\1\16"+
-    "\1\11\2\62\1\66\3\15\1\61\6\7\1\100\1\104\1\117\1\74"+
-    "\1\102\1\103\1\112\1\76\1\110\1\77\1\114\1\111\1\105\1\73"+
-    "\1\113\1\107\1\7\1\75\1\71\1\72\1\101\1\115\1\120\1\7"+
-    "\1\116\1\106\1\7\1\7\4\0\1\27\1\34\1\47\1\22\1\32"+
-    "\1\33\1\42\1\24\1\40\1\26\1\44\1\41\1\35\1\21\1\43"+
-    "\1\37\1\0\1\23\1\14\1\20\1\30\1\45\1\52\1\7\1\46"+
-    "\1\36\5\0\1\67\37\0\1\1\1\0\1\67\1\67\1\67\1\67"+
-    "\7\0\1\3\16\0\3\0\2\0\1\53\2\0\1\31\3\0\1\60"+
-    "\1\50\2\0\1\54\1\56\1\57\2\0\1\55\11\0\1\51\5\0"+
-    "\1\53\2\0\1\31\3\0\1\60\1\50\2\0\1\54\1\56\1\57"+
-    "\2\0\1\55\11\0\1\51\u050f\0\1\67\124\0\12\2\1\0\2\3"+
-    "\203\0\12\2\306\0\12\2\u019c\0\12\2\166\0\12\2\166\0\12\2"+
-    "\166\0\12\2\166\0\12\2\166\0\12\2\166\0\12\2\166\0\12\2"+
-    "\166\0\12\2\317\0\1\67\20\0\12\2\166\0\12\2\106\0\12\2"+
-    "\u0116\0\12\2\106\0\12\2\u0746\0\12\2\46\0\12\2\u012c\0\12\2"+
-    "\200\0\12\2\246\0\12\2\6\0\12\2\266\0\12\2\126\0\12\2"+
-    "\206\0\12\2\6\0\12\2\u03a6\0\13\1\71\0\1\0\133\0\1\67"+
-    "\3\0\1\67\7\0\1\67\246\0\14\0\u0ea1\0\1\1\u761f\0\12\2"+
-    "\u02a6\0\12\2\46\0\12\2\306\0\12\2\166\0\12\2\u0196\0\12\2"+
-    "\u5316\0\12\2\306\0\1\67\1\67\3\0\1\67\1\67\31\0";
-
-  /** 
-   * Translates characters to character classes
-   */
-  private static final char [] ZZ_CMAP = zzUnpackCMap(ZZ_CMAP_PACKED);
-
-  /** 
-   * Translates DFA states to action switch labels.
-   */
-  private static final int [] ZZ_ACTION = zzUnpackAction();
-
-  private static final String ZZ_ACTION_PACKED_0 =
-    "\1\0\5\1\3\2\1\1\2\2\22\1\1\2\3\1"+
-    "\23\2\17\0\1\3\1\0\1\4\126\0\1\3\4\0"+
-    "\1\4\11\0\1\5\54\0\1\5\11\0\2\5\36\0"+
-    "\1\6\5\0\1\5\13\0\1\6\45\0\1\3\1\0"+
-    "\1\4\15\0\1\4\65\0\2\5\2\0\1\6\40\0"+
-    "\1\6\33\0\1\6\53\0\1\3\144\0\2\5\34\0"+
-    "\1\5\1\0\1\6\3\0\3\6\23\0\1\5\14\0"+
-    "\2\6\21\0\1\6\140\0\1\6\2\0\1\6\4\0"+
-    "\1\6\1\0\1\6\1\0\1\6\2\0\1\6\13\0"+
-    "\1\5\14\0\1\6\64\0\1\6\33\0\6\6\15\0"+
-    "\1\4\12\0\3\6\13\0\3\6\5\0\1\5\44\0"+
-    "\1\6\72\0";
-
-  private static int [] zzUnpackAction() {
-    int [] result = new int[1051];
-    int offset = 0;
-    offset = zzUnpackAction(ZZ_ACTION_PACKED_0, offset, result);
-    return result;
-  }
-
-  private static int zzUnpackAction(String packed, int offset, int [] result) {
-    int i = 0;       /* index in packed string  */
-    int j = offset;  /* index in unpacked array */
-    int l = packed.length();
-    while (i < l) {
-      int count = packed.charAt(i++);
-      int value = packed.charAt(i++);
-      do result[j++] = value; while (--count > 0);
-    }
-    return j;
-  }
-
-
-  /** 
    * Translates a state to a row index in the transition table
    */
   private static final int [] ZZ_ROWMAP = zzUnpackRowMap();
@@ -253,25 +174,8 @@ class NumericLexer {
     "\1\u4146\1\u4198\1\u41ea\1\u423c\1\u428e\1\u42e0\1\u4332\1\u4384"+
     "\1\u43d6\1\u4428\1\u447a";
 
-  private static int [] zzUnpackRowMap() {
-    int [] result = new int[1051];
-    int offset = 0;
-    offset = zzUnpackRowMap(ZZ_ROWMAP_PACKED_0, offset, result);
-    return result;
-  }
 
-  private static int zzUnpackRowMap(String packed, int offset, int [] result) {
-    int i = 0;  /* index in packed string  */
-    int j = offset;  /* index in unpacked array */
-    int l = packed.length();
-    while (i < l) {
-      int high = packed.charAt(i++) << 16;
-      result[j++] = high | packed.charAt(i++);
-    }
-    return j;
-  }
-
-  /** 
+  /**
    * The transition table of the DFA
    */
   private static final int [] ZZ_TRANS = zzUnpackTrans();
@@ -1245,27 +1149,66 @@ class NumericLexer {
     "\45\0\1\334\51\0\1\334\64\0\1\u010a\47\0\1\u010a"+
     "\56\0\1\u010a\47\0\1\u010a\3\0";
 
-  private static int [] zzUnpackTrans() {
-    int [] result = new int[83148];
-    int offset = 0;
-    offset = zzUnpackTrans(ZZ_TRANS_PACKED_0, offset, result);
-    return result;
-  }
+  /**
+   * ZZ_LEXSTATE[l] is the state in the DFA for the lexical state l
+   * ZZ_LEXSTATE[l+1] is the state in the DFA for the lexical state l
+   *                  at the beginning of a line
+   * l is of the form l = 2*k, k a non negative integer
+   */
+  private static final int[] ZZ_LEXSTATE = {
+     0, 0
+  };
 
-  private static int zzUnpackTrans(String packed, int offset, int [] result) {
-    int i = 0;       /* index in packed string  */
-    int j = offset;  /* index in unpacked array */
-    int l = packed.length();
-    while (i < l) {
-      int count = packed.charAt(i++);
-      int value = packed.charAt(i++);
-      value--;
-      do result[j++] = value; while (--count > 0);
-    }
-    return j;
-  }
+  /** 
+   * Translates characters to character classes
+   */
+  private static final String ZZ_CMAP_PACKED = 
+    "\11\0\1\1\1\121\25\0\1\1\2\0\1\65\1\63\1\70\1\64"+
+    "\1\13\3\0\1\4\1\5\1\6\1\25\1\10\1\12\1\17\1\16"+
+    "\1\11\2\62\1\66\3\15\1\61\6\7\1\100\1\104\1\117\1\74"+
+    "\1\102\1\103\1\112\1\76\1\110\1\77\1\114\1\111\1\105\1\73"+
+    "\1\113\1\107\1\7\1\75\1\71\1\72\1\101\1\115\1\120\1\7"+
+    "\1\116\1\106\1\7\1\7\4\0\1\27\1\34\1\47\1\22\1\32"+
+    "\1\33\1\42\1\24\1\40\1\26\1\44\1\41\1\35\1\21\1\43"+
+    "\1\37\1\0\1\23\1\14\1\20\1\30\1\45\1\52\1\7\1\46"+
+    "\1\36\5\0\1\67\37\0\1\1\1\0\1\67\1\67\1\67\1\67"+
+    "\7\0\1\3\16\0\3\0\2\0\1\53\2\0\1\31\3\0\1\60"+
+    "\1\50\2\0\1\54\1\56\1\57\2\0\1\55\11\0\1\51\5\0"+
+    "\1\53\2\0\1\31\3\0\1\60\1\50\2\0\1\54\1\56\1\57"+
+    "\2\0\1\55\11\0\1\51\u050f\0\1\67\124\0\12\2\1\0\2\3"+
+    "\203\0\12\2\306\0\12\2\u019c\0\12\2\166\0\12\2\166\0\12\2"+
+    "\166\0\12\2\166\0\12\2\166\0\12\2\166\0\12\2\166\0\12\2"+
+    "\166\0\12\2\317\0\1\67\20\0\12\2\166\0\12\2\106\0\12\2"+
+    "\u0116\0\12\2\106\0\12\2\u0746\0\12\2\46\0\12\2\u012c\0\12\2"+
+    "\200\0\12\2\246\0\12\2\6\0\12\2\266\0\12\2\126\0\12\2"+
+    "\206\0\12\2\6\0\12\2\u03a6\0\13\1\71\0\1\0\133\0\1\67"+
+    "\3\0\1\67\7\0\1\67\246\0\14\0\u0ea1\0\1\1\u761f\0\12\2"+
+    "\u02a6\0\12\2\46\0\12\2\306\0\12\2\166\0\12\2\u0196\0\12\2"+
+    "\u5316\0\12\2\306\0\1\67\1\67\3\0\1\67\1\67\31\0";
 
+  /** 
+   * Translates characters to character classes
+   */
+  private static final char [] ZZ_CMAP = zzUnpackCMap(ZZ_CMAP_PACKED);
 
+  /** 
+   * Translates DFA states to action switch labels.
+   */
+  private static final int [] ZZ_ACTION = zzUnpackAction();
+
+  private static final String ZZ_ACTION_PACKED_0 =
+    "\1\0\5\1\3\2\1\1\2\2\22\1\1\2\3\1"+
+    "\23\2\17\0\1\3\1\0\1\4\126\0\1\3\4\0"+
+    "\1\4\11\0\1\5\54\0\1\5\11\0\2\5\36\0"+
+    "\1\6\5\0\1\5\13\0\1\6\45\0\1\3\1\0"+
+    "\1\4\15\0\1\4\65\0\2\5\2\0\1\6\40\0"+
+    "\1\6\33\0\1\6\53\0\1\3\144\0\2\5\34\0"+
+    "\1\5\1\0\1\6\3\0\3\6\23\0\1\5\14\0"+
+    "\2\6\21\0\1\6\140\0\1\6\2\0\1\6\4\0"+
+    "\1\6\1\0\1\6\1\0\1\6\2\0\1\6\13\0"+
+    "\1\5\14\0\1\6\64\0\1\6\33\0\6\6\15\0"+
+    "\1\4\12\0\3\6\13\0\3\6\5\0\1\5\44\0"+
+    "\1\6\72\0";
   /* error codes */
   private static final int ZZ_UNKNOWN_ERROR = 0;
   private static final int ZZ_NO_MATCH = 1;
@@ -1295,25 +1238,6 @@ class NumericLexer {
     "\1\1\2\0\1\1\13\0\1\1\14\0\1\1\64\0"+
     "\1\1\33\0\2\1\1\11\3\1\15\0\1\1\12\0"+
     "\3\1\13\0\3\1\5\0\1\1\44\0\1\1\72\0";
-
-  private static int [] zzUnpackAttribute() {
-    int [] result = new int[1051];
-    int offset = 0;
-    offset = zzUnpackAttribute(ZZ_ATTRIBUTE_PACKED_0, offset, result);
-    return result;
-  }
-
-  private static int zzUnpackAttribute(String packed, int offset, int [] result) {
-    int i = 0;       /* index in packed string  */
-    int j = offset;  /* index in unpacked array */
-    int l = packed.length();
-    while (i < l) {
-      int count = packed.charAt(i++);
-      int value = packed.charAt(i++);
-      do result[j++] = value; while (--count > 0);
-    }
-    return j;
-  }
 
   /** the input device */
   private java.io.Reader zzReader;
@@ -1367,9 +1291,7 @@ class NumericLexer {
   /* user code: */
 
   private NameFactory nameFactory;
-  private static final Logger LOGGER = Logger.getLogger(NumericLexer.class.getName());
   private boolean seenUntokenizableCharacter;
-  private enum UntokenizableOptions { NONE_DELETE, FIRST_DELETE, ALL_DELETE, NONE_KEEP, FIRST_KEEP, ALL_KEEP }
   private UntokenizableOptions untokenizable = UntokenizableOptions.FIRST_DELETE;
   
   
@@ -1382,23 +1304,6 @@ class NumericLexer {
     this(breader);
     this.nameFactory = aNameFactory;
   }
-
-  
-  ////////////////////////
-  //// MAIN FUNCTIONS ////
-  ////////////////////////
-  
-  
-  private Name makeName(String nameString, String neType) {
-    Name name = nameFactory.createName(nameString, neType, yychar, yylength());
-    return name;
-  }
-  
-  private Name makeName() {
-    return makeName("MISC","MISC");
-  }
-
-
 
   /**
    * Creates a new scanner
@@ -1418,6 +1323,97 @@ class NumericLexer {
    */
   NumericLexer(java.io.InputStream in) {
     this(new java.io.InputStreamReader(in));
+  }
+
+  private enum UntokenizableOptions { NONE_DELETE, FIRST_DELETE, ALL_DELETE, NONE_KEEP, FIRST_KEEP, ALL_KEEP }
+
+  ////////////////////////
+  //// MAIN FUNCTIONS ////
+  ////////////////////////
+
+  private static int [] zzUnpackAction() {
+    int [] result = new int[1051];
+    int offset = 0;
+    offset = zzUnpackAction(ZZ_ACTION_PACKED_0, offset, result);
+    return result;
+  }
+
+  private static int zzUnpackAction(String packed, int offset, int [] result) {
+    int i = 0;       /* index in packed string  */
+    int j = offset;  /* index in unpacked array */
+    int l = packed.length();
+    while (i < l) {
+      int count = packed.charAt(i++);
+      int value = packed.charAt(i++);
+      do result[j++] = value; while (--count > 0);
+    }
+    return j;
+  }
+
+  private static int [] zzUnpackRowMap() {
+    int [] result = new int[1051];
+    int offset = 0;
+    offset = zzUnpackRowMap(ZZ_ROWMAP_PACKED_0, offset, result);
+    return result;
+  }
+
+  private static int zzUnpackRowMap(String packed, int offset, int [] result) {
+    int i = 0;  /* index in packed string  */
+    int j = offset;  /* index in unpacked array */
+    int l = packed.length();
+    while (i < l) {
+      int high = packed.charAt(i++) << 16;
+      result[j++] = high | packed.charAt(i++);
+    }
+    return j;
+  }
+
+  private static int [] zzUnpackTrans() {
+    int [] result = new int[83148];
+    int offset = 0;
+    offset = zzUnpackTrans(ZZ_TRANS_PACKED_0, offset, result);
+    return result;
+  }
+
+  private static int zzUnpackTrans(String packed, int offset, int [] result) {
+    int i = 0;       /* index in packed string  */
+    int j = offset;  /* index in unpacked array */
+    int l = packed.length();
+    while (i < l) {
+      int count = packed.charAt(i++);
+      int value = packed.charAt(i++);
+      value--;
+      do result[j++] = value; while (--count > 0);
+    }
+    return j;
+  }
+
+  private static int [] zzUnpackAttribute() {
+    int [] result = new int[1051];
+    int offset = 0;
+    offset = zzUnpackAttribute(ZZ_ATTRIBUTE_PACKED_0, offset, result);
+    return result;
+  }
+
+  private static int zzUnpackAttribute(String packed, int offset, int [] result) {
+    int i = 0;       /* index in packed string  */
+    int j = offset;  /* index in unpacked array */
+    int l = packed.length();
+    while (i < l) {
+      int count = packed.charAt(i++);
+      int value = packed.charAt(i++);
+      do result[j++] = value; while (--count > 0);
+    }
+    return j;
+  }
+
+  private Name makeName(String nameString, String neType) {
+    Name name = nameFactory.createName(nameString, neType, yychar, yylength());
+    return name;
+  }
+
+  private Name makeName() {
+    return makeName("MISC","MISC");
   }
 
   /** 
