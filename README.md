@@ -121,7 +121,7 @@ in Apache OpenNLP.
 
 ## CLI-USAGE
 
-ixa-pipe-nerc provides the following command-line basic functionalities:
+ixa-pipe-nerc provides a runable jar with the following command-line basic functionalities:
 
 1. **server**: starts a TCP service loading the model and required resources.
 2. **client**: sends a NAF document to a running TCP server.
@@ -135,11 +135,11 @@ ixa-pipe-nerc provides the following command-line basic functionalities:
 5. **cross**: it performs cross validation on a corpus.
 
 Each of these functionalities are accessible by adding (server|client|tag|ote|train|eval|cross) as a
-subcommand to ixa-pipe-nerc-$version.jar. Please read below and check the -help
+subcommand to ixa-pipe-nerc-${version}-exec.jar. Please read below and check the -help
 parameter:
 
 ````shell
-java -jar target/ixa-pipe-nerc-$version.jar (tag|ote|train|eval|cross) -help
+java -jar target/ixa-pipe-nerc-${version}-exec.jar (tag|ote|train|eval|cross) -help
 ````
 **Every option for training is documented in the trainParams.properties file distributed with
 ixa-pipe-nerc**. Please do read that file!!
@@ -149,7 +149,7 @@ ixa-pipe-nerc**. Please do read that file!!
 If you are in hurry, just execute:
 
 ````shell
-cat file.txt | ixa-pipe-tok | ixa-pipe-pos | java -jar $PATH/target/ixa-pipe-nerc-$version.jar tag -m model.bin
+cat file.txt | ixa-pipe-tok | ixa-pipe-pos | java -jar $PATH/target/ixa-pipe-nerc-${version}-exec.jar tag -m model.bin
 ````
 
 If you want to know more, please follow reading.
@@ -183,14 +183,14 @@ There are several options to tag with ixa-pipe-nerc:
 **Example**:
 
 ````shell
-cat file.txt | ixa-pipe-tok | ixa-pipe-pos | java -jar $PATH/target/ixa-pipe-nerc-$version.jar tag -m nerc-models-$version/en/en-local-conll03.bin
+cat file.txt | ixa-pipe-tok | ixa-pipe-pos | java -jar $PATH/target/ixa-pipe-nerc-${version}-exec.jar tag -m nerc-models-$version/en/en-local-conll03.bin
 ````
 ### OTE
 
 As for NER tagging, the ote requires an input NAF with *wf* and *term* elements:
 
 ````shell
-cat file.txt | ixa-pipe-tok | ixa-pipe-pos | java -jar $PATH/target/ixa-pipe-nerc-$version.jar ote -m model.bin
+cat file.txt | ixa-pipe-tok | ixa-pipe-pos | java -jar $PATH/target/ixa-pipe-nerc-${version}-exec.jar ote -m model.bin
 ````
 
 ixa-pipe-nerc reads NAF documents (with *wf* and *term* elements) via standard input and outputs opinion targets in NAF
@@ -212,7 +212,7 @@ There are several options to tag with ixa-pipe-nerc:
 **Example**:
 
 ````shell
-cat file.txt | ixa-pipe-tok | ixa-pipe-pos | java -jar $PATH/target/ixa-pipe-nerc-$version.jar ote -m ote-models-$version/en/ote-semeval2014-restaurants.bin
+cat file.txt | ixa-pipe-tok | ixa-pipe-pos | java -jar $PATH/target/ixa-pipe-nerc-${version}-exec.jar ote -m ote-models-$version/en/ote-semeval2014-restaurants.bin
 ````
 
 ### Server
@@ -220,12 +220,12 @@ cat file.txt | ixa-pipe-tok | ixa-pipe-pos | java -jar $PATH/target/ixa-pipe-ner
 We can start the TCP server as follows:
 
 ````shell
-java -jar target/ixa-pipe-nerc-$version.jar server -l en --port 2060 -m en-91-18-conll03.bin
+java -jar target/ixa-pipe-nerc-${version}-exec.jar server -l en --port 2060 -m en-91-18-conll03.bin
 ````
 Once the server is running we can send NAF documents containing (at least) the term layer like this:
 
 ````shell
- cat file.pos.naf | java -jar target/ixa-pipe-nerc-$version.jar client -p 2060
+ cat file.pos.naf | java -jar target/ixa-pipe-nerc-${version}-exec.jar client -p 2060
 ````
 
 ### Training
@@ -380,7 +380,7 @@ mvn clean package
 This step will create a directory called target/ which contains various directories and files.
 Most importantly, there you will find the module executable:
 
-ixa-pipe-nerc-$version.jar
+ixa-pipe-nerc-${version}-exec.jar
 
 This executable contains every dependency the module needs, so it is completely portable as long
 as you have a JVM 1.7 installed.
