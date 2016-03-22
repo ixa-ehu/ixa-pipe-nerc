@@ -67,7 +67,7 @@ public class ClarkCluster implements SerializableArtifact {
     }
   }
   
-  private Map<String, String> tokenToClusterMap = new HashMap<String, String>();
+  private Map<String, String> tokenToClusterMap = new HashMap<>();
 
   public ClarkCluster(InputStream in) throws IOException {
 
