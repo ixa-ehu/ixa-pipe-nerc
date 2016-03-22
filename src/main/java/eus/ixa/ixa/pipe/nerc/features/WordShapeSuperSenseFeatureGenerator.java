@@ -55,7 +55,7 @@ public class WordShapeSuperSenseFeatureGenerator extends CustomFeatureGenerator 
 
     char currentCharacter;
     int prevCharType = -1;
-    char charType = '~';
+    char charType;
     boolean addedStar = false;
     for (int i = 0; i < token.length(); i++) {
 
@@ -77,7 +77,7 @@ public class WordShapeSuperSenseFeatureGenerator extends CustomFeatureGenerator 
         }
       } else {
         addedStar = false;
-        normalizedToken += charType;
+        normalizedToken += Character.toString(charType);
       }
       prevCharType = charType;
     }

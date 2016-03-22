@@ -83,7 +83,7 @@ public class CrossValidator {
   /**
    * The evaluation listeners.
    */
-  private List<EvaluationMonitor<NameSample>> listeners = new LinkedList<EvaluationMonitor<NameSample>>();
+  private List<EvaluationMonitor<NameSample>> listeners = new LinkedList<>();
   TokenNameFinderDetailedFMeasureListener detailedFListener;
 
   

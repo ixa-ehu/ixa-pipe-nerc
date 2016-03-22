@@ -127,8 +127,6 @@ public class CoNLL02Format implements ObjectStream<NameSample> {
         if (neTag.startsWith("B-")) {
           if (beginIndex != -1) {
             names.add(extract(beginIndex, endIndex, neTypes.get(beginIndex)));
-            beginIndex = -1;
-            endIndex = -1;
           }
           beginIndex = i;
           endIndex = i + 1;
