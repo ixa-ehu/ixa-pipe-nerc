@@ -4,9 +4,9 @@
 	<groupId>eus.ixa</groupId>
 	<artifactId>ixa-pipe-nerc</artifactId>
 	<packaging>jar</packaging>
-	<version>1.6.0</version>
+	<version>2.0.0</version>
 	<name>ixa-pipe-nerc</name>
-	<description>ixa pipes sequence labeler (ixa2.si.ehu.es/ixa-pipes).</description>
+	<description>IXA pipes Named Entity Tagger (ixa2.si.ehu.es/ixa-pipes).</description>
 	<licenses>
 		<license>
 			<name>Apache License, Version 2.0</name>
@@ -32,18 +32,38 @@
 	<repositories>
 	</repositories>
 		<dependencies>
-		  <dependency>
-		    <groupId>junit</groupId>
-		    <artifactId>junit</artifactId>
-		    <version>4.11</version>
-		    <scope>test</scope>
-		    </dependency>
-		  <dependency>
-		    <groupId>eus.ixa</groupId>
-		    <artifactId>ixa-pipe-pos</artifactId>
-		    <version>1.4.6</version>
-		    <scope>compile</scope>
-		    </dependency>
+		 <dependency>
+			<groupId>com.github.ixa-ehu</groupId>
+			<artifactId>kaflib-naf</artifactId>
+			<version>1.1.14</version>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.sourceforge.argparse4j</groupId>
+			<artifactId>argparse4j</artifactId>
+			<version>0.4.3</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>18.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.opennlp</groupId>
+			<artifactId>opennlp-tools</artifactId>
+			<version>1.6.0</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>eus.ixa</groupId>
+			<artifactId>ixa-pipe-ml</artifactId>
+			<version>0.0.1</version>
+		</dependency>
 	</dependencies>
 
 	<distributionManagement>
