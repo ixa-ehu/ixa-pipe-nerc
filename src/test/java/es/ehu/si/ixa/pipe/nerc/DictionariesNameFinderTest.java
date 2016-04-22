@@ -6,13 +6,12 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
-import opennlp.tools.util.Span;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import eus.ixa.ixa.pipe.nerc.DictionariesNameFinder;
-import eus.ixa.ixa.pipe.nerc.dict.Dictionaries;
+import eus.ixa.ixa.pipe.ml.nerc.DictionariesNameFinder;
+import eus.ixa.ixa.pipe.ml.resources.Dictionaries;
+import eus.ixa.ixa.pipe.ml.utils.Span;
 
 public class DictionariesNameFinderTest {
 
