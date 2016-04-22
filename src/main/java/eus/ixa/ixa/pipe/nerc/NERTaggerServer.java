@@ -1,5 +1,5 @@
 /*
- *  Copyright 2015 Rodrigo Agerri
+ *  Copyright 2016 Rodrigo Agerri
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -33,7 +33,12 @@ import org.jdom2.JDOMException;
 
 import com.google.common.io.Files;
 
-public class NameFinderServer {
+/**
+ * TCP server class for the Named Entity Tagger.
+ * @author ragerri
+ * @version 2016-04-22
+ */
+public class NERTaggerServer {
   
   /**
    * Get dynamically the version of ixa-pipe-nerc by looking at the MANIFEST
@@ -50,18 +55,16 @@ public class NameFinderServer {
    */
   private String model = null;
   /**
-   * The annotation output format, one of NAF (default), CoNLL 2002, CoNLL 2003
-   * and OpenNLP.
+   * The annotation output format, one of NAF (default), CoNLL 2002, CoNLL 2003.
    */
   private String outputFormat = null;
   
   /**
-   * Construct a NameFinder server.
-   * 
+   * Construct a Named Entity Tagger server.
    * @param properties
    *          the properties
    */
-  public NameFinderServer(Properties properties) {
+  public NERTaggerServer(Properties properties) {
 
     Integer port = Integer.parseInt(properties.getProperty("port"));
     model = properties.getProperty("model");
@@ -171,18 +174,16 @@ public class NameFinderServer {
           "ixa-pipe-nerc-" + Files.getNameWithoutExtension(model), version
               + "-" + commit);
     newLp.setBeginTimestamp();
-    annotator.annotateNEs(kaf);
-    newLp.setEndTimestamp();
     // get outputFormat
     String kafToString = null;
     if (outputFormat.equalsIgnoreCase("conll03")) {
       kafToString = annotator.annotateNEsToCoNLL2003(kaf);
     } else if (outputFormat.equalsIgnoreCase("conll02")) {
       kafToString = annotator.annotateNEsToCoNLL2002(kaf);
-    } else if (outputFormat.equalsIgnoreCase("opennlp")) {
-      kafToString = annotator.annotateNEsToOpenNLP(kaf);
     } else {
-      kafToString = annotator.annotateNEsToKAF(kaf);
+      annotator.annotateNEsToKAF(kaf);
+      newLp.setEndTimestamp();
+      kafToString = kaf.toString();
     }
     return kafToString;
   }

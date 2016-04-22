@@ -1,4 +1,4 @@
-package es.ehu.si.ixa.pipe.nerc;
+package eus.ixa.ixa.pipe.nerc.test;
 
 import static org.junit.Assert.assertEquals;
 
@@ -9,13 +9,13 @@ import java.nio.file.Files;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import eus.ixa.ixa.pipe.ml.nerc.DictionariesNameFinder;
+import eus.ixa.ixa.pipe.ml.nerc.DictionariesNERTagger;
 import eus.ixa.ixa.pipe.ml.resources.Dictionaries;
 import eus.ixa.ixa.pipe.ml.utils.Span;
 
 public class DictionariesNameFinderTest {
 
-    private static DictionariesNameFinder finder = null;
+    private static DictionariesNERTagger finder = null;
     
     @BeforeClass
     public static void setUpClass() throws IOException {
@@ -25,7 +25,7 @@ public class DictionariesNameFinderTest {
                 .getResourceAsStream("/names.txt"),
                 new File(dictsDir, "names.txt").toPath());
         // now load it into a Dictionaries instance
-        finder = new DictionariesNameFinder(
+        finder = new DictionariesNERTagger(
                 new Dictionaries(dictsDir.getAbsolutePath()));
     }
     

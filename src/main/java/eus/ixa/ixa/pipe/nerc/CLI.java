@@ -1,5 +1,5 @@
 /*
- *  Copyright 2015 Rodrigo Agerri
+ *  Copyright 2016 Rodrigo Agerri
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -44,12 +44,9 @@ import com.google.common.io.Files;
 import eus.ixa.ixa.pipe.ml.utils.Flags;
 
 /**
- * Main class of ixa-pipe-nerc, the ixa pipes (ixa2.si.ehu.es/ixa-pipes) sequence
- * labeler.
- * 
+ * Main class of ixa-pipe-nerc which uses ixa-pipe-ml API.
  * @author ragerri
- * @version 2015-02-26
- * 
+ * @version 2016-04-22
  */
 public class CLI {
 
@@ -108,7 +105,6 @@ public class CLI {
 
   /**
    * Main entry point of ixa-pipe-nerc.
-   * 
    * @param args
    *          the arguments passed through the CLI
    * @throws IOException
@@ -118,14 +114,12 @@ public class CLI {
    */
   public static void main(final String[] args) throws IOException,
       JDOMException {
-
     CLI cmdLine = new CLI();
     cmdLine.parseCLI(args);
   }
 
   /**
    * Parse the command interface parameters with the argParser.
-   * 
    * @param args
    *          the arguments passed through the CLI
    * @throws IOException
@@ -185,7 +179,6 @@ public class CLI {
       if (!kaf.getLang().equalsIgnoreCase(lang)) {
         System.err
             .println("Language parameter in NAF and CLI do not match!!");
-        System.exit(1);
       }
     } else {
       lang = kaf.getLang();
@@ -195,31 +188,26 @@ public class CLI {
         "entities", "ixa-pipe-nerc-" + Files.getNameWithoutExtension(model), version + "-" + commit);
     newLp.setBeginTimestamp();
     Annotate annotator = new Annotate(properties);
-    annotator.annotateNEs(kaf);
+    annotator.annotateNEsToKAF(kaf);
     newLp.setEndTimestamp();
     String kafToString = null;
     if (outputFormat.equalsIgnoreCase("conll03")) {
       kafToString = annotator.annotateNEsToCoNLL2003(kaf);
     } else if (outputFormat.equalsIgnoreCase("conll02")) {
       kafToString = annotator.annotateNEsToCoNLL2002(kaf);
-    } else if (outputFormat.equalsIgnoreCase("opennlp")) {
-      kafToString = annotator.annotateNEsToOpenNLP(kaf);
     } else {
-      kafToString = annotator.annotateNEsToKAF(kaf);
+      annotator.annotateNEsToKAF(kaf);
+      kafToString = kaf.toString();
     }
     bwriter.write(kafToString);
     bwriter.close();
     breader.close();
   }
-  
-  
-  
+
   /**
    * Set up the TCP socket for annotation.
    */
   public final void server() {
-
-    // load parameters into a properties
     String port = parsedArguments.getString("port");
     String model = parsedArguments.getString("model");
     String lexer = parsedArguments.getString("lexer");
@@ -227,15 +215,13 @@ public class CLI {
     String dictPath = parsedArguments.getString("dictPath");
     String clearFeatures = parsedArguments.getString("clearFeatures");
     String outputFormat = parsedArguments.getString("outputFormat");
-    // language parameter
     String lang = parsedArguments.getString("language");
     Properties serverproperties = setNameServerProperties(port, model, lang, lexer, dictTag, dictPath, clearFeatures, outputFormat);
-    new NameFinderServer(serverproperties);
+    new NERTaggerServer(serverproperties);
   }
   
   /**
    * The client to query the TCP server for annotation.
-   * 
    * @param inputStream
    *          the stdin
    * @param outputStream
@@ -243,7 +229,6 @@ public class CLI {
    */
   public final void client(final InputStream inputStream,
       final OutputStream outputStream) {
-
     String host = parsedArguments.getString("host");
     String port = parsedArguments.getString("port");
     try (Socket socketClient = new Socket(host, Integer.parseInt(port));
@@ -255,7 +240,6 @@ public class CLI {
             socketClient.getOutputStream(), "UTF-8"));
         BufferedReader inFromServer = new BufferedReader(new InputStreamReader(
             socketClient.getInputStream(), "UTF-8"));) {
-
       // send data to server socket
       StringBuilder inText = new StringBuilder();
       String line;
@@ -265,7 +249,6 @@ public class CLI {
       inText.append("<ENDOFDOCUMENT>").append("\n");
       outToServer.write(inText.toString());
       outToServer.flush();
-      
       // get data from server
       StringBuilder sb = new StringBuilder();
       String kafString;
@@ -291,7 +274,6 @@ public class CLI {
    * Create the available parameters for NER tagging.
    */
   private void loadAnnotateParameters() {
-    
     annotateParser.addArgument("-m", "--model")
         .required(true)
         .help("Pass the model to do the tagging as a parameter.\n");
@@ -328,16 +310,11 @@ public class CLI {
         .help("Provide the path to the dictionaries for direct dictionary tagging; it ONLY WORKS if --dictTag " +
         		"option is activated.\n");
   }
-  
- 
-
-  
 
   /**
    * Create the available parameters for NER tagging.
    */
-  private void loadServerParameters() {
-    
+  private void loadServerParameters() {    
     serverParser.addArgument("-p", "--port")
         .required(true)
         .help("Port to be assigned to the server.\n");
@@ -379,7 +356,6 @@ public class CLI {
   }
   
   private void loadClientParameters() {
-    
     clientParser.addArgument("-p", "--port")
         .required(true)
         .help("Port of the TCP server.\n");
