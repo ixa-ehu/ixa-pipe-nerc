@@ -33,11 +33,17 @@ import java.util.Properties;
 
 import com.google.common.collect.Lists;
 
-import opennlp.tools.namefind.NameFinderME;
-import opennlp.tools.namefind.NameSample;
-import opennlp.tools.util.Span;
-import eus.ixa.ixa.pipe.nerc.dict.Dictionaries;
-import eus.ixa.ixa.pipe.nerc.train.Flags;
+import eus.ixa.ixa.pipe.ml.StatisticalSequenceLabeler;
+import eus.ixa.ixa.pipe.ml.nerc.DictionariesNameFinder;
+import eus.ixa.ixa.pipe.ml.nerc.NumericNameFinder;
+import eus.ixa.ixa.pipe.ml.resources.Dictionaries;
+import eus.ixa.ixa.pipe.ml.sequence.Sequence;
+import eus.ixa.ixa.pipe.ml.sequence.SequenceFactory;
+import eus.ixa.ixa.pipe.ml.sequence.SequenceLabelerME;
+import eus.ixa.ixa.pipe.ml.sequence.SequenceSample;
+import eus.ixa.ixa.pipe.ml.utils.Flags;
+import eus.ixa.ixa.pipe.ml.utils.Span;
+import eus.ixa.ixa.pipe.ml.utils.StringUtils;
 
 /**
  * Annotation class for Named Entities in ixa-pipe-nerc.
@@ -51,11 +57,11 @@ public class Annotate {
   /**
    * The name factory.
    */
-  private NameFactory nameFactory;
+  private SequenceFactory nameFactory;
   /**
    * The NameFinder to do the annotation. Usually the statistical.
    */
-  private StatisticalNameFinder nameFinder;
+  private StatisticalSequenceLabeler nameFinder;
   /**
    * The dictionaries.
    */
@@ -106,7 +112,7 @@ public class Annotate {
   public Annotate(final Properties properties) throws IOException {
 
     this.clearFeatures = properties.getProperty("clearFeatures");
-    nameFactory = new NameFactory();
+    nameFactory = new SequenceFactory();
     annotateOptions(properties);
   }
 
@@ -145,12 +151,12 @@ public class Annotate {
           postProcess = false;
           statistical = false;
         } else if (dictOption.equalsIgnoreCase("post")) {
-          nameFinder = new StatisticalNameFinder(properties, nameFactory);
+          nameFinder = new StatisticalSequenceLabeler(properties, nameFactory);
           statistical = true;
           postProcess = true;
           dictTag = false;
         } else {
-          nameFinder = new StatisticalNameFinder(properties, nameFactory);
+          nameFinder = new StatisticalSequenceLabeler(properties, nameFactory);
           statistical = true;
           dictTag = false;
           postProcess = false;
@@ -161,13 +167,13 @@ public class Annotate {
       statistical = true;
       dictTag = false;
       postProcess = false;
-      nameFinder = new StatisticalNameFinder(properties, nameFactory);
+      nameFinder = new StatisticalSequenceLabeler(properties, nameFactory);
     } else {
       lexerFind = false;
       statistical = true;
       dictTag = false;
       postProcess = false;
-      nameFinder = new StatisticalNameFinder(properties, nameFactory);
+      nameFinder = new StatisticalSequenceLabeler(properties, nameFactory);
     }
   }
   
@@ -175,7 +181,7 @@ public class Annotate {
    * Get the statistical namefinder.
    * @return the statistical namefinder
    */
-  public StatisticalNameFinder getStatisticalNameFinder() {
+  public StatisticalSequenceLabeler getStatisticalNameFinder() {
     return nameFinder;
   }
 
@@ -205,13 +211,13 @@ public class Annotate {
         if (clearFeatures.equalsIgnoreCase("docstart") && tokens[0].startsWith("-DOCSTART-")) {
           nameFinder.clearAdaptiveData();
         }
-        Span[] statSpans = nameFinder.nercToSpans(tokens);
+        Span[] statSpans = nameFinder.seqToSpans(tokens);
         allSpans = Lists.newArrayList(statSpans);
       }
       if (postProcess) {
         Span[] dictSpans = dictFinder.nercToSpansExact(tokens);
-        SpanUtils.postProcessDuplicatedSpans(allSpans, dictSpans);
-        SpanUtils.concatenateSpans(allSpans, dictSpans);
+        Span.postProcessDuplicatedSpans(allSpans, dictSpans);
+        Span.concatenateSpans(allSpans, dictSpans);
       }
       if (dictTag) {
         Span[] dictOnlySpans = dictFinder.nercToSpansExact(tokens);
@@ -223,17 +229,17 @@ public class Annotate {
         BufferedReader sentenceReader = new BufferedReader(stringReader);
         numericLexerFinder = new NumericNameFinder(sentenceReader, nameFactory);
         Span[] numericSpans = numericLexerFinder.nercToSpans(tokens);
-        SpanUtils.concatenateSpans(allSpans, numericSpans);
+        Span.concatenateSpans(allSpans, numericSpans);
       }
-      Span[] allSpansArray = NameFinderME.dropOverlappingSpans(allSpans
+      Span[] allSpansArray = SequenceLabelerME.dropOverlappingSpans(allSpans
           .toArray(new Span[allSpans.size()]));
-      List<Name> names = new ArrayList<Name>();
+      List<Sequence> names = new ArrayList<>();
       if (statistical) {
-        names = nameFinder.getNamesFromSpans(allSpansArray, tokens);
+        names = nameFinder.getSequencesFromSpans(tokens, allSpansArray);
       } else {
         names = dictFinder.getNamesFromSpans(allSpansArray, tokens);
       }
-      for (Name name : names) {
+      for (Sequence name : names) {
         Integer startIndex = name.getSpan().getStart();
         Integer endIndex = name.getSpan().getEnd();
         List<Term> nameTerms = kaf.getTermsFromWFs(Arrays.asList(Arrays
@@ -284,13 +290,13 @@ public class Annotate {
         if (clearFeatures.equalsIgnoreCase("docstart") && tokens[0].startsWith("-DOCSTART-")) {
           nameFinder.clearAdaptiveData();
         }
-        Span[] statSpans = nameFinder.nercToSpans(tokens);
+        Span[] statSpans = nameFinder.seqToSpans(tokens);
         allSpans = Lists.newArrayList(statSpans);
       }
       if (postProcess) {
         Span[] dictSpans = dictFinder.nercToSpansExact(tokens);
-        SpanUtils.postProcessDuplicatedSpans(allSpans, dictSpans);
-        SpanUtils.concatenateSpans(allSpans, dictSpans);
+        Span.postProcessDuplicatedSpans(allSpans, dictSpans);
+        Span.concatenateSpans(allSpans, dictSpans);
       }
       if (dictTag) {
         Span[] dictOnlySpans = dictFinder.nercToSpansExact(tokens);
@@ -302,15 +308,15 @@ public class Annotate {
         BufferedReader sentenceReader = new BufferedReader(stringReader);
         numericLexerFinder = new NumericNameFinder(sentenceReader, nameFactory);
         Span[] numericSpans = numericLexerFinder.nercToSpans(tokens);
-        SpanUtils.concatenateSpans(allSpans, numericSpans);
+        Span.concatenateSpans(allSpans, numericSpans);
       }
       boolean isClearAdaptiveData = false;
       if (clearFeatures.equalsIgnoreCase("yes")) {
         isClearAdaptiveData = true;
       }
-      Span[] allSpansArray = NameFinderME.dropOverlappingSpans(allSpans
+      Span[] allSpansArray = SequenceLabelerME.dropOverlappingSpans(allSpans
           .toArray(new Span[allSpans.size()]));
-      NameSample nameSample = new NameSample(tokens, allSpansArray, isClearAdaptiveData);
+      SequenceSample nameSample = new SequenceSample(tokens, allSpansArray, isClearAdaptiveData);
       sb.append(nameSample.toString()).append("\n");
     }
     nameFinder.clearAdaptiveData();
