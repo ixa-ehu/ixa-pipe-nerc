@@ -289,7 +289,7 @@ public class CLI {
         .help("Choose language; it defaults to the language value in incoming NAF file.\n");
     annotateParser.addArgument("-o","--outputFormat")
         .required(false)
-        .choices("conll03", "conll02", "naf", "opennlp")
+        .choices("conll03", "conll02", "naf")
         .setDefault(Flags.DEFAULT_OUTPUT_FORMAT)
         .help("Choose output format; it defaults to NAF.\n");
     annotateParser.addArgument("--lexer")
@@ -333,7 +333,7 @@ public class CLI {
         .help("Choose language.\n");
     serverParser.addArgument("-o","--outputFormat")
         .required(false)
-        .choices("conll03", "conll02", "naf", "opennlp")
+        .choices("conll03", "conll02", "naf")
         .setDefault(Flags.DEFAULT_OUTPUT_FORMAT)
         .help("Choose output format; it defaults to NAF.\n");
     serverParser.addArgument("--lexer")

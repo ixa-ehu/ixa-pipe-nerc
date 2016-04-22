@@ -175,14 +175,6 @@ public class Annotate {
       nerTagger = new StatisticalSequenceLabeler(properties, nerFactory);
     }
   }
-  
-  /**
-   * Get the statistical NER tagger.
-   * @return the statistical NER tagger
-   */
-  public StatisticalSequenceLabeler getStatisticalNameFinder() {
-    return nerTagger;
-  }
 
   /**
    * Classify Named Entities creating the entities layer in the
