@@ -174,6 +174,7 @@ public class NERTaggerServer {
           "ixa-pipe-nerc-" + Files.getNameWithoutExtension(model), version
               + "-" + commit);
     newLp.setBeginTimestamp();
+    annotator.annotateNEsToKAF(kaf);
     // get outputFormat
     String kafToString = null;
     if (outputFormat.equalsIgnoreCase("conll03")) {
@@ -181,7 +182,6 @@ public class NERTaggerServer {
     } else if (outputFormat.equalsIgnoreCase("conll02")) {
       kafToString = annotator.annotateNEsToCoNLL2002(kaf);
     } else {
-      annotator.annotateNEsToKAF(kaf);
       newLp.setEndTimestamp();
       kafToString = kaf.toString();
     }

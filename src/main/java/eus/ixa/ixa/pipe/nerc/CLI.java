@@ -196,7 +196,6 @@ public class CLI {
     } else if (outputFormat.equalsIgnoreCase("conll02")) {
       kafToString = annotator.annotateNEsToCoNLL2002(kaf);
     } else {
-      annotator.annotateNEsToKAF(kaf);
       kafToString = kaf.toString();
     }
     bwriter.write(kafToString);
@@ -285,7 +284,7 @@ public class CLI {
         		" are present, choose 'docstart'.\n");
     annotateParser.addArgument("-l","--language")
         .required(false)
-        .choices("de", "en", "es", "eu", "it", "nl")
+        .choices("ca", "de", "en", "es", "eu", "fr", "gl", "it", "nl", "pt", "ru")
         .help("Choose language; it defaults to the language value in incoming NAF file.\n");
     annotateParser.addArgument("-o","--outputFormat")
         .required(false)
@@ -329,7 +328,7 @@ public class CLI {
                 " are present, choose 'docstart'.\n");
     serverParser.addArgument("-l","--language")
         .required(true)
-        .choices("de", "en", "es", "eu", "it", "nl")
+        .choices("ca", "de", "en", "es", "eu", "fr", "gl", "it", "nl", "pt", "ru")
         .help("Choose language.\n");
     serverParser.addArgument("-o","--outputFormat")
         .required(false)
