@@ -248,7 +248,9 @@ public class Annotate {
         nameFinder.clearAdaptiveData();
       }
     }
-    nameFinder.clearAdaptiveData();
+    if (statistical) {
+      nameFinder.clearAdaptiveData();
+    }
   }
 
   /**
