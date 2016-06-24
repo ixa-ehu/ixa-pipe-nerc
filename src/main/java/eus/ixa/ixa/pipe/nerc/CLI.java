@@ -62,7 +62,12 @@ import eus.ixa.ixa.pipe.nerc.train.Trainer;
  */
 public class CLI {
 
-  /**
+  
+   private static final String IXA_PIPE_NERC = "ixa-pipe-nerc-";
+   private static final String UTF_8 = "UTF-8";
+   private static final String MODEL = "model";
+   
+   /**
    * Get dynamically the version of ixa-pipe-nerc by looking at the MANIFEST
    * file.
    */
@@ -81,8 +86,8 @@ public class CLI {
    * Argument parser instance.
    */
   private ArgumentParser argParser = ArgumentParsers.newArgumentParser(
-      "ixa-pipe-nerc-" + version + ".jar").description(
-      "ixa-pipe-nerc-" + version
+      IXA_PIPE_NERC + version + ".jar").description(
+      IXA_PIPE_NERC + version
           + " is a multilingual sequence labeler module developed by IXA NLP Group.\n");
   /**
    * Sub parser instance.
@@ -207,13 +212,13 @@ public class CLI {
       final OutputStream outputStream) throws IOException, JDOMException {
 
     BufferedReader breader = new BufferedReader(new InputStreamReader(
-        inputStream, "UTF-8"));
+        inputStream,  UTF_8));
     BufferedWriter bwriter = new BufferedWriter(new OutputStreamWriter(
-        outputStream, "UTF-8"));
+        outputStream,  UTF_8));
     // read KAF document from inputstream
     KAFDocument kaf = KAFDocument.createFromStream(breader);
     // load parameters into a properties
-    String model = parsedArguments.getString("model");
+    String model = parsedArguments.getString(MODEL);
     String outputFormat = parsedArguments.getString("outputFormat");
     String lexer = parsedArguments.getString("lexer");
     String dictTag = parsedArguments.getString("dictTag");
@@ -233,7 +238,7 @@ public class CLI {
     }
     Properties properties = setAnnotateProperties(model, lang, lexer, dictTag, dictPath, clearFeatures);
     KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor(
-        "entities", "ixa-pipe-nerc-" + Files.getNameWithoutExtension(model), version + "-" + commit);
+        "entities", IXA_PIPE_NERC + Files.getNameWithoutExtension(model), version + "-" + commit);
     newLp.setBeginTimestamp();
     Annotate annotator = new Annotate(properties);
     annotator.annotateNEs(kaf);
@@ -268,13 +273,13 @@ public class CLI {
       final OutputStream outputStream) throws IOException, JDOMException {
 
     BufferedReader breader = new BufferedReader(new InputStreamReader(
-        inputStream, "UTF-8"));
+        inputStream,  UTF_8));
     BufferedWriter bwriter = new BufferedWriter(new OutputStreamWriter(
-        outputStream, "UTF-8"));
+        outputStream,  UTF_8));
     // read KAF document from inputstream
     KAFDocument kaf = KAFDocument.createFromStream(breader);
     // load parameters into a properties
-    String model = parsedArguments.getString("model");
+    String model = parsedArguments.getString(MODEL);
     String outputFormat = parsedArguments.getString("outputFormat");
     String clearFeatures = parsedArguments.getString("clearFeatures");
     // language parameter
@@ -291,7 +296,7 @@ public class CLI {
     }
     Properties properties = setOteProperties(model, lang, clearFeatures);
     KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor(
-        "opinions", "ixa-pipe-nerc-" + Files.getNameWithoutExtension(model), version + "-" + commit);
+        "opinions", IXA_PIPE_NERC + Files.getNameWithoutExtension(model), version + "-" + commit);
     newLp.setBeginTimestamp();
     OpinionTargetExtractor oteExtractor = new OpinionTargetExtractor(properties);
     oteExtractor.annotateOTE(kaf);
@@ -341,7 +346,7 @@ public class CLI {
   public final void eval() throws IOException {
 
     String lang = parsedArguments.getString("language");
-    String model = parsedArguments.getString("model");
+    String model = parsedArguments.getString(MODEL);
     String testset = parsedArguments.getString("testset");
     String corpusFormat = parsedArguments.getString("corpusFormat");
     String netypes = parsedArguments.getString("types");
@@ -387,7 +392,7 @@ public class CLI {
     // load parameters into a properties
     String task = parsedArguments.getString("task");
     String port = parsedArguments.getString("port");
-    String model = parsedArguments.getString("model");
+    String model = parsedArguments.getString(MODEL);
     String lexer = parsedArguments.getString("lexer");
     String dictTag = parsedArguments.getString("dictTag");
     String dictPath = parsedArguments.getString("dictPath");
@@ -418,11 +423,11 @@ public class CLI {
     String port = parsedArguments.getString("port");
     try (Socket socketClient = new Socket(host, Integer.parseInt(port));
         BufferedReader inFromUser = new BufferedReader(new InputStreamReader(
-            System.in, "UTF-8"));
+            System.in,  UTF_8));
         BufferedWriter outToUser = new BufferedWriter(new OutputStreamWriter(
-            System.out, "UTF-8"));
+            System.out,  UTF_8));
         BufferedWriter outToServer = new BufferedWriter(new OutputStreamWriter(
-            socketClient.getOutputStream(), "UTF-8"));
+            socketClient.getOutputStream(),  UTF_8));
         BufferedReader inFromServer = new BufferedReader(new InputStreamReader(
             socketClient.getInputStream(), "UTF-8"));) {
 
@@ -650,7 +655,7 @@ public class CLI {
    */
   private Properties setAnnotateProperties(String model, String language, String lexer, String dictTag, String dictPath, String clearFeatures) {
     Properties annotateProperties = new Properties();
-    annotateProperties.setProperty("model", model);
+    annotateProperties.setProperty(MODEL, model);
     annotateProperties.setProperty("language", language);
     annotateProperties.setProperty("ruleBasedOption", lexer);
     annotateProperties.setProperty("dictTag", dictTag);
@@ -670,7 +675,7 @@ public class CLI {
    */
   private Properties setOteProperties(String model, String language, String clearFeatures) {
     Properties oteProperties = new Properties();
-    oteProperties.setProperty("model", model);
+    oteProperties.setProperty(MODEL, model);
     oteProperties.setProperty("language", language);
     oteProperties.setProperty("clearFeatures", clearFeatures);
     return oteProperties;
@@ -687,7 +692,7 @@ public class CLI {
   private Properties setEvalProperties(String language, String model, String testset, String corpusFormat, String netypes, String clearFeatures) {
     Properties evalProperties = new Properties();
     evalProperties.setProperty("language", language);
-    evalProperties.setProperty("model", model);
+    evalProperties.setProperty(MODEL, model);
     evalProperties.setProperty("testset", testset);
     evalProperties.setProperty("corpusFormat", corpusFormat);
     evalProperties.setProperty("types", netypes);
@@ -698,7 +703,7 @@ public class CLI {
   private Properties setNameServerProperties(String port, String model, String language, String lexer, String dictTag, String dictPath, String clearFeatures, String outputFormat) {
     Properties serverProperties = new Properties();
     serverProperties.setProperty("port", port);
-    serverProperties.setProperty("model", model);
+    serverProperties.setProperty(MODEL, model);
     serverProperties.setProperty("language", language);
     serverProperties.setProperty("ruleBasedOption", lexer);
     serverProperties.setProperty("dictTag", dictTag);
