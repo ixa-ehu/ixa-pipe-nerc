@@ -20,7 +20,9 @@ import java.util.List;
 
 import opennlp.tools.util.Span;
 
-public class SpanUtils {
+public final class SpanUtils {
+	
+  private SpanUtils() {}	
   
   /**
    * Concatenates two span lists adding the spans of the second parameter to the

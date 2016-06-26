@@ -26,7 +26,9 @@ import eus.ixa.ixa.pipe.nerc.dict.BrownCluster;
  * @author ragerri 2014-10-14
  *
  */
-public class BrownTokenClasses {
+public final class BrownTokenClasses {
+	
+  private BrownTokenClasses() {}	
   
   public static final int[] pathLengths = { 4, 6, 10, 20 };
   
