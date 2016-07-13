@@ -37,8 +37,8 @@ import eus.ixa.ixa.pipe.ml.StatisticalSequenceLabeler;
 import eus.ixa.ixa.pipe.ml.nerc.DictionariesNERTagger;
 import eus.ixa.ixa.pipe.ml.nerc.NumericNERTagger;
 import eus.ixa.ixa.pipe.ml.resources.Dictionaries;
-import eus.ixa.ixa.pipe.ml.sequence.Sequence;
-import eus.ixa.ixa.pipe.ml.sequence.SequenceFactory;
+import eus.ixa.ixa.pipe.ml.sequence.SequenceLabel;
+import eus.ixa.ixa.pipe.ml.sequence.SequenceLabelFactory;
 import eus.ixa.ixa.pipe.ml.sequence.SequenceLabelerME;
 import eus.ixa.ixa.pipe.ml.utils.Flags;
 import eus.ixa.ixa.pipe.ml.utils.Span;
@@ -57,7 +57,7 @@ public class Annotate {
   /**
    * The Sequence factory.
    */
-  private SequenceFactory nerFactory;
+  private SequenceLabelFactory nerFactory;
   /**
    * The SequenceLabeler to do the annotation.
    */
@@ -111,7 +111,7 @@ public class Annotate {
   public Annotate(final Properties properties) throws IOException {
 
     this.clearFeatures = properties.getProperty("clearFeatures");
-    nerFactory = new SequenceFactory();
+    nerFactory = new SequenceLabelFactory();
     annotateOptions(properties);
   }
 
@@ -224,13 +224,13 @@ public class Annotate {
       }
       Span[] allSpansArray = SequenceLabelerME.dropOverlappingSpans(allSpans
           .toArray(new Span[allSpans.size()]));
-      List<Sequence> names = new ArrayList<>();
+      List<SequenceLabel> names = new ArrayList<>();
       if (statistical) {
         names = nerTagger.getSequencesFromSpans(tokens, allSpansArray);
       } else {
         names = nerTaqgerDict.getNamesFromSpans(allSpansArray, tokens);
       }
-      for (Sequence name : names) {
+      for (SequenceLabel name : names) {
         Integer startIndex = name.getSpan().getStart();
         Integer endIndex = name.getSpan().getEnd();
         List<Term> nameTerms = kaf.getTermsFromWFs(Arrays.asList(Arrays
