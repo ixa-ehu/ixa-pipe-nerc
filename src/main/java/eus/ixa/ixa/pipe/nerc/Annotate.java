@@ -236,13 +236,17 @@ public class Annotate {
       for (Name name : names) {
         Integer startIndex = name.getSpan().getStart();
         Integer endIndex = name.getSpan().getEnd();
-        List<Term> nameTerms = kaf.getTermsFromWFs(Arrays.asList(Arrays
-            .copyOfRange(tokenIds, startIndex, endIndex)));
-        ixa.kaflib.Span<Term> neSpan = KAFDocument.newTermSpan(nameTerms);
-        List<ixa.kaflib.Span<Term>> references = new ArrayList<ixa.kaflib.Span<Term>>();
-        references.add(neSpan);
-        Entity neEntity = kaf.newEntity(references);
-        neEntity.setType(name.getType());
+        List<String> wfIds = Arrays
+            .asList(Arrays.copyOfRange(tokenIds, startIndex, endIndex));
+        List<String> wfTermIds = getAllWFIdsFromTerms(kaf);
+        if (checkTermsRefsIntegrity(wfIds, wfTermIds)) {
+          List<Term> nameTerms = kaf.getTermsFromWFs(wfIds);
+          ixa.kaflib.Span<Term> neSpan = KAFDocument.newTermSpan(nameTerms);
+          List<ixa.kaflib.Span<Term>> references = new ArrayList<ixa.kaflib.Span<Term>>();
+          references.add(neSpan);
+          Entity neEntity = kaf.newEntity(references);
+          neEntity.setType(name.getType());
+        }
       }
       if (clearFeatures.equalsIgnoreCase("yes")) {
         nameFinder.clearAdaptiveData();
@@ -251,6 +255,40 @@ public class Annotate {
     if (statistical) {
       nameFinder.clearAdaptiveData();
     }
+  }
+  
+  /**
+   * Get all the WF ids for the terms contained in the KAFDocument.
+   * @param kaf the KAFDocument
+   * @return the list of all WF ids in the terms layer
+   */
+  public List<String> getAllWFIdsFromTerms(KAFDocument kaf) {
+    List<Term> terms = kaf.getTerms();
+    List<String> wfTermIds = new ArrayList<>();
+    for (int i = 0; i < terms.size(); i++) {
+      List<WF> sentTerms = terms.get(i).getWFs();
+      for (WF form : sentTerms) {
+        wfTermIds.add(form.getId());
+      }
+    }
+    return wfTermIds;
+  }
+
+  /**
+   * Check that the references from the entity spans are
+   * actually contained in the term ids.
+   * @param wfIds the worform ids corresponding to the Term span
+   * @param termWfIds all the terms in the document
+   * @return true or false
+   */
+  public boolean checkTermsRefsIntegrity(List<String> wfIds,
+      List<String> termWfIds) {
+    for (int i = 0; i < wfIds.size(); i++) {
+      if (!termWfIds.contains(wfIds.get(i))) {
+        return false;
+      }
+    }
+    return true;
   }
 
   /**
