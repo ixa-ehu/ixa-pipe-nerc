@@ -45,9 +45,9 @@ import eus.ixa.ixa.pipe.ml.utils.Span;
 import eus.ixa.ixa.pipe.ml.utils.StringUtils;
 
 /**
- * Annotation class for Named Entities in ixa-pipe-nerc. Use this
- * class for examples on using ixa-pipe-ml API for Named Entity
- * tagging.
+ * Annotation class for Named Entities in ixa-pipe-nerc. Use this class for
+ * examples on using ixa-pipe-ml API for Named Entity tagging.
+ * 
  * @author ragerri
  * @version 2016-04-22
  * 
@@ -79,8 +79,8 @@ public class Annotate {
    */
   private boolean statistical;
   /**
-   * Activates post processing of statistical sequence labeling with dictionary name
-   * finders.
+   * Activates post processing of statistical sequence labeling with dictionary
+   * name finders.
    */
   private boolean postProcess;
   /**
@@ -96,13 +96,17 @@ public class Annotate {
    */
   private String clearFeatures;
 
-  /** It manages the use of the three different name finders: {@code StatisticalSequenceLabeler}, 
-   * {@code DictionariesNameFinder} and {@code NumericNameFinder}. In particular, if --dictTag
-   * option in CLI is off, statistical models are used (this is the default). If --dictTag is
-   * activated, it has two options, "tag" and "post": tag only tags with a gazetteer and "post" 
-   * post-processes the probabilistic annotation giving priority to the gazetteer. 
-   * Obviously, this option depends on the --dictPath parameter being correctly specified. The
-   * --lexer numeric option annotates numeric entities (dates, percentages, and so on) via rules.
+  /**
+   * It manages the use of the three different name finders:
+   * {@code StatisticalSequenceLabeler}, {@code DictionariesNameFinder} and
+   * {@code NumericNameFinder}. In particular, if --dictTag option in CLI is
+   * off, statistical models are used (this is the default). If --dictTag is
+   * activated, it has two options, "tag" and "post": tag only tags with a
+   * gazetteer and "post" post-processes the probabilistic annotation giving
+   * priority to the gazetteer. Obviously, this option depends on the --dictPath
+   * parameter being correctly specified. The --lexer numeric option annotates
+   * numeric entities (dates, percentages, and so on) via rules.
+   * 
    * @param properties
    *          the properties
    * @throws IOException
@@ -117,8 +121,9 @@ public class Annotate {
 
   /**
    * Generates the right options for NERC tagging: using the
-   * {@link StatisticalSequenceLabeler} or using the {@link DictionariesNERTagger}
-   * or a combination of those with the {@link NumericNERTagger}.
+   * {@link StatisticalSequenceLabeler} or using the
+   * {@link DictionariesNERTagger} or a combination of those with the
+   * {@link NumericNERTagger}.
    * 
    * @param properties
    *          the parameters to choose the NameFinder are lexer, dictTag and
@@ -190,8 +195,9 @@ public class Annotate {
 
     List<Span> allSpans = null;
     List<List<WF>> sentences = kaf.getSentences();
+    
     for (List<WF> sentence : sentences) {
-      //process each sentence
+      // process each sentence
       String[] tokens = new String[sentence.size()];
       String[] tokenIds = new String[sentence.size()];
       for (int i = 0; i < sentence.size(); i++) {
@@ -199,7 +205,8 @@ public class Annotate {
         tokenIds[i] = sentence.get(i).getId();
       }
       if (statistical) {
-        if (clearFeatures.equalsIgnoreCase("docstart") && tokens[0].startsWith("-DOCSTART-")) {
+        if (clearFeatures.equalsIgnoreCase("docstart")
+            && tokens[0].startsWith("-DOCSTART-")) {
           nerTagger.clearAdaptiveData();
         }
         Span[] statSpans = nerTagger.seqToSpans(tokens);
@@ -218,12 +225,13 @@ public class Annotate {
         String sentenceText = StringUtils.getStringFromTokens(tokens);
         StringReader stringReader = new StringReader(sentenceText);
         BufferedReader sentenceReader = new BufferedReader(stringReader);
-        numericNerTaggerLexer = new NumericNERTagger(sentenceReader, nerFactory);
+        numericNerTaggerLexer = new NumericNERTagger(sentenceReader,
+            nerFactory);
         Span[] numericSpans = numericNerTaggerLexer.nercToSpans(tokens);
         Span.concatenateSpans(allSpans, numericSpans);
       }
-      Span[] allSpansArray = SequenceLabelerME.dropOverlappingSpans(allSpans
-          .toArray(new Span[allSpans.size()]));
+      Span[] allSpansArray = SequenceLabelerME
+          .dropOverlappingSpans(allSpans.toArray(new Span[allSpans.size()]));
       List<SequenceLabel> names = new ArrayList<>();
       if (statistical) {
         names = nerTagger.getSequencesFromSpans(tokens, allSpansArray);
@@ -233,19 +241,57 @@ public class Annotate {
       for (SequenceLabel name : names) {
         Integer startIndex = name.getSpan().getStart();
         Integer endIndex = name.getSpan().getEnd();
-        List<Term> nameTerms = kaf.getTermsFromWFs(Arrays.asList(Arrays
-            .copyOfRange(tokenIds, startIndex, endIndex)));
-        ixa.kaflib.Span<Term> neSpan = KAFDocument.newTermSpan(nameTerms);
-        List<ixa.kaflib.Span<Term>> references = new ArrayList<ixa.kaflib.Span<Term>>();
-        references.add(neSpan);
-        Entity neEntity = kaf.newEntity(references);
-        neEntity.setType(name.getType());
+        List<String> wfIds = Arrays
+            .asList(Arrays.copyOfRange(tokenIds, startIndex, endIndex));
+        List<String> wfTermIds = getAllWFIdsFromTerms(kaf);
+        if (checkTermsRefsIntegrity(wfIds, wfTermIds)) {
+          List<Term> nameTerms = kaf.getTermsFromWFs(wfIds);
+          ixa.kaflib.Span<Term> neSpan = KAFDocument.newTermSpan(nameTerms);
+          List<ixa.kaflib.Span<Term>> references = new ArrayList<ixa.kaflib.Span<Term>>();
+          references.add(neSpan);
+          Entity neEntity = kaf.newEntity(references);
+          neEntity.setType(name.getType());
+        }
       }
       if (clearFeatures.equalsIgnoreCase("yes")) {
         nerTagger.clearAdaptiveData();
       }
     }
     nerTagger.clearAdaptiveData();
+  }
+  
+  /**
+   * Get all the WF ids for the terms contained in the KAFDocument.
+   * @param kaf the KAFDocument
+   * @return the list of all WF ids in the terms layer
+   */
+  public List<String> getAllWFIdsFromTerms(KAFDocument kaf) {
+    List<Term> terms = kaf.getTerms();
+    List<String> wfTermIds = new ArrayList<>();
+    for (int i = 0; i < terms.size(); i++) {
+      List<WF> sentTerms = terms.get(i).getWFs();
+      for (WF form : sentTerms) {
+        wfTermIds.add(form.getId());
+      }
+    }
+    return wfTermIds;
+  }
+
+  /**
+   * Check that the references from the entity spans are
+   * actually contained in the term ids.
+   * @param wfIds the worform ids corresponding to the Term span
+   * @param termWfIds all the terms in the document
+   * @return true or false
+   */
+  public boolean checkTermsRefsIntegrity(List<String> wfIds,
+      List<String> termWfIds) {
+    for (int i = 0; i < wfIds.size(); i++) {
+      if (!termWfIds.contains(wfIds.get(i))) {
+        return false;
+      }
+    }
+    return true;
   }
 
   /**
@@ -311,7 +357,8 @@ public class Annotate {
               sb.append("\t");
               sb.append(thisTerm.getMorphofeat());
               sb.append("\t");
-              if (j == 0 && previousIsEntity && previousType.equalsIgnoreCase(neType)) {
+              if (j == 0 && previousIsEntity
+                  && previousType.equalsIgnoreCase(neType)) {
                 sb.append(BIO.BEGIN.toString());
               } else {
                 sb.append(BIO.IN.toString());
@@ -443,7 +490,8 @@ public class Annotate {
    */
   public String convertToConLLTypes(String neType) {
     String conllType = null;
-    if (neType.equalsIgnoreCase("PERSON") || neType.equalsIgnoreCase("ORGANIZATION")
+    if (neType.equalsIgnoreCase("PERSON")
+        || neType.equalsIgnoreCase("ORGANIZATION")
         || neType.equalsIgnoreCase("LOCATION") || neType.length() == 3) {
       conllType = neType.substring(0, 3);
     } else {
