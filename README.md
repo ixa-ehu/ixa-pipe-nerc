@@ -149,7 +149,7 @@ ixa-pipe-nerc**. Please do read that file!!
 If you are in hurry, just execute:
 
 ````shell
-cat file.txt | ixa-pipe-tok | ixa-pipe-pos | java -jar $PATH/target/ixa-pipe-nerc-${version}-exec.jar tag -m model.bin
+cat file.txt | java -jar target/ixa-pipe-tok-$version-exec.jar tok -l en | ixa-pipe-pos | java -jar $PATH/target/ixa-pipe-nerc-${version}-exec.jar tag -m model.bin
 ````
 
 If you want to know more, please follow reading.
@@ -183,14 +183,14 @@ There are several options to tag with ixa-pipe-nerc:
 **Example**:
 
 ````shell
-cat file.txt | ixa-pipe-tok | ixa-pipe-pos | java -jar $PATH/target/ixa-pipe-nerc-${version}-exec.jar tag -m nerc-models-$version/en/en-local-conll03.bin
+cat file.txt | java -jar target/ixa-pipe-tok-$version-exec.jar tok -l en | ixa-pipe-pos | java -jar $PATH/target/ixa-pipe-nerc-${version}-exec.jar tag -m nerc-models-$version/en/en-local-conll03.bin
 ````
 ### OTE
 
 As for NER tagging, the ote requires an input NAF with *wf* and *term* elements:
 
 ````shell
-cat file.txt | ixa-pipe-tok | ixa-pipe-pos | java -jar $PATH/target/ixa-pipe-nerc-${version}-exec.jar ote -m model.bin
+cat file.txt | java -jar target/ixa-pipe-tok-$version-exec.jar tok -l en | ixa-pipe-pos | java -jar $PATH/target/ixa-pipe-nerc-${version}-exec.jar ote -m model.bin
 ````
 
 ixa-pipe-nerc reads NAF documents (with *wf* and *term* elements) via standard input and outputs opinion targets in NAF
@@ -208,12 +208,6 @@ There are several options to tag with ixa-pipe-nerc:
 + **model**: pass the model as a parameter.
 + **language**: pass the language as a parameter.
 + **outputFormat**: Output annotation in a format: available OpenNLP native format and NAF. It defaults to NAF.
-
-**Example**:
-
-````shell
-cat file.txt | ixa-pipe-tok | ixa-pipe-pos | java -jar $PATH/target/ixa-pipe-nerc-${version}-exec.jar ote -m ote-models-$version/en/ote-semeval2014-restaurants.bin
-````
 
 ### Server
 
