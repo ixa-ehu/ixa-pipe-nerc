@@ -60,10 +60,7 @@ public class StatisticalNameFinder implements NameFinder {
    * @param props the properties to be loaded
    */
   public StatisticalNameFinder(final Properties props) {
-    String lang = props.getProperty("language");
-    String model = props.getProperty("model");
-    TokenNameFinderModel nerModel = loadModel(lang, model);
-    nameFinder = new NameFinderME(nerModel);
+    this(props, null);
   }
 
   /**
