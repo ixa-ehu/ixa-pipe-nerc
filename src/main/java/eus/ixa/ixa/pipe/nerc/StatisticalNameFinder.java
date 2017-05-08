@@ -44,7 +44,7 @@ public class StatisticalNameFinder implements NameFinder {
    * The models to use for every language. The keys of the hash are the
    * language codes, the values the models.
    */
-  private static ConcurrentHashMap<String, TokenNameFinderModel> nercModels =
+  private final static ConcurrentHashMap<String, TokenNameFinderModel> nercModels =
       new ConcurrentHashMap<String, TokenNameFinderModel>();
   /**
    * The name finder.
