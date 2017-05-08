@@ -157,15 +157,15 @@ public class StatisticalNameFinder implements NameFinder {
    * will share the same model.
    *
    * @param lang the language
-   * @param model the model to be loaded
+   * @param modelName the model to be loaded
    * @return the model as a {@link TokenNameFinder} object
    */
-  private final TokenNameFinderModel loadModel(final String lang, final String model) {
+  private final TokenNameFinderModel loadModel(final String lang, final String modelName) {
     long lStartTime = new Date().getTime();
     try {
       synchronized (nercModels) {
         if (!nercModels.containsKey(lang)) {
-          nercModels.put(lang, new TokenNameFinderModel(new FileInputStream(model)));
+          nercModels.put(lang, new TokenNameFinderModel(new FileInputStream(modelName)));
         }
       }
     } catch (IOException e) {
