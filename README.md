@@ -42,6 +42,7 @@ ixa-pipe-nerc provides:
 
 + **NERC** for Basque, English, Spanish, Dutch, German and Italian. The named entity types are based on:
    + **CONLL**: LOCATION, MISC, ORGANIZATION and PERSON. See [CoNLL 2002](http://www.clips.ua.ac.be/conll2002/ner/) and [CoNLL 2003](http://www.clips.ua.ac.be/conll2003/ner/) for more information.
+   + **Evalita 2009**: LOCATION, GPE, ORGANIZATION and PERSON.
    + **SONAR-1**: for Dutch, six main types, including CoNLL types plus PRODUCT and EVENT.
    + **Ancora**: for Spanish, six main types, including CoNLL types plus DATE and NUMBER.
 + **Opinion Target Extraction** (OTE) for English. The models are trained on the SemEval 2014 and 2015 datasets;
