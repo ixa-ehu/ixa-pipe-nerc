@@ -44,7 +44,7 @@ public class StatisticalNameFinder implements NameFinder {
    * The models to use for every language. The keys of the hash are the
    * language codes, the values the models.
    */
-  private static ConcurrentHashMap<String, TokenNameFinderModel> nercModels =
+  private final static ConcurrentHashMap<String, TokenNameFinderModel> nercModels =
       new ConcurrentHashMap<String, TokenNameFinderModel>();
   /**
    * The name finder.
@@ -60,10 +60,7 @@ public class StatisticalNameFinder implements NameFinder {
    * @param props the properties to be loaded
    */
   public StatisticalNameFinder(final Properties props) {
-    String lang = props.getProperty("language");
-    String model = props.getProperty("model");
-    TokenNameFinderModel nerModel = loadModel(lang, model);
-    nameFinder = new NameFinderME(nerModel);
+    this(props, null);
   }
 
   /**
@@ -78,8 +75,9 @@ public class StatisticalNameFinder implements NameFinder {
 
     String lang = props.getProperty("language");
     String model = props.getProperty("model");
+    Boolean useModelCache = Boolean.valueOf(props.getProperty("useModelCache", "true"));
     this.nameFactory = aNameFactory;
-    TokenNameFinderModel nerModel = loadModel(lang, model);
+    TokenNameFinderModel nerModel = loadModel(lang, model, useModelCache);
     nameFinder = new NameFinderME(nerModel);
   }
 
@@ -160,16 +158,23 @@ public class StatisticalNameFinder implements NameFinder {
    * will share the same model.
    *
    * @param lang the language
-   * @param model the model to be loaded
+   * @param modelName the model to be loaded
+   * @param useModelCache whether to cache the model in-memory
    * @return the model as a {@link TokenNameFinder} object
    */
-  private final TokenNameFinderModel loadModel(final String lang, final String model) {
+  private final TokenNameFinderModel loadModel(final String lang, final String modelName, final Boolean useModelCache) {
     long lStartTime = new Date().getTime();
+    TokenNameFinderModel model = null;
     try {
-      synchronized (nercModels) {
-        if (!nercModels.containsKey(lang)) {
-          nercModels.put(lang, new TokenNameFinderModel(new FileInputStream(model)));
+      if (useModelCache) {
+        synchronized (nercModels) {
+          if (!nercModels.containsKey(lang)) {
+            model = new TokenNameFinderModel(new FileInputStream(modelName));
+            nercModels.put(lang, model);
+          }
         }
+      } else {
+        model = new TokenNameFinderModel(new FileInputStream(modelName));
       }
     } catch (IOException e) {
       e.printStackTrace();
@@ -178,6 +183,6 @@ public class StatisticalNameFinder implements NameFinder {
     long difference = lEndTime - lStartTime;
     System.err.println("ixa-pipe-nerc model loaded in: " + difference
         + " miliseconds ... [DONE]");
-    return nercModels.get(lang);
+    return model;
   }
 }
