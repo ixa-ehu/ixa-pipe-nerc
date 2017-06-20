@@ -19,16 +19,19 @@ package eus.ixa.ixa.pipe.nerc;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import static java.util.Arrays.asList;
 
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.TokenNameFinder;
 import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.Span;
+
 
 /**
  * Statistical Sequence Labeling based on Apache OpenNLP Machine Learning API.
@@ -40,12 +43,20 @@ import opennlp.tools.util.Span;
 
 public class StatisticalNameFinder implements NameFinder {
 
+  private static final List<String> SUPPORTED_LANGUAGE = asList("en", "es", "de", "fr", "gl", "nl", "it");
+
   /**
    * The models to use for every language. The keys of the hash are the
    * language codes, the values the models.
    */
-  private final static ConcurrentHashMap<String, TokenNameFinderModel> nercModels =
-      new ConcurrentHashMap<String, TokenNameFinderModel>();
+  private final static ConcurrentHashMap<String, TokenNameFinderModel> nercModels = new ConcurrentHashMap<String, TokenNameFinderModel>();
+
+  /**
+   * The locks to use for every language model. The keys of the hash are the
+   * language codes, the values the locks.
+   */
+  private static ConcurrentHashMap<String, Lock> nercModelLocks = new ConcurrentHashMap<>();
+
   /**
    * The name finder.
    */
@@ -73,6 +84,9 @@ public class StatisticalNameFinder implements NameFinder {
    */
   public StatisticalNameFinder(final Properties props, final NameFactory aNameFactory) {
 
+    for (int i=0 ; i < SUPPORTED_LANGUAGE.size(); i++) {
+      nercModelLocks.put(SUPPORTED_LANGUAGE.get(i), new ReentrantLock());
+    }
     String lang = props.getProperty("language");
     String model = props.getProperty("model");
     Boolean useModelCache = Boolean.valueOf(props.getProperty("useModelCache", "true"));
@@ -117,7 +131,7 @@ public class StatisticalNameFinder implements NameFinder {
    */
   public final Span[] nercToSpans(final String[] tokens) {
     Span[] annotatedText = nameFinder.find(tokens);
-    List<Span> probSpans = new ArrayList<Span>(Arrays.asList(annotatedText));
+    List<Span> probSpans = new ArrayList<Span>(asList(annotatedText));
     return probSpans.toArray(new Span[probSpans.size()]);
   }
 
@@ -165,19 +179,25 @@ public class StatisticalNameFinder implements NameFinder {
   private final TokenNameFinderModel loadModel(final String lang, final String modelName, final Boolean useModelCache) {
     long lStartTime = new Date().getTime();
     TokenNameFinderModel model = null;
-    try {
-      if (useModelCache) {
-        synchronized (nercModels) {
-          if (!nercModels.containsKey(lang)) {
-            model = new TokenNameFinderModel(new FileInputStream(modelName));
-            nercModels.put(lang, model);
-          }
+    if (useModelCache) {
+      Lock l = nercModelLocks.get(lang);
+      l.lock();
+      try {
+        if ( ! nercModels.containsKey(lang)) {
+          nercModels.put(lang, new TokenNameFinderModel(new FileInputStream(modelName)));
         }
-      } else {
-        model = new TokenNameFinderModel(new FileInputStream(modelName));
+        model = nercModels.get(lang);
+      } catch (final IOException e) {
+        e.printStackTrace();
+      } finally {
+        l.unlock();
       }
-    } catch (IOException e) {
-      e.printStackTrace();
+    } else {
+      try {
+        model = new TokenNameFinderModel(new FileInputStream(modelName));
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
     }
     long lEndTime = new Date().getTime();
     long difference = lEndTime - lStartTime;
