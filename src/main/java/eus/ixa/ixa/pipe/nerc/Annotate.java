@@ -16,11 +16,6 @@
 
 package eus.ixa.ixa.pipe.nerc;
 
-import ixa.kaflib.Entity;
-import ixa.kaflib.KAFDocument;
-import ixa.kaflib.Term;
-import ixa.kaflib.WF;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
@@ -38,11 +33,14 @@ import eus.ixa.ixa.pipe.ml.nerc.DictionariesNERTagger;
 import eus.ixa.ixa.pipe.ml.nerc.NumericNERTagger;
 import eus.ixa.ixa.pipe.ml.resources.Dictionaries;
 import eus.ixa.ixa.pipe.ml.sequence.SequenceLabel;
-import eus.ixa.ixa.pipe.ml.sequence.SequenceLabelFactory;
 import eus.ixa.ixa.pipe.ml.sequence.SequenceLabelerME;
 import eus.ixa.ixa.pipe.ml.utils.Flags;
 import eus.ixa.ixa.pipe.ml.utils.Span;
 import eus.ixa.ixa.pipe.ml.utils.StringUtils;
+import ixa.kaflib.Entity;
+import ixa.kaflib.KAFDocument;
+import ixa.kaflib.Term;
+import ixa.kaflib.WF;
 
 /**
  * Annotation class for Named Entities in ixa-pipe-nerc. Use this class for
@@ -54,10 +52,6 @@ import eus.ixa.ixa.pipe.ml.utils.StringUtils;
  */
 public class Annotate {
 
-  /**
-   * The Sequence factory.
-   */
-  private SequenceLabelFactory nerFactory;
   /**
    * The SequenceLabeler to do the annotation.
    */
@@ -115,7 +109,6 @@ public class Annotate {
   public Annotate(final Properties properties) throws IOException {
 
     this.clearFeatures = properties.getProperty("clearFeatures");
-    nerFactory = new SequenceLabelFactory();
     annotateOptions(properties);
   }
 
@@ -148,19 +141,19 @@ public class Annotate {
       if (!dictPath.equals(Flags.DEFAULT_DICT_PATH)) {
         if (dictionaries == null) {
           dictionaries = new Dictionaries(dictPath);
-          nerTaqgerDict = new DictionariesNERTagger(dictionaries, nerFactory);
+          nerTaqgerDict = new DictionariesNERTagger(dictionaries);
         }
         if (dictOption.equalsIgnoreCase("tag")) {
           dictTag = true;
           postProcess = false;
           statistical = false;
         } else if (dictOption.equalsIgnoreCase("post")) {
-          nerTagger = new StatisticalSequenceLabeler(properties, nerFactory);
+          nerTagger = new StatisticalSequenceLabeler(properties);
           statistical = true;
           postProcess = true;
           dictTag = false;
         } else {
-          nerTagger = new StatisticalSequenceLabeler(properties, nerFactory);
+          nerTagger = new StatisticalSequenceLabeler(properties);
           statistical = true;
           dictTag = false;
           postProcess = false;
@@ -171,13 +164,13 @@ public class Annotate {
       statistical = true;
       dictTag = false;
       postProcess = false;
-      nerTagger = new StatisticalSequenceLabeler(properties, nerFactory);
+      nerTagger = new StatisticalSequenceLabeler(properties);
     } else {
       lexerTagger = false;
       statistical = true;
       dictTag = false;
       postProcess = false;
-      nerTagger = new StatisticalSequenceLabeler(properties, nerFactory);
+      nerTagger = new StatisticalSequenceLabeler(properties);
     }
   }
 
@@ -225,8 +218,7 @@ public class Annotate {
         String sentenceText = StringUtils.getStringFromTokens(tokens);
         StringReader stringReader = new StringReader(sentenceText);
         BufferedReader sentenceReader = new BufferedReader(stringReader);
-        numericNerTaggerLexer = new NumericNERTagger(sentenceReader,
-            nerFactory);
+        numericNerTaggerLexer = new NumericNERTagger(sentenceReader);
         Span[] numericSpans = numericNerTaggerLexer.nercToSpans(tokens);
         Span.concatenateSpans(allSpans, numericSpans);
       }
