@@ -5,7 +5,7 @@
  * <li>Using Dictionaries
  * <li>Using Regular Expressions
  * </ol>
- * All these three methods correspond to the implementations of
- * the {@code NameFinder} interface
+ * All these three methods correspond to the implementations of the
+ * {@code NameFinder} interface
  */
 package eus.ixa.ixa.pipe.nerc;

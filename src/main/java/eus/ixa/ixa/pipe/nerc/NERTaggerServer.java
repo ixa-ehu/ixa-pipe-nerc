@@ -35,21 +35,24 @@ import com.google.common.io.Files;
 
 /**
  * TCP server class for the Named Entity Tagger.
+ * 
  * @author ragerri
  * @version 2016-04-22
  */
 public class NERTaggerServer {
-  
+
   /**
    * Get dynamically the version of ixa-pipe-nerc by looking at the MANIFEST
    * file.
    */
-  private final String version = CLI.class.getPackage().getImplementationVersion();
+  private final String version = CLI.class.getPackage()
+      .getImplementationVersion();
   /**
    * Get the git commit of the ixa-pipe-nerc compiled by looking at the MANIFEST
    * file.
    */
-  private final String commit = CLI.class.getPackage().getSpecificationVersion();
+  private final String commit = CLI.class.getPackage()
+      .getSpecificationVersion();
   /**
    * The model.
    */
@@ -58,9 +61,10 @@ public class NERTaggerServer {
    * The annotation output format, one of NAF (default), CoNLL 2002, CoNLL 2003.
    */
   private String outputFormat = null;
-  
+
   /**
    * Construct a Named Entity Tagger server.
+   * 
    * @param properties
    *          the properties
    */
@@ -69,7 +73,7 @@ public class NERTaggerServer {
     Integer port = Integer.parseInt(properties.getProperty("port"));
     model = properties.getProperty("model");
     outputFormat = properties.getProperty("outputFormat");
-    
+
     String kafToString;
     ServerSocket socketServer = null;
     Socket activeSocket;
@@ -84,9 +88,11 @@ public class NERTaggerServer {
       while (true) {
         try {
           activeSocket = socketServer.accept();
-          inFromClient = new BufferedReader(new InputStreamReader(activeSocket.getInputStream(), "UTF-8"));
-          outToClient = new BufferedWriter(new OutputStreamWriter(activeSocket.getOutputStream(), "UTF-8"));
-          //get data from client
+          inFromClient = new BufferedReader(
+              new InputStreamReader(activeSocket.getInputStream(), "UTF-8"));
+          outToClient = new BufferedWriter(
+              new OutputStreamWriter(activeSocket.getOutputStream(), "UTF-8"));
+          // get data from client
           String stringFromClient = getClientData(inFromClient);
           // annotate
           kafToString = getAnnotations(annotator, stringFromClient);
@@ -103,15 +109,16 @@ public class NERTaggerServer {
           sendDataToClient(outToClient, kafToString);
           continue;
         }
-        //send data to server after all exceptions and close the outToClient
+        // send data to server after all exceptions and close the outToClient
         sendDataToClient(outToClient, kafToString);
-        //close the resources
+        // close the resources
         inFromClient.close();
         activeSocket.close();
-      } //end of processing block
+      } // end of processing block
     } catch (IOException e) {
       e.printStackTrace();
-      System.err.println("-> IOException due to failing to create the TCP socket or to wrongly provided model path.");
+      System.err.println(
+          "-> IOException due to failing to create the TCP socket or to wrongly provided model path.");
     } finally {
       System.out.println("closing tcp socket...");
       try {
@@ -121,10 +128,12 @@ public class NERTaggerServer {
       }
     }
   }
-  
+
   /**
    * Read data from the client and output to a String.
-   * @param inFromClient the client inputstream
+   * 
+   * @param inFromClient
+   *          the client inputstream
    * @return the string from the client
    */
   private String getClientData(BufferedReader inFromClient) {
@@ -140,39 +149,50 @@ public class NERTaggerServer {
           break;
         }
       }
-    }catch (IOException e) {
+    } catch (IOException e) {
       e.printStackTrace();
     }
     return stringFromClient.toString();
   }
-  
+
   /**
    * Send data back to server after annotation.
-   * @param outToClient the outputstream to the client
-   * @param kafToString the string to be processed
-   * @throws IOException if io error
+   * 
+   * @param outToClient
+   *          the outputstream to the client
+   * @param kafToString
+   *          the string to be processed
+   * @throws IOException
+   *           if io error
    */
-  private void sendDataToClient(BufferedWriter outToClient, String kafToString) throws IOException {
+  private void sendDataToClient(BufferedWriter outToClient, String kafToString)
+      throws IOException {
     outToClient.write(kafToString);
     outToClient.close();
   }
-  
+
   /**
    * Named Entity annotator.
-   * @param annotator the annotator
-   * @param stringFromClient the string to be annotated
+   * 
+   * @param annotator
+   *          the annotator
+   * @param stringFromClient
+   *          the string to be annotated
    * @return the annotation result
-   * @throws IOException if io error
-   * @throws JDOMException if xml error
+   * @throws IOException
+   *           if io error
+   * @throws JDOMException
+   *           if xml error
    */
-  private String getAnnotations(Annotate annotator, String stringFromClient) throws JDOMException, IOException {
-    //get a breader from the string coming from the client
-    BufferedReader clientReader = new BufferedReader(new StringReader(stringFromClient));
+  private String getAnnotations(Annotate annotator, String stringFromClient)
+      throws JDOMException, IOException {
+    // get a breader from the string coming from the client
+    BufferedReader clientReader = new BufferedReader(
+        new StringReader(stringFromClient));
     KAFDocument kaf = KAFDocument.createFromStream(clientReader);
     KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor(
-          "entities",
-          "ixa-pipe-nerc-" + Files.getNameWithoutExtension(model), version
-              + "-" + commit);
+        "entities", "ixa-pipe-nerc-" + Files.getNameWithoutExtension(model),
+        version + "-" + commit);
     newLp.setBeginTimestamp();
     annotator.annotateNEsToKAF(kaf);
     // get outputFormat
