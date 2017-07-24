@@ -1,5 +1,5 @@
 /*
- *  Copyright 2015 Rodrigo Agerri
+ *  Copyright 2016 Rodrigo Agerri
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import ixa.kaflib.KAFDocument;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -37,37 +36,29 @@ import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 import net.sourceforge.argparse4j.inf.Subparsers;
-import opennlp.tools.cmdline.CmdLineUtil;
-import opennlp.tools.namefind.TokenNameFinderModel;
-import opennlp.tools.util.TrainingParameters;
 
 import org.jdom2.JDOMException;
 
 import com.google.common.io.Files;
 
-import eus.ixa.ixa.pipe.nerc.eval.CrossValidator;
-import eus.ixa.ixa.pipe.nerc.eval.Evaluate;
-import eus.ixa.ixa.pipe.nerc.train.FixedTrainer;
-import eus.ixa.ixa.pipe.nerc.train.Flags;
-import eus.ixa.ixa.pipe.nerc.train.InputOutputUtils;
-import eus.ixa.ixa.pipe.nerc.train.Trainer;
+import eus.ixa.ixa.pipe.ml.utils.Flags;
 
 /**
- * Main class of ixa-pipe-nerc, the ixa pipes (ixa2.si.ehu.es/ixa-pipes) sequence
- * labeler.
+ * Main class of ixa-pipe-nerc which uses ixa-pipe-ml API.
  * 
  * @author ragerri
- * @version 2015-02-26
- * 
+ * @version 2017-07-24
  */
 public class CLI {
 
-  
-   private static final String IXA_PIPE_NERC = "ixa-pipe-nerc-";
-   private static final String UTF_8 = "UTF-8";
-   private static final String MODEL = "model";
-   
-   /**
+  private static final String IXA_PIPE_NERC = "ixa-pipe-nerc-";
+  private static final String UTF_8 = "UTF-8";
+  private static final String MODEL = "model";
+  private static final String ANNOTATE_PARSER_NAME = "tag";
+  private static final String SERVER_PARSER_NAME = "server";
+  private static final String CLIENT_PARSER_NAME = "client";
+
+  /**
    * Get dynamically the version of ixa-pipe-nerc by looking at the MANIFEST
    * file.
    */
@@ -77,7 +68,8 @@ public class CLI {
    * Get the git commit of the ixa-pipe-nerc compiled by looking at the MANIFEST
    * file.
    */
-  private final String commit = CLI.class.getPackage().getSpecificationVersion();
+  private final String commit = CLI.class.getPackage()
+      .getSpecificationVersion();
   /**
    * Name space of the arguments provided at the CLI.
    */
@@ -85,35 +77,19 @@ public class CLI {
   /**
    * Argument parser instance.
    */
-  private ArgumentParser argParser = ArgumentParsers.newArgumentParser(
-      IXA_PIPE_NERC + version + ".jar").description(
-      IXA_PIPE_NERC + version
-          + " is a multilingual sequence labeler module developed by IXA NLP Group.\n");
+  private ArgumentParser argParser = ArgumentParsers
+      .newArgumentParser(IXA_PIPE_NERC + version + ".jar")
+      .description(IXA_PIPE_NERC + version
+          + " is a multilingual named entity tagger developed by IXA NLP Group.\n");
   /**
    * Sub parser instance.
    */
-  private Subparsers subParsers = argParser.addSubparsers().help(
-      "sub-command help");
+  private Subparsers subParsers = argParser.addSubparsers()
+      .help("sub-command help");
   /**
    * The parser that manages the NER tagging sub-command.
    */
   private Subparser annotateParser;
-  /**
-   * Parser to manage the Opinion Target Extraction sub-command.
-   */
-  private Subparser oteParser;
-  /**
-   * The parser that manages the training sub-command.
-   */
-  private Subparser trainParser;
-  /**
-   * The parser that manages the evaluation sub-command.
-   */
-  private Subparser evalParser;
-  /**
-   * The parser that manages the cross validation sub-command.
-   */
-  private Subparser crossValidateParser;
   /**
    * Parser to start TCP socket for server-client functionality.
    */
@@ -122,27 +98,22 @@ public class CLI {
    * Sends queries to the serverParser for annotation.
    */
   private Subparser clientParser;
-  
+
   /**
-   * Construct a CLI object with the sub-parsers to manage the command
-   * line parameters.
+   * Construct a CLI object with the sub-parsers to manage the command line
+   * parameters.
    */
   public CLI() {
-    annotateParser = subParsers.addParser("tag").help("NER Tagging CLI");
+    annotateParser = subParsers.addParser(ANNOTATE_PARSER_NAME)
+        .help("NER Tagging CLI");
     loadAnnotateParameters();
-    oteParser = subParsers.addParser("ote").help("Opinion Target Extraction CLI");
-    loadOteParameters();
-    trainParser = subParsers.addParser("train").help("Training CLI");
-    loadTrainingParameters();
-    evalParser = subParsers.addParser("eval").help("Evaluation CLI");
-    loadEvalParameters();
-    crossValidateParser = subParsers.addParser("cross").help("Cross validation CLI");
-    loadCrossValidateParameters();
-    serverParser = subParsers.addParser("server").help("Start TCP socket server");
+    serverParser = subParsers.addParser(SERVER_PARSER_NAME)
+        .help("Start TCP socket server");
     loadServerParameters();
-    clientParser = subParsers.addParser("client").help("Send queries to the TCP socket server");
+    clientParser = subParsers.addParser(CLIENT_PARSER_NAME)
+        .help("Send queries to the TCP socket server");
     loadClientParameters();
-    }
+  }
 
   /**
    * Main entry point of ixa-pipe-nerc.
@@ -154,9 +125,8 @@ public class CLI {
    * @throws JDOMException
    *           if problems with the xml formatting of NAF
    */
-  public static void main(final String[] args) throws IOException,
-      JDOMException {
-
+  public static void main(final String[] args)
+      throws IOException, JDOMException {
     CLI cmdLine = new CLI();
     cmdLine.parseCLI(args);
   }
@@ -168,31 +138,29 @@ public class CLI {
    *          the arguments passed through the CLI
    * @throws IOException
    *           exception if problems with the incoming data
-   * @throws JDOMException if xml format problems
+   * @throws JDOMException
+   *           if xml format problems
    */
-  public final void parseCLI(final String[] args) throws IOException, JDOMException {
+  public final void parseCLI(final String[] args)
+      throws IOException, JDOMException {
     try {
       parsedArguments = argParser.parseArgs(args);
       System.err.println("CLI options: " + parsedArguments);
-      if (args[0].equals("tag")) {
+      switch (args[0]) {
+      case ANNOTATE_PARSER_NAME:
         annotate(System.in, System.out);
-      } else if (args[0].equals("ote")) {
-        extractOte(System.in, System.out);
-      } else if (args[0].equals("eval")) {
-        eval();
-      } else if (args[0].equals("train")) {
-        train();
-      } else if (args[0].equals("cross")) {
-        crossValidate();
-      } else if (args[0].equals("server")) {
+        break;
+      case SERVER_PARSER_NAME:
         server();
-      } else if (args[0].equals("client")) {
+        break;
+      case CLIENT_PARSER_NAME:
         client(System.in, System.out);
+        break;
       }
     } catch (ArgumentParserException e) {
       argParser.handleError(e);
       System.out.println("Run java -jar target/ixa-pipe-nerc-" + version
-          + ".jar (tag|ote|train|eval|cross|server|client) -help for details");
+          + "-exec.jar (tag|server|client) -help for details");
       System.exit(1);
     }
   }
@@ -206,15 +174,16 @@ public class CLI {
    *          the output stream providing the named entities
    * @throws IOException
    *           exception if problems in input or output streams
-   * @throws JDOMException if xml formatting problems
+   * @throws JDOMException
+   *           if xml formatting problems
    */
   public final void annotate(final InputStream inputStream,
       final OutputStream outputStream) throws IOException, JDOMException {
 
-    BufferedReader breader = new BufferedReader(new InputStreamReader(
-        inputStream,  UTF_8));
-    BufferedWriter bwriter = new BufferedWriter(new OutputStreamWriter(
-        outputStream,  UTF_8));
+    BufferedReader breader = new BufferedReader(
+        new InputStreamReader(inputStream, UTF_8));
+    BufferedWriter bwriter = new BufferedWriter(
+        new OutputStreamWriter(outputStream, UTF_8));
     // read KAF document from inputstream
     KAFDocument kaf = KAFDocument.createFromStream(breader);
     // load parameters into a properties
@@ -229,168 +198,37 @@ public class CLI {
     if (parsedArguments.getString("language") != null) {
       lang = parsedArguments.getString("language");
       if (!kaf.getLang().equalsIgnoreCase(lang)) {
-        System.err
-            .println("Language parameter in NAF and CLI do not match!!");
-        System.exit(1);
+        System.err.println("Language parameter in NAF and CLI do not match!!");
       }
     } else {
       lang = kaf.getLang();
     }
-    Properties properties = setAnnotateProperties(model, lang, lexer, dictTag, dictPath, clearFeatures);
+    Properties properties = setAnnotateProperties(model, lang, lexer, dictTag,
+        dictPath, clearFeatures);
     KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor(
-        "entities", IXA_PIPE_NERC + Files.getNameWithoutExtension(model), version + "-" + commit);
+        "entities", IXA_PIPE_NERC + Files.getNameWithoutExtension(model),
+        version + "-" + commit);
     newLp.setBeginTimestamp();
     Annotate annotator = new Annotate(properties);
-    annotator.annotateNEs(kaf);
+    annotator.annotateNEsToKAF(kaf);
     newLp.setEndTimestamp();
     String kafToString = null;
     if (outputFormat.equalsIgnoreCase("conll03")) {
       kafToString = annotator.annotateNEsToCoNLL2003(kaf);
     } else if (outputFormat.equalsIgnoreCase("conll02")) {
       kafToString = annotator.annotateNEsToCoNLL2002(kaf);
-    } else if (outputFormat.equalsIgnoreCase("opennlp")) {
-      kafToString = annotator.annotateNEsToOpenNLP(kaf);
     } else {
-      kafToString = annotator.annotateNEsToKAF(kaf);
-    }
-    bwriter.write(kafToString);
-    bwriter.close();
-    breader.close();
-  }
-  
-  /**
-   * Main method to do Opinion Target Extraction (OTE).
-   * 
-   * @param inputStream
-   *          the input stream containing the content to tag
-   * @param outputStream
-   *          the output stream providing the opinion targets
-   * @throws IOException
-   *           exception if problems in input or output streams
-   * @throws JDOMException if xml formatting problems
-   */
-  public final void extractOte(final InputStream inputStream,
-      final OutputStream outputStream) throws IOException, JDOMException {
-
-    BufferedReader breader = new BufferedReader(new InputStreamReader(
-        inputStream,  UTF_8));
-    BufferedWriter bwriter = new BufferedWriter(new OutputStreamWriter(
-        outputStream,  UTF_8));
-    // read KAF document from inputstream
-    KAFDocument kaf = KAFDocument.createFromStream(breader);
-    // load parameters into a properties
-    String model = parsedArguments.getString(MODEL);
-    String outputFormat = parsedArguments.getString("outputFormat");
-    String clearFeatures = parsedArguments.getString("clearFeatures");
-    // language parameter
-    String lang = null;
-    if (parsedArguments.getString("language") != null) {
-      lang = parsedArguments.getString("language");
-      if (!kaf.getLang().equalsIgnoreCase(lang)) {
-        System.err
-            .println("Language parameter in NAF and CLI do not match!!");
-        System.exit(1);
-      }
-    } else {
-      lang = kaf.getLang();
-    }
-    Properties properties = setOteProperties(model, lang, clearFeatures);
-    KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor(
-        "opinions", IXA_PIPE_NERC + Files.getNameWithoutExtension(model), version + "-" + commit);
-    newLp.setBeginTimestamp();
-    OpinionTargetExtractor oteExtractor = new OpinionTargetExtractor(properties);
-    oteExtractor.annotateOTE(kaf);
-    newLp.setEndTimestamp();
-    String kafToString = null;
-    if (outputFormat.equalsIgnoreCase("opennlp")) {
-      kafToString = oteExtractor.annotateOTEsToOpenNLP(kaf);
-    } else {
-      kafToString = oteExtractor.annotateOTEsToKAF(kaf);
+      kafToString = kaf.toString();
     }
     bwriter.write(kafToString);
     bwriter.close();
     breader.close();
   }
 
-  /**
-   * Main access to the train functionalities.
-   * 
-   * @throws IOException
-   *           input output exception if problems with corpora
-   */
-  public final void train() throws IOException {
-
-    // load training parameters file
-    String paramFile = parsedArguments.getString("params");
-    TrainingParameters params = InputOutputUtils
-        .loadTrainingParameters(paramFile);
-    String outModel = null;
-    if (params.getSettings().get("OutputModel") == null || params.getSettings().get("OutputModel").length() == 0) {
-      outModel = Files.getNameWithoutExtension(paramFile) + ".bin";
-      params.put("OutputModel", outModel);
-    }
-    else {
-      outModel = Flags.getModel(params);
-    }
-    Trainer nercTrainer = new FixedTrainer(params);
-    TokenNameFinderModel trainedModel = nercTrainer.train(params);
-    CmdLineUtil.writeModel("ixa-pipe-nerc", new File(outModel), trainedModel);
-  }
-
-  /**
-   * Main evaluation entry point.
-   * 
-   * @throws IOException
-   *           throws exception if test set not available
-   */
-  public final void eval() throws IOException {
-
-    String lang = parsedArguments.getString("language");
-    String model = parsedArguments.getString(MODEL);
-    String testset = parsedArguments.getString("testset");
-    String corpusFormat = parsedArguments.getString("corpusFormat");
-    String netypes = parsedArguments.getString("types");
-    String clearFeatures = parsedArguments.getString("clearFeatures");
-    Properties props = setEvalProperties(lang, model, testset, corpusFormat, netypes, clearFeatures);
-    
-      Evaluate evaluator = new Evaluate(props);
-      if (parsedArguments.getString("evalReport") != null) {
-        if (parsedArguments.getString("evalReport").equalsIgnoreCase("brief")) {
-          evaluator.evaluate();
-        } else if (parsedArguments.getString("evalReport").equalsIgnoreCase(
-            "error")) {
-          evaluator.evalError();
-        } else if (parsedArguments.getString("evalReport").equalsIgnoreCase(
-            "detailed")) {
-          evaluator.detailEvaluate();
-        }
-      } else {
-        evaluator.detailEvaluate();
-      }
-  }
-  
-  /**
-   * Main access to the cross validation.
-   * 
-   * @throws IOException
-   *           input output exception if problems with corpora
-   */
-  public final void crossValidate() throws IOException {
-
-    String paramFile = parsedArguments.getString("params");
-    TrainingParameters params = InputOutputUtils
-        .loadTrainingParameters(paramFile);
-    CrossValidator crossValidator = new CrossValidator(params);
-    crossValidator.crossValidate(params);
-  }
-  
   /**
    * Set up the TCP socket for annotation.
    */
   public final void server() {
-
-    // load parameters into a properties
-    String task = parsedArguments.getString("task");
     String port = parsedArguments.getString("port");
     String model = parsedArguments.getString(MODEL);
     String lexer = parsedArguments.getString("lexer");
@@ -398,16 +236,12 @@ public class CLI {
     String dictPath = parsedArguments.getString("dictPath");
     String clearFeatures = parsedArguments.getString("clearFeatures");
     String outputFormat = parsedArguments.getString("outputFormat");
-    // language parameter
     String lang = parsedArguments.getString("language");
-    Properties serverproperties = setNameServerProperties(port, model, lang, lexer, dictTag, dictPath, clearFeatures, outputFormat);
-    if (task.equalsIgnoreCase("ote")) {
-      new TargetExtractorServer(serverproperties);
-    } else {
-      new NameFinderServer(serverproperties);
-    }
+    Properties serverproperties = setNameServerProperties(port, model, lang,
+        lexer, dictTag, dictPath, clearFeatures, outputFormat);
+    new NERTaggerServer(serverproperties);
   }
-  
+
   /**
    * The client to query the TCP server for annotation.
    * 
@@ -418,19 +252,17 @@ public class CLI {
    */
   public final void client(final InputStream inputStream,
       final OutputStream outputStream) {
-
     String host = parsedArguments.getString("host");
     String port = parsedArguments.getString("port");
     try (Socket socketClient = new Socket(host, Integer.parseInt(port));
-        BufferedReader inFromUser = new BufferedReader(new InputStreamReader(
-            System.in,  UTF_8));
-        BufferedWriter outToUser = new BufferedWriter(new OutputStreamWriter(
-            System.out,  UTF_8));
-        BufferedWriter outToServer = new BufferedWriter(new OutputStreamWriter(
-            socketClient.getOutputStream(),  UTF_8));
-        BufferedReader inFromServer = new BufferedReader(new InputStreamReader(
-            socketClient.getInputStream(), "UTF-8"));) {
-
+        BufferedReader inFromUser = new BufferedReader(
+            new InputStreamReader(System.in, UTF_8));
+        BufferedWriter outToUser = new BufferedWriter(
+            new OutputStreamWriter(System.out, UTF_8));
+        BufferedWriter outToServer = new BufferedWriter(
+            new OutputStreamWriter(socketClient.getOutputStream(), UTF_8));
+        BufferedReader inFromServer = new BufferedReader(
+            new InputStreamReader(socketClient.getInputStream(), "UTF-8"));) {
       // send data to server socket
       StringBuilder inText = new StringBuilder();
       String line;
@@ -440,7 +272,6 @@ public class CLI {
       inText.append("<ENDOFDOCUMENT>").append("\n");
       outToServer.write(inText.toString());
       outToServer.flush();
-      
       // get data from server
       StringBuilder sb = new StringBuilder();
       String kafString;
@@ -449,7 +280,7 @@ public class CLI {
       }
       outToUser.write(sb.toString());
     } catch (UnsupportedEncodingException e) {
-      //this cannot happen but...
+      // this cannot happen but...
       throw new AssertionError("UTF-8 not supported");
     } catch (UnknownHostException e) {
       System.err.println("ERROR: Unknown hostname or IP address!");
@@ -466,194 +297,96 @@ public class CLI {
    * Create the available parameters for NER tagging.
    */
   private void loadAnnotateParameters() {
-    
-    annotateParser.addArgument("-m", "--model")
-        .required(true)
+    annotateParser.addArgument("-m", "--model").required(true)
         .help("Pass the model to do the tagging as a parameter.\n");
-    annotateParser.addArgument("--clearFeatures")
-        .required(false)
-        .choices("yes", "no", "docstart")
-        .setDefault(Flags.DEFAULT_FEATURE_FLAG)
-        .help("Reset the adaptive features every sentence; defaults to 'no'; if -DOCSTART- marks" +
-        		" are present, choose 'docstart'.\n");
-    annotateParser.addArgument("-l","--language")
-        .required(false)
-        .choices("de", "en", "es", "eu", "it", "nl")
-        .help("Choose language; it defaults to the language value in incoming NAF file.\n");
-    annotateParser.addArgument("-o","--outputFormat")
-        .required(false)
-        .choices("conll03", "conll02", "naf", "opennlp")
+    annotateParser.addArgument("--clearFeatures").required(false)
+        .choices("yes", "no", "docstart").setDefault(Flags.DEFAULT_FEATURE_FLAG)
+        .help(
+            "Reset the adaptive features every sentence; defaults to 'no'; if -DOCSTART- marks"
+                + " are present, choose 'docstart'.\n");
+    annotateParser.addArgument("-l", "--language").required(false)
+        .choices("ca", "de", "en", "es", "eu", "fr", "gl", "it", "nl", "pt",
+            "ru")
+        .help(
+            "Choose language; it defaults to the language value in incoming NAF file.\n");
+    annotateParser.addArgument("-o", "--outputFormat").required(false)
+        .choices("conll03", "conll02", "naf")
         .setDefault(Flags.DEFAULT_OUTPUT_FORMAT)
         .help("Choose output format; it defaults to NAF.\n");
-    annotateParser.addArgument("--lexer")
-        .choices("numeric")
-        .setDefault(Flags.DEFAULT_LEXER)
-        .required(false)
+    annotateParser.addArgument("--lexer").choices("numeric")
+        .setDefault(Flags.DEFAULT_LEXER).required(false)
         .help("Use lexer rules for NERC tagging; it defaults to false.\n");
-    annotateParser.addArgument("--dictTag")
-        .required(false)
-        .choices("tag", "post")
-        .setDefault(Flags.DEFAULT_DICT_OPTION)
-        .help("Choose to directly tag entities by dictionary look-up; if the 'tag' option is chosen, " +
-        		"only tags entities found in the dictionary; if 'post' option is chosen, it will " +
-        		"post-process the results of the statistical model.\n");
-    annotateParser.addArgument("--dictPath")
-        .required(false)
-        .setDefault(Flags.DEFAULT_DICT_PATH)
-        .help("Provide the path to the dictionaries for direct dictionary tagging; it ONLY WORKS if --dictTag " +
-        		"option is activated.\n");
+    annotateParser.addArgument("--dictTag").required(false)
+        .choices("tag", "post").setDefault(Flags.DEFAULT_DICT_OPTION).help(
+            "Choose to directly tag entities by dictionary look-up; if the 'tag' option is chosen, "
+                + "only tags entities found in the dictionary; if 'post' option is chosen, it will "
+                + "post-process the results of the statistical model.\n");
+    annotateParser.addArgument("--dictPath").required(false)
+        .setDefault(Flags.DEFAULT_DICT_PATH).help(
+            "Provide the path to the dictionaries for direct dictionary tagging; it ONLY WORKS if --dictTag "
+                + "option is activated.\n");
   }
-  
-  /**
-   * Create the available parameters for Opinion Target Extraction.
-   */
-  private void loadOteParameters() {
-    
-    oteParser.addArgument("-m", "--model")
-        .required(true)
-        .help("Pass the model to do the tagging as a parameter.\n");
-    oteParser.addArgument("--clearFeatures")
-        .required(false)
-        .choices("yes", "no", "docstart")
-        .setDefault(Flags.DEFAULT_FEATURE_FLAG)
-        .help("Reset the adaptive features every sentence; defaults to 'no'; if -DOCSTART- marks" +
-                " are present, choose 'docstart'.\n");
-    oteParser.addArgument("-l","--language")
-        .required(false)
-        .choices("en")
-        .help("Choose language; it defaults to the language value in incoming NAF file.\n");
-    oteParser.addArgument("-o","--outputFormat")
-        .required(false)
-        .choices("naf", "opennlp")
-        .setDefault(Flags.DEFAULT_OUTPUT_FORMAT)
-        .help("Choose output format; it defaults to NAF.\n");
-  }
-
-  /**
-   * Create the main parameters available for training sequence labeling models.
-   */
-  private void loadTrainingParameters() {
-    trainParser.addArgument("-p", "--params").required(true)
-        .help("Load the training parameters file\n");
-  }
-
-  /**
-   * Create the parameters available for evaluation.
-   */
-  private void loadEvalParameters() {
-    evalParser.addArgument("-l", "--language")
-        .required(true)
-        .choices("de", "en", "es", "eu", "it", "nl")
-        .help("Choose language.\n");
-    evalParser.addArgument("-m", "--model")
-        .required(false)
-        .setDefault(Flags.DEFAULT_EVALUATE_MODEL)
-        .help("Pass the model to evaluate as a parameter.\n");
-    evalParser.addArgument("-t", "--testset")
-        .required(true)
-        .help("The test or reference corpus.\n");
-    evalParser.addArgument("--clearFeatures")
-        .required(false)
-        .choices("yes", "no", "docstart")
-        .setDefault(Flags.DEFAULT_FEATURE_FLAG)
-        .help("Reset the adaptive features; defaults to 'no'.\n");
-    evalParser.addArgument("-f","--corpusFormat")
-        .required(false)
-        .choices("conll02", "conll03", "opennlp")
-        .setDefault(Flags.DEFAULT_EVAL_FORMAT)
-        .help("Choose format of reference corpus; it defaults to conll02 format.\n");
-    evalParser.addArgument("--evalReport")
-        .required(false)
-        .choices("brief", "detailed", "error")
-        .help("Choose level of detail of evaluation report; it defaults to detailed evaluation.\n");
-    evalParser.addArgument("--types")
-        .required(false)
-        .setDefault(Flags.DEFAULT_NE_TYPES)
-        .help("Choose which Sequence types used for evaluation; the argument must be a comma separated" +
-        		" string; e.g., 'person,organization'.\n");
-            
-  }
-  
-  /**
-   * Create the main parameters available for training NERC models.
-   */
-  private void loadCrossValidateParameters() {
-    crossValidateParser.addArgument("-p", "--params").required(true)
-        .help("Load the Cross validation parameters file\n");
-  }
-  
 
   /**
    * Create the available parameters for NER tagging.
    */
   private void loadServerParameters() {
-    
-    serverParser.addArgument("-t","--task")
-         .required(false)
-         .choices("ner", "ote", "sst")
-         .setDefault(Flags.DEFAULT_TASK)
-         .help("Choose the type of sequence labeling task.\n");
-    serverParser.addArgument("-p", "--port")
-        .required(true)
+    serverParser.addArgument("-p", "--port").required(true)
         .help("Port to be assigned to the server.\n");
-    serverParser.addArgument("-m", "--model")
-        .required(true)
+    serverParser.addArgument("-m", "--model").required(true)
         .help("Pass the model to do the tagging as a parameter.\n");
-    serverParser.addArgument("--clearFeatures")
-        .required(false)
-        .choices("yes", "no", "docstart")
-        .setDefault(Flags.DEFAULT_FEATURE_FLAG)
-        .help("Reset the adaptive features every sentence; defaults to 'no'; if -DOCSTART- marks" +
-                " are present, choose 'docstart'.\n");
-    serverParser.addArgument("-l","--language")
-        .required(true)
-        .choices("de", "en", "es", "eu", "it", "nl")
+    serverParser.addArgument("--clearFeatures").required(false)
+        .choices("yes", "no", "docstart").setDefault(Flags.DEFAULT_FEATURE_FLAG)
+        .help(
+            "Reset the adaptive features every sentence; defaults to 'no'; if -DOCSTART- marks"
+                + " are present, choose 'docstart'.\n");
+    serverParser
+        .addArgument("-l", "--language").required(true).choices("ca", "de",
+            "en", "es", "eu", "fr", "gl", "it", "nl", "pt", "ru")
         .help("Choose language.\n");
-    serverParser.addArgument("-o","--outputFormat")
-        .required(false)
-        .choices("conll03", "conll02", "naf", "opennlp")
+    serverParser.addArgument("-o", "--outputFormat").required(false)
+        .choices("conll03", "conll02", "naf")
         .setDefault(Flags.DEFAULT_OUTPUT_FORMAT)
         .help("Choose output format; it defaults to NAF.\n");
-    serverParser.addArgument("--lexer")
-        .choices("numeric")
-        .setDefault(Flags.DEFAULT_LEXER)
-        .required(false)
+    serverParser.addArgument("--lexer").choices("numeric")
+        .setDefault(Flags.DEFAULT_LEXER).required(false)
         .help("Use lexer rules for NERC tagging; it defaults to false.\n");
-    serverParser.addArgument("--dictTag")
-        .required(false)
-        .choices("tag", "post")
-        .setDefault(Flags.DEFAULT_DICT_OPTION)
-        .help("Choose to directly tag entities by dictionary look-up; if the 'tag' option is chosen, " +
-                "only tags entities found in the dictionary; if 'post' option is chosen, it will " +
-                "post-process the results of the statistical model.\n");
-    serverParser.addArgument("--dictPath")
-        .required(false)
-        .setDefault(Flags.DEFAULT_DICT_PATH)
-        .help("Provide the path to the dictionaries for direct dictionary tagging; it ONLY WORKS if --dictTag " +
-                "option is activated.\n");
+    serverParser.addArgument("--dictTag").required(false).choices("tag", "post")
+        .setDefault(Flags.DEFAULT_DICT_OPTION).help(
+            "Choose to directly tag entities by dictionary look-up; if the 'tag' option is chosen, "
+                + "only tags entities found in the dictionary; if 'post' option is chosen, it will "
+                + "post-process the results of the statistical model.\n");
+    serverParser.addArgument("--dictPath").required(false)
+        .setDefault(Flags.DEFAULT_DICT_PATH).help(
+            "Provide the path to the dictionaries for direct dictionary tagging; it ONLY WORKS if --dictTag "
+                + "option is activated.\n");
   }
-  
+
   private void loadClientParameters() {
-    
-    clientParser.addArgument("-p", "--port")
-        .required(true)
+    clientParser.addArgument("-p", "--port").required(true)
         .help("Port of the TCP server.\n");
-    clientParser.addArgument("--host")
-        .required(false)
+    clientParser.addArgument("--host").required(false)
         .setDefault(Flags.DEFAULT_HOSTNAME)
         .help("Hostname or IP where the TCP server is running.\n");
   }
 
   /**
    * Set a Properties object with the CLI parameters for NER annotation.
-   * @param model the model parameter
-   * @param language language parameter
-   * @param lexer rule based parameter
-   * @param dictTag directly tag from a dictionary
-   * @param dictPath directory to the dictionaries
+   * 
+   * @param model
+   *          the model parameter
+   * @param language
+   *          language parameter
+   * @param lexer
+   *          rule based parameter
+   * @param dictTag
+   *          directly tag from a dictionary
+   * @param dictPath
+   *          directory to the dictionaries
    * @return the properties object
    */
-  private Properties setAnnotateProperties(String model, String language, String lexer, String dictTag, String dictPath, String clearFeatures) {
+  private Properties setAnnotateProperties(String model, String language,
+      String lexer, String dictTag, String dictPath, String clearFeatures) {
     Properties annotateProperties = new Properties();
     annotateProperties.setProperty(MODEL, model);
     annotateProperties.setProperty("language", language);
@@ -663,44 +396,10 @@ public class CLI {
     annotateProperties.setProperty("clearFeatures", clearFeatures);
     return annotateProperties;
   }
-  
-  /**
-   * Set a Properties object with the CLI parameters for Opinion Target Extraction.
-   * @param model the model parameter
-   * @param language language parameter
-   * @param lexer rule based parameter
-   * @param dictTag directly tag from a dictionary
-   * @param dictPath directory to the dictionaries
-   * @return the properties object
-   */
-  private Properties setOteProperties(String model, String language, String clearFeatures) {
-    Properties oteProperties = new Properties();
-    oteProperties.setProperty(MODEL, model);
-    oteProperties.setProperty("language", language);
-    oteProperties.setProperty("clearFeatures", clearFeatures);
-    return oteProperties;
-  }
-  
-  /**
-   * Set a Properties object with the CLI parameters for evaluation.
-   * @param model the model parameter
-   * @param testset the reference set
-   * @param corpusFormat the format of the testset
-   * @param netypes the ne types to use in the evaluation
-   * @return the properties object
-   */
-  private Properties setEvalProperties(String language, String model, String testset, String corpusFormat, String netypes, String clearFeatures) {
-    Properties evalProperties = new Properties();
-    evalProperties.setProperty("language", language);
-    evalProperties.setProperty(MODEL, model);
-    evalProperties.setProperty("testset", testset);
-    evalProperties.setProperty("corpusFormat", corpusFormat);
-    evalProperties.setProperty("types", netypes);
-    evalProperties.setProperty("clearFeatures", clearFeatures);
-    return evalProperties;
-  }
-  
-  private Properties setNameServerProperties(String port, String model, String language, String lexer, String dictTag, String dictPath, String clearFeatures, String outputFormat) {
+
+  private Properties setNameServerProperties(String port, String model,
+      String language, String lexer, String dictTag, String dictPath,
+      String clearFeatures, String outputFormat) {
     Properties serverProperties = new Properties();
     serverProperties.setProperty("port", port);
     serverProperties.setProperty(MODEL, model);

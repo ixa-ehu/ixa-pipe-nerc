@@ -1,5 +1,5 @@
 /*
- *  Copyright 2015 Rodrigo Agerri
+ *  Copyright 2016 Rodrigo Agerri
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -16,11 +16,6 @@
 
 package eus.ixa.ixa.pipe.nerc;
 
-import ixa.kaflib.Entity;
-import ixa.kaflib.KAFDocument;
-import ixa.kaflib.Term;
-import ixa.kaflib.WF;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
@@ -33,71 +28,79 @@ import java.util.Properties;
 
 import com.google.common.collect.Lists;
 
-import opennlp.tools.namefind.NameFinderME;
-import opennlp.tools.namefind.NameSample;
-import opennlp.tools.util.Span;
-import eus.ixa.ixa.pipe.nerc.dict.Dictionaries;
-import eus.ixa.ixa.pipe.nerc.train.Flags;
+import eus.ixa.ixa.pipe.ml.StatisticalSequenceLabeler;
+import eus.ixa.ixa.pipe.ml.nerc.DictionariesNERTagger;
+import eus.ixa.ixa.pipe.ml.nerc.NumericNERTagger;
+import eus.ixa.ixa.pipe.ml.resources.Dictionaries;
+import eus.ixa.ixa.pipe.ml.sequence.SequenceLabel;
+import eus.ixa.ixa.pipe.ml.sequence.SequenceLabelerME;
+import eus.ixa.ixa.pipe.ml.utils.Flags;
+import eus.ixa.ixa.pipe.ml.utils.Span;
+import eus.ixa.ixa.pipe.ml.utils.StringUtils;
+import ixa.kaflib.Entity;
+import ixa.kaflib.KAFDocument;
+import ixa.kaflib.Term;
+import ixa.kaflib.WF;
 
 /**
- * Annotation class for Named Entities in ixa-pipe-nerc.
+ * Annotation class for Named Entities in ixa-pipe-nerc. Use this class for
+ * examples on using ixa-pipe-ml API for Named Entity tagging.
  * 
  * @author ragerri
- * @version 2015-02-25
+ * @version 2016-04-22
  * 
  */
 public class Annotate {
 
   /**
-   * The name factory.
+   * The SequenceLabeler to do the annotation.
    */
-  private NameFactory nameFactory;
-  /**
-   * The NameFinder to do the annotation. Usually the statistical.
-   */
-  private StatisticalNameFinder nameFinder;
+  private StatisticalSequenceLabeler nerTagger;
   /**
    * The dictionaries.
    */
   private Dictionaries dictionaries;
   /**
-   * The dictionary name finder.
+   * The dictionary Named Entity Tagger.
    */
-  private DictionariesNameFinder dictFinder;
+  private DictionariesNERTagger nerTaggerDict;
   /**
-   * The NameFinder Lexer for rule-based name finding.
+   * The Named Entity Lexer for rule-based name tagging.
    */
-  private NumericNameFinder numericLexerFinder;
+  private NumericNERTagger numericNerTaggerLexer;
   /**
-   * True if the name finder is statistical.
+   * True if the NER tagger is statistical.
    */
   private boolean statistical;
   /**
-   * Activates post processing of statistical name finder with dictionary name
-   * finders.
+   * Activates post processing of statistical sequence labeling with dictionary
+   * name finders.
    */
   private boolean postProcess;
   /**
-   * Activates name finding using dictionaries only.
+   * Activates NER tagging using dictionaries only.
    */
   private boolean dictTag;
   /**
-   * Activates name finding using {@code NameFinderLexer}s.
+   * Activates NER tagging using {@code NumericNameFinder}s.
    */
-  private boolean lexerFind;
+  private boolean lexerTagger;
   /**
    * Clear features after every sentence or when a -DOCSTART- mark appears.
    */
   private String clearFeatures;
 
-  /** It manages the use of the three different name finders: {@code StatisticalNameFinder}, 
-   * {@code DictionariesNameFinder} and {@code NumericNameFinder}. In particular, if --dictTag
-   * option in CLI is off, statistical models are used (this is the default). If --dictTag is
-   * activated, it has two options, "tag" and "post": tag only tags with a gazetteer and "post" 
-   * post-processes the probabilistic annotation giving priority to the gazetteer. 
-   * Obviously, this option depends on the --dictPath parameter being correctly specified. The
-   * --lexer numeric option annotates numeric entities (dates, percentages, and so on) via rules.
-   * Finally, the oepc option post-process the output using the one entity per class hypothesis.
+  /**
+   * It manages the use of the three different name finders:
+   * {@code StatisticalSequenceLabeler}, {@code DictionariesNameFinder} and
+   * {@code NumericNameFinder}. In particular, if --dictTag option in CLI is
+   * off, statistical models are used (this is the default). If --dictTag is
+   * activated, it has two options, "tag" and "post": tag only tags with a
+   * gazetteer and "post" post-processes the probabilistic annotation giving
+   * priority to the gazetteer. Obviously, this option depends on the --dictPath
+   * parameter being correctly specified. The --lexer numeric option annotates
+   * numeric entities (dates, percentages, and so on) via rules.
+   * 
    * @param properties
    *          the properties
    * @throws IOException
@@ -106,14 +109,14 @@ public class Annotate {
   public Annotate(final Properties properties) throws IOException {
 
     this.clearFeatures = properties.getProperty("clearFeatures");
-    nameFactory = new NameFactory();
     annotateOptions(properties);
   }
 
   /**
    * Generates the right options for NERC tagging: using the
-   * {@link StatisticalNameFinder} or using the {@link DictionariesNameFinder}
-   * or a combination of those with the {@link NumericNameFinder}.
+   * {@link StatisticalSequenceLabeler} or using the
+   * {@link DictionariesNERTagger} or a combination of those with the
+   * {@link NumericNERTagger}.
    * 
    * @param properties
    *          the parameters to choose the NameFinder are lexer, dictTag and
@@ -133,50 +136,42 @@ public class Annotate {
         Flags.dictionaryException();
       }
       if (!ruleBasedOption.equals(Flags.DEFAULT_LEXER)) {
-        lexerFind = true;
+        lexerTagger = true;
       }
       if (!dictPath.equals(Flags.DEFAULT_DICT_PATH)) {
         if (dictionaries == null) {
           dictionaries = new Dictionaries(dictPath);
-          dictFinder = new DictionariesNameFinder(dictionaries, nameFactory);
+          nerTaggerDict = new DictionariesNERTagger(dictionaries);
         }
         if (dictOption.equalsIgnoreCase("tag")) {
           dictTag = true;
           postProcess = false;
           statistical = false;
         } else if (dictOption.equalsIgnoreCase("post")) {
-          nameFinder = new StatisticalNameFinder(properties, nameFactory);
+          nerTagger = new StatisticalSequenceLabeler(properties);
           statistical = true;
           postProcess = true;
           dictTag = false;
         } else {
-          nameFinder = new StatisticalNameFinder(properties, nameFactory);
+          nerTagger = new StatisticalSequenceLabeler(properties);
           statistical = true;
           dictTag = false;
           postProcess = false;
         }
       }
     } else if (!ruleBasedOption.equals(Flags.DEFAULT_LEXER)) {
-      lexerFind = true;
+      lexerTagger = true;
       statistical = true;
       dictTag = false;
       postProcess = false;
-      nameFinder = new StatisticalNameFinder(properties, nameFactory);
+      nerTagger = new StatisticalSequenceLabeler(properties);
     } else {
-      lexerFind = false;
+      lexerTagger = false;
       statistical = true;
       dictTag = false;
       postProcess = false;
-      nameFinder = new StatisticalNameFinder(properties, nameFactory);
+      nerTagger = new StatisticalSequenceLabeler(properties);
     }
-  }
-  
-  /**
-   * Get the statistical namefinder.
-   * @return the statistical namefinder
-   */
-  public StatisticalNameFinder getStatisticalNameFinder() {
-    return nameFinder;
   }
 
   /**
@@ -189,12 +184,13 @@ public class Annotate {
    * @throws IOException
    *           throws exception if problems with the kaf document
    */
-  public final void annotateNEs(final KAFDocument kaf) throws IOException {
+  public final void annotateNEsToKAF(final KAFDocument kaf) throws IOException {
 
     List<Span> allSpans = null;
     List<List<WF>> sentences = kaf.getSentences();
+
     for (List<WF> sentence : sentences) {
-      //process each sentence
+      // process each sentence
       String[] tokens = new String[sentence.size()];
       String[] tokenIds = new String[sentence.size()];
       for (int i = 0; i < sentence.size(); i++) {
@@ -202,38 +198,39 @@ public class Annotate {
         tokenIds[i] = sentence.get(i).getId();
       }
       if (statistical) {
-        if (clearFeatures.equalsIgnoreCase("docstart") && tokens[0].startsWith("-DOCSTART-")) {
-          nameFinder.clearAdaptiveData();
+        if (clearFeatures.equalsIgnoreCase("docstart")
+            && tokens[0].startsWith("-DOCSTART-")) {
+          nerTagger.clearAdaptiveData();
         }
-        Span[] statSpans = nameFinder.nercToSpans(tokens);
+        Span[] statSpans = nerTagger.seqToSpans(tokens);
         allSpans = Lists.newArrayList(statSpans);
       }
       if (postProcess) {
-        Span[] dictSpans = dictFinder.nercToSpansExact(tokens);
-        SpanUtils.postProcessDuplicatedSpans(allSpans, dictSpans);
-        SpanUtils.concatenateSpans(allSpans, dictSpans);
+        Span[] dictSpans = nerTaggerDict.nercToSpansExact(tokens);
+        Span.postProcessDuplicatedSpans(allSpans, dictSpans);
+        Span.concatenateSpans(allSpans, dictSpans);
       }
       if (dictTag) {
-        Span[] dictOnlySpans = dictFinder.nercToSpansExact(tokens);
+        Span[] dictOnlySpans = nerTaggerDict.nercToSpansExact(tokens);
         allSpans = Lists.newArrayList(dictOnlySpans);
       }
-      if (lexerFind) {
+      if (lexerTagger) {
         String sentenceText = StringUtils.getStringFromTokens(tokens);
         StringReader stringReader = new StringReader(sentenceText);
         BufferedReader sentenceReader = new BufferedReader(stringReader);
-        numericLexerFinder = new NumericNameFinder(sentenceReader, nameFactory);
-        Span[] numericSpans = numericLexerFinder.nercToSpans(tokens);
-        SpanUtils.concatenateSpans(allSpans, numericSpans);
+        numericNerTaggerLexer = new NumericNERTagger(sentenceReader);
+        Span[] numericSpans = numericNerTaggerLexer.nercToSpans(tokens);
+        Span.concatenateSpans(allSpans, numericSpans);
       }
-      Span[] allSpansArray = NameFinderME.dropOverlappingSpans(allSpans
-          .toArray(new Span[allSpans.size()]));
-      List<Name> names = new ArrayList<Name>();
+      Span[] allSpansArray = SequenceLabelerME
+          .dropOverlappingSpans(allSpans.toArray(new Span[allSpans.size()]));
+      List<SequenceLabel> names = new ArrayList<>();
       if (statistical) {
-        names = nameFinder.getNamesFromSpans(allSpansArray, tokens);
+        names = nerTagger.getSequencesFromSpans(tokens, allSpansArray);
       } else {
-        names = dictFinder.getNamesFromSpans(allSpansArray, tokens);
+        names = nerTaggerDict.getNamesFromSpans(allSpansArray, tokens);
       }
-      for (Name name : names) {
+      for (SequenceLabel name : names) {
         Integer startIndex = name.getSpan().getStart();
         Integer endIndex = name.getSpan().getEnd();
         List<String> wfIds = Arrays
@@ -249,17 +246,19 @@ public class Annotate {
         }
       }
       if (clearFeatures.equalsIgnoreCase("yes")) {
-        nameFinder.clearAdaptiveData();
+        nerTagger.clearAdaptiveData();
       }
     }
     if (statistical) {
-      nameFinder.clearAdaptiveData();
+      nerTagger.clearAdaptiveData();
     }
   }
-  
+
   /**
    * Get all the WF ids for the terms contained in the KAFDocument.
-   * @param kaf the KAFDocument
+   * 
+   * @param kaf
+   *          the KAFDocument
    * @return the list of all WF ids in the terms layer
    */
   public List<String> getAllWFIdsFromTerms(KAFDocument kaf) {
@@ -275,10 +274,13 @@ public class Annotate {
   }
 
   /**
-   * Check that the references from the entity spans are
-   * actually contained in the term ids.
-   * @param wfIds the worform ids corresponding to the Term span
-   * @param termWfIds all the terms in the document
+   * Check that the references from the entity spans are actually contained in
+   * the term ids.
+   * 
+   * @param wfIds
+   *          the worform ids corresponding to the Term span
+   * @param termWfIds
+   *          all the terms in the document
    * @return true or false
    */
   public boolean checkTermsRefsIntegrity(List<String> wfIds,
@@ -289,72 +291,6 @@ public class Annotate {
       }
     }
     return true;
-  }
-
-  /**
-   * Output annotation as NAF.
-   * 
-   * @param kaf
-   *          the naf document
-   * @return the string containing the naf document
-   */
-  public final String annotateNEsToKAF(KAFDocument kaf) {
-    return kaf.toString();
-  }
-  
-  /**
-   * Output annotation in OpenNLP format.
-   * 
-   * @param kaf
-   *          the naf document
-   * @return the string containing the annotated document
-   */
-  public final String annotateNEsToOpenNLP(KAFDocument kaf) {
-    StringBuilder sb = new StringBuilder();
-    List<Span> allSpans = null;
-    List<List<WF>> sentences = kaf.getSentences();
-    for (List<WF> sentence : sentences) {
-      String[] tokens = new String[sentence.size()];
-      String[] tokenIds = new String[sentence.size()];
-      for (int i = 0; i < sentence.size(); i++) {
-        tokens[i] = sentence.get(i).getForm();
-        tokenIds[i] = sentence.get(i).getId();
-      }
-      if (statistical) {
-        if (clearFeatures.equalsIgnoreCase("docstart") && tokens[0].startsWith("-DOCSTART-")) {
-          nameFinder.clearAdaptiveData();
-        }
-        Span[] statSpans = nameFinder.nercToSpans(tokens);
-        allSpans = Lists.newArrayList(statSpans);
-      }
-      if (postProcess) {
-        Span[] dictSpans = dictFinder.nercToSpansExact(tokens);
-        SpanUtils.postProcessDuplicatedSpans(allSpans, dictSpans);
-        SpanUtils.concatenateSpans(allSpans, dictSpans);
-      }
-      if (dictTag) {
-        Span[] dictOnlySpans = dictFinder.nercToSpansExact(tokens);
-        allSpans = Lists.newArrayList(dictOnlySpans);
-      }
-      if (lexerFind) {
-        String sentenceText = StringUtils.getStringFromTokens(tokens);
-        StringReader stringReader = new StringReader(sentenceText);
-        BufferedReader sentenceReader = new BufferedReader(stringReader);
-        numericLexerFinder = new NumericNameFinder(sentenceReader, nameFactory);
-        Span[] numericSpans = numericLexerFinder.nercToSpans(tokens);
-        SpanUtils.concatenateSpans(allSpans, numericSpans);
-      }
-      boolean isClearAdaptiveData = false;
-      if (clearFeatures.equalsIgnoreCase("yes")) {
-        isClearAdaptiveData = true;
-      }
-      Span[] allSpansArray = NameFinderME.dropOverlappingSpans(allSpans
-          .toArray(new Span[allSpans.size()]));
-      NameSample nameSample = new NameSample(tokens, allSpansArray, isClearAdaptiveData);
-      sb.append(nameSample.toString()).append("\n");
-    }
-    nameFinder.clearAdaptiveData();
-    return sb.toString();
   }
 
   /**
@@ -420,7 +356,8 @@ public class Annotate {
               sb.append("\t");
               sb.append(thisTerm.getMorphofeat());
               sb.append("\t");
-              if (j == 0 && previousIsEntity && previousType.equalsIgnoreCase(neType)) {
+              if (j == 0 && previousIsEntity
+                  && previousType.equalsIgnoreCase(neType)) {
                 sb.append(BIO.BEGIN.toString());
               } else {
                 sb.append(BIO.IN.toString());
@@ -552,7 +489,8 @@ public class Annotate {
    */
   public String convertToConLLTypes(String neType) {
     String conllType = null;
-    if (neType.equalsIgnoreCase("PERSON") || neType.equalsIgnoreCase("ORGANIZATION")
+    if (neType.equalsIgnoreCase("PERSON")
+        || neType.equalsIgnoreCase("ORGANIZATION")
         || neType.equalsIgnoreCase("LOCATION") || neType.length() == 3) {
       conllType = neType.substring(0, 3);
     } else {
