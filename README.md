@@ -1,58 +1,42 @@
 
 ixa-pipe-nerc
 =============
+[![Build Status](https://travis-ci.org/ixa-ehu/ixa-pipe-ml.svg?branch=master)](https://travis-ci.org/ixa-ehu/ixa-pipe-ml)
+[![GitHub license](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://raw.githubusercontent.com/apache/opennlp/master/LICENSE)
 
-ixa-pipe-nerc is a multilingual Sequence Labeler for tasks such as Named Entity
-Recognition (NERC), Opinion Target Extraction (OTE) and SuperSense Tagging (SST).
-**Current version is 1.6.0**
+ixa-pipe-nerc is a multilingual Named Entity tagger developed within the IXA pipes tools  [http://ixa2.si.ehu.es/ixa-pipes]. **Current version is 2.0.0**
 
-ixa-pipe-nerc is part of IXA pipes, a multilingual set of NLP tools developed
-by the IXA NLP Group [http://ixa2.si.ehu.es/ixa-pipes].
+**Please cite this paper** if you use the tagger:
 
-Please go to [http://ixa2.si.ehu.es/ixa-pipes] for general information about the IXA
-pipes tools but also for **official releases, including source code and binary
-packages for all the tools in the IXA pipes toolkit**.
+R. Agerri, G. Rigau, Robust multilingual Named Entity Recognition with shallow semi-supervised features. Artificial Intelligence, 238 (2016) 63-82. (http://dx.doi.org/10.1016/j.artint.2016.05.003)
+
+Please go to (http://ixa2.si.ehu.es/ixa-pipes) for general information about the IXA pipes tools but also for **official releases, including source code and binary packages for all the tools in the IXA pipes toolkit**.
 
 This document is intended to be the **usage guide of ixa-pipe-nerc**. If you really need to clone
 and install this repository instead of using the releases provided in
 [http://ixa2.si.ehu.es/ixa-pipes], please scroll down to the end of the document for
 the [installation instructions](#installation).
 
-**NOTICE!!**: ixa-pipe-nerc is now in [Maven Central](http://search.maven.org/)
-for easy access to its API.
+ixa-pipe-nerc is in [Maven Central](http://search.maven.org/) for easy access to its API.
 
 ## TABLE OF CONTENTS
 
 1. [Overview of ixa-pipe-nerc](#overview)
   + [Available features](#features)
   + [NERC distributed models](#nerc-models)
-  + [OTE distributed models](#ote-models)
 2. [Usage of ixa-pipe-nerc](#cli-usage)
   + [NERC tagging](#tagging)
-  + [Opinion Target Extraction (OTE)](#ote)
   + [Server mode](#server)
-  + [Training your own models](#training)
-  + [Evaluation](#evaluation)
 3. [API via Maven Dependency](#api)
 4. [Git installation](#installation)
 
 ## OVERVIEW
 
-ixa-pipe-nerc provides:
-
-+ **NERC** for Basque, English, Spanish, Dutch, German and Italian. The named entity types are based on:
+ixa-pipe-nerc provides models for Named Entity Recognition for Basque, Dutch, English, Galician, German, Italian and Spanish. The named entity types are based on:
    + **CONLL**: LOCATION, MISC, ORGANIZATION and PERSON. See [CoNLL 2002](http://www.clips.ua.ac.be/conll2002/ner/) and [CoNLL 2003](http://www.clips.ua.ac.be/conll2003/ner/) for more information.
    + **Evalita 2009**: for Italian, LOCATION, GPE, ORGANIZATION and PERSON.
    + **SONAR-1**: for Dutch, six main types, including CoNLL types plus PRODUCT and EVENT.
    + **Ancora**: for Spanish, six main types, including CoNLL types plus DATE and NUMBER.
-+ **Opinion Target Extraction** (OTE) for English. The models are trained on the SemEval 2014 and 2015 datasets;
-  **ixa-pipe-nerc was the best system** in [SemEval 2015 OTE subtask within task 12](http://alt.qcri.org/semeval2015/task12/).
-+ **SuperSense Tagging** (SST) for English. The models are trained on Semcor.
-
-Every model is self-contained, that is, the prop files are not needed to use them.
-You will find for each model a properties file describing its training although it is
-not needed to run the model. Please see the traininParams.properties template file
-for all available training options and documentation.
 
 We provide competitive models based on robust local features and exploiting unlabeled data
 via clustering features. The clustering features are based on Brown, Clark (2003)
@@ -60,20 +44,12 @@ and Word2Vec clustering plus some gazetteers in some cases.
 To avoid duplication of efforts, we use and contribute to the API provided by the
 [Apache OpenNLP project](http://opennlp.apache.org) with our own custom developed features for each of the three tasks.
 
-### Features
-
-**A description of every feature is provided in the trainParams.properties properties
-file** distributed with ixa-pipe-nerc. As the training functionality is configured in
-properties files, please do check this document. For each model distributed,
-there is a prop file which describes the training of the model, as well as a
-log file which provides details about the evaluation and training process.
-
 ### NERC-Models
 
-Every result in reported here can be reproduced using the evaluation functionality of ixa-pipe-nerc or
-with the [conlleval script](http://www.cnts.ua.ac.be/conll2002/ner/bin/conlleval.txt) using these scripts:
+These models are to be used with the official [IXA pipes 1.1.1 distribution](https://ixa2.si.ehu.es/ixa-pipes).
 
-**Reproducing results with conlleval**: [conlleval-results](http://ixa2.si.ehu.es/ixa-pipes/models/results-conlleval.tar.gz)
+**Reproducing results with conlleval**:
+Every result reported in Agerri and Rigau (2016) can be reproduced with the [conlleval script](http://www.cnts.ua.ac.be/conll2002/ner/bin/conlleval.txt) using the [conlleval-results](http://ixa2.si.ehu.es/ixa-pipes/models/results-conlleval.tar.gz) scripts and the ixa-pipe-nerc contained in the [IXA pipes 1.1.1 distribution](https://ixa2.si.ehu.es/ixa-pipes).
 
 **NERC models**:
 
@@ -91,9 +67,7 @@ in Apache OpenNLP.
   but they get somewhat slower:
     + CoNLL 2003 local + brown features: F1 88.50
     + CoNLL 2003 local + clark features: F1 88.97
-    + CoNLL 2003 light clusters model: F1 90.27
-    + CoNLL 2003 clusters model: F1 90.82
-    + CoNLL 2003 clusters + dicts: F1 91.19
+    + CoNLL 2003 clusters + dicts: F1 91.36
 
   + **Combined models**: trained using Ontonotes 4.0, conll03 and muc 7 data, good for out of domain usage.
 
@@ -112,38 +86,22 @@ in Apache OpenNLP.
 + **Italian Models**:
   + Evalita09 clusters: F1 80.38
 
-### OTE-Models
-
-+ **Latest models**: [ote-models-latest](http://ixa2.si.ehu.es/ixa-pipes/models/ote-models-1.5.0.tgz)
-
-+ **English Models**:
-    + Trained on SemEval 2014 restaurants dataset.
-    + Trained on SemEval 2015 restaurants dataset (ote subtask winner).
-
 ## CLI-USAGE
 
 ixa-pipe-nerc provides a runable jar with the following command-line basic functionalities:
 
 1. **server**: starts a TCP service loading the model and required resources.
 2. **client**: sends a NAF document to a running TCP server.
-2. **tag**: reads a NAF document containing *wf* and *term* elements and tags named
+3. **tag**: reads a NAF document containing *wf* and *term* elements and tags named
    entities.
-2. **ote**: reads a NAF document containing *wf* and *term* elements and performs
-   opinion target extraction (OTE).
-3. **train**: trains new models for NERC, OTE and SST with several options
-   available.
-4. **eval**: evaluates a trained model with a given test set.
-5. **cross**: it performs cross validation on a corpus.
 
-Each of these functionalities are accessible by adding (server|client|tag|ote|train|eval|cross) as a
+Each of these functionalities are accessible by adding (server|client|tag) as a
 subcommand to ixa-pipe-nerc-${version}-exec.jar. Please read below and check the -help
 parameter:
 
 ````shell
-java -jar target/ixa-pipe-nerc-${version}-exec.jar (tag|ote|train|eval|cross) -help
+java -jar target/ixa-pipe-nerc-${version}-exec.jar (tag|server|client) -help
 ````
-**Every option for training is documented in the trainParams.properties file distributed with
-ixa-pipe-nerc**. Please do read that file!!
 
 ### Tagging
 
@@ -169,8 +127,7 @@ There are several options to tag with ixa-pipe-nerc:
 
 + **model**: pass the model as a parameter.
 + **language**: pass the language as a parameter.
-+ **outputFormat**: Output annotation in a format: available CoNLL03, CoNLL02,
-  OpenNLP native format and NAF. It defaults to NAF.
++ **outputFormat**: Output annotation in a format: available CoNLL03, CoNLL02, and NAF. It defaults to NAF.
 + **lexer**: switches on the rule-based DFA for NERC tagging. Currently we only provide
   one option **numeric**, which identifies "numeric entities" such as DATE,
   TIME, MONEY and PERCENT for all the languages currently in ixa-pipe-nerc.
@@ -186,80 +143,18 @@ There are several options to tag with ixa-pipe-nerc:
 ````shell
 cat file.txt | java -jar target/ixa-pipe-tok-$version-exec.jar tok -l en | java -jar ixa-pipe-pos-1.5.0-exec.jar tag -m en-pos-perceptron-autodict01-conll09.bin -lm en-lemma-perceptron-conll09.bin | java -jar $PATH/target/ixa-pipe-nerc-${version}-exec.jar tag -m nerc-models-$version/en/en-local-conll03.bin
 ````
-### OTE
-
-As for NER tagging, the ote requires an input NAF with *wf* and *term* elements:
-
-````shell
-cat file.txt | java -jar target/ixa-pipe-tok-$version-exec.jar tok -l en | java -jar ixa-pipe-pos-1.5.0-exec.jar tag -m en-pos-perceptron-autodict01-conll09.bin -lm en-lemma-perceptron-conll09.bin | java -jar $PATH/target/ixa-pipe-nerc-${version}-exec.jar ote -m model.bin
-````
-
-ixa-pipe-nerc reads NAF documents (with *wf* and *term* elements) via standard input and outputs opinion targets in NAF
-through standard output. The NAF format specification is here:
-
-(http://wordpress.let.vupr.nl/naf/)
-
-You can get the necessary input for ixa-pipe-nerc by piping
-[ixa-pipe-tok](https://github.com/ixa-ehu/ixa-pipe-tok) and
-[ixa-pipe-pos](https://github.com/ixa-ehu/ixa-pipe-pos) as shown in the
-example.
-
-There are several options to tag with ixa-pipe-nerc:
-
-+ **model**: pass the model as a parameter.
-+ **language**: pass the language as a parameter.
-+ **outputFormat**: Output annotation in a format: available OpenNLP native format and NAF. It defaults to NAF.
 
 ### Server
 
 We can start the TCP server as follows:
 
 ````shell
-java -jar target/ixa-pipe-nerc-${version}-exec.jar server -l en --port 2060 -m en-91-18-conll03.bin
+java -jar target/ixa-pipe-nerc-${version}-exec.jar server -l en --port 2060 -m en-model-conll03.bin
 ````
 Once the server is running we can send NAF documents containing (at least) the term layer like this:
 
 ````shell
  cat file.pos.naf | java -jar target/ixa-pipe-nerc-${version}-exec.jar client -p 2060
-````
-
-### Training
-
-To train a new model for NERC, OTE or SST, you just need to pass a training parameters file as an
-argument. As it has been already said, the options are documented in the
-template trainParams.properties file.
-
-**Example**:
-
-````shell
-java -jar target/ixa.pipe.nerc-$version.jar train -p trainParams.properties
-````
-**Training with Features using External Resources**: For training with dictionary or clustering
-based features (Brown, Clark and Word2Vec) you need to pass the lexicon as
-value of the respective feature in the prop file. This is only for training, as
-for tagging or evaluation the model is serialized with all resources included.
-
-### Evaluation
-
-You can evaluate a trained model or a prediction data against a reference data
-or testset.
-
-+ **language**: provide the language.
-+ **model**: if evaluating a model, pass the model.
-+ **testset**: the testset or reference set.
-+ **corpusFormat**: the format of the reference set and of the prediction set
-  if --prediction option is chosen.
-+ **prediction**: evaluate against a  prediction corpus instead of against a
-  model.
-+ **evalReport**: detail of the evaluation report
-  + **brief**: just the F1, precision and recall scores
-  + **detailed**, the F1, precision and recall per class
-  + **error**: the list of false positives and negatives
-
-**Example**:
-
-````shell
-java -jar target/ixa.pipe.nerc-$version.jar eval -m nerc-models-$version/en/en-local-conll03.bin -l en -t conll03.testb
 ````
 
 ## API
@@ -292,30 +187,27 @@ The contents of the module are the following:
     + src/                    java source code of the module and required resources
     + Furthermore, the installation process, as described in the README.md, will generate another directory:
     target/                 it contains binary executable and other directories
-    + trainParams.properties      A template properties file containing documention
-    for every available option
-
 
 ## INSTALLATION
 
 Installing the ixa-pipe-nerc requires the following steps:
 
-If you already have installed in your machine the Java 1.7+ and MAVEN 3, please go to step 3
+If you already have installed in your machine the Java 1.8+ and MAVEN 3, please go to step 3
 directly. Otherwise, follow these steps:
 
-### 1. Install JDK 1.7 or JDK 1.8
+### 1. Install JDK 1.8
 
-If you do not install JDK 1.7+ in a default location, you will probably need to configure the PATH in .bashrc or .bash_profile:
+If you do not install JDK 1.8+ in a default location, you will probably need to configure the PATH in .bashrc or .bash_profile:
 
 ````shell
-export JAVA_HOME=/yourpath/local/java7
+export JAVA_HOME=/yourpath/local/java8
 export PATH=${JAVA_HOME}/bin:${PATH}
 ````
 
 If you use tcsh you will need to specify it in your .login as follows:
 
 ````shell
-setenv JAVA_HOME /usr/java/java17
+setenv JAVA_HOME /usr/java/java18
 setenv PATH ${JAVA_HOME}/bin:${PATH}
 ````
 
@@ -325,26 +217,26 @@ If you re-login into your shell and run the command
 java -version
 ````
 
-You should now see that your JDK is 1.7 or 1.8.
+You should now see that your JDK is 1.8.
 
 ### 2. Install MAVEN 3
 
-Download MAVEN 3 from
+Download MAVEN 3.3.9+ from
 
 ````shell
-wget http://apache.rediris.es/maven/maven-3/3.0.5/binaries/apache-maven-3.0.5-bin.tar.gz
+https://maven.apache.org/download.cgi
 ````
 Now you need to configure the PATH. For Bash Shell:
 
 ````shell
-export MAVEN_HOME=/home/ragerri/local/apache-maven-3.0.5
+export MAVEN_HOME=/home/ragerri/local/apache-maven-3.3.9
 export PATH=${MAVEN_HOME}/bin:${PATH}
 ````
 
 For tcsh shell:
 
 ````shell
-setenv MAVEN3_HOME ~/local/apache-maven-3.0.5
+setenv MAVEN3_HOME ~/local/apache-maven-3.3.9
 setenv PATH ${MAVEN3}/bin:{PATH}
 ````
 
