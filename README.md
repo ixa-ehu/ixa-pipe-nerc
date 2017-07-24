@@ -1,7 +1,7 @@
 
 ixa-pipe-nerc
 =============
-[![Build Status](https://travis-ci.org/ixa-ehu/ixa-pipe-ml.svg?branch=master)](https://travis-ci.org/ixa-ehu/ixa-pipe-ml)
+[![Build Status](https://travis-ci.org/ixa-ehu/ixa-pipe-nerc.svg?branch=master)](https://travis-ci.org/ixa-ehu/ixa-pipe-nerc)
 [![GitHub license](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://raw.githubusercontent.com/apache/opennlp/master/LICENSE)
 
 ixa-pipe-nerc is a multilingual Named Entity tagger developed within the IXA pipes tools  [http://ixa2.si.ehu.es/ixa-pipes]. **Current version is 2.0.0**
