@@ -217,6 +217,8 @@ public class CLI {
       kafToString = annotator.annotateNEsToCoNLL2003(kaf);
     } else if (outputFormat.equalsIgnoreCase("conll02")) {
       kafToString = annotator.annotateNEsToCoNLL2002(kaf);
+    } else if (outputFormat.equalsIgnoreCase("opennlp")) {
+      kafToString = annotator.annotateNEsToOpenNLP(kaf);
     } else {
       kafToString = kaf.toString();
     }
@@ -310,7 +312,7 @@ public class CLI {
         .help(
             "Choose language; it defaults to the language value in incoming NAF file.\n");
     annotateParser.addArgument("-o", "--outputFormat").required(false)
-        .choices("conll03", "conll02", "naf")
+        .choices("conll03", "conll02", "naf", "opennlp")
         .setDefault(Flags.DEFAULT_OUTPUT_FORMAT)
         .help("Choose output format; it defaults to NAF.\n");
     annotateParser.addArgument("--lexer").choices("numeric")

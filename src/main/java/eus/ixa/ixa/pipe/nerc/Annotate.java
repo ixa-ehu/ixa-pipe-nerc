@@ -33,6 +33,7 @@ import eus.ixa.ixa.pipe.ml.nerc.DictionariesNERTagger;
 import eus.ixa.ixa.pipe.ml.nerc.NumericNERTagger;
 import eus.ixa.ixa.pipe.ml.resources.Dictionaries;
 import eus.ixa.ixa.pipe.ml.sequence.SequenceLabel;
+import eus.ixa.ixa.pipe.ml.sequence.SequenceLabelSample;
 import eus.ixa.ixa.pipe.ml.sequence.SequenceLabelerME;
 import eus.ixa.ixa.pipe.ml.utils.Flags;
 import eus.ixa.ixa.pipe.ml.utils.Span;
@@ -498,4 +499,56 @@ public class Annotate {
     }
     return conllType;
   }
+  
+  public final String annotateNEsToOpenNLP(KAFDocument kaf) {
+    StringBuilder sb = new StringBuilder();
+    List<Span> allSpans = null;
+    List<List<WF>> sentences = kaf.getSentences();
+
+    for (List<WF> sentence : sentences) {
+      // process each sentence
+      String[] tokens = new String[sentence.size()];
+      String[] tokenIds = new String[sentence.size()];
+      for (int i = 0; i < sentence.size(); i++) {
+        tokens[i] = sentence.get(i).getForm();
+        tokenIds[i] = sentence.get(i).getId();
+      }
+      if (statistical) {
+        if (clearFeatures.equalsIgnoreCase("docstart")
+            && tokens[0].startsWith("-DOCSTART-")) {
+          nerTagger.clearAdaptiveData();
+        }
+        Span[] statSpans = nerTagger.seqToSpans(tokens);
+        allSpans = Lists.newArrayList(statSpans);
+      }
+      if (postProcess) {
+        Span[] dictSpans = nerTaggerDict.nercToSpansExact(tokens);
+        Span.postProcessDuplicatedSpans(allSpans, dictSpans);
+        Span.concatenateSpans(allSpans, dictSpans);
+      }
+      if (dictTag) {
+        Span[] dictOnlySpans = nerTaggerDict.nercToSpansExact(tokens);
+        allSpans = Lists.newArrayList(dictOnlySpans);
+      }
+      if (lexerTagger) {
+        String sentenceText = StringUtils.getStringFromTokens(tokens);
+        StringReader stringReader = new StringReader(sentenceText);
+        BufferedReader sentenceReader = new BufferedReader(stringReader);
+        numericNerTaggerLexer = new NumericNERTagger(sentenceReader);
+        Span[] numericSpans = numericNerTaggerLexer.nercToSpans(tokens);
+        Span.concatenateSpans(allSpans, numericSpans);
+      }
+      boolean isClearAdaptiveData = false;
+      if (clearFeatures.equalsIgnoreCase("yes")) {
+        isClearAdaptiveData = true;
+      }
+      Span[] allSpansArray = SequenceLabelerME
+          .dropOverlappingSpans(allSpans.toArray(new Span[allSpans.size()]));
+      SequenceLabelSample seqSample = new SequenceLabelSample(tokens, allSpansArray, isClearAdaptiveData);
+      sb.append(seqSample.toString()).append("\n");
+    }
+    nerTagger.clearAdaptiveData();
+    return sb.toString();
+  }
+
 }
