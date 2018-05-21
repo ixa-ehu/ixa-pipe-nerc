@@ -548,7 +548,7 @@ public class Annotate {
       sb.append(seqSample.toString()).append("\n");
     }
     nerTagger.clearAdaptiveData();
-    return sb.toString();
+    return sb.toString().trim();
   }
 
 }
